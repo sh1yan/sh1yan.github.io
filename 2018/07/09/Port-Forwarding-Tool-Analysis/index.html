@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>对某端口转发工具的一次分析 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00在上上一篇文章中就计划对一个端口转发工具进行分析的，但是，由于自己懒的原因就一下子拖了好几个月，后来自己再分析的时候出现了分析的逻辑性错误，所以，求助了老P同志，所以转进入正轨。 工具名是 rtcp.py ，是2009年知道创宇当时写的一个端口转发工具，工具主要是利用python的socket端口转发，代码的整体编写思路非常值得学习。 0x01我一开始是从模块开始分析的，忘记了从运行流程上">
+<meta name="keywords" content="工具分析,端口转发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对某端口转发工具的一次分析">
+<meta property="og:url" content="sh1yan.top/2018/07/09/Port-Forwarding-Tool-Analysis/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00在上上一篇文章中就计划对一个端口转发工具进行分析的，但是，由于自己懒的原因就一下子拖了好几个月，后来自己再分析的时候出现了分析的逻辑性错误，所以，求助了老P同志，所以转进入正轨。 工具名是 rtcp.py ，是2009年知道创宇当时写的一个端口转发工具，工具主要是利用python的socket端口转发，代码的整体编写思路非常值得学习。 0x01我一开始是从模块开始分析的，忘记了从运行流程上">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-05-07T13:18:02.472Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="对某端口转发工具的一次分析">
+<meta name="twitter:description" content="0x00在上上一篇文章中就计划对一个端口转发工具进行分析的，但是，由于自己懒的原因就一下子拖了好几个月，后来自己再分析的时候出现了分析的逻辑性错误，所以，求助了老P同志，所以转进入正轨。 工具名是 rtcp.py ，是2009年知道创宇当时写的一个端口转发工具，工具主要是利用python的socket端口转发，代码的整体编写思路非常值得学习。 0x01我一开始是从模块开始分析的，忘记了从运行流程上">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Port-Forwarding-Tool-Analysis" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/07/09/Port-Forwarding-Tool-Analysis/" class="article-date">
+  <time datetime="2018-07-09T02:40:55.000Z" itemprop="datePublished">2018-07-09</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/脚本编写/">脚本编写</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      对某端口转发工具的一次分析
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2018/07/09/Port-Forwarding-Tool-Analysis/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <h5 id="0x00"><a href="#0x00" class="headerlink" title="0x00"></a>0x00</h5><p>在上上一篇文章中就计划对一个端口转发工具进行分析的，但是，由于自己懒的原因就一下子拖了好几个月，后来自己再分析的时候出现了分析的逻辑性错误，所以，求助了老P同志，所以转进入正轨。</p>
+<p>工具名是 rtcp.py ，是2009年知道创宇当时写的一个端口转发工具，工具主要是利用python的socket端口转发，代码的整体编写思路非常值得学习。</p>
+<h5 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h5><p>我一开始是从模块开始分析的，忘记了从运行流程上来分析，所以出现卡壳了。<br><a id="more"></a><br>完整代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">streams = [<span class="literal">None</span>, <span class="literal">None</span>]  <span class="comment"># 存放需要进行数据转发的两个数据流（都是SocketObj对象）</span></span><br><span class="line">debug = <span class="number">1</span>  <span class="comment"># 调试状态 0 or 1</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_usage</span><span class="params">()</span>:</span> <span class="comment"># 提示用法函数</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">'Usage: ./rtcp.py stream1 stream2\nstream : l:port  or c:host:port'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_get_another_stream</span><span class="params">(num)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    从streams获取另外一个流对象，如果当前为空，则等待</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="keyword">if</span> num == <span class="number">0</span>:</span><br><span class="line">        num = <span class="number">1</span></span><br><span class="line">    <span class="keyword">elif</span> num == <span class="number">1</span>:</span><br><span class="line">        num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> <span class="string">"ERROR"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> streams[num] == <span class="string">'quit'</span>: <span class="comment"># 判断列表里是否 quit</span></span><br><span class="line">            print(<span class="string">"can't connect to the target, quit now!"</span>)</span><br><span class="line">            sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> streams[num] != <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> streams[num]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            time.sleep(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_xstream</span><span class="params">(num, s1, s2)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    交换两个流的数据</span></span><br><span class="line"><span class="string">    num为当前流编号,主要用于调试目的，区分两个回路状态用。</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            <span class="comment"># 注意，recv函数会阻塞，直到对端完全关闭（close后还需要一定时间才能关闭，最快关闭方法是shutdow）</span></span><br><span class="line">            buff = s1.recv(<span class="number">1024</span>)</span><br><span class="line">            <span class="keyword">if</span> debug &gt; <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">print</span> num,<span class="string">"recv"</span></span><br><span class="line">            <span class="keyword">if</span> len(buff) == <span class="number">0</span>: <span class="comment"># 对端关闭连接，读不到数据</span></span><br><span class="line">                <span class="keyword">print</span> num,<span class="string">"one closed"</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            s2.sendall(buff)</span><br><span class="line">            <span class="keyword">if</span> debug &gt; <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">print</span> num,<span class="string">"sendall"</span></span><br><span class="line">    <span class="keyword">except</span> :</span><br><span class="line">        <span class="keyword">print</span> num,<span class="string">"one connect closed."</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        s1.shutdown(socket.SHUT_RDWR)</span><br><span class="line">        s1.close()</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        s2.shutdown(socket.SHUT_RDWR)</span><br><span class="line">        s2.close()</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    streams[<span class="number">0</span>] = <span class="literal">None</span></span><br><span class="line">    streams[<span class="number">1</span>] = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">print</span> num, <span class="string">"CLOSED"</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_server</span><span class="params">(port, num)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    处理服务情况,num为流编号（第0号还是第1号）</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="number">1</span>)</span><br><span class="line">    srv.bind((<span class="string">'0.0.0.0'</span>, port))</span><br><span class="line">    srv.listen(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        conn, addr = srv.accept()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"connected from:"</span>, addr</span><br><span class="line">        streams[num] = conn  <span class="comment"># 放入本端流对象</span></span><br><span class="line">        s2 = _get_another_stream(num)  <span class="comment"># 获取另一端流对象</span></span><br><span class="line">        _xstream(num, conn, s2)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_connect</span><span class="params">(host, port, num)</span>:</span></span><br><span class="line">    <span class="string">'''	处理连接，num为流编号（第0号还是第1号）</span></span><br><span class="line"><span class="string">    @note: 如果连接不到远程，会sleep 36s，最多尝试200(即两小时)</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    not_connet_time = <span class="number">0</span></span><br><span class="line">    wait_time = <span class="number">36</span></span><br><span class="line">    try_cnt = <span class="number">199</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> not_connet_time &gt; try_cnt:</span><br><span class="line">            streams[num] = <span class="string">'quit'</span></span><br><span class="line">            print(<span class="string">'not connected'</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            conn.connect((host, port))</span><br><span class="line">        <span class="keyword">except</span> Exception, e:</span><br><span class="line">            <span class="keyword">print</span> (<span class="string">'can not connect %s:%s!'</span> % (host, port))</span><br><span class="line">            not_connet_time += <span class="number">1</span></span><br><span class="line">            time.sleep(wait_time)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"connected to %s:%i"</span> % (host, port)</span><br><span class="line">        streams[num] = conn  <span class="comment">#放入本端流对象</span></span><br><span class="line">        s2 = _get_another_stream(num) <span class="comment">#获取另一端流对象</span></span><br><span class="line">        _xstream(num, conn, s2)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    <span class="keyword">if</span> len(sys.argv) != <span class="number">3</span>:</span><br><span class="line">        _usage()</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line">    tlist = []  <span class="comment"># 线程列表，最终存放两个线程对象</span></span><br><span class="line">    targv = [sys.argv[<span class="number">1</span>], sys.argv[<span class="number">2</span>] ]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">0</span>, <span class="number">1</span>]:</span><br><span class="line">        s = targv[i]  <span class="comment"># stream描述 c:ip:port 或 l:port</span></span><br><span class="line">        sl = s.split(<span class="string">':'</span>)</span><br><span class="line">        <span class="keyword">if</span> len(sl) == <span class="number">2</span> <span class="keyword">and</span> (sl[<span class="number">0</span>] == <span class="string">'l'</span> <span class="keyword">or</span> sl[<span class="number">0</span>] == <span class="string">'L'</span>):  <span class="comment"># l:port</span></span><br><span class="line">            t = threading.Thread(target=_server, args=(int(sl[<span class="number">1</span>]), i))</span><br><span class="line">            tlist.append(t)</span><br><span class="line">        <span class="keyword">elif</span> len(sl) == <span class="number">3</span> <span class="keyword">and</span> (sl[<span class="number">0</span>] == <span class="string">'c'</span> <span class="keyword">or</span> sl[<span class="number">0</span>] == <span class="string">'C'</span>):  <span class="comment"># c:host:port</span></span><br><span class="line">            t = threading.Thread(target=_connect, args=(sl[<span class="number">1</span>], int(sl[<span class="number">2</span>]), i))</span><br><span class="line">            tlist.append(t)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            _usage()</span><br><span class="line">            sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> tlist:</span><br><span class="line">        t.start()</span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> tlist:</span><br><span class="line">        t.join()</span><br><span class="line">sys.exit(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>0x02</p>
+<p>我们首先看一下用法：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Usage: ./rtcp.py stream1 stream2</span><br><span class="line">stream : l:port  or c:host:port</span><br></pre></td></tr></table></figure>
+<p>那以 python rtcp.py  l:9999  c:192.168.1.1:8022  这样的形式全部分析一下代码的运行流程。</p>
+<p>工具主要使用了 socket ，sys，threading，time，这四个模块。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">streams = [<span class="literal">None</span>, <span class="literal">None</span>] </span><br><span class="line">debug = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>这两个分别是存放数据转发的数据流和调试的开关，关于debug这个很值得学习。</p>
+<p>分析的话，肯定是从 <code>if __name__ == &#39;__main__&#39;:</code> 这里开始的，因为是逆向分析流程，肯定是不能从功能模块直接开始，这样很容易懵逼的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> len(sys.argv) != <span class="number">3</span>:</span><br><span class="line">    _usage()</span><br><span class="line">    sys.exit(<span class="number">1</span>)</span><br><span class="line">tlist = []  <span class="comment"># 线程列表，最终存放两个线程对象</span></span><br><span class="line">targv = [sys.argv[<span class="number">1</span>], sys.argv[<span class="number">2</span>] ]</span><br></pre></td></tr></table></figure>
+<p>先是判断参数是否为三位，如果不是就直接退出，如果是三位就继续进入下面的流程，</p>
+<p>在 <code>targv = [sys.argv[1], sys.argv[2] ]</code>这里其实是把<code>sys.argv[1] = l:9999</code>和<code>sys.argv[2] = c:192.168.1.1:8022</code>分别放进 targ 这个列表里。</p>
+<p>然后开始使用一个for循环去分离出自己想要的参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> [<span class="number">0</span>, <span class="number">1</span>]:</span><br><span class="line">	开始两次循环。</span><br><span class="line"><span class="comment"># 这里第一次循环</span></span><br><span class="line">    s = targv[i]  <span class="comment"># s = targv[0] = sys.argv[1] = l:9999</span></span><br><span class="line">    sl = s.split(<span class="string">':'</span>) <span class="comment"># 以:号进行分割</span></span><br><span class="line">	<span class="string">'''</span></span><br><span class="line"><span class="string">	sl[0] = l</span></span><br><span class="line"><span class="string">	sl[1] = 9999</span></span><br><span class="line"><span class="string">	'''</span></span><br><span class="line">    <span class="keyword">if</span> len(sl) == <span class="number">2</span> <span class="keyword">and</span> (sl[<span class="number">0</span>] == <span class="string">'l'</span> <span class="keyword">or</span> sl[<span class="number">0</span>] == <span class="string">'L'</span>):  </span><br><span class="line">    <span class="comment"># 这里判断分割后的sl长度等于2并且sl[0]等于'l'或者等于'L'的话就进入以下代码</span></span><br><span class="line">        t = threading.Thread(target=_server, args=(int(sl[<span class="number">1</span>]), i))</span><br><span class="line">        <span class="comment">#启动线程，线程目标为：_server，传入的参数为sl[1] = 9999，i = 0</span></span><br><span class="line">        tlist.append(t) <span class="comment">#将线程对象放入tlist中</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">elif</span> len(sl) == <span class="number">3</span> <span class="keyword">and</span> (sl[<span class="number">0</span>] == <span class="string">'c'</span> <span class="keyword">or</span> sl[<span class="number">0</span>] == <span class="string">'C'</span>):  </span><br><span class="line">    <span class="comment"># 这里因为循环第一次sl长度等于2，因此表达式不成立。</span></span><br><span class="line">        t = threading.Thread(target=_connect, args=(sl[<span class="number">1</span>], int(sl[<span class="number">2</span>]), i))</span><br><span class="line">        tlist.append(t)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        _usage()</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 这里第一次循环</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里第二次循环</span></span><br><span class="line">    s = targv[i]  <span class="comment"># s = targv[1] = sys.argv[2] = c:192.168.1.1:8022</span></span><br><span class="line">    sl = s.split(<span class="string">':'</span>) <span class="comment"># 以:号进行分割</span></span><br><span class="line">	<span class="string">'''</span></span><br><span class="line"><span class="string">	sl[0] = c</span></span><br><span class="line"><span class="string">	sl[1] = 192.168.1.1</span></span><br><span class="line"><span class="string">    sl[2] = 8022</span></span><br><span class="line"><span class="string">	'''</span></span><br><span class="line">    <span class="keyword">if</span> len(sl) == <span class="number">2</span> <span class="keyword">and</span> (sl[<span class="number">0</span>] == <span class="string">'l'</span> <span class="keyword">or</span> sl[<span class="number">0</span>] == <span class="string">'L'</span>):  </span><br><span class="line">        <span class="comment"># 这里循环第二次sl长度等于3，因此不成立</span></span><br><span class="line">        t = threading.Thread(target=_server, args=(int(sl[<span class="number">1</span>]), i))</span><br><span class="line">        <span class="comment">#启动线程，线程目标为：_server，传入的参数为sl[1]，与i</span></span><br><span class="line">        tlist.append(t) <span class="comment">#将线程对象放入tlist中</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">elif</span> len(sl) == <span class="number">3</span> <span class="keyword">and</span> (sl[<span class="number">0</span>] == <span class="string">'c'</span> <span class="keyword">or</span> sl[<span class="number">0</span>] == <span class="string">'C'</span>):  </span><br><span class="line">        <span class="comment"># 这里判断分割后的sl长度等于3并且sl[0]等于'c'或者等于'C'的话就进入以下代码</span></span><br><span class="line">        t = threading.Thread(target=_connect, args=(sl[<span class="number">1</span>], int(sl[<span class="number">2</span>]), i))</span><br><span class="line">        <span class="comment">#启动线程，线程目标为：_connect，传入的参数为sl[1] = 192.168.1.1，int(sl[2]) = 8022，i = 1</span></span><br><span class="line">        tlist.append(t)<span class="comment">#将线程对象放入tlist中</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        _usage()</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"><span class="comment"># 这里第二次循环</span></span><br><span class="line"><span class="comment"># 模块结束</span></span><br></pre></td></tr></table></figure>
+<p>这里比较简单就以注释的方法解释一遍。</p>
+<p>0x03</p>
+<p>在多线程那里，首先是进入了<code>_server</code>这个模块，从上面的例子过来，我们知道他传入的是监听端口号，我们先看一下代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_server</span><span class="params">(port, num)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    处理服务情况,num为流编号（第0号还是第1号）</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, <span class="number">1</span>)</span><br><span class="line">    srv.bind((<span class="string">'0.0.0.0'</span>, port))</span><br><span class="line">    srv.listen(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        conn, addr = srv.accept()</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"connected from:"</span>, addr</span><br><span class="line">        streams[num] = conn  <span class="comment"># 放入本端流对象</span></span><br><span class="line">        s2 = _get_another_stream(num)  <span class="comment"># 获取另一端流对象</span></span><br><span class="line">        _xstream(num, conn, s2)</span><br></pre></td></tr></table></figure>
+<p>传入的是两个参数一个是端口号，一个是流编号，也是就是一开始的第一次循环和第二次循环的那个[0,1]，<code>conn, addr = srv.accept()</code>这里的conn是套接字对象，addr是IP地址，<code>streams[num] = conn</code>这个也就是把这个流的套接字放入<code>streams[0]</code>中。</p>
+<p>下面那两行代码一会再分析，继续回归上面那个第二个循环代码。</p>
+<p>0x04</p>
+<p>第二个就是循环的到<code>_connect</code>，也就是客户端，先看下整体代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_connect</span><span class="params">(host, port, num)</span>:</span></span><br><span class="line">    <span class="string">'''	处理连接，num为流编号（第0号还是第1号）</span></span><br><span class="line"><span class="string">    @note: 如果连接不到远程，会sleep 36s，最多尝试200(即两小时)</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    not_connet_time = <span class="number">0</span></span><br><span class="line">    wait_time = <span class="number">36</span></span><br><span class="line">    try_cnt = <span class="number">199</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> not_connet_time &gt; try_cnt:</span><br><span class="line">            streams[num] = <span class="string">'quit'</span></span><br><span class="line">            print(<span class="string">'not connected'</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            conn.connect((host, port))</span><br><span class="line">        <span class="keyword">except</span> Exception, e:</span><br><span class="line">            <span class="keyword">print</span> (<span class="string">'can not connect %s:%s!'</span> % (host, port))</span><br><span class="line">            not_connet_time += <span class="number">1</span></span><br><span class="line">            time.sleep(wait_time)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"connected to %s:%i"</span> % (host, port)</span><br><span class="line">        streams[num] = conn  <span class="comment">#放入本端流对象</span></span><br><span class="line">        s2 = _get_another_stream(num) <span class="comment">#获取另一端流对象</span></span><br><span class="line">        _xstream(num, conn, s2)</span><br></pre></td></tr></table></figure>
+<p>参数主要为三个，分别是host，port，num，也就是IP地址，端口号，流编码，顺着咱们的预设下来，这三个应该分别是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">host = <span class="number">192.168</span><span class="number">.1</span><span class="number">.1</span></span><br><span class="line">port = <span class="number">8022</span></span><br><span class="line">num = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>函数中的not_connet_time，wait_time，try_cnt，这三个变量，主要是用来判别是否存在数据流，和挂载延迟时间，来重复连接的。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> not_connet_time &gt; try_cnt:</span><br><span class="line">    streams[num] = <span class="string">'quit'</span></span><br><span class="line">    print(<span class="string">'not connected'</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">None</span></span><br></pre></td></tr></table></figure>
+<p>从这几行就可以看到，如果没有连接的时间大于挂载的这个时间，就会把<code>quit</code>这个字符串添加到<code>streams[1]</code>里，然后并输出无法连接，然后退出该函数，不再执行下面的代码。</p>
+<p>下面用了异常函数来处理端口IP绑定之间的错误，如果无法访问就会自动挂载sleep（36）秒。</p>
+<p>连接成功的话，就会输出连接成功，并且print出IP地址和端口号，然后这个客户端的数据流对象会放到<code>streams[1]</code>中。</p>
+<p>0x05</p>
+<p>都进行到这里后，就会进入下面两个函数中：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s2 = _get_another_stream(num)  <span class="comment"># 获取另一端流对象</span></span><br><span class="line">_xstream(num, conn, s2)</span><br></pre></td></tr></table></figure>
+<p>在<code>_get_another_stream</code>的后面的注释中，可以知道这是个一个获取另一端流对象的函数，具体是什么流程还是得看代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_get_another_stream</span><span class="params">(num)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    从streams获取另外一个流对象，如果当前为空，则等待</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="keyword">if</span> num == <span class="number">0</span>:</span><br><span class="line">        num = <span class="number">1</span></span><br><span class="line">    <span class="keyword">elif</span> num == <span class="number">1</span>:</span><br><span class="line">        num = <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">raise</span> <span class="string">"ERROR"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        <span class="keyword">if</span> streams[num] == <span class="string">'quit'</span>: <span class="comment"># 判断列表里是否 quit</span></span><br><span class="line">            print(<span class="string">"can't connect to the target, quit now!"</span>)</span><br><span class="line">            sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> streams[num] != <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> streams[num]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            time.sleep(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>num就是一开始我们的 0,1这两个流编号，前面几个判断就是替换下编号，把1改成0，把0改成1，如果都不是就爆异常，raise这个用法执行后，后面的代码将不会继续执行了。</p>
+<p>下面的死循环，显示判断数据流中是否存在 quit ，如果存在就退出，不存在执行下面的代码，如果流对象不为空，就返回交换后的那个流对象。</p>
+<p>而<code>_xstream(num, s1, s2)</code>这个函数，我们可以看到入口处有三个参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">num = 传进来的num值[<span class="number">0</span>,<span class="number">1</span>]</span><br><span class="line">s1 = 传入者自己的流量</span><br><span class="line">s2 = 对方的流量</span><br></pre></td></tr></table></figure>
+<p>其实在上面传入的参数中是<code>_xstream(num, conn, s2)</code>这样的，因为s2是交换数据流以后的函数，所以也就是对方的流量对象。</p>
+<p>下面看一下整体函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_xstream</span><span class="params">(num, s1, s2)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    交换两个流的数据</span></span><br><span class="line"><span class="string">    num为当前流编号,主要用于调试目的，区分两个回路状态用。</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">            <span class="comment"># 注意，recv函数会阻塞，直到对端完全关闭（close后还需要一定时间才能关闭，最快关闭方法是shutdow）</span></span><br><span class="line">            buff = s1.recv(<span class="number">1024</span>)</span><br><span class="line">            <span class="keyword">if</span> debug &gt; <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">print</span> num,<span class="string">"recv"</span></span><br><span class="line">            <span class="keyword">if</span> len(buff) == <span class="number">0</span>: <span class="comment"># 对端关闭连接，读不到数据</span></span><br><span class="line">                <span class="keyword">print</span> num,<span class="string">"one closed"</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            s2.sendall(buff)</span><br><span class="line">            <span class="keyword">if</span> debug &gt; <span class="number">0</span>:</span><br><span class="line">                <span class="keyword">print</span> num,<span class="string">"sendall"</span></span><br><span class="line">    <span class="keyword">except</span> :</span><br><span class="line">        <span class="keyword">print</span> num,<span class="string">"one connect closed."</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        s1.shutdown(socket.SHUT_RDWR)</span><br><span class="line">        s1.close()</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        s2.shutdown(socket.SHUT_RDWR)</span><br><span class="line">        s2.close()</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    streams[<span class="number">0</span>] = <span class="literal">None</span></span><br><span class="line">    streams[<span class="number">1</span>] = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">print</span> num, <span class="string">"CLOSED"</span></span><br></pre></td></tr></table></figure>
+<p>到这里的时候代码就很简单明了了，传入者自己的流量赋值给变量 buff，然后通过s2.sendall(buff)来互相通信流量。</p>
+<p>剩下的都是关闭数据流关闭端口，然后重置下数据，但是我个人太菜了，看这一部分的时候还是有点懵逼，估计我只是细看的原因吧。</p>
+<p>0x06</p>
+<p>整体分析一遍流程，通过外接参数，然后分析使用服务端函数还是使用客户端函数，然后加入到多线程中，如果进入服务端就先创建一个套接字，然后绑定下端口，把本端的流放入到一开始存在的那个列表里，然后使用交换两端的流函数，交换一下， 最后使用通信函数，互相交流流文件。如果是选择的客户端函数，就会先判断流文件中是否存在quit这个退出关键字，如果存在就退出，不存在就绑定IP地址和端口号，继续和上面的服务端函数差不多，互相通信流文件。最后退出时，关闭端口，清空存在流文件的列表。</p>
+<p>这个端口转发脚本，真的值得去学习，感觉对我感触很多，在开发其他一些工具的时候，关于构造的思考。</p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2018/07/09/Port-Forwarding-Tool-Analysis/" data-id="cl64hepfc002tasw13eeouwp6" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/工具分析/">工具分析</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/端口转发/">端口转发</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

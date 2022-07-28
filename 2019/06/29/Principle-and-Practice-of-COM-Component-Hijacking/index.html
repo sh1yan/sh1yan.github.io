@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>COM组件劫持原理与实践 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 在术的道路上，从来都是独善其行，如能结余同行，自当求之不得。 玄幻小说的世界结构，放之现代也是同理，望成之所成，念之所念。 0x01 什么是COM 什么是COM，说白了，就是一堆功能相关的interface，它是某种语言向另一种语言暴露功能的最大单位。 COMcomponent（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。 在CO">
+<meta name="keywords" content="COM组件劫持">
+<meta property="og:type" content="article">
+<meta property="og:title" content="COM组件劫持原理与实践">
+<meta property="og:url" content="sh1yan.top/2019/06/29/Principle-and-Practice-of-COM-Component-Hijacking/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 在术的道路上，从来都是独善其行，如能结余同行，自当求之不得。 玄幻小说的世界结构，放之现代也是同理，望成之所成，念之所念。 0x01 什么是COM 什么是COM，说白了，就是一堆功能相关的interface，它是某种语言向另一种语言暴露功能的最大单位。 COMcomponent（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。 在CO">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\1.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\2.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\3.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\4.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\7.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\5.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\6.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\8.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\9.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\10.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\11.png">
+<meta property="og:updated_time" content="2019-06-29T12:59:45.835Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="COM组件劫持原理与实践">
+<meta name="twitter:description" content="0x00 前言 在术的道路上，从来都是独善其行，如能结余同行，自当求之不得。 玄幻小说的世界结构，放之现代也是同理，望成之所成，念之所念。 0x01 什么是COM 什么是COM，说白了，就是一堆功能相关的interface，它是某种语言向另一种语言暴露功能的最大单位。 COMcomponent（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。 在CO">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Principle-and-Practice-of-COM-Component-Hijacking" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/29/Principle-and-Practice-of-COM-Component-Hijacking/" class="article-date">
+  <time datetime="2019-06-29T13:50:55.000Z" itemprop="datePublished">2019-06-29</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      COM组件劫持原理与实践
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/06/29/Principle-and-Practice-of-COM-Component-Hijacking/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>在术的道路上，从来都是独善其行，如能结余同行，自当求之不得。</p>
+<p>玄幻小说的世界结构，放之现代也是同理，望成之所成，念之所念。</p>
+<p><strong>0x01 什么是COM</strong></p>
+<p>什么是COM，说白了，就是一堆功能相关的interface，它是某种语言向另一种语言暴露功能的最大单位。</p>
+<p>COMcomponent（COM组件）是微软公司为了计算机工业的软件生产更加符合人类的行为方式开发的一种新的软件开发技术。</p>
+<p>在COM构架下，人们可以开发出各种各样的功能专一的组件，然后将它们按照需要组合起来，构成复杂的应用系统。<br><a id="more"></a><br>由此带来的好处是多方面的：可以将系统中的组件用新的替换掉，以便随时进行系统的升级和定制；可以在多个应用系统中重复利用同一个组件；可以方便的将应用系统扩展到网络环境下；COM与语言，平台无关的特性使所有的程序员均可充分发挥自己的才智与专长编写组件模块。</p>
+<p>COM的最核心的思想，说白了就是要做个跨语言的 “class” “object” “function” 。</p>
+<p><strong>0x02 它解决了什么问题</strong></p>
+<p>每一种技术的出现，都是为了解决另一个问题而诞生的。</p>
+<p>1、代码共用问题</p>
+<p>2、版本问题</p>
+<p>3、调用其它软件的功能</p>
+<p>4、所有代码均可以面向对象</p>
+<p>从以上四点可以看出，COM技术可以说是非常强大的一门技术，而且Windows编程也是会用到该技术。</p>
+<p><strong>0x03 什么是CLSID</strong></p>
+<p>当初微软设计com规范的时候，有两种选择来保证用户的设计的com组件可以全球唯一：</p>
+<p>第一种是采用和Internet地址一样的管理方式，成立一个管理机构，用户如果想开发一个COM组件的时候需要向该机构提出申请，并交一定的费用。</p>
+<p>第二种是发明一种算法，每次都能产生一个全球唯一的COM组件标识符。</p>
+<p>第一种方法，用户使用起来太不方便，微软采用第二种方法，并发明了一种算法，这种算法用GUID（Globally Unique Identifiers）来标识COM组件，GUID是一个128位长的数字，一般用16进制表示。算法的核心思想是结合机器的网卡、当地时间、一个随即数来生成GUID。从理论上讲，如果一台机器每秒产生10000000个GUID，则可以保证（概率意义上）3240年不重复。</p>
+<p>GUID的例子： 54BF6567–1007–11D1–B0AA–444553540000</p>
+<p>HKEY_CLASSES_ROOT\CLSID{002B9E07-2E10-438F-AF1E-40E6A96F1EE4}</p>
+<p>在微软的COM中GUID和UUID、CLSID、IID是一回事，只不过各自代表的意义不同：</p>
+<ul>
+<li>UUID  ： 代表COM</li>
+<li>CLSID ： 代表COM组件中的类 </li>
+<li>IID ：代表COM组件中的接口</li>
+</ul>
+<p>在程序中，实际对象数据对应的处理程序路径string往往不尽相同，比如有的放C盘有的D盘，微软想出了一个解决方案，那就是不使用直接的路径表示方法，而使用一个叫 CLSID的方式间接描述这些对象数据的处理程序路径。</p>
+<p>CLSID 其实就是一个号码，CLSID 的结构定义如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">GUID</span> &#123;</span> </span><br><span class="line"> DWORD Data1; <span class="comment">// 随机数 </span></span><br><span class="line"> WORD Data2; <span class="comment">// 和时间相关 </span></span><br><span class="line"> WORD Data3; <span class="comment">// 和时间相关 </span></span><br><span class="line"> BYTE Data4[<span class="number">8</span>]; <span class="comment">// 和网卡MAC相关 </span></span><br><span class="line">&#125; GUID;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> GUID CLSID;  <span class="comment">// 组件ID </span></span><br><span class="line"><span class="keyword">typedef</span> GUID IID;    <span class="comment">// 接口ID </span></span><br><span class="line">\<span class="meta">#<span class="meta-keyword">define</span> REFCLSID const CLSID &amp;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 常见的声明和赋值方法 </span></span><br><span class="line">CLSID CLSID_Excel = &#123;<span class="number">0x00024500</span>,<span class="number">0x0000</span>,<span class="number">0x0000</span>,&#123;<span class="number">0xC0</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x46</span>&#125;&#125;; </span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">declspec</span>(<span class="title">uuid</span>("00024500-0000-0000-<span class="title">C000</span>-000000000046")) <span class="title">CLSID_Excel</span>;</span> </span><br><span class="line"><span class="function">class <span class="title">DECLSPEC_UUID</span><span class="params">(<span class="string">"00024500-0000-0000-C000-000000000046"</span>)</span> CLSID_Excel</span>; </span><br><span class="line"><span class="comment">// 注册表中的表示方法 </span></span><br><span class="line">&#123;<span class="number">00024500</span><span class="number">-0000</span><span class="number">-0000</span>-C000<span class="number">-000000000046</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>下面，我们用python生成一个CLSID：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\shiyan&gt;python3</span><br><span class="line">Python <span class="number">3.7</span><span class="number">.0</span> (v3<span class="number">.7</span><span class="number">.0</span>:<span class="number">1</span>bf9cc5093, Jun <span class="number">27</span> <span class="number">2018</span>, <span class="number">04</span>:<span class="number">59</span>:<span class="number">51</span>) [MSC v<span class="number">.1914</span> <span class="number">64</span> bit (AMD64)] on win32</span><br><span class="line">Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> pythoncom</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(pythoncom.CreateGuid())</span><br><span class="line">&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>0x04 COM组件与注册表关系</strong></p>
+<p>这就要说道COM的调用过程了，通常我们编写好一个COM组件，都需要注册到注册表中（也可以设置不用注册的COM组件，但是一般都是使用的注册方法），这样当我调用COM组件的这个功能的时候，程序会进注册表进行读取相应位置的DLL或者EXE，加载到进程还是线程中来，供我们使用。</p>
+<p>注册表：计算机\HKEY_CLASSES_ROOT\CLSID\{20D04FE0-3AEA-1069-A2D8-08002B30309D}</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\1.png" alt></p>
+<p>这个是“我的电脑”的注册表相关信息。</p>
+<p>而且，我们可以通过 WIN + R 打开运行窗口，输入 ::{20D04FE0-3AEA-1069-A2D8-08002B30309D}    ，来直接打开我的电脑的界面。</p>
+<p>注册表中，LocalServer32键表示可执行（exe）文件的路径、InprocServer32键表示动态链接库（DLL）文件的路径。因为COM函数功能主要是通过这类文件来实现的。</p>
+<p><strong>0x05 实现一个COM组件</strong></p>
+<p>编写COM组件常规的来说，都是通过C++来编写的，然后再注册进注册表，不过我下面是通过python来编写一个COM组件，然后注册进表中。</p>
+<p>DEMO代码如下：</p>
+<p>NAME：testcom.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ShiYanDemo</span><span class="params">(object)</span>:</span></span><br><span class="line">    _public_methods_ = [ <span class="string">'CountNumber'</span> ]</span><br><span class="line">    _reg_progid_ = <span class="string">"ShiYanDemo.CountNumber"</span></span><br><span class="line">    _reg_clsid_ = <span class="string">"&#123;DE6F358D-A750-49D5-9217-196E05B3E2AE&#125;"</span> <span class="comment"># 这里我们使用0x03中生成的clsid码。</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">CountNumber</span><span class="params">(self,number1=<span class="number">0</span>,number2=<span class="number">0</span>)</span>:</span></span><br><span class="line">        count1 = number1 + number2</span><br><span class="line">        <span class="keyword">return</span> count1</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">'__main__'</span>:</span><br><span class="line">    print(<span class="string">"Registering COM server"</span>)</span><br><span class="line">    <span class="keyword">import</span> win32com.server.register</span><br><span class="line">    win32com.server.register.UseCommandLine(ShiYanDemo)</span><br></pre></td></tr></table></figure>
+<p>该DEMO主要的功能就是对number1和number2进行相加，返回两个值相加的和。</p>
+<p>然后我们开始进行注册到注册表中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">E:\shiyanblog\博客草稿文件夹\<span class="number">2</span>_COM组件劫持原理与实践&gt;python3 testcom.py</span><br><span class="line">Registering COM server</span><br><span class="line">Requesting elevation <span class="keyword">and</span> retrying...</span><br><span class="line">Registering COM server</span><br><span class="line">Registered: ShiYanDemo.CountNumber</span><br><span class="line"></span><br><span class="line">E:\shiyanblog\博客草稿文件夹\<span class="number">2</span>_COM组件劫持原理与实践&gt;</span><br></pre></td></tr></table></figure>
+<p>操作相关注册表毕竟属于高危操作，360进行了拦截。</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\2.png" alt></p>
+<p>我们选择放行即可，然后就可以看到注册成功了。</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\3.png" alt></p>
+<p>然后我们进入到注册表中，查看下相关注册的信息。</p>
+<p>计算机\HKEY_CLASSES_ROOT\CLSID\{DE6F358D-A750-49D5-9217-196E05B3E2AE}</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\4.png" alt></p>
+<p>我们把该条注册表信息，导出来，就可以详细的看到相关信息了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">Windows Registry Editor Version <span class="number">5.00</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;]</span><br><span class="line"><span class="meta">@="ShiYanDemo.CountNumber"</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\Debugging]</span><br><span class="line"><span class="meta">@="0"</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\Implemented Categories]</span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\Implemented Categories\&#123;B3EF80D0<span class="number">-68E2</span><span class="number">-11</span>D0-A689<span class="number">-00</span>C04FD658FF&#125;]</span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\InprocServer32]</span><br><span class="line"><span class="meta">@="pythoncom37.dll"</span></span><br><span class="line"><span class="string">"ThreadingModel"</span>=<span class="string">"both"</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\LocalServer32]</span><br><span class="line"><span class="meta">@="D:\\python3\\pythonw.exe \"D:\\python3\\lib\\site-packages\\win32com\\server\\localserver.py\" &#123;DE6F358D-A750-49D5-9217-196E05B3E2AE&#125;"</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\ProgID]</span><br><span class="line"><span class="meta">@="ShiYanDemo.CountNumber"</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\PythonCOM]</span><br><span class="line"><span class="meta">@="testcom.ShiYanDemo"</span></span><br><span class="line"></span><br><span class="line">[HKEY_CLASSES_ROOT\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\PythonCOMPath]</span><br><span class="line"><span class="meta">@="E:\\shiyanblog\\博客草稿文件夹\\2_COM组件劫持原理与实践"</span></span><br></pre></td></tr></table></figure>
+<p>按照常规的来说，COM组件都是C++编写的DLL或者EXE，这里我们是使用了python，所以相关注册信息和常规的有点不一样。</p>
+<p>不过还是能看出来：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">InprocServer32：pythoncom37.dll</span><br><span class="line"></span><br><span class="line">LocalServer32：D:\\python3\\pythonw.exe \<span class="string">"D:\\python3\\lib\\site-packages\\win32com\\server\\localserver.py\" &#123;DE6F358D-A750-49D5-9217-196E05B3E2AE&#125;</span></span><br></pre></td></tr></table></figure>
+<p>通过 “pythoncom37.dll” 和 “pythonw.exe” 来解释加载我们的 “E:\shiyanblog\博客草稿文件夹\2_COM组件劫持原理与实践 ”目录下 testcom 文件里 ShiYanDemo.CountNumber 类函数功能。</p>
+<p>下面我们简单的使用下这个COM组件的功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">E:\shiyanblog\博客草稿文件夹\<span class="number">2</span>_COM组件劫持原理与实践&gt;python3</span><br><span class="line">Python <span class="number">3.7</span><span class="number">.0</span> (v3<span class="number">.7</span><span class="number">.0</span>:<span class="number">1</span>bf9cc5093, Jun <span class="number">27</span> <span class="number">2018</span>, <span class="number">04</span>:<span class="number">59</span>:<span class="number">51</span>) [MSC v<span class="number">.1914</span> <span class="number">64</span> bit (AMD64)] on win32</span><br><span class="line">Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> win32com.client</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = win32com.client.Dispatch(<span class="string">"ShiYanDemo.CountNumber"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.CountNumber()</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.CountNumber(<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line"><span class="number">3</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\7.png" alt></p>
+<p>那我们用Excel中的VBA写一个调用看看吧！</p>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> vbacom()</span><br><span class="line">    <span class="keyword">Dim</span> Demonumber</span><br><span class="line">    <span class="keyword">Set</span> Demonumber = CreateObject(<span class="string">"ShiYanDemo.CountNumber"</span>)</span><br><span class="line"></span><br><span class="line">    Sheet1.Cells(<span class="number">4</span>, <span class="number">3</span>) = Demonumber.CountNumber(<span class="number">1</span>, <span class="number">3</span>)</span><br><span class="line">    Sheet1.Cells(<span class="number">5</span>, <span class="number">3</span>) = Demonumber.CountNumber(<span class="number">5</span>, <span class="number">6</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p>效果如下：</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\5.png" alt></p>
+<p><strong>0x06 COM劫持原理</strong></p>
+<p>前面介绍了这么多，终于到正题上来了。</p>
+<p>COM劫持，从根本上来说，就是在程序读取注册表信息中的DLL或者EXE功能的路径上，做一个拦截，让程序提前读取我们的设置好的恶意DLL或者EXE。原理其实和DLL劫持差不多。</p>
+<p>读取顺序如下：</p>
+<ol>
+<li>HKEY_CURRENT_USER\Software\Classes\CLSID</li>
+<li>HKEY_CLASSES_ROOT\CLSID</li>
+<li>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\ShellCompatibility\Objects\</li>
+</ol>
+<p>我们来实际看一下程序读取注册表的顺序：</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\6.png" alt></p>
+<p>最上面的那个加载的CLSID是可以忽略的，应该默认注册本身不会注册到那里，而是注册HKEY_CLASSES_ROOT\CLSID 这个路径下，而通过截图同可以看到：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">HKCU\Software\Classes\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;    NAME NOT FOUND</span><br><span class="line">HKCR\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;   SUCCESS</span><br></pre></td></tr></table></figure>
+<p>加载第一行是没有找见相关信息的，但是在第二行的时候，找见了相关信息，故此，这个就是一个可以劫持的过程。我们只需要把需要劫持的相关路径注册到第一行中，等程序再次加载时，就会达到劫持效果。</p>
+<p><strong>0x07 实现一个COM劫持</strong></p>
+<p>继续沿用上面的 demo 来做为一个演示。</p>
+<p>因为我们知道demo中，相关核心的功能参数在 testcom.py 中，我们只需要劫持该文件的访问路径，即可达到一个COM劫持的效果</p>
+<p>首先，看一下程序加载 PythonCOMPath 路径的顺序：</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\8.png" alt></p>
+<p>可以看到在加载默认一个路径时，显示的为未找到，但是在第二个默认路径中，是找到的。</p>
+<p>那我们只需要把劫持的文件路径注册到第一个默认表中，即可。</p>
+<p>NAME：劫持DemoCom.reg</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Windows Registry Editor Version <span class="number">5.00</span></span><br><span class="line"></span><br><span class="line">[HKEY_CURRENT_USER\Software\Classes\CLSID\&#123;DE6F358D-A750<span class="number">-49</span>D5<span class="number">-9217</span><span class="number">-196E05</span>B3E2AE&#125;\PythonCOMPath]</span><br><span class="line"><span class="meta">@="E:\\"</span></span><br></pre></td></tr></table></figure>
+<p>NAME：E:\\ testcom.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ShiYanDemo</span><span class="params">(object)</span>:</span></span><br><span class="line">    _public_methods_ = [ <span class="string">'CountNumber'</span> ]</span><br><span class="line">    _reg_progid_ = <span class="string">"ShiYanDemo.CountNumber"</span></span><br><span class="line">    _reg_clsid_ = <span class="string">"&#123;DE6F358D-A750-49D5-9217-196E05B3E2AE&#125;"</span></span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">CountNumber</span><span class="params">(self,number1=<span class="number">0</span>,number2=<span class="number">0</span>)</span>:</span></span><br><span class="line">        count1 = number1 * number2</span><br><span class="line">        <span class="keyword">return</span> count1</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">'__main__'</span>:</span><br><span class="line">    print(<span class="string">"Registering COM server"</span>)</span><br><span class="line">    <span class="keyword">import</span> win32com.server.register</span><br><span class="line">    win32com.server.register.UseCommandLine(ShiYanDemo)</span><br></pre></td></tr></table></figure>
+<p>这里，我把核心函数的功能变成了 number1 乘以 number2 ，然后返回两个数据的积。</p>
+<p>此时，我们双击下我们写好的劫持注册表 “劫持DemoCom.reg”，然后系统会提示注册成功，我们去注册表中看一下。</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\9.png" alt></p>
+<p>可以看到，我们已经注册成功，下面开始瞎几把劫持中。。。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\shiyan&gt;python3</span><br><span class="line">Python <span class="number">3.7</span><span class="number">.0</span> (v3<span class="number">.7</span><span class="number">.0</span>:<span class="number">1</span>bf9cc5093, Jun <span class="number">27</span> <span class="number">2018</span>, <span class="number">04</span>:<span class="number">59</span>:<span class="number">51</span>) [MSC v<span class="number">.1914</span> <span class="number">64</span> bit (AMD64)] on win32</span><br><span class="line">Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> win32com.client</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a = win32com.client.Dispatch(<span class="string">"ShiYanDemo.CountNumber"</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a.CountNumber(<span class="number">3</span>,<span class="number">3</span>)</span><br><span class="line"><span class="number">9</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\10.png" alt></p>
+<p>可以看到，我们已经劫持成功了，我们再从加载注册表的这个过程看一下吧。</p>
+<p><img src="http:\\sh1yan.top\photo\Principle-and-Practice-of-COM-Component-Hijacking\11.png" alt></p>
+<p>通过截图，可以看出，加载第一个默认路径时，已经成功了。</p>
+<p>以上就是COM劫持的原理和实践。</p>
+<p><strong>0x08 等等，清除下小尾巴</strong></p>
+<p>这个注册表DEMO，对我们来说，只是一个演示使用，演示结束，肯定要清尾的。</p>
+<p>一般来说，我们都是通过手工的去删除这个，不过手动删除可能存在删不全，所以可以使用以下方式进行清除。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">E:\shiyanblog\博客草稿文件夹\<span class="number">2</span>_COM组件劫持原理与实践&gt;python3 testcom.py --unregister</span><br><span class="line">Registering COM server</span><br><span class="line">Requesting elevation <span class="keyword">and</span> retrying...</span><br><span class="line">Registering COM server</span><br><span class="line">Unregistered: ShiYanDemo.CountNumber</span><br><span class="line"></span><br><span class="line">E:\shiyanblog\博客草稿文件夹\<span class="number">2</span>_COM组件劫持原理与实践&gt;</span><br></pre></td></tr></table></figure>
+<p>这下已经清除了，很干净，干净的那种。</p>
+<p><strong>0x09 思路扩展</strong></p>
+<p>通过上面的案例，我们已经可以理解了COM劫持的原理，但是劫持就只限于提前吗？</p>
+<p>答案，肯定不是的。</p>
+<p>1、通过使用相关脚本工具，扫描出工作站本身缺少的或者遗留的空COM组件路径，放置我们自己恶意的文件。</p>
+<p>2、直接修改原由路径加载的文件，为其它路径下的文件。</p>
+<p>3、或者直接替换原由路径下的文件，这个是最简单的。</p>
+<p>不过以上的操作，都是需要高权限账号才行，所以故用在权限维持上比较多。</p>
+<p><strong>0x10 参考文章</strong></p>
+<p>[1] <a href="https://github.com/Micropoor/Micro8/blob/master/%E7%AC%AC%E4%B8%80%E7%99%BE%E4%B8%80%E5%8D%81%E4%B8%89%E8%AF%BE%EF%BC%9ACOM%20Hijacking.pdf" target="_blank" rel="noopener">https://github.com/Micropoor/Micro8/blob/master/%E7%AC%AC%E4%B8%80%E7%99%BE%E4%B8%80%E5%8D%81%E4%B8%89%E8%AF%BE%EF%BC%9ACOM%20Hijacking.pdf</a><br>[2] <a href="http://www.cppblog.com/bigsml/archive/2008/08/14/58851.html" target="_blank" rel="noopener">http://www.cppblog.com/bigsml/archive/2008/08/14/58851.html</a><br>[3] <a href="http://www.icodeguru.com/WebServer/Python-Programming-on-Win32/ch12.htm" target="_blank" rel="noopener">http://www.icodeguru.com/WebServer/Python-Programming-on-Win32/ch12.htm</a><br>[4] <a href="https://www.cnblogs.com/vedgtar/p/5355284.html" target="_blank" rel="noopener">https://www.cnblogs.com/vedgtar/p/5355284.html</a><br>[5] <a href="https://www.zhihu.com/question/49433640" target="_blank" rel="noopener">https://www.zhihu.com/question/49433640</a><br>[6] <a href="https://www.zhihu.com/question/53350764" target="_blank" rel="noopener">https://www.zhihu.com/question/53350764</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/06/29/Principle-and-Practice-of-COM-Component-Hijacking/" data-id="cl64hepfg002yasw12unce0w0" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/COM组件劫持/">COM组件劫持</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

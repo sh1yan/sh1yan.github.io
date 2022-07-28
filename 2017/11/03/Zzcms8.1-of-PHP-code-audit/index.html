@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>PHP代码审计之ZZCMS8.1 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="前言： 很早就想搞代码审计了，但是一直觉得自己其他方面还差很多，所以一直在各种补，虽说学的还没忘的快。这次选择ZZCMS8.1主要是当初，这个CMS自从离心小姐姐审计了一番后，然后我就看到吐司也有人审计，很多地方都开始审计，我就纳闷了，为啥会有这么多人审计，，，，离心给我说，估计是因为这是ZZCMS吧。。。 0X01 HTTP head SQL injection用户登录处和管理员后台登录处都是用">
+<meta name="keywords" content="PHP,CMS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP代码审计之ZZCMS8.1">
+<meta property="og:url" content="sh1yan.top/2017/11/03/Zzcms8.1-of-PHP-code-audit/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="前言： 很早就想搞代码审计了，但是一直觉得自己其他方面还差很多，所以一直在各种补，虽说学的还没忘的快。这次选择ZZCMS8.1主要是当初，这个CMS自从离心小姐姐审计了一番后，然后我就看到吐司也有人审计，很多地方都开始审计，我就纳闷了，为啥会有这么多人审计，，，，离心给我说，估计是因为这是ZZCMS吧。。。 0X01 HTTP head SQL injection用户登录处和管理员后台登录处都是用">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-02-06T05:37:55.117Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PHP代码审计之ZZCMS8.1">
+<meta name="twitter:description" content="前言： 很早就想搞代码审计了，但是一直觉得自己其他方面还差很多，所以一直在各种补，虽说学的还没忘的快。这次选择ZZCMS8.1主要是当初，这个CMS自从离心小姐姐审计了一番后，然后我就看到吐司也有人审计，很多地方都开始审计，我就纳闷了，为啥会有这么多人审计，，，，离心给我说，估计是因为这是ZZCMS吧。。。 0X01 HTTP head SQL injection用户登录处和管理员后台登录处都是用">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Zzcms8.1-of-PHP-code-audit" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/11/03/Zzcms8.1-of-PHP-code-audit/" class="article-date">
+  <time datetime="2017-11-03T03:50:55.000Z" itemprop="datePublished">2017-11-03</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/代码审计/">代码审计</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      PHP代码审计之ZZCMS8.1
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2017/11/03/Zzcms8.1-of-PHP-code-audit/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p>前言：</p>
+<p>很早就想搞代码审计了，但是一直觉得自己其他方面还差很多，所以一直在各种补，虽说学的还没忘的快。这次选择ZZCMS8.1主要是当初，这个CMS自从离心小姐姐审计了一番后，然后我就看到吐司也有人审计，很多地方都开始审计，我就纳闷了，为啥会有这么多人审计，，，，离心给我说，估计是因为这是ZZCMS吧。。。</p>
+<p><strong>0X01</strong></p>
+<h5 id="HTTP-head-SQL-injection"><a href="#HTTP-head-SQL-injection" class="headerlink" title="HTTP head SQL injection"></a>HTTP head SQL injection</h5><p>用户登录处和管理员后台登录处都是用的同样的代码，所以都是可以注射的。</p>
+<p>G:\zzcms8.1\user\logincheck.php   18行—23行</p>
+<p>G:\zzcms8.1\admin\logincheck.php   19行—24行<br><a id="more"></a><br><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ip=getip();</span><br><span class="line">$sql=<span class="string">"select * from zzcms_login_times where ip='$ip' and count&gt;='"</span>.trytimes.<span class="string">"' and unix_timestamp()-unix_timestamp(sendtime)&lt;"</span>.jgsj.<span class="string">" "</span>;</span><br><span class="line">$rs = query($sql);  <span class="comment">//执行一条 MySQL 查询</span></span><br><span class="line">$row= num_rows($rs);  <span class="comment">//返回结果集中行的数量</span></span><br></pre></td></tr></table></figure></p>
+<p>然后跟进一下 getip()  函数</p>
+<p>G:\zzcms8.1\inc\function.php   72行—84行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getip</span><span class="params">()</span></span>&#123; </span><br><span class="line">	<span class="keyword">if</span> (getenv(<span class="string">"HTTP_CLIENT_IP"</span>) &amp;&amp; strcasecmp(getenv(<span class="string">"HTTP_CLIENT_IP"</span>), <span class="string">"unknown"</span>)) </span><br><span class="line">		$ip = getenv(<span class="string">"HTTP_CLIENT_IP"</span>);  <span class="comment">//getenv() 获取一个环境变量的值</span></span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (getenv(<span class="string">"HTTP_X_FORWARDED_FOR"</span>) &amp;&amp; strcasecmp(getenv(<span class="string">"HTTP_X_FORWARDED_FOR"</span>), <span class="string">"unknown"</span>))   <span class="comment">//strcasecmp() 比较两个字符串（不区分大小写）,如果一直返回0，否则根据情况返回正负相差的数</span></span><br><span class="line">		$ip = getenv(<span class="string">"HTTP_X_FORWARDED_FOR"</span>); </span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (getenv(<span class="string">"REMOTE_ADDR"</span>) &amp;&amp; strcasecmp(getenv(<span class="string">"REMOTE_ADDR"</span>), <span class="string">"unknown"</span>)) </span><br><span class="line">		$ip = getenv(<span class="string">"REMOTE_ADDR"</span>); </span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">isset</span>($_SERVER[<span class="string">'REMOTE_ADDR'</span>]) &amp;&amp; $_SERVER[<span class="string">'REMOTE_ADDR'</span>] &amp;&amp; strcasecmp($_SERVER[<span class="string">'REMOTE_ADDR'</span>], <span class="string">"unknown"</span>)) </span><br><span class="line">		$ip = $_SERVER[<span class="string">'REMOTE_ADDR'</span>]; </span><br><span class="line">	<span class="keyword">else</span> </span><br><span class="line">		$ip = <span class="string">"unknown"</span>; </span><br><span class="line">	<span class="keyword">return</span>($ip); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，我们可以看出，HTTP_CLIENT_IP 和 HTTP_X_FORWARDED_FOR 都是可以自己伪造的，并且没有任何限制，所以，这就是一个明显的注入点。</p>
+<p>我们就验证下常用的 HTTP_X_FORWARDED_FOR ，来构造下注入语句，测试下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-Forwarded-For: <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span><span class="string">' and sleep(10) and '</span><span class="number">1</span><span class="string">'='</span><span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>在用户登录处或者后台管理页面登录处，用 burp 抓包下，添加下上句的 payload ，然后就可以看出页面延时了10秒，从而证明存在注入。</p>
+<p><strong>0X02</strong></p>
+<h5 id="Reflected-XSS"><a href="#Reflected-XSS" class="headerlink" title="Reflected XSS"></a>Reflected XSS</h5><p>在根目录的 uploadimg_form.php 文件里，存在两处没有任何过滤的可控输入输出。</p>
+<p>G:\zzcms8.1\uploadimg_form.php   66行—67行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;input name=<span class="string">"noshuiyin"</span> type=<span class="string">"hidden"</span> id=<span class="string">"noshuiyin"</span> value=<span class="string">"&lt;?php echo @$_GET['noshuiyin']?&gt;"</span> /&gt;</span><br><span class="line">&lt;input name=<span class="string">"imgid"</span> type=<span class="string">"hidden"</span> id=<span class="string">"imgid"</span> value=<span class="string">"&lt;?php echo @$_GET['imgid']?&gt;"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p>可以看出可控参数 noshuiyin 和 imgid 都没有任何过滤，所以我们的 payload 只需要闭合下标签就可以达到攻击效果。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">uploadimg_form.php?noshuiyin="&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;</span><br><span class="line">uploadimg_form.php?imgid="&gt;&lt;script&gt;alert(document.cookie)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>这个文件也没有权限控制跳转，所以可以直接弹出弹框。</p>
+<p><strong>0X03</strong></p>
+<h5 id="Storage-type-XSS"><a href="#Storage-type-XSS" class="headerlink" title="Storage type XSS"></a>Storage type XSS</h5><p>G:\zzcms8.1\one\link.php   7行—21行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_REQUEST[<span class="string">"action"</span>])==<span class="string">"add"</span>)&#123;</span><br><span class="line">	checkyzm($_POST[<span class="string">"yzm"</span>]);</span><br><span class="line">	session_write_close();</span><br><span class="line">	$sitename = <span class="keyword">isset</span>($_POST[<span class="string">'sitename'</span>])?$_POST[<span class="string">'sitename'</span>]:<span class="string">""</span>;</span><br><span class="line">	$url = <span class="keyword">isset</span>($_POST[<span class="string">'url'</span>])?addhttp($_POST[<span class="string">'url'</span>]):<span class="string">""</span>;</span><br><span class="line">	$logo = <span class="keyword">isset</span>($_POST[<span class="string">'logo'</span>])?addhttp($_POST[<span class="string">'logo'</span>]):<span class="string">""</span>;</span><br><span class="line">	$content = <span class="keyword">isset</span>($_POST[<span class="string">'content'</span>])?$_POST[<span class="string">'content'</span>]:<span class="string">""</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> ($sitename==<span class="string">''</span>||$url==<span class="string">''</span>||$logo==<span class="string">''</span>||$content==<span class="string">''</span>)&#123;</span><br><span class="line">    	showmsg(<span class="string">'请完整填写您的信息'</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	query(<span class="string">"insert into zzcms_link (sitename,url,logo,content,sendtime)values('$sitename','$url','$logo','$content','"</span>.date(<span class="string">'Y-m-d H:i:s'</span>).<span class="string">"')"</span>);</span><br><span class="line">	showmsg(<span class="string">'操作成功！提示：提交申请后，请做好本站链接——如果没有增加本站的链接，那么你的申请是不会被通过的。'</span>,<span class="string">'link.php'</span>) ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，这里只对 sitename，url，logo，content 这四个参数判断了一下是否存在和是否为空，然后就存到数据库里了，没有进行任何过滤和其它的验证。</p>
+<p>G:\zzcms8.1\admin\linkmanage.php   127行—140行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">      $rsn=query(<span class="string">"select bigclassname from zzcms_linkclass where bigclassid="</span>.$row[<span class="string">"bigclassid"</span>].<span class="string">" "</span>);</span><br><span class="line">      $rown=fetch_array($rsn); <span class="comment">//从结果集中取得一行作为数字数组或关联数组</span></span><br><span class="line">      <span class="keyword">echo</span> $rown[<span class="string">"bigclassname"</span>]<span class="meta">?&gt;</span>&lt;/a&gt;&lt;/td&gt;</span><br><span class="line">      &lt;td&gt;&lt;b&gt;<span class="meta">&lt;?php</span> <span class="keyword">echo</span> $row[<span class="string">"sitename"</span>]<span class="meta">?&gt;</span>&lt;/b&gt;&lt;br&gt; </span><br><span class="line">        &lt;a href=<span class="string">"&lt;?php echo $row["</span>url<span class="string">"]?&gt;"</span> target=<span class="string">"_blank"</span>&gt;<span class="meta">&lt;?php</span> <span class="keyword">echo</span> $row[<span class="string">"url"</span>]<span class="meta">?&gt;</span>&lt;/a&gt;&lt;br&gt; </span><br><span class="line">        <span class="meta">&lt;?php</span> <span class="keyword">if</span> ($row[<span class="string">"logo"</span>]&lt;&gt;<span class="string">""</span>)&#123;<span class="meta">?&gt;</span></span><br><span class="line">        &lt;img src=<span class="string">"&lt;?php echo $row["</span>logo<span class="string">"]?&gt;"</span> width=<span class="string">"150"</span> height=<span class="string">"50"</span>&gt; </span><br><span class="line">        <span class="meta">&lt;?php</span> &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">          <span class="keyword">echo</span> <span class="string">"未填写LOGO地址"</span>;</span><br><span class="line">          &#125;</span><br><span class="line">         <span class="meta">?&gt;</span>      &lt;/td&gt;</span><br><span class="line">      &lt;td&gt;<span class="meta">&lt;?php</span> <span class="keyword">echo</span> $row[<span class="string">"content"</span>]<span class="meta">?&gt;</span>&lt;/td&gt;</span><br><span class="line">      &lt;td&gt;<span class="meta">&lt;?php</span> <span class="keyword">echo</span> $row[<span class="string">"sendtime"</span>]<span class="meta">?&gt;</span>&lt;/td&gt;</span><br></pre></td></tr></table></figure>
+<p>在输出的界面代码中也没有任何过滤，所以，这就造成了一个储存型XSS漏洞。</p>
+<p>好吧，出现了玄学问题，，，从 link.php 文件里存到数据库的那四个参数，其中 “ &gt; &lt; 都被实体编码了，好玄学，，，那总得出来个审计出来个储存把？</p>
+<p>G:\zzcms8.1\admin\link_save.php   21行—43行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">$FriendSiteName=trim($_REQUEST[<span class="string">"sitename"</span>]); </span><br><span class="line">$url=addhttp(trim($_REQUEST[<span class="string">"url"</span>]));</span><br><span class="line">$logo=addhttp(trim($_REQUEST[<span class="string">"logo"</span>]));</span><br><span class="line">$content=trim($_REQUEST[<span class="string">"content"</span>]);</span><br><span class="line"><span class="comment">//trim()移除字符串左侧的字符 默认（"\0"-NULL ，"\t"-制表符，"\n"-换行，"\x0B"-垂直制表符，"\r"-回车，" "-空格）</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">"passed"</span>]))&#123;</span><br><span class="line">	$passed=$_POST[<span class="string">"passed"</span>];</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">	$passed=<span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>($_POST[<span class="string">"elite"</span>]))&#123;</span><br><span class="line">	$elite=$_POST[<span class="string">"elite"</span>];</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">	$elite=<span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> ($_REQUEST[<span class="string">"action"</span>]==<span class="string">"add"</span>)&#123;</span><br><span class="line">	query(<span class="string">"INSERT INTO zzcms_link (bigclassid,sitename,url,logo,content,passed,elite,sendtime)VALUES('$classid','$FriendSiteName','$url','$logo','$content','$passed','$elite','"</span>.date(<span class="string">'Y-m-d H:i:s'</span>).<span class="string">"')"</span>);</span><br><span class="line">&#125;<span class="keyword">elseif</span> ($_REQUEST[<span class="string">"action"</span>]==<span class="string">"modify"</span>) &#123;</span><br><span class="line">	$id=$_POST[<span class="string">"id"</span>];</span><br><span class="line">	query(<span class="string">"update zzcms_link set bigclassid='$classid',sitename='$FriendSiteName',url='$url',logo='$logo',content='$content',passed='$passed',elite='$elite',sendtime='"</span>.date(<span class="string">'Y-m-d H:i:s'</span>).<span class="string">"' where id='$id'"</span>);   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个是管理后台页面的添加友联，代码和上面的差不多，基本一样，那这里总不会出现玄学问题了吧？</p>
+<p>我们从这里插入常见的 payload ，<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>。</p>
+<p>恩，成功的弹出来了。</p>
+<p><strong>0X04</strong></p>
+<h5 id="Reload-vulnerability"><a href="#Reload-vulnerability" class="headerlink" title="Reload vulnerability"></a>Reload vulnerability</h5><p>G:\zzcms8.1\install\index.php   11行/51行—90行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">$step = <span class="keyword">isset</span>($_POST[<span class="string">'step'</span>]) ? $_POST[<span class="string">'step'</span>] : <span class="number">1</span>;</span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">switch</span>($step) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'1'</span>:<span class="comment">//协议</span></span><br><span class="line">        <span class="keyword">include</span> <span class="string">'step_'</span>.$step.<span class="string">'.php'</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'2'</span>:<span class="comment">//环境</span></span><br><span class="line">        $pass = <span class="keyword">true</span>;</span><br><span class="line">        $PHP_VERSION = PHP_VERSION;</span><br><span class="line">        <span class="keyword">if</span>(version_compare($PHP_VERSION, <span class="string">'4.3.0'</span>, <span class="string">'&lt;'</span>)) &#123;</span><br><span class="line">            $php_pass = $pass = <span class="keyword">false</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $php_pass = <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        $PHP_MYSQL = <span class="string">''</span>;</span><br><span class="line">        <span class="keyword">if</span>(extension_loaded(<span class="string">'mysql'</span>)) &#123;</span><br><span class="line">            $PHP_MYSQL = <span class="string">'支持'</span>;</span><br><span class="line">            $mysql_pass = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $PHP_MYSQL = <span class="string">'不支持'</span>;</span><br><span class="line">            $mysql_pass = $pass = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        $PHP_GD = <span class="string">''</span>;</span><br><span class="line">        <span class="keyword">if</span>(function_exists(<span class="string">'imagejpeg'</span>)) $PHP_GD .= <span class="string">'jpg'</span>;</span><br><span class="line">        <span class="keyword">if</span>(function_exists(<span class="string">'imagegif'</span>)) $PHP_GD .= <span class="string">' gif'</span>;</span><br><span class="line">        <span class="keyword">if</span>(function_exists(<span class="string">'imagepng'</span>)) $PHP_GD .= <span class="string">' png'</span>;</span><br><span class="line">        <span class="keyword">if</span>($PHP_GD) &#123;</span><br><span class="line">            $gd_pass = <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            $gd_pass = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        $PHP_URL = @get_cfg_var(<span class="string">"allow_url_fopen"</span>);<span class="comment">//是否支持远程URL，采集有用</span></span><br><span class="line">        $url_pass = $PHP_URL ? <span class="keyword">true</span> : <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">include</span> <span class="string">'step_'</span>.$step.<span class="string">'.php'</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'3'</span>:<span class="comment">//查目录属性</span></span><br><span class="line">        <span class="keyword">include</span> <span class="string">'step_'</span>.$step.<span class="string">'.php'</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">'4'</span>:<span class="comment">//建数据库</span></span><br><span class="line">        <span class="keyword">include</span> <span class="string">'step_'</span>.$step.<span class="string">'.php'</span>;</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+<p>这个ZZCMS也是通过 install.lock 来判断是否已经安装了的，然后我们根据上面的代码可以看出 step 参数如果为空的话，就默认从 1 开始，然后我们跟进下 step_1.php 这个文件。</p>
+<p>G:\zzcms8.1\install\step_1.php   1行—5行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span>(file_exists(<span class="string">"install.lock"</span>))&#123;</span><br><span class="line">	<span class="keyword">echo</span> <span class="string">"&lt;div style='padding:30px;'&gt;安装向导已运行安装过，如需重安装，请删除 /install/install.lock 文件&lt;/div&gt;"</span>;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这个文件里判断了当前目录下是否存在 install.lock 文件，如果存在就提示已经安装了，那继续看下 step_2.php 的内容。</p>
+<p>G:\zzcms8.1\install\step_2.php   1行—3行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="keyword">if</span>(@$step==<span class="number">2</span>)&#123;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里没有继续判断是否存在 install.lock 文件，那继续看下剩下的 step_3/4.php 里有没有判断条件。</p>
+<p>G:\zzcms8.1\install\step_3.php   1行—5行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span>(@$step==<span class="number">3</span>)&#123;</span><br><span class="line">	$token = md5(uniqid(rand(), <span class="keyword">true</span>));  <span class="comment">//uniqid() 函数基于以微秒计的当前时间，生成一个唯一的 ID。</span></span><br><span class="line">	$_SESSION[<span class="string">'token'</span>]= $token; </span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>G:\zzcms8.1\install\step_4.php   1行—9行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">if</span>(@$step==<span class="number">4</span>)&#123;</span><br><span class="line">	<span class="keyword">if</span> ($_POST[<span class="string">'token'</span>] != $_SESSION[<span class="string">'token'</span>] || $_POST[<span class="string">'token'</span>]==<span class="string">''</span> )&#123;    </span><br><span class="line">		<span class="keyword">echo</span> <span class="string">"非法提交"</span>.$_POST[<span class="string">'token'</span>].<span class="string">"&lt;br&gt;"</span>.$_SESSION[<span class="string">'token'</span>];</span><br><span class="line">		<span class="keyword">exit</span>();</span><br><span class="line">		<span class="comment">//&#125;else&#123;</span></span><br><span class="line">		<span class="comment">//unset($_SESSION['token']);</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>step_3.php 这个文件里也没有判断是否存在 install.lock 这个文件，只不过在 session 里添加了一个随机 token ，然后 step_4.php 文件里也没有判断 install.lock ，只是验证了一下在 3 里的那个 token ，所以，3 到 4 这个步骤不能越过，但是，这是个重装漏洞是妥妥的了。</p>
+<p>我们只需要进入 install\index.php  路劲文件下，POST 一下 2 ，然后按顺序走下去就重装了这个CMS。</p>
+<p><strong>0X05</strong></p>
+<p>这个CMS后台管理处，还有一堆储存型XSS。。。。</p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2017/11/03/Zzcms8.1-of-PHP-code-audit/" data-id="cl64hepfn003aasw1wnfvxj2z" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CMS/">CMS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PHP/">PHP</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

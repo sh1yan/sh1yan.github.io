@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Java序列化机制探究 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。">
+<meta name="keywords" content="JavaWeb,序列化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java序列化机制探究">
+<meta property="og:url" content="sh1yan.top/2020/06/07/Java-serialization-mechanism/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Java-serialization-mechanism\1.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Java-serialization-mechanism\2.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Java-serialization-mechanism\3.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Java-serialization-mechanism\4.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Java-serialization-mechanism\5.png">
+<meta property="og:updated_time" content="2020-06-07T12:24:03.048Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java序列化机制探究">
+<meta name="twitter:description" content="0x00 前言 序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\Java-serialization-mechanism\1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Java-serialization-mechanism" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/07/Java-serialization-mechanism/" class="article-date">
+  <time datetime="2020-06-07T15:50:55.000Z" itemprop="datePublished">2020-06-07</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞复现/">漏洞复现</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java序列化机制探究
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2020/06/07/Java-serialization-mechanism/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。<br><a id="more"></a><br><strong>0x01 什么是序列化</strong></p>
+<p>序列化是指把一个Java对象变成二进制内容，本质上就是一个byte[]数组。</p>
+<p>序列化后可以把byte[]保存到文件中，或者把byte[]通过网络传输到远程，这样，就相当于把Java对象存储到文件或者通过网络传输出去了。</p>
+<p>有序列化，就有反序列化，即把一个二进制内容（也就是byte[]数组）变回Java对象。有了反序列化，保存到文件中的byte[]数组又可以“变回”Java对象，或者从网络上读取byte[]并把它“变回”Java对象。</p>
+<p><strong>0x02 序列化有什么作用</strong></p>
+<p>根据原理特点，可以归纳为一下三点：</p>
+<p>（1）永久性保存对象，保存对象的字节序列到本地文件或者数据库中；</p>
+<p>（2）通过序列化以字节流的形式使对象在网络中进行传递和接收；</p>
+<p>（3）通过序列化在进程间传递对象；</p>
+<p>具体的一些应用场景：</p>
+<p>（A） http参数，cookie，sesion，存储方式可能是base64（rO0），压缩后的base64（H4sl），MII等</p>
+<p>（B） Servlets HTTP，Sockets，Session管理器 包含的协议就包括JMX，RMI，JMS，JNDI等（\xac\xed）</p>
+<p>（C）  xml Xstream,XMLDecoder等（HTTP Body：Content-Type:application/xml）</p>
+<p>（D） json(Jackson，fastjson) http请求中包含</p>
+<p><strong>0x03 序列化机制的特性</strong></p>
+<p>在使用序列化时需要注意以下几个特性：</p>
+<p>1、Java对象如果需要进行序列化，必须实现一个特殊的<strong>java.io.Serializable</strong>接口。{</p>
+<p>Serializable接口没有定义任何方法，它是一个空接口。我们把这样的空接口称为“标记接口”（Marker Interface），实现了标记接口的类仅仅是给自身贴了个“标记”，并没有增加任何方法；</p>
+<p>}</p>
+<p>2、反序列化时，由JVM直接构造出Java对象，<strong>不调用构造方法</strong>，构造方法内部的代码，在反序列化时根本不可能执行。</p>
+<p>3、若可序列化的类的成员不是基本类型，也不是String类型，那这个<strong>引用类型也必须是可序列化</strong>的（引用的这个类也必须继承Serializable接口）。</p>
+<p>4、Java序列化同一对象，并<strong>不会将此对象序列化多次得到多个对象</strong>。{</p>
+<p>Java序列化算法：</p>
+<p>① 有保存到磁盘的对象都有一个序列化编码号；</p>
+<p>② 当程序试图序列化一个对象时，会先检查此对象是否已经序列化过，只有此对象从未（在此虚拟机）被序列化过，才会将此对象序列化为字节序列输出；</p>
+<p>③ 如果此对象已经序列化过，则直接输出编号即可；</p>
+<p>}</p>
+<p>5、如果序列化一个可变对象（对象内的内容可更改）后，<strong>更改了对象内容，再次序列化，并不会再次将此对象转换为字节序列，而只是保存序列化编号</strong>。</p>
+<p>6、<strong>被transient关键字修饰的字段，将不会被序列化</strong>。{</p>
+<p>使用transient修饰的属性，java序列化时，会忽略掉此字段，所以反序列化出的对象，被transient修饰的属性是默认值。对于引用类型，值是null；基本类型，值是0；boolean类型，值是false；</p>
+<p>}</p>
+<p>7、如果该类的<strong>某个属性标识为static类型的，则该属性不能序列化</strong>。</p>
+<p>8、若被序列化的类有父类，则存在以下几种情况。{</p>
+<p>① 如果该父类已经实现了可序列化接口，则其父类的相应字段及属性的处理和该类相同；</p>
+<p>② 如果该类的父类没有实现可序列化接口，则该类的父类所有的字段属性将不会序列化，并且反序列化时会调用父类的默认构造函数来初始化父类的属性，而子类却不调用默认构造函数，而是直接从流中恢复属性的值； </p>
+<p>③ <strong>当一个父类实现序列化，子类自动实现序列化，不需要显式实现Serializable接口</strong>；</p>
+<p>}</p>
+<p><strong>0x04 实现序列化的过程</strong></p>
+<p><strong>1、把java对象进行序列化</strong></p>
+<p>① 创建一个被序列化对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">文件名：Person.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">	  <span class="keyword">private</span> String name;</span><br><span class="line">	  <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">	  <span class="comment">//不提供无参构造器</span></span><br><span class="line">	  <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">		  System.out.println(<span class="string">"若出现该提示，则说明构造函数被执行了"</span>);</span><br><span class="line">	      <span class="keyword">this</span>.name = name;</span><br><span class="line">	      <span class="keyword">this</span>.age = age;</span><br><span class="line">	  &#125;</span><br><span class="line"></span><br><span class="line">	  <span class="meta">@Override</span></span><br><span class="line">	  <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	      <span class="keyword">return</span> <span class="string">"Person&#123;"</span> +</span><br><span class="line">	              <span class="string">"name='"</span> + name + <span class="string">'\''</span> +</span><br><span class="line">	              <span class="string">", age="</span> + age +</span><br><span class="line">	              <span class="string">'&#125;'</span>;</span><br><span class="line">	  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>② 创建一个ObjectOutputStream输出流；并调用ObjectOutputStream对象的writeObject输出可序列化对象到本地文件中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">文件名：WriteObject.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WriteObject</span> </span>&#123;</span><br><span class="line">	  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	      <span class="keyword">try</span> (<span class="comment">//创建一个ObjectOutputStream输出流</span></span><br><span class="line">	           ObjectOutputStream oos = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"object.txt"</span>))) &#123;</span><br><span class="line">	          <span class="comment">//将对象序列化到文件s</span></span><br><span class="line">	          Person person = <span class="keyword">new</span> Person(<span class="string">"shiyan"</span>, <span class="number">1</span>);</span><br><span class="line">	          oos.writeObject(person);</span><br><span class="line">	          oos.flush();</span><br><span class="line">	          oos.close();</span><br><span class="line">	      &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">	          e.printStackTrace();</span><br><span class="line">	      &#125;<span class="keyword">finally</span>&#123;</span><br><span class="line">	    	  System.out.println(<span class="string">"文件已被序列化写入本地文件中"</span>);</span><br><span class="line">	      &#125;  </span><br><span class="line">	  </span><br><span class="line">	  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>③ 控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">反序列化，你调用我了吗？</span><br><span class="line">文件已被序列化写入本地文件中</span><br></pre></td></tr></table></figure>
+<p>此时文件已被成功写入本地文件中，我们打开看一下文件内容。</p>
+<p><img src="http:\\sh1yan.top\photo\Java-serialization-mechanism\1.png" alt></p>
+<p><img src="http:\\sh1yan.top\photo\Java-serialization-mechanism\2.png" alt></p>
+<p><strong>2、反序列化读取java对象内容</strong></p>
+<p>① 创建一个ObjectInputStream输入流，然后调用ObjectInputStream对象的readObject()得到序列化的对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WriteObject</span> </span>&#123;</span><br><span class="line">	  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">	      </span><br><span class="line">         ObjectInputStream ois = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"object.txt"</span>));</span><br><span class="line">         Person brady = (Person) ois.readObject();</span><br><span class="line">         System.out.println(brady);</span><br><span class="line">	      </span><br><span class="line">	  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>② 控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Person&#123;name=<span class="string">'shiyan'</span>, age=<span class="number">1</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>注：从这里可以看出来在反序列化的时候并不会被执行构造函数的代码。</p>
+<p><strong>0x05 自定义序列化过程</strong></p>
+<p>该章节一共有三个部分，分别是：常规自定义、另一种自定义、强制自定义。</p>
+<p><strong>1. 常规自定义</strong></p>
+<p>java提供了可选的自定义序列化。可以进行控制序列化的方式，或者对序列化数据进行其它操作等。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeObject</span><span class="params">(java.io.ObjectOutputStream out)</span> <span class="keyword">throws</span> IOException；</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObject</span><span class="params">(java.io.ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException</span>;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObjectNoData</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException</span>;</span><br><span class="line"><span class="comment">// 当序列化流不完整时，readObjectNoData()方法可以用来正确地初始化反序列化的对象。例如，使用不同类接收反序列化对象，或者序列化流被篡改时，系统都会调用readObjectNoData()方法来初始化反序列化的对象。</span></span><br></pre></td></tr></table></figure>
+<p>通过重写writeObject与readObject方法，可以自己选择哪些属性需要序列化， 哪些属性不需要。如果writeObject使用某种规则序列化，则相应的readObject需要相反的规则反序列化，以便能正确反序列化出对象。</p>
+<p>1、创建一个可被序列化的类，并且重写其中的writeObject与readObject方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">文件名：OverrideClass.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OverrideClass</span> <span class="keyword">implements</span> <span class="title">Serializable</span>  </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> String name;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">OverrideClass</span><span class="params">()</span></span>&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name = name;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">readObject</span><span class="params">(java.io.ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException</span>&#123;</span><br><span class="line">		in.defaultReadObject(); <span class="comment">//调用原始的readOject方法</span></span><br><span class="line">		Runtime.getRuntime().exec(<span class="string">"calc"</span>);</span><br><span class="line">		System.out.println(<span class="string">"重写readObject函数"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">writeObject</span><span class="params">(java.io.ObjectOutputStream out)</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		out.defaultWriteObject();</span><br><span class="line">		System.out.println(<span class="string">"重写writeObject函数"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2、对该类进行序列化写入文件，并再反序列化读取内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">文件名：ReaderClass.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderClass</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ObjectOutputStream Ar1 = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"shiyan.txt"</span>));</span><br><span class="line">        OverrideClass Ar2 = <span class="keyword">new</span> OverrideClass();</span><br><span class="line">        Ar2.setName(<span class="string">"shiyan"</span>);</span><br><span class="line">        Ar1.writeObject(Ar2);</span><br><span class="line">        Ar1.flush();</span><br><span class="line">        Ar1.close();</span><br><span class="line">        System.out.println(<span class="string">"---------分割线-------------"</span>);</span><br><span class="line">        </span><br><span class="line">        ObjectInputStream Br1 = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"shiyan.txt"</span>));</span><br><span class="line">        OverrideClass Br2 = (OverrideClass) Br1.readObject();</span><br><span class="line">        System.out.println(Br2.getName());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">重写writeObject函数</span><br><span class="line">---------分割线-------------</span><br><span class="line">重写readObject函数</span><br><span class="line">shiyan</span><br></pre></td></tr></table></figure>
+<p>4、效果图：</p>
+<p><img src="http:\\sh1yan.top\photo\Java-serialization-mechanism\3.png" alt></p>
+<p><strong>2. 另一种自定义</strong></p>
+<p>除了上述常规的自定义还有一种自定义方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ANY-ACCESS-<span class="function">MODIFIER Object <span class="title">writeReplace</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException</span>;</span><br><span class="line">ANY-ACCESS-<span class="function">MODIFIER Object <span class="title">readResolve</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException</span>;</span><br></pre></td></tr></table></figure>
+<p>writeReplace：在序列化时，会先调用此方法，再调用writeObject方法。此方法可将任意对象代替目标序列化对象。</p>
+<p>readResolve：反序列化时替换反序列化出的对象，反序列化出来的对象被立即丢弃。此方法在readeObject后调用。</p>
+<p>注意：readResolve与writeReplace的访问修饰符可以是private、protected、public，如果父类重写了这两个方法，子类都需要根据自身需求重写，这显然不是一个好的设计。通常建议对于final修饰的类重写readResolve方法没有问题；否则，重写readResolve使用private修饰。</p>
+<p>1、创建一个可被序列化的类，并且重写其中的readResolve与writeReplace方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">文件名：OverrideClass1.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectStreamException;</span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OverrideClass1</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> String name;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">OverrideClass1</span><span class="params">()</span></span>&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name = name;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> Object <span class="title">readResolve</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException,IOException</span>&#123;</span><br><span class="line">		Runtime.getRuntime().exec(<span class="string">"calc"</span>);</span><br><span class="line">		System.out.println(<span class="string">"重写readResolve函数"</span>);</span><br><span class="line">		OverrideClass1 Dr1 = <span class="keyword">new</span> OverrideClass1();</span><br><span class="line">		String Dr2 = <span class="string">"读取的本地序列化对象，已经被替换为自定义的Dr1了"</span>;</span><br><span class="line">		Dr1.setName(Dr2);</span><br><span class="line">		<span class="keyword">return</span> Dr1;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">private</span> Object <span class="title">writeReplace</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException</span>&#123;</span><br><span class="line">		OverrideClass1 Cr1 = <span class="keyword">new</span> OverrideClass1();</span><br><span class="line">		Cr1.name = <span class="string">"原始将被写入的对象已经变成自定义的Cr1了"</span>;</span><br><span class="line">		System.out.println(<span class="string">"重写writeReplace函数"</span>);</span><br><span class="line">		<span class="keyword">return</span> Cr1;</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2、对该类进行序列化写入文件，并再反序列化读取内容；这里需要注意的是因为readResolve与writeReplace方法的是相冲突的，在实际运行时我们要注释一掉1个，才能测试出具体的变化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">文件名：ReaderClass1.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderClass1</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ObjectOutputStream Ar1 = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"shiyan1.txt"</span>));</span><br><span class="line">        OverrideClass1 Ar2 = <span class="keyword">new</span> OverrideClass1();</span><br><span class="line">        Ar2.setName(<span class="string">"shiyan"</span>);</span><br><span class="line">        Ar1.writeObject(Ar2);</span><br><span class="line">        Ar1.flush();</span><br><span class="line">        Ar1.close();</span><br><span class="line">        System.out.println(<span class="string">"---------分割线-------------"</span>);</span><br><span class="line">        </span><br><span class="line">        ObjectInputStream Br1 = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"shiyan1.txt"</span>));</span><br><span class="line">        OverrideClass1 Br2 = (OverrideClass1) Br1.readObject();</span><br><span class="line">        System.out.println(Br2.getName());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、控制台输出结果：</p>
+<p>注释掉 writeReplace() 的运行结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">---------分割线-------------</span><br><span class="line">重写readResolve函数</span><br><span class="line">读取的本地序列化对象，已经被替换为自定义的Dr1了</span><br></pre></td></tr></table></figure>
+<p>效果图：</p>
+<p><img src="http:\\sh1yan.top\photo\Java-serialization-mechanism\4.png" alt></p>
+<p>注释掉 readResolve() 的运行结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">重写writeReplace函数</span><br><span class="line">---------分割线-------------</span><br><span class="line">原始将被写入的对象已经变成自定义的Cr1了</span><br></pre></td></tr></table></figure>
+<p><strong>3. 强制自定义</strong></p>
+<p>通过实现Externalizable接口，必须实现writeExternal、readExternal方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">文件名（接口文档）：Externalizable.class</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Externalizable</span> <span class="keyword">extends</span> <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span> </span>&#123;</span><br><span class="line">     <span class="function"><span class="keyword">void</span> <span class="title">writeExternal</span><span class="params">(ObjectOutput out)</span> <span class="keyword">throws</span> IOException</span>;</span><br><span class="line">     <span class="function"><span class="keyword">void</span> <span class="title">readExternal</span><span class="params">(ObjectInput in)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：Externalizable接口不同于Serializable接口，实现此接口必须实现接口中的两个方法实现自定义序列化，这是强制性的；特别之处是必须提供pulic的无参构造器，因为在反序列化的时候需要反射创建对象。其次使用Externalizable时，必须按照写入时的确切顺序读取所有字段状态。否则会产生异常。例如，如果更改继承该Externalizable的Demo类中的name和age属性的读取顺序，则将抛出java.io.EOFException。而Serializable接口没有这个要求。</p>
+<p>1、创建一个可被序列化的类，并且重写其中的readExternal与writeExternal方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">文件名：OverrideClass2.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Externalizable;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInput;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutput;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OverrideClass2</span> <span class="keyword">implements</span> <span class="title">Externalizable</span> </span>&#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> String name;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">OverrideClass2</span><span class="params">()</span></span>&#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name = name;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">writeExternal</span><span class="params">(ObjectOutput out)</span> <span class="keyword">throws</span> IOException</span>&#123;</span><br><span class="line">		out.writeObject(name);</span><br><span class="line">		System.out.println(<span class="string">"----执行 writeExternal 方法------"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">readExternal</span><span class="params">(ObjectInput in)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException</span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name=(String)in.readObject();</span><br><span class="line">		System.out.println(<span class="string">"----执行 readExternal 方法------"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">		</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2、对该类进行序列化写入文件，并再反序列化读取内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">文件名：ReaderClass2.java</span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> serialize_test;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.FileInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.FileOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderClass2</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ObjectOutputStream Ar1 = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(<span class="string">"shiyan2.txt"</span>));</span><br><span class="line">        OverrideClass2 Ar2 = <span class="keyword">new</span> OverrideClass2();</span><br><span class="line">        Ar2.setName(<span class="string">"shiyan"</span>);</span><br><span class="line">        Ar1.writeObject(Ar2);</span><br><span class="line">        Ar1.flush();</span><br><span class="line">        Ar1.close();</span><br><span class="line">        System.out.println(<span class="string">"---------分割线-------------"</span>);</span><br><span class="line">        </span><br><span class="line">        ObjectInputStream Br1 = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(<span class="string">"shiyan2.txt"</span>));</span><br><span class="line">        OverrideClass2 Br2 = (OverrideClass2) Br1.readObject();</span><br><span class="line">        System.out.println(Br2.getName());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3、控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">----执行 writeExternal 方法------</span><br><span class="line">---------分割线-------------</span><br><span class="line">----执行 readExternal 方法------</span><br><span class="line">shiyan</span><br></pre></td></tr></table></figure>
+<p><strong>0x06 什么是 serialVersionUID</strong></p>
+<p>serialVersionUID适用于java序列化机制。简单来说，JAVA序列化的机制是通过判断类的serialVersionUID来验证的版本一致的。在进行反序列化时，JVM会把传来的字节流中的serialVersionUID于本地相应实体类的serialVersionUID进行比较。如果相同说明是一致的，可以进行反序列化，否则会出现反序列化版本一致的异常，即是InvalidCastException。</p>
+<p>具体的序列化过程：序列化操作的时候系统会把当前类的serialVersionUID写入到序列化文件中，当反序列化时系统会去检测文件中的serialVersionUID，判断它是否与当前类的serialVersionUID一致，如果一致就说明序列化类的版本与当前类版本是一样的，可以反序列化成功，否则失败。</p>
+<p>serialVersionUID有两种显示的生成方式 {    </p>
+<p>一是默认的1L，比如：private static final long serialVersionUID = 1L;        </p>
+<p>二是根据类名、接口名、成员方法及属性等来生成一个64位的哈希字段，比如：        </p>
+<p>private static final  long   serialVersionUID = xxxxL;</p>
+<p>}</p>
+<p><strong>0x07 反序列攻击时序图</strong></p>
+<p>序列化的机制到这里已经了解的差不多了，下面贴一张<a href="http://xxlegend.com/" target="_blank" rel="noopener">廖新喜</a>大佬在某次安全大会上的反序列攻击时序图，做为一个漏洞攻击了解。</p>
+<p><img src="http:\\sh1yan.top\photo\Java-serialization-mechanism\5.png" alt></p>
+<p><strong>0x08 参考文章</strong></p>
+<p>[1]  <a href="https://www.cnblogs.com/9dragon/p/10901448.html" target="_blank" rel="noopener">https://www.cnblogs.com/9dragon/p/10901448.html</a></p>
+<p>[2] <a href="https://www.liaoxuefeng.com/wiki/1252599548343744/1298366845681698" target="_blank" rel="noopener">https://www.liaoxuefeng.com/wiki/1252599548343744/1298366845681698</a></p>
+<p>[3] <a href="http://xxlegend.com/2018/06/20/%E5%85%88%E7%9F%A5%E8%AE%AE%E9%A2%98%20Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E6%88%98%20%E8%A7%A3%E8%AF%BB/" target="_blank" rel="noopener">http://xxlegend.com/2018/06/20/%E5%85%88%E7%9F%A5%E8%AE%AE%E9%A2%98%20Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E6%88%98%20%E8%A7%A3%E8%AF%BB/</a></p>
+<p>[4] <a href="http://code2sec.com/javafan-xu-lie-hua-lou-dong-xue-xi-shi-jian-yi-cong-serializbalejie-kou-kai-shi-xian-dan-ge-ji-suan-qi.html" target="_blank" rel="noopener">http://code2sec.com/javafan-xu-lie-hua-lou-dong-xue-xi-shi-jian-yi-cong-serializbalejie-kou-kai-shi-xian-dan-ge-ji-suan-qi.html</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2020/06/07/Java-serialization-mechanism/" data-id="cl64hepge004fasw1dk5fjfaj" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaWeb/">JavaWeb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/序列化/">序列化</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

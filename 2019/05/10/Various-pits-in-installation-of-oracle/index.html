@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Oracle安装使用中的各种坑 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。 0x01 本机版本+安装包 Windows 10 专业版 64位">
+<meta name="keywords" content="Oracle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle安装使用中的各种坑">
+<meta property="og:url" content="sh1yan.top/2019/05/10/Various-pits-in-installation-of-oracle/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。 0x01 本机版本+安装包 Windows 10 专业版 64位">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\1.png">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\2.png">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\3.png">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\4.png">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\5.png">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\6.png">
+<meta property="og:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\7.png">
+<meta property="og:updated_time" content="2019-05-11T01:28:16.676Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Oracle安装使用中的各种坑">
+<meta name="twitter:description" content="0x00 前言 前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。 0x01 本机版本+安装包 Windows 10 专业版 64位">
+<meta name="twitter:image" content="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Various-pits-in-installation-of-oracle" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/10/Various-pits-in-installation-of-oracle/" class="article-date">
+  <time datetime="2019-05-10T15:23:55.000Z" itemprop="datePublished">2019-05-10</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/数据库/">数据库</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Oracle安装使用中的各种坑
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/05/10/Various-pits-in-installation-of-oracle/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。</p>
+<p><strong>0x01 本机版本+安装包</strong></p>
+<p>Windows 10 专业版 64位<br><a id="more"></a><br>百度云盘：链接: <a href="https://pan.baidu.com/s/1Fmq83CsSABeiedUPj8PR6w" target="_blank" rel="noopener">https://pan.baidu.com/s/1Fmq83CsSABeiedUPj8PR6w</a> 提取码: c862 </p>
+<p>官网下载地址：<a href="https://www.oracle.com/technetwork/cn/database/enterprise-edition/downloads/index.html" target="_blank" rel="noopener">https://www.oracle.com/technetwork/cn/database/enterprise-edition/downloads/index.html</a></p>
+<p>通过云盘下载的话，把两个压缩包都解压下，因为目录名都是database所以会，自动合并到一个文件夹里。</p>
+<p><strong>0x02 安装前的配置坑</strong></p>
+<p>解压完成，进去 stage/cvu/ 目录的 cvu_prereq.xml  文件里，用notepad++</p>
+<p>①在第81行进行插入以下语句：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">OPERATING_SYSTEM</span> <span class="attr">RELEASE</span>=<span class="string">"6.2"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">VERSION</span> <span class="attr">VALUE</span>=<span class="string">"3"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ARCHITECTURE</span> <span class="attr">VALUE</span>=<span class="string">"64-bit"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">NAME</span> <span class="attr">VALUE</span>=<span class="string">"Windows 10"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ENV_VAR_LIST</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ENV_VAR</span> <span class="attr">NAME</span>=<span class="string">"PATH"</span> <span class="attr">MAX_LENGTH</span>=<span class="string">"2023"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ENV_VAR_LIST</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">OPERATINGSYSTEM</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>参照截图：</p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\1.png" alt></p>
+<p><em>添加该段代码为，防止安装时提示电脑配置不满足最低要求。</em></p>
+<p>②配置NET Framework3.5</p>
+<p>我也不知道为什么配置，但是这个也配置完，完成安装无压力，无坑完毕。</p>
+<p>Windows10打开控制面板方式：</p>
+<p>win+x，选择搜索，输入控制面板</p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\2.png" alt></p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\3.png" alt></p>
+<p>然后走以下流程：</p>
+<p>控制面板→程序→程序和功能→启用或关闭Windows功能</p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\4.png" alt></p>
+<p>选择开启.net framework 3.5分组下面的全部，按图中所示即可。</p>
+<p>其它的按步骤安装就可以了，就是双击 setup.exe 即可。</p>
+<p><strong>0x03 Oracle数据库修改编码坑</strong></p>
+<p>一般来说，安装好的Oracle默认是 ZHS16GBK 编码，但是由于我们的需要导入的数据室UTF-8时，可能就会乱码，应该是这个问题，所以需要修改编码。</p>
+<p>首先查看自己的数据库现在的编码：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> userenv(<span class="string">'language'</span>) <span class="keyword">from</span> dual</span><br></pre></td></tr></table></figure>
+<p>假如需要修改为utf-8的编码开始执行下面的语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlplus / as sysdba</span><br></pre></td></tr></table></figure>
+<p>在命令行执行以上语句（不是在pl\sql中，而是cmd命令行）</p>
+<p>进入到sqlplus之后，按照下面给出的命令依次执行即可</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">SQL&gt;connect  / as sysdba</span><br><span class="line"></span><br><span class="line">SQL&gt;SHUTDOWN IMMEDIATE</span><br><span class="line"></span><br><span class="line">SQL&gt;connect  / as sysdba</span><br><span class="line"></span><br><span class="line">SQL&gt;STARTUP MOUNT</span><br><span class="line"></span><br><span class="line">SQL&gt;ALTER SYSTEM ENABLE RESTRICTED SESSION;</span><br><span class="line"></span><br><span class="line">SQL&gt;ALTER SYSTEM SET JOB_QUEUE_PROCESSES=0;</span><br><span class="line"></span><br><span class="line">SQL&gt;ALTER SYSTEM SET AQ_TM_PROCESSES=0;</span><br><span class="line"></span><br><span class="line">SQL&gt;ALTER DATABASE OPEN;</span><br><span class="line"></span><br><span class="line">SQL&gt; ALTER DATABASE CHARACTER SET AL32UTF8 ;</span><br><span class="line"></span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">DATABASE</span> <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> AL32UTF8</span><br><span class="line"></span><br><span class="line">*<span class="keyword">ERROR</span> <span class="keyword">at</span> line <span class="number">1</span>:</span><br><span class="line"></span><br><span class="line">ORA<span class="number">-12712</span>: <span class="keyword">new</span> <span class="built_in">character</span> <span class="keyword">set</span> must be a superset <span class="keyword">of</span> <span class="keyword">old</span> <span class="built_in">character</span> <span class="keyword">set</span></span><br><span class="line"></span><br><span class="line">报字符集不兼容，此时下INTERNAL_USE指令不对字符集超集进行检查：</span><br><span class="line"></span><br><span class="line"><span class="keyword">SQL</span>&gt;<span class="keyword">ALTER</span> <span class="keyword">DATABASE</span> <span class="built_in">CHARACTER</span> <span class="keyword">SET</span> INTERNAL_USE AL32UTF8;</span><br><span class="line"></span><br><span class="line">SQL&gt;SHUTDOWN IMMEDIATE</span><br><span class="line"></span><br><span class="line">SQL&gt;STARTUP</span><br></pre></td></tr></table></figure>
+<p><strong>0x04 本地数据库局域网可访问</strong></p>
+<p>本地搭建的数据，其实只可以自己登陆，局域网内，其他人是无法访问的，这样是不符合审计团队团队协作的，所以需要修改为局域网内，皆可访问才行。</p>
+<p>配置文件下载：</p>
+<p>链接: <a href="https://pan.baidu.com/s/1B4ZpKA3T0ZjpcMP427d5kg" target="_blank" rel="noopener">https://pan.baidu.com/s/1B4ZpKA3T0ZjpcMP427d5kg</a> 提取码: 9err 复制这段内容后打开百度网盘手机App，操作更方便哦</p>
+<p>下载到本地后，把下载的文件导入到以下路径中：</p>
+<p>安装盘:\根目录\product\11.2.0\dbhome_1\NETWORK\ADMIN</p>
+<p>然后修改文件中的配置信息：</p>
+<p>listener.ora</p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\5.png" alt></p>
+<p>sqlnet.ora</p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\6.png" alt></p>
+<p>tnsnames.ora</p>
+<p><img src="http://sh1yan.top\photo\Various-pits-in-installation-of-oracle\7.png" alt></p>
+<p>以上配置好后，如果局域网其他成员无法访问的话，可以修改下防火墙配置，开放下Oracle数据 默认的1521端口。</p>
+<p>Windows10防火墙设置开放端口方法：<a href="https://dwz.cn/2viUQYBp" target="_blank" rel="noopener">https://dwz.cn/2viUQYBp</a></p>
+<p><strong>0x05 启动数据库和关闭</strong></p>
+<p>Oracle数据库，启动主要是涉及两个服务 OracleServiceORCL 和 OracleOraDb11g_home1TNSListener ，可以通过在 win + R 打开运行，输入 services.msc ，进行查看是否开启或者关闭，当然为了方便，可以设置bat文件进行快捷操作。</p>
+<p>oracle_开启.bat</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">:: lsnrctl <span class="built_in">start</span></span><br><span class="line"><span class="built_in">net</span> <span class="built_in">start</span> OracleServiceORCL</span><br><span class="line"><span class="built_in">net</span> <span class="built_in">start</span> OracleOraDb11g_home1TNSListener</span><br></pre></td></tr></table></figure>
+<p>oracle_关闭.bat</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">:: lsnrctl stop</span><br><span class="line"><span class="built_in">net</span> stop OracleServiceORCL</span><br><span class="line"><span class="built_in">net</span> stop OracleOraDb11g_home1TNSListener</span><br></pre></td></tr></table></figure>
+<p>使用的时候，点击bat文件，然后鼠标右键以管理员权限运行。</p>
+<p><strong>0x06 导入dmp数据库</strong></p>
+<ol>
+<li>第一步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">tablespace</span> shiyan（表空间名） <span class="keyword">datafile</span> <span class="string">'D:\app\shiyan\oradata\shiyan.dbf'</span>（数据库存放地址，也就是该表空间的数据库地址） <span class="keyword">size</span> <span class="number">1024</span>m  <span class="keyword">autoextend</span> <span class="keyword">on</span>;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>第二步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">USER</span> user_shiyan（账号） <span class="keyword">IDENTIFIED</span> <span class="keyword">BY</span> passwd_shiyan（密码） <span class="keyword">DEFAULT</span> <span class="keyword">TABLESPACE</span> shiyan(上面创建的表空间) <span class="keyword">TEMPORARY</span> <span class="keyword">TABLESPACE</span> temp;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>第三步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GRANT</span> <span class="keyword">CONNECT</span> <span class="keyword">TO</span> shiyan;</span><br><span class="line"><span class="keyword">GRANT</span> <span class="keyword">RESOURCE</span> <span class="keyword">TO</span> shiyan;</span><br><span class="line"><span class="keyword">GRANT</span> dba <span class="keyword">TO</span> shiyan;</span><br><span class="line"><span class="comment">--以上操作均为授权管理员权限给 shiyan</span></span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>第四步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">imp user_shiyan/passwd_shiyan@127.0.0.1:1521/orcl file='E:\shiyan-1.1.dmp' full=y;</span><br><span class="line"><span class="comment">-- 导入数据库</span></span><br></pre></td></tr></table></figure>
+<p>0x07 其它坑</p>
+<p>等慢慢积攒吧，先记录这几个吧。</p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/05/10/Various-pits-in-installation-of-oracle/" data-id="cl64hepe90011asw18dro8o44" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Oracle/">Oracle</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

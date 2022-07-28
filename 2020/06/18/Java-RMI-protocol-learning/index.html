@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Java Rmi协议学习 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 Rmi介绍 RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。 而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP">
+<meta name="keywords" content="JavaWeb,Rmi协议">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Rmi协议学习">
+<meta property="og:url" content="sh1yan.top/2020/06/18/Java-RMI-protocol-learning/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 Rmi介绍 RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。 而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Java-RMI-protocol-learning\1.png">
+<meta property="og:updated_time" content="2020-06-18T14:43:12.294Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java Rmi协议学习">
+<meta name="twitter:description" content="0x00 Rmi介绍 RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。 而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\Java-RMI-protocol-learning\1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Java-RMI-protocol-learning" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/06/18/Java-RMI-protocol-learning/" class="article-date">
+  <time datetime="2020-06-18T15:50:55.000Z" itemprop="datePublished">2020-06-18</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞复现/">漏洞复现</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Java Rmi协议学习
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2020/06/18/Java-RMI-protocol-learning/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 Rmi介绍</strong></p>
+<p>RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。</p>
+<p>而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP协议(Java Remote Message Protocol Java远程消息交换协议)去实现的。<br><a id="more"></a><br><strong>0x01 实现原理</strong></p>
+<p>客户端只与代表远程主机中对象的Stub对象进行通信，丝毫不知道Server的存在。客户端只是调用Stub对象中的本地方法，Stub对象是一个本地对象，它实现了远程对象向外暴露的接口。客户端认为它是调用远程对象的方法，实际上是调用Stub对象中的方法。可以理解为Stub对象是远程对象在本地的一个代理，当客户端调用方法的时候，Stub对象会将调用通过网络传递给远程对象。<br><img src="http:\\sh1yan.top\photo\Java-RMI-protocol-learning\1.png" alt></p>
+<p><strong>完整的通讯过程：</strong></p>
+<ol>
+<li><code>RMI客户端</code>在调用远程方法时会先创建<code>Stub(sun.rmi.registry.RegistryImpl_Stub)</code>。</li>
+<li><code>Stub</code>会将<code>Remote</code>对象传递给<code>远程引用层(java.rmi.server.RemoteRef)</code>并创建<code>java.rmi.server.RemoteCall(远程调用)</code>对象。</li>
+<li><code>RemoteCall</code>序列化<code>RMI服务名称</code>、<code>Remote</code>对象。</li>
+<li><code>RMI客户端</code>的<code>远程引用层</code>传输<code>RemoteCall</code>序列化后的请求信息通过<code>Socket</code>连接的方式传输到<code>RMI服务端</code>的<code>远程引用层</code>。</li>
+<li><code>RMI服务端</code>的<code>远程引用层(sun.rmi.server.UnicastServerRef)</code>收到请求会请求传递给<code>Skeleton(sun.rmi.registry.RegistryImpl_Skel#dispatch)</code>。</li>
+<li><code>Skeleton</code>调用<code>RemoteCall</code>反序列化<code>RMI客户端</code>传过来的序列化。</li>
+<li><code>Skeleton</code>处理客户端请求：<code>bind</code>、<code>list</code>、<code>lookup</code>、<code>rebind</code>、<code>unbind</code>，如果是<code>lookup</code>则查找<code>RMI服务名</code>绑定的接口对象，序列化该对象并通过<code>RemoteCall</code>传输到客户端。</li>
+<li><code>RMI客户端</code>反序列化服务端结果，获取远程对象的引用。</li>
+<li><code>RMI客户端</code>调用远程方法，<code>RMI服务端</code>反射调用<code>RMI服务实现类</code>的对应方法并序列化执行结果返回给客户端。</li>
+<li><code>RMI客户端</code>反序列化<code>RMI</code>远程方法调用结果。</li>
+</ol>
+<p><strong>0x02 远程方法调用案例</strong></p>
+<p>上代码！！！</p>
+<p>文件名：UserData.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserData</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserData</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：IShowNews.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Remote;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IShowNews</span> <span class="keyword">extends</span> <span class="title">Remote</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：ShowNewsImpl.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.UnicastRemoteObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ShowNewsImpl</span> <span class="keyword">extends</span> <span class="title">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title">IShowNews</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    UserData Ar1 = <span class="keyword">new</span> UserData();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">ShowNewsImpl</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> <span class="keyword">throws</span> RuntimeException </span>&#123;</span><br><span class="line">        Ar1.setName(<span class="string">"shiyan"</span>);</span><br><span class="line">        <span class="keyword">return</span> Ar1.getName();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> <span class="keyword">throws</span> RuntimeException </span>&#123;</span><br><span class="line">        Ar1.setAge(<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> Ar1.getAge();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：RmiServerSy.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.MalformedURLException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RmiServerSy</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> RemoteException, AlreadyBoundException, MalformedURLException </span>&#123;</span><br><span class="line">        LocateRegistry.createRegistry(<span class="number">9999</span>);</span><br><span class="line">        Naming.bind(<span class="string">"rmi://127.0.0.1:9999/shownews"</span>,<span class="keyword">new</span> ShowNewsImpl());</span><br><span class="line">        System.out.println(<span class="string">"Rmi服务端启动成功...."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：ClientSy.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi3;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.MalformedURLException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.NotBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientSy</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> RemoteException, NotBoundException, MalformedURLException </span>&#123;</span><br><span class="line">       IShowNews Ar1 =  (IShowNews) Naming.lookup(<span class="string">"rmi://127.0.0.1:9999/shownews"</span>);</span><br><span class="line">       System.out.println(<span class="string">"我的网名叫："</span>+Ar1.getName());</span><br><span class="line">        System.out.println(<span class="string">"我的年龄："</span>+Ar1.getAge());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到这里需要需要启动下服务端：Run   RmiServerSy.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">D:\Java\jdk1.8.0_191\bin\java.exe <span class="string">"-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59487:D:\My-software\IntelliJ IDEA 2020.1\bin"</span> -Dfile.encoding=UTF-<span class="number">8</span> -classpath D:\Java\jdk1.8.0_191\jre\lib\charsets.jar;D:\Java\jdk1.8.0_191\jre\lib\deploy.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\access-bridge-<span class="number">64</span>.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\cldrdata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\dnsns.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jaccess.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jfxrt.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\localedata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\nashorn.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunec.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\zipfs.jar;D:\Java\jdk1.8.0_191\jre\lib\javaws.jar;D:\Java\jdk1.8.0_191\jre\lib\jce.jar;D:\Java\jdk1.8.0_191\jre\lib\jfr.jar;D:\Java\jdk1.8.0_191\jre\lib\jfxswt.jar;D:\Java\jdk1.8.0_191\jre\lib\jsse.jar;D:\Java\jdk1.8.0_191\jre\lib\management-agent.jar;D:\Java\jdk1.8.0_191\jre\lib\plugin.jar;D:\Java\jdk1.8.0_191\jre\lib\resources.jar;D:\Java\jdk1.8.0_191\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi3.RmiServerSy</span><br><span class="line"></span><br><span class="line">Rmi服务端启动成功....</span><br></pre></td></tr></table></figure>
+<p>其次，我们再运行下客户端代码：Run  ClientSy.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">D:\Java\jdk1.8.0_191\bin\java.exe <span class="string">"-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59514:D:\My-software\IntelliJ IDEA 2020.1\bin"</span> -Dfile.encoding=UTF-<span class="number">8</span> -classpath D:\Java\jdk1.8.0_191\jre\lib\charsets.jar;D:\Java\jdk1.8.0_191\jre\lib\deploy.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\access-bridge-<span class="number">64</span>.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\cldrdata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\dnsns.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jaccess.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jfxrt.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\localedata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\nashorn.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunec.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\zipfs.jar;D:\Java\jdk1.8.0_191\jre\lib\javaws.jar;D:\Java\jdk1.8.0_191\jre\lib\jce.jar;D:\Java\jdk1.8.0_191\jre\lib\jfr.jar;D:\Java\jdk1.8.0_191\jre\lib\jfxswt.jar;D:\Java\jdk1.8.0_191\jre\lib\jsse.jar;D:\Java\jdk1.8.0_191\jre\lib\management-agent.jar;D:\Java\jdk1.8.0_191\jre\lib\plugin.jar;D:\Java\jdk1.8.0_191\jre\lib\resources.jar;D:\Java\jdk1.8.0_191\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi3.ClientSy</span><br><span class="line"></span><br><span class="line">我的网名叫：shiyan</span><br><span class="line">我的年龄：<span class="number">1</span></span><br><span class="line"></span><br><span class="line">进程已结束，退出代码 <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p><strong>0x03 远程更新数据</strong></p>
+<p>继续上代码！！！</p>
+<p>文件名：User.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">"User&#123;"</span> +</span><br><span class="line">                <span class="string">"name='"</span> + name + <span class="string">'\''</span> +</span><br><span class="line">                <span class="string">", age="</span> + age +</span><br><span class="line">                <span class="string">'&#125;'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：IUpData.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Remote;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IUpData</span> <span class="keyword">extends</span> <span class="title">Remote</span> </span>&#123;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> User <span class="title">updata</span><span class="params">(User user)</span> <span class="keyword">throws</span> RemoteException</span>;</span><br><span class="line">   <span class="function"><span class="keyword">public</span> User <span class="title">getShow</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：UpDataImpl.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.server.UnicastRemoteObject;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UpDataImpl</span> <span class="keyword">extends</span> <span class="title">UnicastRemoteObject</span> <span class="keyword">implements</span> <span class="title">IUpData</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    User Ar1 = <span class="keyword">new</span> User();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">UpDataImpl</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        Ar1.setName(<span class="string">"初始姓名"</span>);</span><br><span class="line">        Ar1.setAge(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">updata</span><span class="params">(User user)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</span><br><span class="line">        Ar1.setName(user.getName());</span><br><span class="line">        Ar1.setAge(user.getAge());</span><br><span class="line">        <span class="keyword">return</span> Ar1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> User <span class="title">getShow</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Ar1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：RmiServerTest.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.MalformedURLException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.AlreadyBoundException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"><span class="keyword">import</span> java.rmi.RemoteException;</span><br><span class="line"><span class="keyword">import</span> java.rmi.registry.LocateRegistry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RmiServerTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            LocateRegistry.createRegistry(<span class="number">8888</span>);</span><br><span class="line">            Naming.bind(<span class="string">"rmi://localhost:8888/rdata"</span>,<span class="keyword">new</span> UpDataImpl());</span><br><span class="line">            System.out.println(<span class="string">"远程服务端启动成功，等待客户端调用..."</span>);</span><br><span class="line">        &#125;<span class="keyword">catch</span> (RemoteException e)&#123;</span><br><span class="line">            System.out.println(<span class="string">"创建远程对象发生异常！"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (AlreadyBoundException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"发生重复绑定对象异常！"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (MalformedURLException e) &#123;</span><br><span class="line">            System.out.println(<span class="string">"发生URL畸形异常！"</span>);</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>文件名：ClientTest.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> top.sh1yan.rmi2;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.rmi.Naming;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ClientTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        IUpData lookup = (IUpData)Naming.lookup(<span class="string">"rmi://localhost:8888/rdata"</span>);</span><br><span class="line">        User Br1 = <span class="keyword">new</span> User();</span><br><span class="line">        Br1.setName(<span class="string">"shiyan"</span>);</span><br><span class="line">        Br1.setAge(<span class="number">1</span>);</span><br><span class="line">        System.out.println(<span class="string">"远程服务器原始数据为："</span> + lookup.getShow().toString());</span><br><span class="line">        lookup.updata(Br1);</span><br><span class="line">        System.out.println(<span class="string">"远程服务器现有数据为："</span> + lookup.getShow().toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到这里需要需要启动下服务端：Run   RmiServerTest.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">D:\Java\jdk1.8.0_191\bin\java.exe <span class="string">"-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59731:D:\My-software\IntelliJ IDEA 2020.1\bin"</span> -Dfile.encoding=UTF-<span class="number">8</span> -classpath D:\Java\jdk1.8.0_191\jre\lib\charsets.jar;D:\Java\jdk1.8.0_191\jre\lib\deploy.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\access-bridge-<span class="number">64</span>.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\cldrdata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\dnsns.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jaccess.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jfxrt.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\localedata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\nashorn.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunec.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\zipfs.jar;D:\Java\jdk1.8.0_191\jre\lib\javaws.jar;D:\Java\jdk1.8.0_191\jre\lib\jce.jar;D:\Java\jdk1.8.0_191\jre\lib\jfr.jar;D:\Java\jdk1.8.0_191\jre\lib\jfxswt.jar;D:\Java\jdk1.8.0_191\jre\lib\jsse.jar;D:\Java\jdk1.8.0_191\jre\lib\management-agent.jar;D:\Java\jdk1.8.0_191\jre\lib\plugin.jar;D:\Java\jdk1.8.0_191\jre\lib\resources.jar;D:\Java\jdk1.8.0_191\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi2.RmiServerTest</span><br><span class="line"></span><br><span class="line">远程服务端启动成功，等待客户端调用...</span><br></pre></td></tr></table></figure>
+<p>其次，我们再运行下客户端代码：Run  ClientTest.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">D:\Java\jdk1.8.0_191\bin\java.exe <span class="string">"-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59743:D:\My-software\IntelliJ IDEA 2020.1\bin"</span> -Dfile.encoding=UTF-<span class="number">8</span> -classpath D:\Java\jdk1.8.0_191\jre\lib\charsets.jar;D:\Java\jdk1.8.0_191\jre\lib\deploy.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\access-bridge-<span class="number">64</span>.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\cldrdata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\dnsns.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jaccess.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\jfxrt.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\localedata.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\nashorn.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunec.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1.8.0_191\jre\lib\ext\zipfs.jar;D:\Java\jdk1.8.0_191\jre\lib\javaws.jar;D:\Java\jdk1.8.0_191\jre\lib\jce.jar;D:\Java\jdk1.8.0_191\jre\lib\jfr.jar;D:\Java\jdk1.8.0_191\jre\lib\jfxswt.jar;D:\Java\jdk1.8.0_191\jre\lib\jsse.jar;D:\Java\jdk1.8.0_191\jre\lib\management-agent.jar;D:\Java\jdk1.8.0_191\jre\lib\plugin.jar;D:\Java\jdk1.8.0_191\jre\lib\resources.jar;D:\Java\jdk1.8.0_191\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi2.ClientTest</span><br><span class="line"></span><br><span class="line">远程服务器原始数据为：User&#123;name=<span class="string">'初始姓名'</span>, age=<span class="number">0</span>&#125;</span><br><span class="line">远程服务器现有数据为：User&#123;name=<span class="string">'shiyan'</span>, age=<span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line">进程已结束，退出代码 <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p><strong>0x04 Rmi 用法总结</strong></p>
+<p>1、服务端需先创建一个引用对象，该对象必须继承 Serializable 接口，也就是该引用对象必须是可序列化的。</p>
+<p>参考 0x02 中 UserData.java 文件；</p>
+<p>2、创建接口规范类，该类必须 Remote 类，同时该创建的接口类中的方法必须设置 RemoteException 异常；同时客户端使用的方法必须都写在该接口规范中，否则客户端无法远程调用使用，就算在实现类中的写的方法，客户端也无法远程调用使用。</p>
+<p>参考 0x02 中 IShowNews.java 文件；</p>
+<p>3、当引用对象和接口规范都完成后，开始写接口的实现类；接口的实现类除了需继承创建的接口，还需继承 UnicastRemoteObject 类。</p>
+<p>参考 0x02 中 ShowNewsImpl.java 文件；</p>
+<p>4、剩下为开始写Rmi的服务端和客户端；</p>
+<p>5、Rmi服务端首选需要进行设置服务端端口号：LocateRegistry.createRegistry(端口号);</p>
+<p>6、其次考试绑定URL地址：Naming.bind(“rmi://127.0.0.1:端口号/资源名称”,new 接口的实现类());</p>
+<p>参考 0x02 中 RmiServerSy.java 文件</p>
+<p>7、客户端这里用过 Naming.lookup() 进行获取远程对象，获取到的远程对象需要强制转换成接口规范的类型。</p>
+<p>参考 0x02 中 ClientSy.java 文件</p>
+<p>8、用法到这里就结束了，总的来说使用起来还是很方便的。</p>
+<p><strong>0x05 心得总结</strong></p>
+<p>对于一些概念性的东西，还是多敲几遍实现代码能很快的理解了，纯看文字理论的话，很容易把自己给看懵的。</p>
+<p><strong>0x06 参考文章</strong></p>
+<p>[1] <a href="https://blog.csdn.net/wubinghai/article/details/82951769" target="_blank" rel="noopener">https://blog.csdn.net/wubinghai/article/details/82951769</a></p>
+<p>[2] <a href="https://paper.seebug.org/1194/" target="_blank" rel="noopener">https://paper.seebug.org/1194/</a></p>
+<p>[3] <a href="https://javasec.org/javase/RMI/" target="_blank" rel="noopener">https://javasec.org/javase/RMI/</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2020/06/18/Java-RMI-protocol-learning/" data-id="cl64hepfa002qasw1w98gjnky" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaWeb/">JavaWeb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Rmi协议/">Rmi协议</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

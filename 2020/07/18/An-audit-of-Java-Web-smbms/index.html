@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>记一次对JavaWeb-SMBMS的审计 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 在跟着网上培训视频学习完无框架的JavaWeb的时候，都会让做一个内容管理系统，这里我是跟着B站狂神的视频走的，最后是做一个SMBMS项目，故针对该源码代码审计一波，也是考验下自己学的JavaWeb扎实不扎实。">
+<meta name="keywords" content="JavaWeb,SMBMS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次对JavaWeb-SMBMS的审计">
+<meta property="og:url" content="sh1yan.top/2020/07/18/An-audit-of-Java-Web-smbms/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 在跟着网上培训视频学习完无框架的JavaWeb的时候，都会让做一个内容管理系统，这里我是跟着B站狂神的视频走的，最后是做一个SMBMS项目，故针对该源码代码审计一波，也是考验下自己学的JavaWeb扎实不扎实。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\1.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\2.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\3.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\4.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\5.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\6.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\7.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\8.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\9.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\10.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\11.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\12.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\13.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\14.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\15.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\16.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\17.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\18.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\19.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\20.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\21.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\22.png">
+<meta property="og:updated_time" content="2020-07-18T13:43:35.921Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次对JavaWeb-SMBMS的审计">
+<meta name="twitter:description" content="0x00 前言 在跟着网上培训视频学习完无框架的JavaWeb的时候，都会让做一个内容管理系统，这里我是跟着B站狂神的视频走的，最后是做一个SMBMS项目，故针对该源码代码审计一波，也是考验下自己学的JavaWeb扎实不扎实。">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\1.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-An-audit-of-Java-Web-smbms" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/07/18/An-audit-of-Java-Web-smbms/" class="article-date">
+  <time datetime="2020-07-18T15:50:55.000Z" itemprop="datePublished">2020-07-18</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/代码审计/">代码审计</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      记一次对JavaWeb-SMBMS的审计
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2020/07/18/An-audit-of-Java-Web-smbms/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>在跟着网上培训视频学习完无框架的JavaWeb的时候，都会让做一个内容管理系统，这里我是跟着B站狂神的视频走的，最后是做一个SMBMS项目，故针对该源码代码审计一波，也是考验下自己学的JavaWeb扎实不扎实。<br><a id="more"></a><br><strong>0x01 源码下载与搭建</strong></p>
+<p>源码地址：<a href="https://www.lanzoux.com/iGLJTdusuyf" target="_blank" rel="noopener">https://www.lanzoux.com/iGLJTdusuyf</a></p>
+<p>项目笔记：<a href="https://blog.csdn.net/bell_love/article/details/106157413" target="_blank" rel="noopener">https://blog.csdn.net/bell_love/article/details/106157413</a></p>
+<p>源码搭建方法(以IDEA为例，非详细步骤)：</p>
+<p>1、新建一个Maven项目如下图，后续创建操作按个人情况配置。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\1.png" alt></p>
+<p>2、把下载的源码直接替换了src目录和pom.xml文件即可(可以直接在文件夹中直接替换)。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\2.png" alt></p>
+<p>3、再配置下相应的Tomcat环境(细节请百度IDEA配置tomcat环境)。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\3.png" alt></p>
+<p>4、修改连接MySQL的配置文件，即本地MySQL的账号和密码。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\4.png" alt></p>
+<p>5、启动MySQL服务并导入源码SQL文件。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\5.png" alt></p>
+<p>6、启动maven项目，看一下这个网站首页。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\6.png" alt></p>
+<p><strong>0x02 审计思路</strong></p>
+<p>根据以前搞PHP代码审计时的思路差不多，可以分为三个方法，分别是：</p>
+<ul>
+<li>根据敏感函数审计</li>
+<li>根据业务功能审计</li>
+<li>全量源码通读审计</li>
+</ul>
+<p>其中对于通读全量源码这个方式，肯定是不推荐的，耗时耗力，但是好处是可以挖到一些别人挖不到的漏洞点。而根据业务功能审计，这个是老P的专爱了，他PHP开发出身，记得还挖到过<a href="https://xz.aliyun.com/t/1963" target="_blank" rel="noopener">DedeCMS</a>的前台任意文件删除。而敏感函数审计这个我是最喜欢了，法师的Seay源代码审计系统扫完之后，再验证验证，基本上水几个CVE就出来了。</p>
+<p>针对该源码，我就两个方向同步走了，敏感函数放Fortify里直接跑了，业务逻辑我一个功能点一个功能点的过。</p>
+<p><strong>0x03 Fortify扫描结果</strong></p>
+<p>常规扫描步骤就不演示了，直接看下漏洞扫描的结果吧。</p>
+<p><strong>高危漏洞：</strong></p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\7.png" alt></p>
+<p>1、Access Control: Database（数据越权）</p>
+<p>2、j2ee bad practices:non-serializable object stored in session（存储在会话中的非可序列化对象）</p>
+<p>3、Password Management:Password in Configuration File（密码在配置文件中）</p>
+<p>4、Privacy Violation（隐私泄露）</p>
+<p>5、Unreleased Resource(未释放资源)-Streams（流）</p>
+<p><strong>中危漏洞：</strong></p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\8.png" alt></p>
+<p>1、Cross-Site Scripting：Persistent（持久性XSS漏洞）</p>
+<p>2、Cross-Site Scripting：Reflected（反射性XSS漏洞）</p>
+<p>3、Privacy Violation（隐私泄露）</p>
+<p><strong>0x04 反射型跨站脚本攻击</strong></p>
+<p>通过Fortify的扫描结果，我们先抽一个反射的XSS漏洞看看。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\9.png" alt></p>
+<p>1、这是描述的在 billlist.jsp 文件中，第14行代码存在一个输出点，可能存在反射型XSS漏洞。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\10.png" alt></p>
+<p>2、我们根据这个 form 表单可以知道是提交给 /jsp/ 目录下的 bill.do 文件，我们通过web.xml找一下对应的servlet处理对象类。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\11.png" alt></p>
+<p>3、可以看出我们提交的参数是在 servlet.bill.BillServlet 中进行处理，跟进去看一下。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\12.png" alt></p>
+<p>4、可以看出函数还是比较多的，根据步骤1中该 form 表单是 get 形式提交，我们只需要看 doGet 函数即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">文件路径：servlet.bill.BillServlet</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doGet</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">		doPost(request, response);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>5、毕竟是结课实操项目，肯定是写的简陋的，我们继续看 doPost 函数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">文件路径：servlet.bill.BillServlet</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doPost</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">/*String totalPrice = request.getParameter("totalPrice");</span></span><br><span class="line"><span class="comment">		//23.234   45</span></span><br><span class="line"><span class="comment">		BigDecimal totalPriceBigDecimal = </span></span><br><span class="line"><span class="comment">				//设置规则，小数点保留两位，多出部分，ROUND_DOWN 舍弃</span></span><br><span class="line"><span class="comment">				//ROUND_HALF_UP 四舍五入(5入) ROUND_UP 进位 </span></span><br><span class="line"><span class="comment">				//ROUND_HALF_DOWN 四舍五入（5不入）</span></span><br><span class="line"><span class="comment">				new BigDecimal(totalPrice).setScale(2,BigDecimal.ROUND_DOWN);*/</span></span><br><span class="line">		</span><br><span class="line">		String method = request.getParameter(<span class="string">"method"</span>);</span><br><span class="line">		<span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"query"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.query(request,response);</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"add"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.add(request,response);</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"view"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.getBillById(request,response,<span class="string">"billview.jsp"</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"modify"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.getBillById(request,response,<span class="string">"billmodify.jsp"</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"modifysave"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.modify(request,response);</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"delbill"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.delBill(request,response);</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(method != <span class="keyword">null</span> &amp;&amp; method.equals(<span class="string">"getproviderlist"</span>))&#123;</span><br><span class="line">			<span class="keyword">this</span>.getProviderlist(request,response);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>6、根据步骤1中的 form表单，我们知道提交的 method 对应的 value 值为 query，所以继续跟进下 this.query 函数内容。</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input name=<span class="string">"method"</span> value=<span class="string">"query"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"input-text"</span> type=<span class="string">"hidden"</span>&gt;</span><br></pre></td></tr></table></figure>
+<p>注：this.query 为 BillServlet.query 的意思。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">文件路径：servlet.bill.BillServlet</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">query</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		</span><br><span class="line">		List&lt;Provider&gt; providerList = <span class="keyword">new</span> ArrayList&lt;Provider&gt;();</span><br><span class="line">		ProviderService providerService = <span class="keyword">new</span> ProviderServiceImpl();</span><br><span class="line">		providerList = providerService.getProviderList(<span class="string">""</span>,<span class="string">""</span>);</span><br><span class="line">		request.setAttribute(<span class="string">"providerList"</span>, providerList);</span><br><span class="line">		</span><br><span class="line">		String queryProductName = request.getParameter(<span class="string">"queryProductName"</span>);</span><br><span class="line">		String queryProviderId = request.getParameter(<span class="string">"queryProviderId"</span>);</span><br><span class="line">		String queryIsPayment = request.getParameter(<span class="string">"queryIsPayment"</span>);</span><br><span class="line">		<span class="keyword">if</span>(StringUtils.isNullOrEmpty(queryProductName))&#123;</span><br><span class="line">			queryProductName = <span class="string">""</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		List&lt;Bill&gt; billList = <span class="keyword">new</span> ArrayList&lt;Bill&gt;();</span><br><span class="line">		BillService billService = <span class="keyword">new</span> BillServiceImpl();</span><br><span class="line">		Bill bill = <span class="keyword">new</span> Bill();</span><br><span class="line">		<span class="keyword">if</span>(StringUtils.isNullOrEmpty(queryIsPayment))&#123;</span><br><span class="line">			bill.setIsPayment(<span class="number">0</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			bill.setIsPayment(Integer.parseInt(queryIsPayment));</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span>(StringUtils.isNullOrEmpty(queryProviderId))&#123;</span><br><span class="line">			bill.setProviderId(<span class="number">0</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			bill.setProviderId(Integer.parseInt(queryProviderId));</span><br><span class="line">		&#125;</span><br><span class="line">		bill.setProductName(queryProductName);</span><br><span class="line">		billList = billService.getBillList(bill);</span><br><span class="line">		request.setAttribute(<span class="string">"billList"</span>, billList);</span><br><span class="line">		request.setAttribute(<span class="string">"queryProductName"</span>, queryProductName);</span><br><span class="line">		request.setAttribute(<span class="string">"queryProviderId"</span>, queryProviderId);</span><br><span class="line">		request.setAttribute(<span class="string">"queryIsPayment"</span>, queryIsPayment);</span><br><span class="line">		request.getRequestDispatcher(<span class="string">"billlist.jsp"</span>).forward(request, response);</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>7、其它的代码先不细看，只跟进下涉及到接收的 queryProductName 参数部分。</p>
+<p>8、根据代码可以看到，首先把接受到的参数传递给字符串 queryProductName，其次判断下这个参数传递的内容是否为空，若为空则赋值一个空字符串值。</p>
+<p>9、中间除了把 queryProductName 传递到 bill 对象中外，就直接响应给客户端了，中间没有对参数进行任何过滤，也就是说 billlist.jsp 页面中，value 的值是没有任何过滤的，是存在反射xss漏洞的。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\13.png" alt></p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\14.png" alt></p>
+<p>10、这里我们根据页面HTML代码闭合下标签并生成一个payload的，看一下效果。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload：</span><br><span class="line"><span class="number">11</span><span class="string">"&gt;&lt;img src=x onerror=alert(1)&gt;&lt;"</span><span class="number">11</span></span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\15.png" alt></p>
+<p><strong>0x05 持久型跨站脚本攻击</strong></p>
+<p>这里我们抽1个储存型的XSS告警看一下。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\16.png" alt></p>
+<p>1、根据这个页面名称我们知道这是一个供应商管理的页面。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\17.png" alt></p>
+<p>2、根据这个页面我们可以看出可以直接在首页显示的只有6个字段，而这些字段中根据名字只有供应商和联系人这两个字段可能是纯String的，我们找一些具体的逻辑处理部分，查看是否有过滤等函数。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\18.png" alt></p>
+<p>3、我们跟进下 servlet.provider.ProviderServlet 里的内容，由于url地址为 provider.do?method=query ，所以 我们只需跟进下ProviderServlet中的query函数看一看。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">文件路径：servlet.provider.ProviderServlet</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">query</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		String queryProName = request.getParameter(<span class="string">"queryProName"</span>);</span><br><span class="line">		String queryProCode = request.getParameter(<span class="string">"queryProCode"</span>);</span><br><span class="line">		<span class="keyword">if</span>(StringUtils.isNullOrEmpty(queryProName))&#123;</span><br><span class="line">			queryProName = <span class="string">""</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span>(StringUtils.isNullOrEmpty(queryProCode))&#123;</span><br><span class="line">			queryProCode = <span class="string">""</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		List&lt;Provider&gt; providerList = <span class="keyword">new</span> ArrayList&lt;Provider&gt;();</span><br><span class="line">		ProviderService providerService = <span class="keyword">new</span> ProviderServiceImpl();</span><br><span class="line">		providerList = providerService.getProviderList(queryProName,queryProCode);</span><br><span class="line">		request.setAttribute(<span class="string">"providerList"</span>, providerList);</span><br><span class="line">		request.setAttribute(<span class="string">"queryProName"</span>, queryProName);</span><br><span class="line">		request.setAttribute(<span class="string">"queryProCode"</span>, queryProCode);</span><br><span class="line">		request.getRequestDispatcher(<span class="string">"providerlist.jsp"</span>).forward(request, response);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>4、ProviderServiceImpl类我也跟进下，没有发现什么过滤的情况，那在输出上没问题，就继续看一下输入流的部分吧。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\19.png" alt></p>
+<p>5、来具体跟一下输入流的代码，看看是否存在过滤的代码等。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">文件路径：servlet.provider.ProviderServlet</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span></span><br><span class="line"><span class="function">			<span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">		String proCode = request.getParameter(<span class="string">"proCode"</span>);</span><br><span class="line">		String proName = request.getParameter(<span class="string">"proName"</span>);</span><br><span class="line">		String proContact = request.getParameter(<span class="string">"proContact"</span>);</span><br><span class="line">		String proPhone = request.getParameter(<span class="string">"proPhone"</span>);</span><br><span class="line">		String proAddress = request.getParameter(<span class="string">"proAddress"</span>);</span><br><span class="line">		String proFax = request.getParameter(<span class="string">"proFax"</span>);</span><br><span class="line">		String proDesc = request.getParameter(<span class="string">"proDesc"</span>);</span><br><span class="line">		</span><br><span class="line">		Provider provider = <span class="keyword">new</span> Provider();</span><br><span class="line">		provider.setProCode(proCode);</span><br><span class="line">		provider.setProName(proName);</span><br><span class="line">		provider.setProContact(proContact);</span><br><span class="line">		provider.setProPhone(proPhone);</span><br><span class="line">		provider.setProFax(proFax);</span><br><span class="line">		provider.setProAddress(proAddress);</span><br><span class="line">		provider.setProDesc(proDesc);</span><br><span class="line">		provider.setCreatedBy(((User)request.getSession().getAttribute(Constants.USER_SESSION)).getId());</span><br><span class="line">		provider.setCreationDate(<span class="keyword">new</span> Date());</span><br><span class="line">		<span class="keyword">boolean</span> flag = <span class="keyword">false</span>;</span><br><span class="line">		ProviderService providerService = <span class="keyword">new</span> ProviderServiceImpl();</span><br><span class="line">		flag = providerService.add(provider);</span><br><span class="line">		<span class="keyword">if</span>(flag)&#123;</span><br><span class="line">			response.sendRedirect(request.getContextPath()+<span class="string">"/jsp/provider.do?method=query"</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			request.getRequestDispatcher(<span class="string">"provideradd.jsp"</span>).forward(request, response);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<p>6、通过对 Provider() 、ProviderServiceImpl() 的跟进，没有发现有过滤函数，那继续下一步。</p>
+<p>7、在代码层没有过滤的情况，还需要考虑的就是数据库层面是否有字符数的限制，这个是需要了解的，我们知道是这个存放供应商的是在 smbms_provider 表中，那我们具体的看一下。</p>
+<p>服务器: 127.0.0.1 »数据库: smbms »表: smbms_provider</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\20.png" alt></p>
+<p>8、而常见的payload都是超过20个字符的，所以我们只能在 proDesc 和 proAddress 这两个字段中进行插入XSS代码。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\21.png" alt></p>
+<p>9、由于proAddress字段并没有在页面中显示，所以只在 proDesc 字段中进行了插入。</p>
+<p><img src="http:\\sh1yan.top\photo\An-audit-of-Java-Web-smbms\22.png" alt></p>
+<p>10、当我们进入这个供应商详情界面，即触发了XSS攻击代码。</p>
+<p><strong>0x06 小结</strong></p>
+<p>由于后台功能其实也就个查询和添加功能，能联想到的漏洞也就是SQL注入了，但是整体SQL层都是使用了预编译形式，故也就是不挖了。</p>
+<p>该CMS是基于三层架构的学员毕业作品，等后续对spring进而学习后，再尝试对框架类的源码进行一波审计。</p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2020/07/18/An-audit-of-Java-Web-smbms/" data-id="cl64hepdt000fasw116ve8tfo" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JavaWeb/">JavaWeb</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SMBMS/">SMBMS</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

