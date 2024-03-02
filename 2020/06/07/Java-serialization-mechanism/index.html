@@ -1,0 +1,858 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 前言 序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java序列化机制探究">
+<meta property="og:url" content="https://sh1yan.top/2020/06/07/Java-serialization-mechanism/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Java-serialization-mechanism/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Java-serialization-mechanism/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Java-serialization-mechanism/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Java-serialization-mechanism/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Java-serialization-mechanism/5.png">
+<meta property="article:published_time" content="2020-06-07T15:50:55.000Z">
+<meta property="article:modified_time" content="2020-06-07T12:24:02.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="JavaWeb">
+<meta property="article:tag" content="序列化">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Java-serialization-mechanism/1.png">
+  
+  
+  
+  <title>Java序列化机制探究 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Java序列化机制探究"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-06-07 23:50" pubdate>
+          2020年6月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          94 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Java序列化机制探究</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00 前言</strong></p>
+<p>序列化是常见Java漏洞的起源机制，在学习了反射机制之后肯定是要再接着探索下序列化的机制。</p>
+<span id="more"></span>
+<p><strong>0x01 什么是序列化</strong></p>
+<p>序列化是指把一个Java对象变成二进制内容，本质上就是一个byte[]数组。</p>
+<p>序列化后可以把byte[]保存到文件中，或者把byte[]通过网络传输到远程，这样，就相当于把Java对象存储到文件或者通过网络传输出去了。</p>
+<p>有序列化，就有反序列化，即把一个二进制内容（也就是byte[]数组）变回Java对象。有了反序列化，保存到文件中的byte[]数组又可以“变回”Java对象，或者从网络上读取byte[]并把它“变回”Java对象。</p>
+<p><strong>0x02 序列化有什么作用</strong></p>
+<p>根据原理特点，可以归纳为一下三点：</p>
+<p>（1）永久性保存对象，保存对象的字节序列到本地文件或者数据库中；</p>
+<p>（2）通过序列化以字节流的形式使对象在网络中进行传递和接收；</p>
+<p>（3）通过序列化在进程间传递对象；</p>
+<p>具体的一些应用场景：</p>
+<p>（A） http参数，cookie，sesion，存储方式可能是base64（rO0），压缩后的base64（H4sl），MII等</p>
+<p>（B） Servlets HTTP，Sockets，Session管理器 包含的协议就包括JMX，RMI，JMS，JNDI等（\xac\xed）</p>
+<p>（C）  xml Xstream,XMLDecoder等（HTTP Body：Content-Type:application&#x2F;xml）</p>
+<p>（D） json(Jackson，fastjson) http请求中包含</p>
+<p><strong>0x03 序列化机制的特性</strong></p>
+<p>在使用序列化时需要注意以下几个特性：</p>
+<p>1、Java对象如果需要进行序列化，必须实现一个特殊的<strong>java.io.Serializable</strong>接口。{</p>
+<p>Serializable接口没有定义任何方法，它是一个空接口。我们把这样的空接口称为“标记接口”（Marker Interface），实现了标记接口的类仅仅是给自身贴了个“标记”，并没有增加任何方法；</p>
+<p>}</p>
+<p>2、反序列化时，由JVM直接构造出Java对象，<strong>不调用构造方法</strong>，构造方法内部的代码，在反序列化时根本不可能执行。</p>
+<p>3、若可序列化的类的成员不是基本类型，也不是String类型，那这个<strong>引用类型也必须是可序列化</strong>的（引用的这个类也必须继承Serializable接口）。</p>
+<p>4、Java序列化同一对象，并<strong>不会将此对象序列化多次得到多个对象</strong>。{</p>
+<p>Java序列化算法：</p>
+<p>① 有保存到磁盘的对象都有一个序列化编码号；</p>
+<p>② 当程序试图序列化一个对象时，会先检查此对象是否已经序列化过，只有此对象从未（在此虚拟机）被序列化过，才会将此对象序列化为字节序列输出；</p>
+<p>③ 如果此对象已经序列化过，则直接输出编号即可；</p>
+<p>}</p>
+<p>5、如果序列化一个可变对象（对象内的内容可更改）后，<strong>更改了对象内容，再次序列化，并不会再次将此对象转换为字节序列，而只是保存序列化编号</strong>。</p>
+<p>6、<strong>被transient关键字修饰的字段，将不会被序列化</strong>。{</p>
+<p>使用transient修饰的属性，java序列化时，会忽略掉此字段，所以反序列化出的对象，被transient修饰的属性是默认值。对于引用类型，值是null；基本类型，值是0；boolean类型，值是false；</p>
+<p>}</p>
+<p>7、如果该类的<strong>某个属性标识为static类型的，则该属性不能序列化</strong>。</p>
+<p>8、若被序列化的类有父类，则存在以下几种情况。{</p>
+<p>① 如果该父类已经实现了可序列化接口，则其父类的相应字段及属性的处理和该类相同；</p>
+<p>② 如果该类的父类没有实现可序列化接口，则该类的父类所有的字段属性将不会序列化，并且反序列化时会调用父类的默认构造函数来初始化父类的属性，而子类却不调用默认构造函数，而是直接从流中恢复属性的值； </p>
+<p>③ <strong>当一个父类实现序列化，子类自动实现序列化，不需要显式实现Serializable接口</strong>；</p>
+<p>}</p>
+<p><strong>0x04 实现序列化的过程</strong></p>
+<p><strong>1、把java对象进行序列化</strong></p>
+<p>① 创建一个被序列化对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：Person.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.Serializable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br>	  <span class="hljs-keyword">private</span> String name;<br>	  <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br>	  <span class="hljs-comment">//不提供无参构造器</span><br>	  <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> &#123;<br>		  System.out.println(<span class="hljs-string">&quot;若出现该提示，则说明构造函数被执行了&quot;</span>);<br>	      <span class="hljs-built_in">this</span>.name = name;<br>	      <span class="hljs-built_in">this</span>.age = age;<br>	  &#125;<br><br>	  <span class="hljs-meta">@Override</span><br>	  <span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>	      <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Person&#123;&quot;</span> +<br>	              <span class="hljs-string">&quot;name=&#x27;&quot;</span> + name + <span class="hljs-string">&#x27;\&#x27;&#x27;</span> +<br>	              <span class="hljs-string">&quot;, age=&quot;</span> + age +<br>	              <span class="hljs-string">&#x27;&#125;&#x27;</span>;<br>	  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>② 创建一个ObjectOutputStream输出流；并调用ObjectOutputStream对象的writeObject输出可序列化对象到本地文件中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：WriteObject.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.FileOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WriteObject</span> &#123;<br>	  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>	      <span class="hljs-keyword">try</span> (<span class="hljs-comment">//创建一个ObjectOutputStream输出流</span><br>	           <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">oos</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;object.txt&quot;</span>))) &#123;<br>	          <span class="hljs-comment">//将对象序列化到文件s</span><br>	          <span class="hljs-type">Person</span> <span class="hljs-variable">person</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Person</span>(<span class="hljs-string">&quot;shiyan&quot;</span>, <span class="hljs-number">1</span>);<br>	          oos.writeObject(person);<br>	          oos.flush();<br>	          oos.close();<br>	      &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>	          e.printStackTrace();<br>	      &#125;<span class="hljs-keyword">finally</span>&#123;<br>	    	  System.out.println(<span class="hljs-string">&quot;文件已被序列化写入本地文件中&quot;</span>);<br>	      &#125;  <br>	  <br>	  &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>③ 控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">反序列化，你调用我了吗？<br>文件已被序列化写入本地文件中<br></code></pre></td></tr></table></figure>
+
+<p>此时文件已被成功写入本地文件中，我们打开看一下文件内容。</p>
+<p><img src="http://sh1yan.top/photo/Java-serialization-mechanism/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Java-serialization-mechanism/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>2、反序列化读取java对象内容</strong></p>
+<p>① 创建一个ObjectInputStream输入流，然后调用ObjectInputStream对象的readObject()得到序列化的对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.FileInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">WriteObject</span> &#123;<br>	  <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>	      <br>         <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">ois</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;object.txt&quot;</span>));<br>         <span class="hljs-type">Person</span> <span class="hljs-variable">brady</span> <span class="hljs-operator">=</span> (Person) ois.readObject();<br>         System.out.println(brady);<br>	      <br>	  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>② 控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">Person&#123;name=<span class="hljs-string">&#x27;shiyan&#x27;</span>, age=<span class="hljs-number">1</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注：从这里可以看出来在反序列化的时候并不会被执行构造函数的代码。</p>
+<p><strong>0x05 自定义序列化过程</strong></p>
+<p>该章节一共有三个部分，分别是：常规自定义、另一种自定义、强制自定义。</p>
+<p><strong>1. 常规自定义</strong></p>
+<p>java提供了可选的自定义序列化。可以进行控制序列化的方式，或者对序列化数据进行其它操作等。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">writeObject</span><span class="hljs-params">(java.io.ObjectOutputStream out)</span> <span class="hljs-keyword">throws</span> IOException；<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">readObject</span><span class="hljs-params">(java.io.ObjectInputStream in)</span> <span class="hljs-keyword">throws</span> IOException,ClassNotFoundException;<br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">readObjectNoData</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ObjectStreamException;<br><span class="hljs-comment">// 当序列化流不完整时，readObjectNoData()方法可以用来正确地初始化反序列化的对象。例如，使用不同类接收反序列化对象，或者序列化流被篡改时，系统都会调用readObjectNoData()方法来初始化反序列化的对象。</span><br></code></pre></td></tr></table></figure>
+
+<p>通过重写writeObject与readObject方法，可以自己选择哪些属性需要序列化， 哪些属性不需要。如果writeObject使用某种规则序列化，则相应的readObject需要相反的规则反序列化，以便能正确反序列化出对象。</p>
+<p>1、创建一个可被序列化的类，并且重写其中的writeObject与readObject方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：OverrideClass.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.io.Serializable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OverrideClass</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span>  &#123;<br>	<br>	<span class="hljs-keyword">public</span> String name;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">OverrideClass</span><span class="hljs-params">()</span>&#123;<br>		<br>	&#125;<br><br>	<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> name;<br>	&#125;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>		<span class="hljs-built_in">this</span>.name = name;<br>	&#125;<br>	<br>	<span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">readObject</span><span class="hljs-params">(java.io.ObjectInputStream in)</span> <span class="hljs-keyword">throws</span> IOException,ClassNotFoundException&#123;<br>		in.defaultReadObject(); <span class="hljs-comment">//调用原始的readOject方法</span><br>		Runtime.getRuntime().exec(<span class="hljs-string">&quot;calc&quot;</span>);<br>		System.out.println(<span class="hljs-string">&quot;重写readObject函数&quot;</span>);<br>	&#125;<br>	<br>	<span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">writeObject</span><span class="hljs-params">(java.io.ObjectOutputStream out)</span> <span class="hljs-keyword">throws</span> IOException&#123;<br>		out.defaultWriteObject();<br>		System.out.println(<span class="hljs-string">&quot;重写writeObject函数&quot;</span>);<br>	&#125;<br>		<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>2、对该类进行序列化写入文件，并再反序列化读取内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：ReaderClass.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.FileInputStream;<br><span class="hljs-keyword">import</span> java.io.FileOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReaderClass</span> &#123;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">Ar1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;shiyan.txt&quot;</span>));<br>        <span class="hljs-type">OverrideClass</span> <span class="hljs-variable">Ar2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverrideClass</span>();<br>        Ar2.setName(<span class="hljs-string">&quot;shiyan&quot;</span>);<br>        Ar1.writeObject(Ar2);<br>        Ar1.flush();<br>        Ar1.close();<br>        System.out.println(<span class="hljs-string">&quot;---------分割线-------------&quot;</span>);<br>        <br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">Br1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;shiyan.txt&quot;</span>));<br>        <span class="hljs-type">OverrideClass</span> <span class="hljs-variable">Br2</span> <span class="hljs-operator">=</span> (OverrideClass) Br1.readObject();<br>        System.out.println(Br2.getName());<br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>3、控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">重写writeObject函数<br>---------分割线-------------<br>重写readObject函数<br>shiyan<br></code></pre></td></tr></table></figure>
+
+<p>4、效果图：</p>
+<p><img src="http://sh1yan.top/photo/Java-serialization-mechanism/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>2. 另一种自定义</strong></p>
+<p>除了上述常规的自定义还有一种自定义方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java">ANY-ACCESS-MODIFIER Object <span class="hljs-title function_">writeReplace</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ObjectStreamException;<br>ANY-ACCESS-MODIFIER Object <span class="hljs-title function_">readResolve</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ObjectStreamException;<br></code></pre></td></tr></table></figure>
+
+<p>writeReplace：在序列化时，会先调用此方法，再调用writeObject方法。此方法可将任意对象代替目标序列化对象。</p>
+<p>readResolve：反序列化时替换反序列化出的对象，反序列化出来的对象被立即丢弃。此方法在readeObject后调用。</p>
+<p>注意：readResolve与writeReplace的访问修饰符可以是private、protected、public，如果父类重写了这两个方法，子类都需要根据自身需求重写，这显然不是一个好的设计。通常建议对于final修饰的类重写readResolve方法没有问题；否则，重写readResolve使用private修饰。</p>
+<p>1、创建一个可被序列化的类，并且重写其中的readResolve与writeReplace方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：OverrideClass1.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.io.ObjectStreamException;<br><span class="hljs-keyword">import</span> java.io.Serializable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OverrideClass1</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br>	<br>	<span class="hljs-keyword">public</span> String name;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">OverrideClass1</span><span class="hljs-params">()</span>&#123;<br>		<br>	&#125;<br><br>	<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> name;<br>	&#125;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>		<span class="hljs-built_in">this</span>.name = name;<br>	&#125;<br>	<br>	<span class="hljs-keyword">private</span> Object <span class="hljs-title function_">readResolve</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ObjectStreamException,IOException&#123;<br>		Runtime.getRuntime().exec(<span class="hljs-string">&quot;calc&quot;</span>);<br>		System.out.println(<span class="hljs-string">&quot;重写readResolve函数&quot;</span>);<br>		<span class="hljs-type">OverrideClass1</span> <span class="hljs-variable">Dr1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverrideClass1</span>();<br>		<span class="hljs-type">String</span> <span class="hljs-variable">Dr2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;读取的本地序列化对象，已经被替换为自定义的Dr1了&quot;</span>;<br>		Dr1.setName(Dr2);<br>		<span class="hljs-keyword">return</span> Dr1;<br>	&#125;<br>	<br>	<span class="hljs-keyword">private</span> Object <span class="hljs-title function_">writeReplace</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> ObjectStreamException&#123;<br>		<span class="hljs-type">OverrideClass1</span> <span class="hljs-variable">Cr1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverrideClass1</span>();<br>		Cr1.name = <span class="hljs-string">&quot;原始将被写入的对象已经变成自定义的Cr1了&quot;</span>;<br>		System.out.println(<span class="hljs-string">&quot;重写writeReplace函数&quot;</span>);<br>		<span class="hljs-keyword">return</span> Cr1;<br>	&#125;<br>		<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>2、对该类进行序列化写入文件，并再反序列化读取内容；这里需要注意的是因为readResolve与writeReplace方法的是相冲突的，在实际运行时我们要注释一掉1个，才能测试出具体的变化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：ReaderClass1.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.FileInputStream;<br><span class="hljs-keyword">import</span> java.io.FileOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReaderClass1</span> &#123;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">Ar1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;shiyan1.txt&quot;</span>));<br>        <span class="hljs-type">OverrideClass1</span> <span class="hljs-variable">Ar2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverrideClass1</span>();<br>        Ar2.setName(<span class="hljs-string">&quot;shiyan&quot;</span>);<br>        Ar1.writeObject(Ar2);<br>        Ar1.flush();<br>        Ar1.close();<br>        System.out.println(<span class="hljs-string">&quot;---------分割线-------------&quot;</span>);<br>        <br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">Br1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;shiyan1.txt&quot;</span>));<br>        <span class="hljs-type">OverrideClass1</span> <span class="hljs-variable">Br2</span> <span class="hljs-operator">=</span> (OverrideClass1) Br1.readObject();<br>        System.out.println(Br2.getName());<br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>3、控制台输出结果：</p>
+<p>注释掉 writeReplace() 的运行结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">---------分割线-------------<br>重写readResolve函数<br>读取的本地序列化对象，已经被替换为自定义的Dr1了<br></code></pre></td></tr></table></figure>
+
+<p>效果图：</p>
+<p><img src="http://sh1yan.top/photo/Java-serialization-mechanism/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>注释掉 readResolve() 的运行结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">重写writeReplace函数<br>---------分割线-------------<br>原始将被写入的对象已经变成自定义的Cr1了<br></code></pre></td></tr></table></figure>
+
+<p><strong>3. 强制自定义</strong></p>
+<p>通过实现Externalizable接口，必须实现writeExternal、readExternal方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名（接口文档）：Externalizable.<span class="hljs-keyword">class</span><br><br><span class="hljs-title class_">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">Externalizable</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">java</span>.io.Serializable &#123;<br>     <span class="hljs-keyword">void</span> <span class="hljs-title function_">writeExternal</span><span class="hljs-params">(ObjectOutput out)</span> <span class="hljs-keyword">throws</span> IOException;<br>     <span class="hljs-keyword">void</span> <span class="hljs-title function_">readExternal</span><span class="hljs-params">(ObjectInput in)</span> <span class="hljs-keyword">throws</span> IOException, ClassNotFoundException;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>注意：Externalizable接口不同于Serializable接口，实现此接口必须实现接口中的两个方法实现自定义序列化，这是强制性的；特别之处是必须提供pulic的无参构造器，因为在反序列化的时候需要反射创建对象。其次使用Externalizable时，必须按照写入时的确切顺序读取所有字段状态。否则会产生异常。例如，如果更改继承该Externalizable的Demo类中的name和age属性的读取顺序，则将抛出java.io.EOFException。而Serializable接口没有这个要求。</p>
+<p>1、创建一个可被序列化的类，并且重写其中的readExternal与writeExternal方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：OverrideClass2.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><br><span class="hljs-keyword">import</span> java.io.Externalizable;<br><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.io.ObjectInput;<br><span class="hljs-keyword">import</span> java.io.ObjectOutput;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OverrideClass2</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Externalizable</span> &#123;<br>	<br>	<span class="hljs-keyword">public</span> String name;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-title function_">OverrideClass2</span><span class="hljs-params">()</span>&#123;<br>		<br>	&#125;<br><br>	<span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-keyword">return</span> name;<br>	&#125;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>		<span class="hljs-built_in">this</span>.name = name;<br>	&#125;<br>	<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">writeExternal</span><span class="hljs-params">(ObjectOutput out)</span> <span class="hljs-keyword">throws</span> IOException&#123;<br>		out.writeObject(name);<br>		System.out.println(<span class="hljs-string">&quot;----执行 writeExternal 方法------&quot;</span>);<br>	&#125;<br>	<br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">readExternal</span><span class="hljs-params">(ObjectInput in)</span> <span class="hljs-keyword">throws</span> IOException, ClassNotFoundException&#123;<br>		<span class="hljs-built_in">this</span>.name=(String)in.readObject();<br>		System.out.println(<span class="hljs-string">&quot;----执行 readExternal 方法------&quot;</span>);<br>	&#125;<br>		<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>2、对该类进行序列化写入文件，并再反序列化读取内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs java">文件名：ReaderClass2.java<br><br><span class="hljs-keyword">package</span> serialize_test;<br><br><span class="hljs-keyword">import</span> java.io.FileInputStream;<br><span class="hljs-keyword">import</span> java.io.FileOutputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectInputStream;<br><span class="hljs-keyword">import</span> java.io.ObjectOutputStream;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ReaderClass2</span> &#123;<br><br>	<span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">ObjectOutputStream</span> <span class="hljs-variable">Ar1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectOutputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;shiyan2.txt&quot;</span>));<br>        <span class="hljs-type">OverrideClass2</span> <span class="hljs-variable">Ar2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OverrideClass2</span>();<br>        Ar2.setName(<span class="hljs-string">&quot;shiyan&quot;</span>);<br>        Ar1.writeObject(Ar2);<br>        Ar1.flush();<br>        Ar1.close();<br>        System.out.println(<span class="hljs-string">&quot;---------分割线-------------&quot;</span>);<br>        <br>        <span class="hljs-type">ObjectInputStream</span> <span class="hljs-variable">Br1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ObjectInputStream</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;shiyan2.txt&quot;</span>));<br>        <span class="hljs-type">OverrideClass2</span> <span class="hljs-variable">Br2</span> <span class="hljs-operator">=</span> (OverrideClass2) Br1.readObject();<br>        System.out.println(Br2.getName());<br>	&#125;<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>3、控制台输出结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java">----执行 writeExternal 方法------<br>---------分割线-------------<br>----执行 readExternal 方法------<br>shiyan<br></code></pre></td></tr></table></figure>
+
+<p><strong>0x06 什么是 serialVersionUID</strong></p>
+<p>serialVersionUID适用于java序列化机制。简单来说，JAVA序列化的机制是通过判断类的serialVersionUID来验证的版本一致的。在进行反序列化时，JVM会把传来的字节流中的serialVersionUID于本地相应实体类的serialVersionUID进行比较。如果相同说明是一致的，可以进行反序列化，否则会出现反序列化版本一致的异常，即是InvalidCastException。</p>
+<p>具体的序列化过程：序列化操作的时候系统会把当前类的serialVersionUID写入到序列化文件中，当反序列化时系统会去检测文件中的serialVersionUID，判断它是否与当前类的serialVersionUID一致，如果一致就说明序列化类的版本与当前类版本是一样的，可以反序列化成功，否则失败。</p>
+<p>serialVersionUID有两种显示的生成方式 {    </p>
+<p>一是默认的1L，比如：private static final long serialVersionUID &#x3D; 1L;        </p>
+<p>二是根据类名、接口名、成员方法及属性等来生成一个64位的哈希字段，比如：        </p>
+<p>private static final  long   serialVersionUID &#x3D; xxxxL;</p>
+<p>}</p>
+<p><strong>0x07 反序列攻击时序图</strong></p>
+<p>序列化的机制到这里已经了解的差不多了，下面贴一张<a target="_blank" rel="noopener" href="http://xxlegend.com/">廖新喜</a>大佬在某次安全大会上的反序列攻击时序图，做为一个漏洞攻击了解。</p>
+<p><img src="http://sh1yan.top/photo/Java-serialization-mechanism/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>0x08 参考文章</strong></p>
+<p>[1]  <a target="_blank" rel="noopener" href="https://www.cnblogs.com/9dragon/p/10901448.html">https://www.cnblogs.com/9dragon/p/10901448.html</a></p>
+<p>[2] <a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/wiki/1252599548343744/1298366845681698">https://www.liaoxuefeng.com/wiki/1252599548343744/1298366845681698</a></p>
+<p>[3] <a target="_blank" rel="noopener" href="http://xxlegend.com/2018/06/20/%E5%85%88%E7%9F%A5%E8%AE%AE%E9%A2%98%20Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E6%88%98%20%E8%A7%A3%E8%AF%BB/">http://xxlegend.com/2018/06/20/%E5%85%88%E7%9F%A5%E8%AE%AE%E9%A2%98%20Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%AE%9E%E6%88%98%20%E8%A7%A3%E8%AF%BB/</a></p>
+<p>[4] <a target="_blank" rel="noopener" href="http://code2sec.com/javafan-xu-lie-hua-lou-dong-xue-xi-shi-jian-yi-cong-serializbalejie-kou-kai-shi-xian-dan-ge-ji-suan-qi.html">http://code2sec.com/javafan-xu-lie-hua-lou-dong-xue-xi-shi-jian-yi-cong-serializbalejie-kou-kai-shi-xian-dan-ge-ji-suan-qi.html</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" class="category-chain-item">漏洞复现</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/JavaWeb/" class="print-no-link">#JavaWeb</a>
+      
+        <a href="/tags/%E5%BA%8F%E5%88%97%E5%8C%96/" class="print-no-link">#序列化</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Java序列化机制探究</div>
+      <div>https://sh1yan.top/2020/06/07/Java-serialization-mechanism/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年6月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/06/13/Java-Dynamic-agent-mode/" title="Java动态代理模式">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java动态代理模式</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/06/06/Reflection-mechanism-of-Java/" title="Java反射机制探究">
+                        <span class="hidden-mobile">Java反射机制探究</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

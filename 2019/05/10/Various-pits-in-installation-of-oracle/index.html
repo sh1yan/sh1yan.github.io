@@ -1,0 +1,811 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 前言 前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。 0x01 本机版本+安装包 Windows 10 专业版 64位">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Oracle安装使用中的各种坑">
+<meta property="og:url" content="https://sh1yan.top/2019/05/10/Various-pits-in-installation-of-oracle/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。 0x01 本机版本+安装包 Windows 10 专业版 64位">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/7.png">
+<meta property="article:published_time" content="2019-05-10T15:23:55.000Z">
+<meta property="article:modified_time" content="2019-05-11T01:28:16.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="Oracle">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/1.png">
+  
+  
+  
+  <title>Oracle安装使用中的各种坑 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Oracle安装使用中的各种坑"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-05-10 23:23" pubdate>
+          2019年5月10日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          25 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Oracle安装使用中的各种坑</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00 前言</strong></p>
+<p>前期因为审计需求，需要本地搭建Oracle数据，但是各种原因安装失败，或者安装成功，但是无法使用pl\sql进行连接操作，故记录下所有踩过的坑。</p>
+<p><strong>0x01 本机版本+安装包</strong></p>
+<p>Windows 10 专业版 64位</p>
+<span id="more"></span>
+<p>百度云盘：链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1Fmq83CsSABeiedUPj8PR6w">https://pan.baidu.com/s/1Fmq83CsSABeiedUPj8PR6w</a> 提取码: c862 </p>
+<p>官网下载地址：<a target="_blank" rel="noopener" href="https://www.oracle.com/technetwork/cn/database/enterprise-edition/downloads/index.html">https://www.oracle.com/technetwork/cn/database/enterprise-edition/downloads/index.html</a></p>
+<p>通过云盘下载的话，把两个压缩包都解压下，因为目录名都是database所以会，自动合并到一个文件夹里。</p>
+<p><strong>0x02 安装前的配置坑</strong></p>
+<p>解压完成，进去 stage&#x2F;cvu&#x2F; 目录的 cvu_prereq.xml  文件里，用notepad++</p>
+<p>①在第81行进行插入以下语句：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">OPERATING_SYSTEM</span> <span class="hljs-attr">RELEASE</span>=<span class="hljs-string">&quot;6.2&quot;</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">VERSION</span> <span class="hljs-attr">VALUE</span>=<span class="hljs-string">&quot;3&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">ARCHITECTURE</span> <span class="hljs-attr">VALUE</span>=<span class="hljs-string">&quot;64-bit&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">NAME</span> <span class="hljs-attr">VALUE</span>=<span class="hljs-string">&quot;Windows 10&quot;</span>/&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">ENV_VAR_LIST</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">ENV_VAR</span> <span class="hljs-attr">NAME</span>=<span class="hljs-string">&quot;PATH&quot;</span> <span class="hljs-attr">MAX_LENGTH</span>=<span class="hljs-string">&quot;2023&quot;</span> /&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">ENV_VAR_LIST</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">OPERATINGSYSTEM</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>参照截图：</p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><em>添加该段代码为，防止安装时提示电脑配置不满足最低要求。</em></p>
+<p>②配置NET Framework3.5</p>
+<p>我也不知道为什么配置，但是这个也配置完，完成安装无压力，无坑完毕。</p>
+<p>Windows10打开控制面板方式：</p>
+<p>win+x，选择搜索，输入控制面板</p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>然后走以下流程：</p>
+<p>控制面板→程序→程序和功能→启用或关闭Windows功能</p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>选择开启.net framework 3.5分组下面的全部，按图中所示即可。</p>
+<p>其它的按步骤安装就可以了，就是双击 setup.exe 即可。</p>
+<p><strong>0x03 Oracle数据库修改编码坑</strong></p>
+<p>一般来说，安装好的Oracle默认是 ZHS16GBK 编码，但是由于我们的需要导入的数据室UTF-8时，可能就会乱码，应该是这个问题，所以需要修改编码。</p>
+<p>首先查看自己的数据库现在的编码：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> userenv(<span class="hljs-string">&#x27;language&#x27;</span>) <span class="hljs-keyword">from</span> dual<br></code></pre></td></tr></table></figure>
+
+<p>假如需要修改为utf-8的编码开始执行下面的语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">sqlplus <span class="hljs-operator">/</span> <span class="hljs-keyword">as</span> sysdba<br></code></pre></td></tr></table></figure>
+
+<p>在命令行执行以上语句（不是在pl\sql中，而是cmd命令行）</p>
+<p>进入到sqlplus之后，按照下面给出的命令依次执行即可</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">connect</span>  <span class="hljs-operator">/</span> <span class="hljs-keyword">as</span> sysdba<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span>SHUTDOWN IMMEDIATE<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">connect</span>  <span class="hljs-operator">/</span> <span class="hljs-keyword">as</span> sysdba<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span>STARTUP MOUNT<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> ENABLE RESTRICTED SESSION;<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">SET</span> JOB_QUEUE_PROCESSES<span class="hljs-operator">=</span><span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">ALTER</span> <span class="hljs-keyword">SYSTEM</span> <span class="hljs-keyword">SET</span> AQ_TM_PROCESSES<span class="hljs-operator">=</span><span class="hljs-number">0</span>;<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">ALTER</span> DATABASE <span class="hljs-keyword">OPEN</span>;<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span> <span class="hljs-keyword">ALTER</span> DATABASE <span class="hljs-type">CHARACTER</span> <span class="hljs-keyword">SET</span> AL32UTF8 ;<br><br><span class="hljs-keyword">ALTER</span> DATABASE <span class="hljs-type">CHARACTER</span> <span class="hljs-keyword">SET</span> AL32UTF8<br><br><span class="hljs-operator">*</span>ERROR <span class="hljs-keyword">at</span> line <span class="hljs-number">1</span>:<br><br>ORA<span class="hljs-number">-12712</span>: <span class="hljs-keyword">new</span> <span class="hljs-type">character</span> <span class="hljs-keyword">set</span> must be a superset <span class="hljs-keyword">of</span> <span class="hljs-keyword">old</span> <span class="hljs-type">character</span> <span class="hljs-keyword">set</span><br><br>报字符集不兼容，此时下INTERNAL_USE指令不对字符集超集进行检查：<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span><span class="hljs-keyword">ALTER</span> DATABASE <span class="hljs-type">CHARACTER</span> <span class="hljs-keyword">SET</span> INTERNAL_USE AL32UTF8;<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span>SHUTDOWN IMMEDIATE<br><br><span class="hljs-keyword">SQL</span><span class="hljs-operator">&gt;</span>STARTUP<br></code></pre></td></tr></table></figure>
+
+<p><strong>0x04 本地数据库局域网可访问</strong></p>
+<p>本地搭建的数据，其实只可以自己登陆，局域网内，其他人是无法访问的，这样是不符合审计团队团队协作的，所以需要修改为局域网内，皆可访问才行。</p>
+<p>配置文件下载：</p>
+<p>链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/1B4ZpKA3T0ZjpcMP427d5kg">https://pan.baidu.com/s/1B4ZpKA3T0ZjpcMP427d5kg</a> 提取码: 9err 复制这段内容后打开百度网盘手机App，操作更方便哦</p>
+<p>下载到本地后，把下载的文件导入到以下路径中：</p>
+<p>安装盘:\根目录\product\11.2.0\dbhome_1\NETWORK\ADMIN</p>
+<p>然后修改文件中的配置信息：</p>
+<p>listener.ora</p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>sqlnet.ora</p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>tnsnames.ora</p>
+<p><img src="http://sh1yan.top/photo/Various-pits-in-installation-of-oracle/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>以上配置好后，如果局域网其他成员无法访问的话，可以修改下防火墙配置，开放下Oracle数据 默认的1521端口。</p>
+<p>Windows10防火墙设置开放端口方法：<a target="_blank" rel="noopener" href="https://dwz.cn/2viUQYBp">https://dwz.cn/2viUQYBp</a></p>
+<p><strong>0x05 启动数据库和关闭</strong></p>
+<p>Oracle数据库，启动主要是涉及两个服务 OracleServiceORCL 和 OracleOraDb11g_home1TNSListener ，可以通过在 win + R 打开运行，输入 services.msc ，进行查看是否开启或者关闭，当然为了方便，可以设置bat文件进行快捷操作。</p>
+<p>oracle_开启.bat</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cmd">:: lsnrctl <span class="hljs-built_in">start</span><br><span class="hljs-built_in">net</span> <span class="hljs-built_in">start</span> OracleServiceORCL<br><span class="hljs-built_in">net</span> <span class="hljs-built_in">start</span> OracleOraDb11g_home1TNSListener<br></code></pre></td></tr></table></figure>
+
+<p>oracle_关闭.bat</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cmd">:: lsnrctl stop<br><span class="hljs-built_in">net</span> stop OracleServiceORCL<br><span class="hljs-built_in">net</span> stop OracleOraDb11g_home1TNSListener<br></code></pre></td></tr></table></figure>
+
+<p>使用的时候，点击bat文件，然后鼠标右键以管理员权限运行。</p>
+<p><strong>0x06 导入dmp数据库</strong></p>
+<ol>
+<li>第一步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span>space shiyan（表空间名） datafile <span class="hljs-string">&#x27;D:\app\shiyan\oradata\shiyan.dbf&#x27;</span>（数据库存放地址，也就是该表空间的数据库地址） size <span class="hljs-number">1024</span>m  autoextend <span class="hljs-keyword">on</span>;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>第二步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> user_shiyan（账号） IDENTIFIED <span class="hljs-keyword">BY</span> passwd_shiyan（密码） <span class="hljs-keyword">DEFAULT</span> TABLESPACE shiyan(上面创建的表空间) TEMPORARY TABLESPACE temp;<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>第三步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">GRANT</span> <span class="hljs-keyword">CONNECT</span> <span class="hljs-keyword">TO</span> shiyan;<br><span class="hljs-keyword">GRANT</span> RESOURCE <span class="hljs-keyword">TO</span> shiyan;<br><span class="hljs-keyword">GRANT</span> dba <span class="hljs-keyword">TO</span> shiyan;<br><span class="hljs-comment">--以上操作均为授权管理员权限给 shiyan</span><br></code></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>第四步</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql">imp user_shiyan<span class="hljs-operator">/</span>passwd_shiyan<span class="hljs-variable">@127</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">1521</span><span class="hljs-operator">/</span>orcl file<span class="hljs-operator">=</span><span class="hljs-string">&#x27;E:\shiyan-1.1.dmp&#x27;</span> <span class="hljs-keyword">full</span><span class="hljs-operator">=</span>y;<br><span class="hljs-comment">-- 导入数据库</span><br></code></pre></td></tr></table></figure>
+
+<p>0x07 其它坑</p>
+<p>等慢慢积攒吧，先记录这几个吧。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" class="category-chain-item">数据库</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Oracle/" class="print-no-link">#Oracle</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Oracle安装使用中的各种坑</div>
+      <div>https://sh1yan.top/2019/05/10/Various-pits-in-installation-of-oracle/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年5月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/11/excel-vba-2/" title="Excel_2016_VBA学习笔记_工作簿与工作表篇②">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Excel_2016_VBA学习笔记_工作簿与工作表篇②</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/04/excel-vba-1/" title="Excel_2016_VBA学习笔记_基础语法篇①">
+                        <span class="hidden-mobile">Excel_2016_VBA学习笔记_基础语法篇①</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

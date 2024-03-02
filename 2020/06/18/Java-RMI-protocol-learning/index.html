@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 Rmi介绍 RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。 而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java Rmi协议学习">
+<meta property="og:url" content="https://sh1yan.top/2020/06/18/Java-RMI-protocol-learning/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 Rmi介绍 RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。 而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Java-RMI-protocol-learning/1.png">
+<meta property="article:published_time" content="2020-06-18T15:50:55.000Z">
+<meta property="article:modified_time" content="2020-06-18T14:43:12.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="JavaWeb">
+<meta property="article:tag" content="Rmi协议">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Java-RMI-protocol-learning/1.png">
+  
+  
+  
+  <title>Java Rmi协议学习 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Java Rmi协议学习"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-06-18 23:50" pubdate>
+          2020年6月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          102 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Java Rmi协议学习</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00 Rmi介绍</strong></p>
+<p>RMI(Remote Method Invocation)即 Java 远程方法调用，RMI 用于构建分布式应用程序，RMI 实现了 Java 程序之间跨 JVM 的远程通信。</p>
+<p>而JAVA本身提供了一种RPC框架 RMI及Java 远程方法调用(Java Remote Method Invocation),可以在不同的Java 虚拟机之间进行对象间的通讯,RMI是基于JRMP协议(Java Remote Message Protocol Java远程消息交换协议)去实现的。</p>
+<span id="more"></span>
+<p><strong>0x01 实现原理</strong></p>
+<p>客户端只与代表远程主机中对象的Stub对象进行通信，丝毫不知道Server的存在。客户端只是调用Stub对象中的本地方法，Stub对象是一个本地对象，它实现了远程对象向外暴露的接口。客户端认为它是调用远程对象的方法，实际上是调用Stub对象中的方法。可以理解为Stub对象是远程对象在本地的一个代理，当客户端调用方法的时候，Stub对象会将调用通过网络传递给远程对象。<br><img src="http://sh1yan.top/photo/Java-RMI-protocol-learning/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>完整的通讯过程：</strong></p>
+<ol>
+<li><code>RMI客户端</code>在调用远程方法时会先创建<code>Stub(sun.rmi.registry.RegistryImpl_Stub)</code>。</li>
+<li><code>Stub</code>会将<code>Remote</code>对象传递给<code>远程引用层(java.rmi.server.RemoteRef)</code>并创建<code>java.rmi.server.RemoteCall(远程调用)</code>对象。</li>
+<li><code>RemoteCall</code>序列化<code>RMI服务名称</code>、<code>Remote</code>对象。</li>
+<li><code>RMI客户端</code>的<code>远程引用层</code>传输<code>RemoteCall</code>序列化后的请求信息通过<code>Socket</code>连接的方式传输到<code>RMI服务端</code>的<code>远程引用层</code>。</li>
+<li><code>RMI服务端</code>的<code>远程引用层(sun.rmi.server.UnicastServerRef)</code>收到请求会请求传递给<code>Skeleton(sun.rmi.registry.RegistryImpl_Skel#dispatch)</code>。</li>
+<li><code>Skeleton</code>调用<code>RemoteCall</code>反序列化<code>RMI客户端</code>传过来的序列化。</li>
+<li><code>Skeleton</code>处理客户端请求：<code>bind</code>、<code>list</code>、<code>lookup</code>、<code>rebind</code>、<code>unbind</code>，如果是<code>lookup</code>则查找<code>RMI服务名</code>绑定的接口对象，序列化该对象并通过<code>RemoteCall</code>传输到客户端。</li>
+<li><code>RMI客户端</code>反序列化服务端结果，获取远程对象的引用。</li>
+<li><code>RMI客户端</code>调用远程方法，<code>RMI服务端</code>反射调用<code>RMI服务实现类</code>的对应方法并序列化执行结果返回给客户端。</li>
+<li><code>RMI客户端</code>反序列化<code>RMI</code>远程方法调用结果。</li>
+</ol>
+<p><strong>0x02 远程方法调用案例</strong></p>
+<p>上代码！！！</p>
+<p>文件名：UserData.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi3;<br><br><span class="hljs-keyword">import</span> java.io.Serializable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserData</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserData</span><span class="hljs-params">()</span> &#123;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> name;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>        <span class="hljs-built_in">this</span>.name = name;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> age;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAge</span><span class="hljs-params">(<span class="hljs-type">int</span> age)</span> &#123;<br>        <span class="hljs-built_in">this</span>.age = age;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：IShowNews.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi3;<br><br><span class="hljs-keyword">import</span> java.rmi.Remote;<br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">IShowNews</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Remote</span> &#123;<br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException;<br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：ShowNewsImpl.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi3;<br><br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><span class="hljs-keyword">import</span> java.rmi.server.UnicastRemoteObject;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ShowNewsImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">UnicastRemoteObject</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IShowNews</span> &#123;<br><br>    <span class="hljs-type">UserData</span> <span class="hljs-variable">Ar1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UserData</span>();<br><br>    <span class="hljs-keyword">protected</span> <span class="hljs-title function_">ShowNewsImpl</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>        <span class="hljs-built_in">super</span>();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RuntimeException &#123;<br>        Ar1.setName(<span class="hljs-string">&quot;shiyan&quot;</span>);<br>        <span class="hljs-keyword">return</span> Ar1.getName();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RuntimeException &#123;<br>        Ar1.setAge(<span class="hljs-number">1</span>);<br>        <span class="hljs-keyword">return</span> Ar1.getAge();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：RmiServerSy.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi3;<br><br><span class="hljs-keyword">import</span> java.net.MalformedURLException;<br><span class="hljs-keyword">import</span> java.rmi.AlreadyBoundException;<br><span class="hljs-keyword">import</span> java.rmi.Naming;<br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><span class="hljs-keyword">import</span> java.rmi.registry.LocateRegistry;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RmiServerSy</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> RemoteException, AlreadyBoundException, MalformedURLException &#123;<br>        LocateRegistry.createRegistry(<span class="hljs-number">9999</span>);<br>        Naming.bind(<span class="hljs-string">&quot;rmi://127.0.0.1:9999/shownews&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">ShowNewsImpl</span>());<br>        System.out.println(<span class="hljs-string">&quot;Rmi服务端启动成功....&quot;</span>);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：ClientSy.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi3;<br><br><span class="hljs-keyword">import</span> java.net.MalformedURLException;<br><span class="hljs-keyword">import</span> java.rmi.Naming;<br><span class="hljs-keyword">import</span> java.rmi.NotBoundException;<br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ClientSy</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> RemoteException, NotBoundException, MalformedURLException &#123;<br>       <span class="hljs-type">IShowNews</span> <span class="hljs-variable">Ar1</span> <span class="hljs-operator">=</span>  (IShowNews) Naming.lookup(<span class="hljs-string">&quot;rmi://127.0.0.1:9999/shownews&quot;</span>);<br>       System.out.println(<span class="hljs-string">&quot;我的网名叫：&quot;</span>+Ar1.getName());<br>        System.out.println(<span class="hljs-string">&quot;我的年龄：&quot;</span>+Ar1.getAge());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>到这里需要需要启动下服务端：Run   RmiServerSy.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\bin\java.exe <span class="hljs-string">&quot;-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59487:D:\My-software\IntelliJ IDEA 2020.1\bin&quot;</span> -Dfile.encoding=UTF-<span class="hljs-number">8</span> -classpath D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\charsets.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\deploy.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\access-bridge-<span class="hljs-number">64.</span>jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\cldrdata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\dnsns.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jaccess.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jfxrt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\localedata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\nashorn.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunec.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\zipfs.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\javaws.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jce.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfr.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfxswt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jsse.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\management-agent.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\plugin.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\resources.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi3.RmiServerSy<br><br>Rmi服务端启动成功....<br></code></pre></td></tr></table></figure>
+
+<p>其次，我们再运行下客户端代码：Run  ClientSy.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java">D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\bin\java.exe <span class="hljs-string">&quot;-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59514:D:\My-software\IntelliJ IDEA 2020.1\bin&quot;</span> -Dfile.encoding=UTF-<span class="hljs-number">8</span> -classpath D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\charsets.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\deploy.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\access-bridge-<span class="hljs-number">64.</span>jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\cldrdata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\dnsns.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jaccess.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jfxrt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\localedata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\nashorn.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunec.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\zipfs.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\javaws.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jce.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfr.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfxswt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jsse.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\management-agent.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\plugin.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\resources.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi3.ClientSy<br><br>我的网名叫：shiyan<br>我的年龄：<span class="hljs-number">1</span><br><br>进程已结束，退出代码 <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>0x03 远程更新数据</strong></p>
+<p>继续上代码！！！</p>
+<p>文件名：User.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi2;<br><br><span class="hljs-keyword">import</span> java.io.Serializable;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">User</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Serializable</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">serialVersionUID</span> <span class="hljs-operator">=</span> <span class="hljs-number">1L</span>;<br><br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setName</span><span class="hljs-params">(String name)</span> &#123;<br>        <span class="hljs-built_in">this</span>.name = name;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setAge</span><span class="hljs-params">(<span class="hljs-type">int</span> age)</span> &#123;<br>        <span class="hljs-built_in">this</span>.age = age;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getName</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> name;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getAge</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> age;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">toString</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;User&#123;&quot;</span> +<br>                <span class="hljs-string">&quot;name=&#x27;&quot;</span> + name + <span class="hljs-string">&#x27;\&#x27;&#x27;</span> +<br>                <span class="hljs-string">&quot;, age=&quot;</span> + age +<br>                <span class="hljs-string">&#x27;&#125;&#x27;</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：IUpData.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi2;<br><br><span class="hljs-keyword">import</span> java.rmi.Remote;<br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">interface</span> <span class="hljs-title class_">IUpData</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Remote</span> &#123;<br>   <span class="hljs-keyword">public</span> User <span class="hljs-title function_">updata</span><span class="hljs-params">(User user)</span> <span class="hljs-keyword">throws</span> RemoteException;<br>   <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getShow</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：UpDataImpl.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi2;<br><br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><span class="hljs-keyword">import</span> java.rmi.server.UnicastRemoteObject;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UpDataImpl</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">UnicastRemoteObject</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IUpData</span> &#123;<br><br>    <span class="hljs-type">User</span> <span class="hljs-variable">Ar1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> <span class="hljs-variable">serialVersionUID</span> <span class="hljs-operator">=</span> <span class="hljs-number">1L</span>;<br><br>    <span class="hljs-keyword">protected</span> <span class="hljs-title function_">UpDataImpl</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>        Ar1.setName(<span class="hljs-string">&quot;初始姓名&quot;</span>);<br>        Ar1.setAge(<span class="hljs-number">0</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">updata</span><span class="hljs-params">(User user)</span> <span class="hljs-keyword">throws</span> RemoteException &#123;<br>        Ar1.setName(user.getName());<br>        Ar1.setAge(user.getAge());<br>        <span class="hljs-keyword">return</span> Ar1;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> User <span class="hljs-title function_">getShow</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> RemoteException&#123;<br>        <span class="hljs-keyword">return</span> Ar1;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：RmiServerTest.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi2;<br><br><span class="hljs-keyword">import</span> java.net.MalformedURLException;<br><span class="hljs-keyword">import</span> java.rmi.AlreadyBoundException;<br><span class="hljs-keyword">import</span> java.rmi.Naming;<br><span class="hljs-keyword">import</span> java.rmi.RemoteException;<br><span class="hljs-keyword">import</span> java.rmi.registry.LocateRegistry;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">RmiServerTest</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            LocateRegistry.createRegistry(<span class="hljs-number">8888</span>);<br>            Naming.bind(<span class="hljs-string">&quot;rmi://localhost:8888/rdata&quot;</span>,<span class="hljs-keyword">new</span> <span class="hljs-title class_">UpDataImpl</span>());<br>            System.out.println(<span class="hljs-string">&quot;远程服务端启动成功，等待客户端调用...&quot;</span>);<br>        &#125;<span class="hljs-keyword">catch</span> (RemoteException e)&#123;<br>            System.out.println(<span class="hljs-string">&quot;创建远程对象发生异常！&quot;</span>);<br>            e.printStackTrace();<br>        &#125;<span class="hljs-keyword">catch</span> (AlreadyBoundException e) &#123;<br>            System.out.println(<span class="hljs-string">&quot;发生重复绑定对象异常！&quot;</span>);<br>            e.printStackTrace();<br>        &#125;<span class="hljs-keyword">catch</span> (MalformedURLException e) &#123;<br>            System.out.println(<span class="hljs-string">&quot;发生URL畸形异常！&quot;</span>);<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>文件名：ClientTest.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> top.sh1yan.rmi2;<br><br><span class="hljs-keyword">import</span> java.rmi.Naming;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ClientTest</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        <span class="hljs-type">IUpData</span> <span class="hljs-variable">lookup</span> <span class="hljs-operator">=</span> (IUpData)Naming.lookup(<span class="hljs-string">&quot;rmi://localhost:8888/rdata&quot;</span>);<br>        <span class="hljs-type">User</span> <span class="hljs-variable">Br1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">User</span>();<br>        Br1.setName(<span class="hljs-string">&quot;shiyan&quot;</span>);<br>        Br1.setAge(<span class="hljs-number">1</span>);<br>        System.out.println(<span class="hljs-string">&quot;远程服务器原始数据为：&quot;</span> + lookup.getShow().toString());<br>        lookup.updata(Br1);<br>        System.out.println(<span class="hljs-string">&quot;远程服务器现有数据为：&quot;</span> + lookup.getShow().toString());<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>到这里需要需要启动下服务端：Run   RmiServerTest.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java">D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\bin\java.exe <span class="hljs-string">&quot;-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59731:D:\My-software\IntelliJ IDEA 2020.1\bin&quot;</span> -Dfile.encoding=UTF-<span class="hljs-number">8</span> -classpath D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\charsets.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\deploy.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\access-bridge-<span class="hljs-number">64.</span>jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\cldrdata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\dnsns.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jaccess.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jfxrt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\localedata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\nashorn.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunec.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\zipfs.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\javaws.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jce.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfr.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfxswt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jsse.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\management-agent.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\plugin.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\resources.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi2.RmiServerTest<br><br>远程服务端启动成功，等待客户端调用...<br></code></pre></td></tr></table></figure>
+
+<p>其次，我们再运行下客户端代码：Run  ClientTest.main()</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java">D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\bin\java.exe <span class="hljs-string">&quot;-javaagent:D:\My-software\IntelliJ IDEA 2020.1\lib\idea_rt.jar=59743:D:\My-software\IntelliJ IDEA 2020.1\bin&quot;</span> -Dfile.encoding=UTF-<span class="hljs-number">8</span> -classpath D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\charsets.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\deploy.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\access-bridge-<span class="hljs-number">64.</span>jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\cldrdata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\dnsns.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jaccess.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\jfxrt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\localedata.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\nashorn.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunec.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunjce_provider.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunmscapi.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\sunpkcs11.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\ext\zipfs.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\javaws.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jce.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfr.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jfxswt.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\jsse.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\management-agent.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\plugin.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\resources.jar;D:\Java\jdk1<span class="hljs-number">.8</span><span class="hljs-number">.0_191</span>\jre\lib\rt.jar;E:\Programming_related\javacode\IDEA_Code\out\production\test001 top.sh1yan.rmi2.ClientTest<br><br>远程服务器原始数据为：User&#123;name=<span class="hljs-string">&#x27;初始姓名&#x27;</span>, age=<span class="hljs-number">0</span>&#125;<br>远程服务器现有数据为：User&#123;name=<span class="hljs-string">&#x27;shiyan&#x27;</span>, age=<span class="hljs-number">1</span>&#125;<br><br>进程已结束，退出代码 <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>0x04 Rmi 用法总结</strong></p>
+<p>1、服务端需先创建一个引用对象，该对象必须继承 Serializable 接口，也就是该引用对象必须是可序列化的。</p>
+<p>参考 0x02 中 UserData.java 文件；</p>
+<p>2、创建接口规范类，该类必须 Remote 类，同时该创建的接口类中的方法必须设置 RemoteException 异常；同时客户端使用的方法必须都写在该接口规范中，否则客户端无法远程调用使用，就算在实现类中的写的方法，客户端也无法远程调用使用。</p>
+<p>参考 0x02 中 IShowNews.java 文件；</p>
+<p>3、当引用对象和接口规范都完成后，开始写接口的实现类；接口的实现类除了需继承创建的接口，还需继承 UnicastRemoteObject 类。</p>
+<p>参考 0x02 中 ShowNewsImpl.java 文件；</p>
+<p>4、剩下为开始写Rmi的服务端和客户端；</p>
+<p>5、Rmi服务端首选需要进行设置服务端端口号：LocateRegistry.createRegistry(端口号);</p>
+<p>6、其次考试绑定URL地址：Naming.bind(“rmi:&#x2F;&#x2F;127.0.0.1:端口号&#x2F;资源名称”,new 接口的实现类());</p>
+<p>参考 0x02 中 RmiServerSy.java 文件</p>
+<p>7、客户端这里用过 Naming.lookup() 进行获取远程对象，获取到的远程对象需要强制转换成接口规范的类型。</p>
+<p>参考 0x02 中 ClientSy.java 文件</p>
+<p>8、用法到这里就结束了，总的来说使用起来还是很方便的。</p>
+<p><strong>0x05 心得总结</strong></p>
+<p>对于一些概念性的东西，还是多敲几遍实现代码能很快的理解了，纯看文字理论的话，很容易把自己给看懵的。</p>
+<p><strong>0x06 参考文章</strong></p>
+<p>[1] <a target="_blank" rel="noopener" href="https://blog.csdn.net/wubinghai/article/details/82951769">https://blog.csdn.net/wubinghai/article/details/82951769</a></p>
+<p>[2] <a target="_blank" rel="noopener" href="https://paper.seebug.org/1194/">https://paper.seebug.org/1194/</a></p>
+<p>[3] <a target="_blank" rel="noopener" href="https://javasec.org/javase/RMI/">https://javasec.org/javase/RMI/</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" class="category-chain-item">漏洞复现</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/JavaWeb/" class="print-no-link">#JavaWeb</a>
+      
+        <a href="/tags/Rmi%E5%8D%8F%E8%AE%AE/" class="print-no-link">#Rmi协议</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Java Rmi协议学习</div>
+      <div>https://sh1yan.top/2020/06/18/Java-RMI-protocol-learning/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年6月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/07/18/An-audit-of-Java-Web-smbms/" title="记一次对JavaWeb-SMBMS的审计">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">记一次对JavaWeb-SMBMS的审计</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/06/13/Java-Dynamic-agent-mode/" title="Java动态代理模式">
+                        <span class="hidden-mobile">Java动态代理模式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

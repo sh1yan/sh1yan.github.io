@@ -1,0 +1,829 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 前言 上一篇文章主要是介绍burp插件的基本情况，对插件编写有一个入门的了解，本篇将以调试分析的角度，记录一下学习方法和编写流程。 0x01 debug 前期文件准备 在编写插件代码的时候，若不进行一步步的调试的话，只能是凭空造轮子，耗时耗力。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BurpSuite插件编写[初级篇]">
+<meta property="og:url" content="https://sh1yan.top/2020/04/12/Writing-of-burpseuite-plug-in-preliminary/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 上一篇文章主要是介绍burp插件的基本情况，对插件编写有一个入门的了解，本篇将以调试分析的角度，记录一下学习方法和编写流程。 0x01 debug 前期文件准备 在编写插件代码的时候，若不进行一步步的调试的话，只能是凭空造轮子，耗时耗力。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/2.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/3.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/4.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/5.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/6.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/7.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/8.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/9.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/10.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/11.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/12.jpg">
+<meta property="og:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/13.png">
+<meta property="article:published_time" content="2020-04-11T18:00:55.000Z">
+<meta property="article:modified_time" content="2020-04-11T18:19:46.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="burp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/2.jpg">
+  
+  
+  
+  <title>BurpSuite插件编写[初级篇] - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BurpSuite插件编写[初级篇]"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-04-12 02:00" pubdate>
+          2020年4月12日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          139 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BurpSuite插件编写[初级篇]</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00 前言</strong></p>
+<p>上一篇文章主要是介绍burp插件的基本情况，对插件编写有一个入门的了解，本篇将以调试分析的角度，记录一下学习方法和编写流程。</p>
+<p><strong>0x01 debug 前期文件准备</strong></p>
+<p>在编写插件代码的时候，若不进行一步步的调试的话，只能是凭空造轮子，耗时耗力。</p>
+<span id="more"></span>
+<p>因为我们大部分测试者都是使用的破解版，所以在配置调试的时候因为某些原因是不太适用的，故需要下载一个社会版。这里我已经1.7.26版本，2.0的版本的文件太大了。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/2.jpg" srcset="/img/loading.gif" lazyload alt="2"></p>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://portswigger.net/burp/releases/professional-community-1-7-26">https://portswigger.net/burp/releases/professional-community-1-7-26</a></p>
+<p>网盘版地址：链接: <a target="_blank" rel="noopener" href="https://pan.baidu.com/s/10rwx1eWdNCEQWqw4KpqtEw">https://pan.baidu.com/s/10rwx1eWdNCEQWqw4KpqtEw</a> 提取码: xtnt</p>
+<p>正因为我们使用的社区版，所以在挑选现成的burp插件的时候，需要避开那些要使用到专业版或者企业版的API的插件。</p>
+<p>这里我以 <a target="_blank" rel="noopener" href="https://github.com/PortSwigger/request-timer">request-timer</a> 插架为dome开始进行分析，该插件的功能介绍如下：</p>
+<blockquote>
+<p>Burp Request Timer</p>
+<p>此扩展捕获所有Burp工具发出的请求的响应时间。在发现潜在的定时攻击中可能很有用。</p>
+<p>可以通过工具（代理，扫描仪，入侵者中继器），目标作用域以及与URL中的字符串进行匹配来过滤结果。</p>
+<p>需要Java 8。</p>
+</blockquote>
+<p>选用该插件作为分析的原因还有一个就是，几个月前，看到 ch1st 写了一个插件，就是基于被动或者主动识别存在java各种反序列化特征的插件，而现在这个大体上都差不多。</p>
+<p><strong>0x02 debug 操作流程</strong></p>
+<p>下载好上面的那个插件源码后，因为github上没有直接附上成品和相应API接口文件，所以需要我们自己导入到相应文件中。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/3.jpg" srcset="/img/loading.gif" lazyload alt="3"></p>
+<p>整理好后，直接打包成jar文件即可。</p>
+<p>1、首先我们使用以下命令打开burp社区版</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java">java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=<span class="hljs-number">8888</span> -jar burpsuite_free_v1<span class="hljs-number">.7</span><span class="hljs-number">.26</span>.jar<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/4.jpg" srcset="/img/loading.gif" lazyload alt="4"></p>
+<p>该命令启动的burp，是便于我们进行远程调试的，即开启了远程调试端口。</p>
+<p>2、我们导入刚才编译好的jar插件。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/5.jpg" srcset="/img/loading.gif" lazyload alt="5"></p>
+<p>3、这个插件的页面是这个样子的。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/6.jpg" srcset="/img/loading.gif" lazyload alt="6"></p>
+<p>4、我们开始设置eclipse中的远程调试配置。</p>
+<p>4.1、运行→调试配置</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/7.jpg" srcset="/img/loading.gif" lazyload alt="7"></p>
+<p>4.2、选择 远程Java应用程序→鼠标右键→新建</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/8.jpg" srcset="/img/loading.gif" lazyload alt="8"></p>
+<p>4.3、名称可以随便设置，主要需要设置好端口号和启动burp的端口号一致，剩下的点击应用和调试即可。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/9.jpg" srcset="/img/loading.gif" lazyload alt="9"></p>
+<p>4.3、选择IDE右上角的调试界面按钮，我们就能看到整个运行过程。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/10.jpg" srcset="/img/loading.gif" lazyload alt="10"></p>
+<p>4.4、我们先下个断点，看看效果吧。</p>
+<p>4.5、我们在99、100、101这三行加了断点。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/11.jpg" srcset="/img/loading.gif" lazyload alt="11"></p>
+<p>4.6、在burp界面一顿操作啊操作（让插件进行相应功能），然后我们就可以看到调试界面显示的参数了。</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/12.jpg" srcset="/img/loading.gif" lazyload alt="12"></p>
+<p>我们可以看到 toolFlag 这个接受到的参数是 4，具体这个参数4是什么意思，需要去翻看API手册中即可。</p>
+<p><strong>注：</strong>需要注意的是，编译的 jar 中的代码必须和我们进行调试的代码一模一样，这样在远程调试的时候，不会出错。</p>
+<p><strong>0x03 Burp Request Timer 源码分析</strong></p>
+<p>先写一个好的插件，就需要参考前辈们的代码，既减少了重复造轮子，也学习了前辈们编写的思路。</p>
+<p>首先我们看一下这个源码函数的大致UML图：</p>
+<p><img src="http://sh1yan.top/photo/Writing-of-burpseuite-plug-in-preliminary/13.png" srcset="/img/loading.gif" lazyload></p>
+<p>源码整体函数可以分为三个部分，分别是：</p>
+<ul>
+<li>插件主体逻辑部分：BurpExtender</li>
+<li>UI界面代码部分：MainPanel</li>
+<li>功能数据存放部分：LogTablemodel、LogTable、Log</li>
+</ul>
+<p>由于源码继承问题，我从下往上进行分析（功能数据存放部分→UI界面代码部分→插件主体逻辑部分）。</p>
+<p><strong>0x04 功能数据存放部分 Log</strong></p>
+<p><strong>源码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> burp;<br><br><span class="hljs-keyword">import</span> java.net.URL;<br><span class="hljs-keyword">import</span> java.time.LocalDateTime;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 请求获取的相关数据对象</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Log</span> &#123;<br><br>    <span class="hljs-keyword">final</span> LocalDateTime timestamp;<br>    <span class="hljs-keyword">final</span> String tool;<br>    <span class="hljs-keyword">final</span> IHttpRequestResponsePersisted requestResponse;<br>    <span class="hljs-keyword">final</span> URL url;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">long</span> time;<br>    <span class="hljs-keyword">final</span> <span class="hljs-type">short</span> status;<br>    <span class="hljs-keyword">final</span> String mimeType;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 构造函数</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> timestamp 请求时间戳</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> tool tool来源</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> requestResponse HttpRequestResponse获得的对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> url 请求连接</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> status HTTP设置</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> mimeType 未知的MIME类型</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> time 时间taken</span><br><span class="hljs-comment">     */</span><br>    Log(LocalDateTime timestamp, String tool, IHttpRequestResponsePersisted requestResponse, URL url, <span class="hljs-type">short</span> status, String mimeType, <span class="hljs-type">long</span> time) &#123;<br><br>        <span class="hljs-built_in">this</span>.timestamp = timestamp;<br>        <span class="hljs-built_in">this</span>.tool = tool;<br>        <span class="hljs-built_in">this</span>.requestResponse = requestResponse;<br>        <span class="hljs-built_in">this</span>.url = url;<br>        <span class="hljs-built_in">this</span>.time = time;<br>        <span class="hljs-built_in">this</span>.status = status;<br>        <span class="hljs-built_in">this</span>.mimeType = mimeType;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>整体类函数功能：</strong></p>
+<p>该代码部分主要是把相应字段信息以常量参数的形式进行储存,便于数据的调用和展示，而Log类主要被 LogTableModel类使用。</p>
+<p><strong>0x05 功能数据存放部分 LogTableModel</strong></p>
+<p><strong>源码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> burp;<br><br><span class="hljs-keyword">import</span> java.util.ArrayList;  <span class="hljs-comment">// 可调整大小的数组的实现List接口类库</span><br><span class="hljs-keyword">import</span> java.util.List;  <span class="hljs-comment">// 有序集合类库</span><br><span class="hljs-keyword">import</span> javax.swing.table.AbstractTableModel;  <span class="hljs-comment">// 此抽象类提供默认实现大部分的方法TableModel接口</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 存放日志表的对象类</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LogTableModel</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractTableModel</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> java.util.List&lt;Log&gt; logArray = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getRowCount</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-comment">/* 抽象类 AbstractTableModel 必须要重写的函数</span><br><span class="hljs-comment">    	 * 返回列表内元素个数</span><br><span class="hljs-comment">    	 */</span><br><br>        <span class="hljs-keyword">return</span> logArray.size();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">getColumnCount</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-comment">/* 抽象类 AbstractTableModel 必须要重写的函数</span><br><span class="hljs-comment">    	 * 返回列数，固定为6个字段</span><br><span class="hljs-comment">    	 */</span><br><br>        <span class="hljs-keyword">return</span> <span class="hljs-number">6</span>;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getColumnName</span><span class="hljs-params">(<span class="hljs-type">int</span> columnIndex)</span> &#123;<br>    	<span class="hljs-comment">/* 非强制需重写的方法函数</span><br><span class="hljs-comment">    	 * 使用电子表格约定返回列的默认名称</span><br><span class="hljs-comment">    	 */</span><br><br>        <span class="hljs-keyword">switch</span> (columnIndex) &#123;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Timestamp&quot;</span>;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Tool&quot;</span>;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Request URL&quot;</span>;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;MIME Type&quot;</span>;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">4</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Response Time (ms)&quot;</span>;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">5</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;HTTP Status&quot;</span>;<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Class&lt;?&gt; getColumnClass(<span class="hljs-type">int</span> columnIndex) &#123;<br>    	<span class="hljs-comment">/* 非强制需重写的方法函数</span><br><span class="hljs-comment">    	 * 返回当前列的对象类型</span><br><span class="hljs-comment">    	 */</span><br><br>        <span class="hljs-keyword">switch</span> (columnIndex) &#123;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:<br>                <span class="hljs-keyword">return</span> String.class;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>                <span class="hljs-keyword">return</span> String.class;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>                <span class="hljs-keyword">return</span> String.class;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>                <span class="hljs-keyword">return</span> String.class;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">4</span>:<br>                <span class="hljs-keyword">return</span> Long.class;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">5</span>:<br>                <span class="hljs-keyword">return</span> Short.class;<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">return</span> Object.class;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">getValueAt</span><span class="hljs-params">(<span class="hljs-type">int</span> rowIndex, <span class="hljs-type">int</span> columnIndex)</span> &#123;<br>    	<span class="hljs-comment">/* 抽象类 AbstractTableModel 必须要重写的函数</span><br><span class="hljs-comment">    	 * 返回行列中选定的值</span><br><span class="hljs-comment">    	 */</span><br><br>        <span class="hljs-type">Log</span> <span class="hljs-variable">logEntry</span> <span class="hljs-operator">=</span> logArray.get(rowIndex);<br>        <span class="hljs-comment">// 通过行值进行在 ArrayList 中选定最终的对象，然后使用下列switch语法选中值</span><br><br>        <span class="hljs-keyword">switch</span> (columnIndex) &#123;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">0</span>:<br>                <span class="hljs-keyword">return</span> logEntry.timestamp;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">1</span>:<br>                <span class="hljs-keyword">return</span> logEntry.tool;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>                <span class="hljs-keyword">return</span> logEntry.url.toString();<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>                <span class="hljs-keyword">return</span> logEntry.mimeType;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">4</span>:<br>                <span class="hljs-keyword">return</span> logEntry.time;<br>            <span class="hljs-keyword">case</span> <span class="hljs-number">5</span>:<br>                <span class="hljs-keyword">return</span> logEntry.status;<br>            <span class="hljs-keyword">default</span>:<br>                <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;&quot;</span>;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Returns the &lt;code&gt;Log&lt;/code&gt;</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> &lt;code&gt;List&lt;Log&gt;&lt;/code&gt;</span><br><span class="hljs-comment">     */</span><br>    List&lt;Log&gt; <span class="hljs-title function_">getLogArray</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-comment">/*</span><br><span class="hljs-comment">    	 * 返回所有数据的对象值列表</span><br><span class="hljs-comment">    	 */</span><br><br>        <span class="hljs-keyword">return</span> logArray;<br>    &#125;<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>整体类函数功能：</strong></p>
+<p>该类的构造函数是生成了一个 ArrayList() 的列表，而列表的类型为 Log，然后分别创建或重新了以下几个函数：</p>
+<ol>
+<li>getRowCount()：获取列表内元素的个数，该函数是抽象类 AbstractTableModel 强制要重写的函数。</li>
+<li>getColumnCount()：返回字段的列数，由于我们前期就设置了6个固定字段（Timestamp、Tool、Request URL、MIME Type、Response Time (ms)、HTTP Status），该字段值数是与UI页面显示字段数相一致的，该函数是抽象类 AbstractTableModel 强制要重写的函数。。</li>
+<li>getColumnName(int columnIndex)：该函数主要是根据固定值返回对应字段的名称。</li>
+<li>getColumnClass(int columnIndex)：该函数主要是根据固定值返回对应字段的对象类型。</li>
+<li>getValueAt(int rowIndex, int columnIndex)：该函数主要是根据固定的值返回对应字段下的数据内容。</li>
+<li>getLogArray()：返回当前类的List对象。</li>
+</ol>
+<p><strong>0x06 功能数据存放部分 LogTable</strong></p>
+<p><strong>源码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> burp;<br><br><span class="hljs-keyword">import</span> javax.swing.JTable; <span class="hljs-comment">// 用于显示和编辑单元格的常规二维表</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 显示数据的类，该类继承了Burp的消息编辑器控制器</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">LogTable</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JTable</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IMessageEditorController</span> &#123;<br><br>    <span class="hljs-keyword">private</span> LogTableModel logTableModel; <span class="hljs-comment">// 存放数据的类</span><br>    <span class="hljs-keyword">private</span> IMessageEditor requestViewer; <span class="hljs-comment">// 请求消息显示</span><br>    <span class="hljs-keyword">private</span> IMessageEditor responseViewer; <span class="hljs-comment">// 返回信息显示</span><br>    <span class="hljs-keyword">private</span> IHttpRequestResponse currentlyDisplayedItem; <span class="hljs-comment">// 获取或更新HTTP相关数据流</span><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 构造函数，该类的只能接受该设置的参数</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> logTableModel &lt;code&gt;LogTableModel&lt;/code&gt; object</span><br><span class="hljs-comment">     */</span><br>    LogTable(LogTableModel logTableModel) &#123;<br><br>        <span class="hljs-built_in">super</span>(logTableModel); <span class="hljs-comment">// JTable(TableModel dm) 获取需要显示的数据模型</span><br>        <span class="hljs-built_in">this</span>.logTableModel = logTableModel;<br>        <span class="hljs-built_in">this</span>.requestViewer = BurpExtender.callbacks.createMessageEditor(<span class="hljs-built_in">this</span>, <span class="hljs-literal">false</span>);<br>        <span class="hljs-built_in">this</span>.responseViewer = BurpExtender.callbacks.createMessageEditor(<span class="hljs-built_in">this</span>, <span class="hljs-literal">false</span>);<br>        setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);<br>        <span class="hljs-comment">// 当表被调整大小时，设置表的自动调整大小模式;在所有调整大小操作期间，按比例调整所有列的大小</span><br>        getColumnModel().getColumn(<span class="hljs-number">0</span>).setMinWidth(<span class="hljs-number">200</span>);<br>        getColumnModel().getColumn(<span class="hljs-number">1</span>).setMinWidth(<span class="hljs-number">100</span>);<br>        getColumnModel().getColumn(<span class="hljs-number">2</span>).setPreferredWidth(<span class="hljs-number">1000</span>);<br>        getColumnModel().getColumn(<span class="hljs-number">3</span>).setMinWidth(<span class="hljs-number">100</span>);<br>        getColumnModel().getColumn(<span class="hljs-number">4</span>).setMinWidth(<span class="hljs-number">150</span>);<br>        getColumnModel().getColumn(<span class="hljs-number">5</span>).setMinWidth(<span class="hljs-number">100</span>);<br>        setAutoCreateRowSorter(<span class="hljs-literal">true</span>);<br>        <span class="hljs-comment">// 当调用setAutoCreateRowSorter(true)时，将TableRowSorter创建一个TableRowSorter并安装在表上。</span><br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">byte</span>[] getRequest() &#123;<br><br>        <span class="hljs-keyword">return</span> currentlyDisplayedItem.getRequest();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">byte</span>[] getResponse() &#123;<br><br>        <span class="hljs-keyword">return</span> currentlyDisplayedItem.getResponse();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> IHttpService <span class="hljs-title function_">getHttpService</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> currentlyDisplayedItem.getHttpService();<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">changeSelection</span><span class="hljs-params">(<span class="hljs-type">int</span> row, <span class="hljs-type">int</span> col, <span class="hljs-type">boolean</span> toggle, <span class="hljs-type">boolean</span> extend)</span> &#123;<br>        <span class="hljs-comment">// 对选择的UI项进行调整大小长宽</span><br>    	<br>        <span class="hljs-type">Log</span> <span class="hljs-variable">logEntry</span> <span class="hljs-operator">=</span> logTableModel.getLogArray().get(convertRowIndexToModel(row));<br>        <span class="hljs-comment">// convertRowIndexToModel（row）将视图的行的索引映射到底层 TableModel 。</span><br>        <br>        requestViewer.setMessage(logEntry.requestResponse.getRequest(), <span class="hljs-literal">true</span>);<br>        responseViewer.setMessage(logEntry.requestResponse.getResponse(), <span class="hljs-literal">false</span>);<br>        currentlyDisplayedItem = logEntry.requestResponse;<br><br>        <span class="hljs-built_in">super</span>.changeSelection(row, col, toggle, extend);<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 返回请求的HTTP的视图对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> &lt;code&gt;IMessageEditor&lt;/code&gt; object</span><br><span class="hljs-comment">     */</span><br>    IMessageEditor <span class="hljs-title function_">getRequestViewer</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> requestViewer;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     *返回相应的HTTP的视图对象</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> &lt;code&gt;IMessageEditor&lt;/code&gt; object</span><br><span class="hljs-comment">     */</span><br>    IMessageEditor <span class="hljs-title function_">getResponseViewer</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> responseViewer;<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>整体类函数功能：</strong></p>
+<p>该类函数主要功能可以分为两个部分，一个部分为自适应调整UI界面的字段位置，另一个就是展示HTTP数据的请求和相应的具体数据，而该部分的作用主要是便于在UI界面代码部分进行直接调用显示。</p>
+<p><strong>0x07 UI界面代码部分 MainPanel</strong></p>
+<p><strong>源码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> burp;<br><br><span class="hljs-keyword">import</span> java.awt.Color;  <span class="hljs-comment">// 颜色设置库</span><br><span class="hljs-keyword">import</span> java.awt.Component; <span class="hljs-comment">// 组件功能库</span><br><span class="hljs-keyword">import</span> java.awt.FlowLayout; <span class="hljs-comment">// 流程布局库</span><br><span class="hljs-keyword">import</span> javax.swing.BorderFactory;  <span class="hljs-comment">// 界面边界库</span><br><span class="hljs-keyword">import</span> javax.swing.BoxLayout;  <span class="hljs-comment">// 布局管理器库</span><br><span class="hljs-keyword">import</span> javax.swing.JButton;  <span class="hljs-comment">// 按钮库</span><br><span class="hljs-keyword">import</span> javax.swing.JCheckBox;  <span class="hljs-comment">// 复选框</span><br><span class="hljs-keyword">import</span> javax.swing.JComboBox;  <span class="hljs-comment">// 组合按钮或可编辑字段和下拉列表的组件库</span><br><span class="hljs-keyword">import</span> javax.swing.JLabel;  <span class="hljs-comment">// 文本显示区域库</span><br><span class="hljs-keyword">import</span> javax.swing.JPanel;  <span class="hljs-comment">// 面板库</span><br><span class="hljs-keyword">import</span> javax.swing.JScrollPane;  <span class="hljs-comment">// 提供轻量级组件的可滚动视图库</span><br><span class="hljs-keyword">import</span> javax.swing.JSplitPane;  <span class="hljs-comment">// 界面分列库</span><br><span class="hljs-keyword">import</span> javax.swing.JTabbedPane;  <span class="hljs-comment">// 通过点击具有给定标题和/或图标的选项卡，用户可以在一组组件之间切换的组件库</span><br><span class="hljs-keyword">import</span> javax.swing.JTextField;  <span class="hljs-comment">// 编辑单行文本库</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * 主显示界面类</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MainPanel</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">JPanel</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">ITab</span> &#123;<br>	<span class="hljs-comment">/**</span><br><span class="hljs-comment">	 * 继承了面板库，同时继承了Burp接口，该接口可以设置UI界面在Burp的UI上显示</span><br><span class="hljs-comment">	 */</span><br><br>    <span class="hljs-keyword">private</span> LogTableModel logTableModel;   <span class="hljs-comment">// 存放日志表的对象类 &#123; 可以用来查找相应数据的值&#125;</span><br>    <span class="hljs-keyword">private</span> JTextField urlFilterText;  <span class="hljs-comment">// 当前手动文本输入参数</span><br>    <span class="hljs-keyword">private</span> JCheckBox scopeCheckBox;  <span class="hljs-comment">// 选择栏参数</span><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 构造函数，输入参数必须符合该构造函数要求</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> extender &lt;code&gt;BurpExtender&lt;/code&gt; object</span><br><span class="hljs-comment">     */</span><br>    MainPanel(BurpExtender extender) &#123;<br><br>        setLayout(<span class="hljs-keyword">new</span> <span class="hljs-title class_">BoxLayout</span>(<span class="hljs-built_in">this</span>, BoxLayout.Y_AXIS));<br>        <span class="hljs-comment">// 指定组件应该从上到下布置(设置布局管理)</span><br><br>        <span class="hljs-type">JSplitPane</span> <span class="hljs-variable">splitPane</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JSplitPane</span>(JSplitPane.VERTICAL_SPLIT);<br>        <span class="hljs-comment">// 垂直分割表示Component沿y轴分割。 例如，两个Component将被分割成一个在另一个之上。</span><br><br>        logTableModel = <span class="hljs-keyword">new</span> <span class="hljs-title class_">LogTableModel</span>(); <span class="hljs-comment">// 日志表存放类</span><br>        <span class="hljs-type">LogTable</span> <span class="hljs-variable">logTable</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">LogTable</span>(logTableModel); <span class="hljs-comment">// 显示数据的类</span><br>        <span class="hljs-type">JScrollPane</span> <span class="hljs-variable">scrollPane</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JScrollPane</span>(logTable);  <span class="hljs-comment">// 日志数据的显示选择视图组件</span><br>        splitPane.setLeftComponent(scrollPane);  <span class="hljs-comment">// 将组件设置在左边（或更高）分隔线</span><br><br>        <span class="hljs-type">JTabbedPane</span> <span class="hljs-variable">tabs</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JTabbedPane</span>();<br>        <span class="hljs-comment">// 带有请求/响应查看器的选项卡</span><br>        <br>        tabs.setBorder(BorderFactory.createLineBorder(Color.black));<br>        tabs.addTab(<span class="hljs-string">&quot;Request&quot;</span>, logTable.getRequestViewer().getComponent());<br>        tabs.addTab(<span class="hljs-string">&quot;Response&quot;</span>, logTable.getResponseViewer().getComponent());<br>        splitPane.setRightComponent(tabs);<br><br>        <span class="hljs-type">JPanel</span> <span class="hljs-variable">controlPanel</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JPanel</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FlowLayout</span>(FlowLayout.LEFT)); <span class="hljs-comment">// 顶部控制面板</span><br><br>        <span class="hljs-type">JLabel</span> <span class="hljs-variable">toolLabel</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JLabel</span>(<span class="hljs-string">&quot;Select tool: &quot;</span>);<br>        controlPanel.add(toolLabel);<br><br>        String[] tools = &#123;<span class="hljs-string">&quot;All&quot;</span>, <span class="hljs-string">&quot;Proxy&quot;</span>, <span class="hljs-string">&quot;Intruder&quot;</span>, <span class="hljs-string">&quot;Scanner&quot;</span>, <span class="hljs-string">&quot;Repeater&quot;</span>&#125;;<br>        JComboBox&lt;String&gt; toolList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">JComboBox</span>&lt;&gt;(tools);<br>        toolList.addActionListener(e -&gt; &#123;<br>            <span class="hljs-type">String</span> <span class="hljs-variable">tool</span> <span class="hljs-operator">=</span> (String) ((JComboBox) e.getSource()).getSelectedItem();<br>            <span class="hljs-keyword">if</span> (tool != <span class="hljs-literal">null</span>) &#123;<br>                <span class="hljs-keyword">switch</span> (tool) &#123;<br>                    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;All&quot;</span>:<br>                        extender.setToolFilter(<span class="hljs-number">0</span>);<br>                        <span class="hljs-keyword">break</span>;<br>                    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Proxy&quot;</span>:<br>                        extender.setToolFilter(IBurpExtenderCallbacks.TOOL_PROXY);<br>                        <span class="hljs-keyword">break</span>;<br>                    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Intruder&quot;</span>:<br>                        extender.setToolFilter(IBurpExtenderCallbacks.TOOL_INTRUDER);<br>                        <span class="hljs-keyword">break</span>;<br>                    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Scanner&quot;</span>:<br>                        extender.setToolFilter(IBurpExtenderCallbacks.TOOL_SCANNER);<br>                        <span class="hljs-keyword">break</span>;<br>                    <span class="hljs-keyword">case</span> <span class="hljs-string">&quot;Repeater&quot;</span>:<br>                        extender.setToolFilter(IBurpExtenderCallbacks.TOOL_REPEATER);<br>                        <span class="hljs-keyword">break</span>;<br>                    <span class="hljs-keyword">default</span>:<br>                        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">RuntimeException</span>(<span class="hljs-string">&quot;Unknown tool: &quot;</span> + tool);<br>                &#125;<br>            &#125;<br>        &#125;);<br>        controlPanel.add(toolList);<br><br>        <span class="hljs-type">JButton</span> <span class="hljs-variable">startButton</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JButton</span>(<span class="hljs-string">&quot;Start&quot;</span>);<br>        controlPanel.add(startButton);<br>        <span class="hljs-type">JButton</span> <span class="hljs-variable">stopButton</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JButton</span>(<span class="hljs-string">&quot;Stop&quot;</span>);<br>        controlPanel.add(stopButton);<br>        <span class="hljs-type">JButton</span> <span class="hljs-variable">clearButton</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JButton</span>(<span class="hljs-string">&quot;Clear&quot;</span>);<br>        stopButton.setEnabled(<span class="hljs-literal">false</span>);<br>        controlPanel.add(clearButton);<br>        <span class="hljs-type">JLabel</span> <span class="hljs-variable">scopeLabel</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JLabel</span>(<span class="hljs-string">&quot;In-scope items only?&quot;</span>);<br>        controlPanel.add(scopeLabel);<br>        scopeCheckBox = <span class="hljs-keyword">new</span> <span class="hljs-title class_">JCheckBox</span>();<br>        controlPanel.add(scopeCheckBox);<br>        <span class="hljs-type">JLabel</span> <span class="hljs-variable">filterLabel</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">JLabel</span>(<span class="hljs-string">&quot;Filter URL:&quot;</span>);<br>        controlPanel.add(filterLabel);<br>        urlFilterText = <span class="hljs-keyword">new</span> <span class="hljs-title class_">JTextField</span>(<span class="hljs-number">40</span>);<br>        controlPanel.add(urlFilterText);<br><br>        startButton.addActionListener(e -&gt; &#123;<br>            extender.setRunning(<span class="hljs-literal">true</span>);<br>            startButton.setEnabled(<span class="hljs-literal">false</span>);<br>            stopButton.setEnabled(<span class="hljs-literal">true</span>);<br>        &#125;);<br><br>        stopButton.setEnabled(<span class="hljs-literal">false</span>);<br>        stopButton.addActionListener(e -&gt; &#123;<br>            extender.setRunning(<span class="hljs-literal">false</span>);<br>            startButton.setEnabled(<span class="hljs-literal">true</span>);<br>            stopButton.setEnabled(<span class="hljs-literal">false</span>);<br>        &#125;);<br><br>        clearButton.addActionListener(e -&gt; &#123;<br>            extender.getReqResMap().clear();<br>            logTableModel.getLogArray().clear();<br>            logTableModel.fireTableDataChanged();<br>        &#125;);<br><br>        controlPanel.setAlignmentX(<span class="hljs-number">0</span>);<br>        add(controlPanel);<br>        add(splitPane);<br><br>        <span class="hljs-comment">// customize our UI components</span><br>        BurpExtender.callbacks.customizeUiComponent(<span class="hljs-built_in">this</span>);<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> String <span class="hljs-title function_">getTabCaption</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Request Timer&quot;</span>;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Component <span class="hljs-title function_">getUiComponent</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">this</span>;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Returns the Log table model</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> &lt;code&gt;LogTableModel&lt;/code&gt; object</span><br><span class="hljs-comment">     */</span><br>    LogTableModel <span class="hljs-title function_">getLogTableModel</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> logTableModel;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Returns the text to filter the URL by</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> filter text</span><br><span class="hljs-comment">     */</span><br>    String <span class="hljs-title function_">getURLFilterText</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> urlFilterText.getText();<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Is the in scope only checkbox selected?</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> true if selected, false if not</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-type">boolean</span> <span class="hljs-title function_">isScopeSelected</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> scopeCheckBox.isSelected();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>整体类函数功能：</strong></p>
+<p>该部分代码不解读，我感觉应该是使用了类似WindowBuilder的工具进行设置的UI界面，部分代码意思可以详见以上代码注释部分。</p>
+<p><strong>0x08 插件主体逻辑部分 BurpExtender</strong></p>
+<p><strong>源码示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> burp;<br><br><span class="hljs-keyword">import</span> java.io.PrintWriter;  <span class="hljs-comment">// burp提示信息库</span><br><span class="hljs-keyword">import</span> java.net.URL;  <span class="hljs-comment">// 处理URL连接库</span><br><span class="hljs-keyword">import</span> java.time.LocalDateTime;  <span class="hljs-comment">// 获取指定时间库</span><br><span class="hljs-keyword">import</span> java.util.HashMap;  <span class="hljs-comment">// 字典形式数据储存库</span><br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Main class</span><br><span class="hljs-comment"> * 插件主类，运行入口</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BurpExtender</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IBurpExtender</span>, IHttpListener &#123;<br><br>    <span class="hljs-keyword">static</span> IBurpExtenderCallbacks callbacks;  <span class="hljs-comment">// 回调参数</span><br>    <span class="hljs-keyword">private</span> IExtensionHelpers helpers;   <span class="hljs-comment">// 辅助参数</span><br>    <span class="hljs-keyword">private</span> MainPanel panel;  <span class="hljs-comment">// 插件面板类</span><br>    <span class="hljs-keyword">private</span> HashMap&lt;URL, Long&gt; reqResMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();   <span class="hljs-comment">// 提前指定存在数据的字典形式参数</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">isRunning</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;   <span class="hljs-comment">// 判断是否运行中参数</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">toolFilter</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;   <span class="hljs-comment">// burp自带的参数</span><br><br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Burp插件主回调函数，也是继承IBurpExtendre接口必须实现的函数</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">registerExtenderCallbacks</span><span class="hljs-params">(<span class="hljs-keyword">final</span> IBurpExtenderCallbacks callbacks)</span> &#123;<br><br>        BurpExtender.callbacks = callbacks;  <span class="hljs-comment">// 把接口的参数传递给类本身参数</span><br>        helpers = callbacks.getHelpers();  <span class="hljs-comment">// 获取扩展辅助对象并传递给提前设置的参数</span><br>        callbacks.setExtensionName(<span class="hljs-string">&quot;Request Timer&quot;</span>);  <span class="hljs-comment">// 设置插架显示名称</span><br>        panel = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MainPanel</span>(<span class="hljs-built_in">this</span>);  <span class="hljs-comment">// 实例化同Burp包下面的界面显示类</span><br>        callbacks.addSuiteTab(panel); <span class="hljs-comment">// 添置插件的UI界面到Burp上</span><br>        callbacks.registerHttpListener(<span class="hljs-built_in">this</span>); <span class="hljs-comment">// 注册监听模块</span><br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 设置运行状态</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> running true or false</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">setRunning</span><span class="hljs-params">(<span class="hljs-type">boolean</span> running)</span> &#123;<br><br>        <span class="hljs-built_in">this</span>.isRunning = running;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * 设置数据来源</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> toolFilter int representing the tool</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">setToolFilter</span><span class="hljs-params">(<span class="hljs-type">int</span> toolFilter)</span> &#123;<br><br>        <span class="hljs-built_in">this</span>.toolFilter = toolFilter;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Process the HTTP message</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> toolFlag  originating tool</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> messageIsRequest true if request, false if response</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> messageInfo &lt;code&gt;IHttpRequestResponse&lt;/code&gt; object</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processHttpMessage</span><span class="hljs-params">(<span class="hljs-type">int</span> toolFlag, <span class="hljs-type">boolean</span> messageIsRequest, IHttpRequestResponse messageInfo)</span> &#123;<br><br>        <span class="hljs-keyword">if</span> (isRunning) &#123;<br>            <span class="hljs-keyword">if</span> (toolFilter == <span class="hljs-number">0</span> || toolFilter == toolFlag) &#123;<br>                <span class="hljs-type">URL</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> helpers.analyzeRequest(messageInfo).getUrl(); <span class="hljs-comment">// 分析HTTP请求，获得URL</span><br>                <span class="hljs-keyword">if</span> (messageIsRequest) &#123; <span class="hljs-comment">// 判断当前是否调用或请求该方法</span><br>                    reqResMap.put(url, System.currentTimeMillis()); <span class="hljs-comment">// 保存当前url和对应的发现时间</span><br>                &#125;<br>                <span class="hljs-keyword">else</span> &#123;<br>                    <span class="hljs-keyword">if</span> (reqResMap.containsKey(url)) &#123; <span class="hljs-comment">// 判断当前是否已储存该URL对应关系</span><br>                        <span class="hljs-type">long</span> <span class="hljs-variable">time</span> <span class="hljs-operator">=</span> System.currentTimeMillis() - reqResMap.get(url); <span class="hljs-comment">//计算获取响应的时间</span><br>                        reqResMap.remove(url); <span class="hljs-comment">// 删除原指定关系</span><br>                        <span class="hljs-keyword">synchronized</span> (panel.getLogTableModel().getLogArray()) &#123; <span class="hljs-comment">// 获取当前所有存放的URL信息数据；加上线程锁</span><br>                            <span class="hljs-type">int</span> <span class="hljs-variable">row</span> <span class="hljs-operator">=</span> panel.getLogTableModel().getLogArray().size(); <span class="hljs-comment">// 获取字典信息总的个数</span><br>                            <span class="hljs-keyword">if</span> (panel.getURLFilterText().isEmpty() &amp;&amp; !panel.isScopeSelected()) &#123;<br>                                addLog(messageInfo, toolFlag, time, row); <span class="hljs-comment">// 如果相关信息没有被记录，则进行记录信息</span><br>                            &#125;<br>                            <span class="hljs-comment">// 判断是否开启日志筛选器</span><br>                            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!panel.isScopeSelected() &amp;&amp; !panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                    helpers.analyzeRequest(messageInfo).getUrl().toExternalForm().contains(panel.getURLFilterText())) &#123;<br>                                addLog(messageInfo, toolFlag, time, row);<br>                            &#125;<br>                            <span class="hljs-comment">// Log in-scope requests</span><br>                            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (panel.isScopeSelected() &amp;&amp; panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                    callbacks.isInScope(helpers.analyzeRequest(messageInfo).getUrl())) &#123;<br>                                addLog(messageInfo, toolFlag, time, row);<br>                            &#125;<br>                            <span class="hljs-comment">// Log in-scope requests and filter</span><br>                            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (panel.isScopeSelected() &amp;&amp; !panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                    callbacks.isInScope(helpers.analyzeRequest(messageInfo).getUrl()) &amp;&amp;<br>                                    helpers.analyzeRequest(messageInfo).getUrl().toExternalForm().contains(panel.getURLFilterText())) &#123;<br>                                addLog(messageInfo, toolFlag, time, row);<br>                            &#125;<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Helper to add a log entry</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> messageInfo &lt;code&gt;IHttpRequestResponse&lt;/code&gt; object</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> toolFlag tool</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> time time taken in ms</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@param</span> row row to insert at</span><br><span class="hljs-comment">     */</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addLog</span><span class="hljs-params">(IHttpRequestResponse messageInfo, <span class="hljs-type">int</span> toolFlag, <span class="hljs-type">long</span> time, <span class="hljs-type">int</span> row)</span> &#123;<br><br>        panel.getLogTableModel().getLogArray().add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Log</span>(LocalDateTime.now(),<br>                                                           callbacks.getToolName(toolFlag),<br>                                                           callbacks.saveBuffersToTempFiles(messageInfo),<br>                                                           helpers.analyzeRequest(messageInfo).getUrl(),<br>                                                           helpers.analyzeResponse(messageInfo.getResponse()).getStatusCode(),<br>                                                           helpers.analyzeResponse(messageInfo.getResponse()).getStatedMimeType(),<br>                                                           time));<br>        panel.getLogTableModel().fireTableRowsInserted(row, row);<br>    &#125;<br><br>    <span class="hljs-comment">/**</span><br><span class="hljs-comment">     * Get the request map</span><br><span class="hljs-comment">     *</span><br><span class="hljs-comment">     * <span class="hljs-doctag">@return</span> the request map</span><br><span class="hljs-comment">     */</span><br>    HashMap&lt;URL, Long&gt; <span class="hljs-title function_">getReqResMap</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> reqResMap;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>整体类函数功能：</strong></p>
+<p>整体界面主要函数，和上一个入门篇文章中记录的编写思路是一样的，而 processHttpMessage() 的功能，主要是计算请求的URL所花费的时间，和把请求的数据进行一个储存，并且保持不会出现重复记录的情况。</p>
+<p><strong>0x09 总结</strong></p>
+<p>总结起来Burp插件的思路，其实就是对API接口的调用，然后进行一系列数据规则的处理，通过上面源码分析可以更便于我们自行进行造轮子和在别人轮子的基础上进行优化调整。</p>
+<p>如果对于某些轮子中的函数和参数不太理解的话， 可以只用用文章一开始debug的方式，进行更加深入的了解某些参数和函数的作用，还有整个插件程序的执行顺序。</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BC%96%E7%A8%8B%E4%BB%A3%E7%A0%81/" class="category-chain-item">编程代码</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/burp/" class="print-no-link">#burp</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BurpSuite插件编写[初级篇]</div>
+      <div>https://sh1yan.top/2020/04/12/Writing-of-burpseuite-plug-in-preliminary/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年4月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/05/22/Common-codes-of-pandas-in-security-audit/" title="安全审计之Pandas常用代码">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">安全审计之Pandas常用代码</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/03/02/Writing-the-burpseuite-plug-in-beginner/" title="BurpSuite插件编写[入门篇]">
+                        <span class="hidden-mobile">BurpSuite插件编写[入门篇]</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

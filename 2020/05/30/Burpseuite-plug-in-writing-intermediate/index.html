@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 前言 在初级篇中，我们分别介绍了burp的debug的方法和一个官方插件库中的一个burp插件源码分析，而该中级篇则将讲的是开发一个基于被动或者主动识别漏洞路径关键词插件，而该插件可以在我开着burp流量网站的时候，替我们主动或被动识别出可能存在相关漏洞的URL路径。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BurpSuite插件编写[中级篇]">
+<meta property="og:url" content="https://sh1yan.top/2020/05/30/Burpseuite-plug-in-writing-intermediate/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 前言 在初级篇中，我们分别介绍了burp的debug的方法和一个官方插件库中的一个burp插件源码分析，而该中级篇则将讲的是开发一个基于被动或者主动识别漏洞路径关键词插件，而该插件可以在我开着burp流量网站的时候，替我们主动或被动识别出可能存在相关漏洞的URL路径。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/9.png">
+<meta property="article:published_time" content="2020-05-30T14:25:55.000Z">
+<meta property="article:modified_time" content="2020-05-30T09:48:54.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="burp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/6.png">
+  
+  
+  
+  <title>BurpSuite插件编写[中级篇] - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="BurpSuite插件编写[中级篇]"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2020-05-30 22:25" pubdate>
+          2020年5月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          98 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">BurpSuite插件编写[中级篇]</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>0x00 前言</strong></p>
+<p>在初级篇中，我们分别介绍了burp的debug的方法和一个官方插件库中的一个burp插件源码分析，而该中级篇则将讲的是开发一个基于被动或者主动识别漏洞路径关键词插件，而该插件可以在我开着burp流量网站的时候，替我们主动或被动识别出可能存在相关漏洞的URL路径。</p>
+<span id="more"></span>
+<p><strong>0x01 类似轮子探索</strong></p>
+<p>我个人的性格是不喜欢从0开始开发一个完整的工具，除非真的找不见相关类似的轮子，工具的本身是拿来用的，时间成本最重要。故我们就在Burp Request Timer这个插件的基础上进行修改。</p>
+<p>根据上篇的源码分析，我们知道该插件代码的核心部分都在 BurpExtender 这个类的processHttpMessage函数和addLog函数中，那就再重点细分下这部分的代码部分。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Process the HTTP message</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> toolFlag  originating tool</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> messageIsRequest true if request, false if response</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> messageInfo &lt;code&gt;IHttpRequestResponse&lt;/code&gt; object</span><br><span class="hljs-comment"> */</span><br><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processHttpMessage</span><span class="hljs-params">(<span class="hljs-type">int</span> toolFlag, <span class="hljs-type">boolean</span> messageIsRequest, IHttpRequestResponse messageInfo)</span> &#123;<br><br>    <span class="hljs-keyword">if</span> (isRunning) &#123;<br>        <span class="hljs-keyword">if</span> (toolFilter == <span class="hljs-number">0</span> || toolFilter == toolFlag) &#123;<br>            <span class="hljs-type">URL</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> helpers.analyzeRequest(messageInfo).getUrl(); <span class="hljs-comment">// 分析HTTP请求，获得URL</span><br>            <span class="hljs-keyword">if</span> (messageIsRequest) &#123; <span class="hljs-comment">// 判断当前是否调用或请求该方法</span><br>                reqResMap.put(url, System.currentTimeMillis()); <span class="hljs-comment">// 保存当前url和对应的发现时间</span><br>            &#125;<br>            <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">if</span> (reqResMap.containsKey(url)) &#123; <span class="hljs-comment">// 判断当前是否已储存该URL对应关系</span><br>                    <span class="hljs-type">long</span> <span class="hljs-variable">time</span> <span class="hljs-operator">=</span> System.currentTimeMillis() - reqResMap.get(url); <span class="hljs-comment">//计算获取响应的时间</span><br>                    reqResMap.remove(url); <span class="hljs-comment">// 删除原指定关系</span><br>                    <span class="hljs-keyword">synchronized</span> (panel.getLogTableModel().getLogArray()) &#123; <span class="hljs-comment">// 获取当前所有存放的URL信息数据；加上线程锁</span><br>                        <span class="hljs-type">int</span> <span class="hljs-variable">row</span> <span class="hljs-operator">=</span> panel.getLogTableModel().getLogArray().size(); <span class="hljs-comment">// 获取字典信息总的个数</span><br>                        <span class="hljs-keyword">if</span> (panel.getURLFilterText().isEmpty() &amp;&amp; !panel.isScopeSelected()) &#123;<br>                            addLog(messageInfo, toolFlag, time, row); <span class="hljs-comment">// 如果相关信息没有被记录，则进行记录信息</span><br>                        &#125;<br>                        <span class="hljs-comment">// 判断是否开启日志筛选器</span><br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!panel.isScopeSelected() &amp;&amp; !panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                helpers.analyzeRequest(messageInfo).getUrl().toExternalForm().contains(panel.getURLFilterText())) &#123;<br>                            addLog(messageInfo, toolFlag, time, row);<br>                        &#125;<br>                        <span class="hljs-comment">// Log in-scope requests</span><br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (panel.isScopeSelected() &amp;&amp; panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                callbacks.isInScope(helpers.analyzeRequest(messageInfo).getUrl())) &#123;<br>                            addLog(messageInfo, toolFlag, time, row);<br>                        &#125;<br>                        <span class="hljs-comment">// Log in-scope requests and filter</span><br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (panel.isScopeSelected() &amp;&amp; !panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                callbacks.isInScope(helpers.analyzeRequest(messageInfo).getUrl()) &amp;&amp;<br>                                helpers.analyzeRequest(messageInfo).getUrl().toExternalForm().contains(panel.getURLFilterText())) &#123;<br>                            addLog(messageInfo, toolFlag, time, row);<br>                        &#125;<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * Helper to add a log entry</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> messageInfo &lt;code&gt;IHttpRequestResponse&lt;/code&gt; object</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> toolFlag tool</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> time time taken in ms</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@param</span> row row to insert at</span><br><span class="hljs-comment"> */</span><br><span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addLog</span><span class="hljs-params">(IHttpRequestResponse messageInfo, <span class="hljs-type">int</span> toolFlag, <span class="hljs-type">long</span> time, <span class="hljs-type">int</span> row)</span> &#123;<br><br>    panel.getLogTableModel().getLogArray().add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Log</span>(LocalDateTime.now(),<br>                                                       callbacks.getToolName(toolFlag),<br>                                                       callbacks.saveBuffersToTempFiles(messageInfo),<br>                                                       helpers.analyzeRequest(messageInfo).getUrl(),<br>                                                       helpers.analyzeResponse(messageInfo.getResponse()).getStatusCode(),<br>                                                       helpers.analyzeResponse(messageInfo.getResponse()).getStatedMimeType(),<br>                                                       time));<br>    panel.getLogTableModel().fireTableRowsInserted(row, row);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>整理代码功能就是把所有监听到的URL请求进行计算响应时间，但是具体的代码流程，还是需要我们进行Debug一下才能明白，要不然很容易改动的时候出错。</p>
+<p>当我设置好远程调试环境后 {</p>
+<p>burp使用以下代码启动方式：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cmd">java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=<span class="hljs-number">8888</span> -jar burpsuite_free_v1.<span class="hljs-number">7</span>.<span class="hljs-number">26</span>.jar<br></code></pre></td></tr></table></figure>
+
+<p>然后在Eclipse中设置好debug模式：</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>最后，启动插件的开始按钮和浏览器的代理设置，我们进行调试分析。</p>
+<p>}</p>
+<p><strong>0x02 调试分析插件流程</strong></p>
+<p>1、当我们启动了插件中start按钮后，isRuning变量的值将会变为True，其次toolFilter变量的值在类函数默认初始化的时候就是0，获取当前url地址。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>2、若当前正在请求该URL地址，则填到到初始化时生成的HashMap字典中，字典格式内容如下：{http:&#x2F;sh1yan.top:1590199786945},键是URL地址，值是请求的时间。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>3、若当前无新增请求包，而出现相对应的URL返回包时，则开始处理显示URL的请求时间到burp的UI界面上。首先判断是否接受到返回包响应，其次判断该响应的URL是否在HashMap中储存。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、若当前的响应包是在HashMap中，则响应时间减去请求时间为该URL的整体等待时间。然后删除字典中的该URL地址，加上线程锁后，开始对该条数据进行储存显示到插件的UI界面上。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、下面这个函数就是具体保存的相对应数据的函数。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>整体主要的判断核心代码流程就是如此，其它一些细节部分的代码请参考上一篇的源码分析即可。</p>
+<p><strong>0x03 功能需求构思与轮子改造方案</strong></p>
+<p>我们先看一下轮子插件的UI界面：</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>工具功能需求：</p>
+<ol>
+<li>匹配漏洞Path中漏洞关键词，若存在该关键词则在UI中显示</li>
+<li>关键词路径和漏洞名称可灵活配置化</li>
+<li>匹配出的疑似漏洞路径只显示一次，不重复显示</li>
+<li>UI字段{Timestamp、Tool、Vulnerability name、Vulnerability characteristics、Vulnerability URL、HTTP Status}</li>
+</ol>
+<p><strong>0x04 具体改造过程①</strong></p>
+<ul>
+<li>首先需要实现一个核心函数，即通过获取到的URL，匹配其中的URL路径部分是否存在漏洞关键词，若存在则返回漏洞关键词，则通过get的方式获取对应的需要的值。</li>
+<li>漏洞配置文件部分，匹配jar同目录下的配置文件。</li>
+<li>而漏洞的Url应该只出现一次。</li>
+</ul>
+<p>1、为了实现灵活配置，我这里采用json的格式，用于存放漏洞特征和漏洞名称，这里只是简单的列举一些dome，根据漏洞特征分为URL路径部分和COOKIE中等数据包的可能存在关键字的地方。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>2、这里我们使用以下代码来获取对应的漏洞值，并存储到内存的字典中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.io.File;<br><span class="hljs-keyword">import</span> java.io.FileInputStream;<br><span class="hljs-keyword">import</span> java.io.FileReader;<br><span class="hljs-keyword">import</span> java.io.IOException;<br><span class="hljs-keyword">import</span> java.io.InputStreamReader;<br><span class="hljs-keyword">import</span> java.io.Reader;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.ArrayList;<br><br><span class="hljs-keyword">import</span> com.alibaba.fastjson.*;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">KeywordsOfVulnerability</span>&#123;<br>	<br>	<span class="hljs-keyword">private</span> HashMap&lt;String,String&gt; POC_URL_MAP = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;String, String&gt;();<br>	<span class="hljs-keyword">private</span> HashMap&lt;String, String&gt; POC_COOKIE_MAP = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;String, String&gt;();<br>	<br>	<span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> String <span class="hljs-title function_">readJsonFile</span><span class="hljs-params">()</span> &#123;<br>		<span class="hljs-type">String</span> <span class="hljs-variable">jsonStr</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;&quot;</span>;<br>		<span class="hljs-keyword">try</span> &#123;<br>		    <span class="hljs-type">File</span> <span class="hljs-variable">directory</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">File</span>(<span class="hljs-string">&quot;&quot;</span>);<br>		    <span class="hljs-type">File</span> <span class="hljs-variable">filePath</span> <span class="hljs-operator">=</span> directory.getAbsoluteFile();<br>		    <span class="hljs-type">String</span> <span class="hljs-variable">filePath1</span> <span class="hljs-operator">=</span> filePath + <span class="hljs-string">&quot;/KeywordsOfVulnerability.json&quot;</span>;<br>		    <span class="hljs-type">FileReader</span> <span class="hljs-variable">fileReader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileReader</span>(filePath1);<br>		    <span class="hljs-type">Reader</span> <span class="hljs-variable">reader</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InputStreamReader</span>(<span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(filePath1),<span class="hljs-string">&quot;utf-8&quot;</span>);<br>		    <span class="hljs-type">int</span> <span class="hljs-variable">ch</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>		    <span class="hljs-type">StringBuffer</span> <span class="hljs-variable">sb</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">StringBuffer</span>();<br>		    <span class="hljs-keyword">while</span> ((ch = reader.read()) != -<span class="hljs-number">1</span>) &#123;<br>		    	sb.append((<span class="hljs-type">char</span>) ch);<br>		    &#125;<br>		    fileReader.close();<br>		    reader.close();<br>		    jsonStr = sb.toString();<br>		    <span class="hljs-keyword">return</span> jsonStr;<br>		&#125; <span class="hljs-keyword">catch</span> (IOException e) &#123;<br>			e.printStackTrace();<br>			<span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;<br>		&#125;<br>	&#125;<br>	<br>    <span class="hljs-keyword">private</span>  <span class="hljs-keyword">void</span> <span class="hljs-title function_">jsonSort</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-type">JSONObject</span> <span class="hljs-variable">jobj</span> <span class="hljs-operator">=</span> JSON.parseObject(readJsonFile());<br>        <br>        <span class="hljs-keyword">for</span>(String key:jobj.keySet()) &#123;<br>        	<span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;POC_URL&quot;</span>.equals(key)) &#123;<br>        		<span class="hljs-type">JSONArray</span> <span class="hljs-variable">student</span> <span class="hljs-operator">=</span>jobj.getJSONArray(key);<br>                <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;student.size();i++) &#123;<br>                	<span class="hljs-type">JSONObject</span> <span class="hljs-variable">Br1</span> <span class="hljs-operator">=</span> student.getJSONObject(i);<br>                    <span class="hljs-keyword">for</span>(String emty:Br1.keySet()) &#123;<br>                    	POC_URL_MAP.put(emty,Br1.getString(emty));<br>                    &#125;<br>                &#125;  <br>        	&#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(<span class="hljs-string">&quot;POC_COOKIE&quot;</span>.equals(key)) &#123;<br>        		<span class="hljs-type">JSONArray</span> <span class="hljs-variable">student</span> <span class="hljs-operator">=</span>jobj.getJSONArray(key);<br>                <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;student.size();i++) &#123;<br>                	<span class="hljs-type">JSONObject</span> <span class="hljs-variable">Br1</span> <span class="hljs-operator">=</span> student.getJSONObject(i);<br>                    <span class="hljs-keyword">for</span>(String emty:Br1.keySet()) &#123;<br>                    	POC_COOKIE_MAP.put(emty,Br1.getString(emty));<br>                    &#125;<br>                &#125;	<br>        	&#125;	<br><br>        &#125;<br>    &#125; <br><br>    <span class="hljs-keyword">public</span> HashMap&lt;String, String&gt; <span class="hljs-title function_">getPocUrlMap</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-built_in">this</span>.jsonSort();<br>    	<span class="hljs-keyword">return</span> POC_URL_MAP;<br>    &#125;<br>    <br>    <span class="hljs-keyword">public</span> HashMap&lt;String, String&gt; <span class="hljs-title function_">getPocCookieMap</span><span class="hljs-params">()</span> &#123;<br>    	<span class="hljs-built_in">this</span>.jsonSort();<br>    	<span class="hljs-keyword">return</span> POC_COOKIE_MAP;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>3、既然获取可以获取到对应的漏洞特征后，我们就可以执行遍历的方式，来匹配对应的值是否可以漏洞特征,若匹配到漏洞特征后，则返回漏洞特征和漏洞名称，若没有匹配到则返回一个空的ArrayList。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">VulnerabilityMatching</span> &#123;<br>	<br>	<span class="hljs-keyword">public</span> ArrayList <span class="hljs-title function_">vulnerabilityMatchingUrl</span><span class="hljs-params">(String url)</span> &#123;<br>		<span class="hljs-type">KeywordsOfVulnerability</span> <span class="hljs-variable">featuresdata</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KeywordsOfVulnerability</span>();<br>		<span class="hljs-type">ArrayList</span> <span class="hljs-variable">callbackdata</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>();<br>		<span class="hljs-keyword">for</span>(String key : featuresdata.getPocUrlMap().keySet()) &#123;<br>			<span class="hljs-type">String</span> <span class="hljs-variable">keyre</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;.*&quot;</span>+key+<span class="hljs-string">&quot;.*&quot;</span>;<br>			<span class="hljs-keyword">if</span>(url.matches(keyre)) &#123;<br>				<span class="hljs-type">String</span> <span class="hljs-variable">zhi</span> <span class="hljs-operator">=</span> featuresdata.getPocUrlMap().get(key);<br>				callbackdata.add(key);<br>				callbackdata.add(zhi);<br>			&#125;<br>		&#125;<br>		<span class="hljs-keyword">return</span> callbackdata;<br>	&#125;<br>	<br>	<span class="hljs-keyword">public</span> ArrayList <span class="hljs-title function_">vulnerabilityMatchingCookie</span><span class="hljs-params">(String cookie)</span> &#123;<br>		<span class="hljs-type">KeywordsOfVulnerability</span> <span class="hljs-variable">featuresdata</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">KeywordsOfVulnerability</span>();<br>		<span class="hljs-type">ArrayList</span> <span class="hljs-variable">callbackdata</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>();<br>		<span class="hljs-keyword">for</span>(String key : featuresdata.getPocCookieMap().keySet()) &#123;<br>			<span class="hljs-type">String</span> <span class="hljs-variable">keyre</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;.*&quot;</span>+key+<span class="hljs-string">&quot;.*&quot;</span>;<br>			<span class="hljs-keyword">if</span>(cookie.matches(keyre)) &#123;<br>				<span class="hljs-type">String</span> <span class="hljs-variable">zhi</span> <span class="hljs-operator">=</span> featuresdata.getPocCookieMap().get(key);<br>				callbackdata.add(key);<br>				callbackdata.add(zhi);<br>			&#125;<br>		&#125;<br>		<span class="hljs-keyword">return</span> callbackdata;<br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>3、为了保证我们传入的漏洞Url在插件的UI界面上显示时是唯一的，我们需要把经过我们匹配后，确认是问题的Url存储到一个ArrayList中，然后在存储之前判断下，是否该内容部分已经存在了，若存在了则不再重复在UI上进行显示。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">isVulnerabilityFeatures</span><span class="hljs-params">(String Vurl)</span> &#123;<br>	<span class="hljs-comment">// 判断键是否在字典中，若在则返回true。</span><br>	<span class="hljs-comment">// 这里有一个可能存在的小bug，若url路径中同时存在多个特征，则只会显示最先发现的漏洞特征。</span><br>	<span class="hljs-type">boolean</span> <span class="hljs-variable">isresult</span> <span class="hljs-operator">=</span> vulnerabilityFeaturesDict.containsKey(Vurl);<br>	<span class="hljs-keyword">return</span> isresult;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setVulnerabilityFeatures</span><span class="hljs-params">(String Vurl,String Vname)</span> &#123;<br>       vulnerabilityFeaturesDict.put(Vurl, Vname);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>0x05 具体改造过程②</strong></p>
+<ul>
+<li>需要把对监听到的流量包信息进行匹配，若匹配成功则让其在UI界面上显示。</li>
+<li>设置最新的UI字段{Timestamp、Tool、Vulnerability name、Vulnerability characteristics、Vulnerability URL、HTTP Status}</li>
+</ul>
+<p>1、在整体显示字段上，我们其实只需要修改UI代码中显示字段，其次对我们传入的参数位置和具体显示的大小进行一系列调整既可以了。</p>
+<p>需要修改的Java文件：</p>
+<p>LogTableModel.java</p>
+<p>LogTale.java</p>
+<p>Log.java</p>
+<p>2、以上系列部分就不再展示，具体看最终的成效代码即可。</p>
+<p>3、其次，我们根据监听到的流量包，进行监听匹配，若匹配出现存在的漏洞情况，则进行显示在UI界面上。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><code class="hljs java"><br><span class="hljs-keyword">package</span> burp;<br><br><span class="hljs-keyword">import</span> java.io.PrintWriter;<br><span class="hljs-keyword">import</span> java.net.URL;<br><span class="hljs-keyword">import</span> java.time.LocalDateTime;<br><span class="hljs-keyword">import</span> java.util.ArrayList;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><br><br><span class="hljs-meta">@SuppressWarnings(&quot;unused&quot;)</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">BurpExtender</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">IBurpExtender</span>, IHttpListener &#123;<br><br>    <span class="hljs-keyword">static</span> IBurpExtenderCallbacks callbacks;<br>    <span class="hljs-keyword">private</span> IExtensionHelpers helpers;<br>    <span class="hljs-keyword">private</span> MainPanel panel;<br>    <span class="hljs-keyword">private</span> HashMap&lt;URL, Long&gt; reqResMap = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> <span class="hljs-variable">isRunning</span> <span class="hljs-operator">=</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> <span class="hljs-variable">toolFilter</span> <span class="hljs-operator">=</span> <span class="hljs-number">0</span>;<br>    <span class="hljs-type">VulnerabilityMatching</span> <span class="hljs-variable">vdata</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">VulnerabilityMatching</span>(); <br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String args[])</span> &#123;<br>    	<br>    &#125;<br><br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">registerExtenderCallbacks</span><span class="hljs-params">(<span class="hljs-keyword">final</span> IBurpExtenderCallbacks callbacks)</span> &#123;<br>        BurpExtender.callbacks = callbacks;<br>        helpers = callbacks.getHelpers();<br>        callbacks.setExtensionName(<span class="hljs-string">&quot;Vulnerability Matching&quot;</span>);<br>        panel = <span class="hljs-keyword">new</span> <span class="hljs-title class_">MainPanel</span>(<span class="hljs-built_in">this</span>);<br>        callbacks.addSuiteTab(panel);<br>        callbacks.registerHttpListener(<span class="hljs-built_in">this</span>);<br>    &#125;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">setRunning</span><span class="hljs-params">(<span class="hljs-type">boolean</span> running)</span> &#123;<br><br>        <span class="hljs-built_in">this</span>.isRunning = running;<br>    &#125;<br><br>    <span class="hljs-keyword">void</span> <span class="hljs-title function_">setToolFilter</span><span class="hljs-params">(<span class="hljs-type">int</span> toolFilter)</span> &#123;<br><br>        <span class="hljs-built_in">this</span>.toolFilter = toolFilter;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">processHttpMessage</span><span class="hljs-params">(<span class="hljs-type">int</span> toolFlag, <span class="hljs-type">boolean</span> messageIsRequest, IHttpRequestResponse messageInfo)</span> &#123;<br>    	isVulnerabilityJudge(toolFlag, messageIsRequest, messageInfo);<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">isVulnerabilityJudge</span><span class="hljs-params">(<span class="hljs-type">int</span> toolFlag, <span class="hljs-type">boolean</span> messageIsRequest, IHttpRequestResponse messageInfo)</span> &#123;<br>    	<span class="hljs-keyword">if</span>(isRunning) &#123; <br>    		<span class="hljs-keyword">if</span> (toolFilter == <span class="hljs-number">0</span> || toolFilter == toolFlag) &#123;<br>    			<span class="hljs-keyword">if</span> (messageIsRequest) &#123; <br>    				<br>    			&#125;<span class="hljs-keyword">else</span> &#123;<br>    				<br>    				<span class="hljs-type">URL</span> <span class="hljs-variable">url</span> <span class="hljs-operator">=</span> helpers.analyzeRequest(messageInfo).getUrl(); <br>    				System.out.println(url.getHost()+url.getPath());<br>    				ArrayList&lt;?&gt; url111 = vdata.vulnerabilityMatchingUrl(url.getHost()+url.getPath()); <br>    				<br>    				<span class="hljs-keyword">if</span>(!url111.isEmpty()) &#123;<br>    					<span class="hljs-type">String</span> <span class="hljs-variable">vname</span> <span class="hljs-operator">=</span> (String) url111.get(<span class="hljs-number">0</span>);<br>    					<span class="hljs-type">String</span> <span class="hljs-variable">vcname</span> <span class="hljs-operator">=</span> (String) url111.get(<span class="hljs-number">1</span>);<br>    				<br>                    <span class="hljs-keyword">synchronized</span> (panel.getLogTableModel().getLogArray()) &#123;<br>                        <span class="hljs-type">int</span> <span class="hljs-variable">row</span> <span class="hljs-operator">=</span> panel.getLogTableModel().getLogArray().size();<br>                        <span class="hljs-keyword">if</span> (panel.getURLFilterText().isEmpty() &amp;&amp; !panel.isScopeSelected()) &#123;<br>                            addLog(messageInfo, toolFlag,vname ,vcname, row);<br>                        &#125;<br>                        <span class="hljs-comment">// Log filter URL requests</span><br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!panel.isScopeSelected() &amp;&amp; !panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                helpers.analyzeRequest(messageInfo).getUrl().toExternalForm().contains(panel.getURLFilterText())) &#123;<br>                            addLog(messageInfo, toolFlag, vname ,vcname, row);<br>                        &#125;<br>                        <span class="hljs-comment">// Log in-scope requests</span><br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (panel.isScopeSelected() &amp;&amp; panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                callbacks.isInScope(helpers.analyzeRequest(messageInfo).getUrl())) &#123;<br>                            addLog(messageInfo, toolFlag, vname ,vcname, row);<br>                        &#125;<br>                        <span class="hljs-comment">// Log in-scope requests and filter</span><br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (panel.isScopeSelected() &amp;&amp; !panel.getURLFilterText().isEmpty() &amp;&amp;<br>                                callbacks.isInScope(helpers.analyzeRequest(messageInfo).getUrl()) &amp;&amp;<br>                                helpers.analyzeRequest(messageInfo).getUrl().toExternalForm().contains(panel.getURLFilterText())) &#123;<br>                            addLog(messageInfo, toolFlag, vname ,vcname, row);<br>                        	&#125;<br>                    	&#125;<br>    				&#125;<br>    			&#125;<br>    			<br>    		&#125;<br>    	&#125;<br>    	<br>    &#125;<br>    <br>    <br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addLog</span><span class="hljs-params">(IHttpRequestResponse messageInfo, <span class="hljs-type">int</span> toolFlag, String vname,String vcname, <span class="hljs-type">int</span> row)</span> &#123;<br>    	<br>    	<br>        panel.getLogTableModel().getLogArray().add(<span class="hljs-keyword">new</span> <span class="hljs-title class_">Log</span>(LocalDateTime.now(),<br>                                                           callbacks.getToolName(toolFlag),<br>                                                           callbacks.saveBuffersToTempFiles(messageInfo),<br>                                                           helpers.analyzeRequest(messageInfo).getUrl(),<br>                                                           helpers.analyzeResponse(messageInfo.getResponse()).getStatusCode(),<br>                                                           vcname,<br>                                                           vname));<br>        panel.getLogTableModel().fireTableRowsInserted(row, row);<br>    &#125;<br><br>    HashMap&lt;URL, Long&gt; <span class="hljs-title function_">getReqResMap</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> reqResMap;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>0x06 功能效果展示</strong></p>
+<p>因时间问题，我们就先实现以上部分的预定功能，落下的功能和代码优化部分等后期慢慢完善。</p>
+<p>在打包时有1个注意事项，就是因为我们调用了三方的jar库包，如果不是以可执行jar形式的打包的话，在导入插件后，burp会提示找不见json库，所以我们在BurpExtender中写了一个空的main函数。</p>
+<p>其次，我们的规则库json文件，也必须放在 burp 工具的同目录下。</p>
+<p><img src="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/9.png" srcset="/img/loading.gif" lazyload></p>
+<p>dome代码和演示jar文件：</p>
+<p><a href="http://sh1yan.top/photo/Burpseuite-plug-in-writing-intermediate/TestCode.rar">http://sh1yan.top\photo\Burpseuite-plug-in-writing-intermediate\TestCode.rar</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BC%96%E7%A8%8B%E4%BB%A3%E7%A0%81/" class="category-chain-item">编程代码</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/burp/" class="print-no-link">#burp</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>BurpSuite插件编写[中级篇]</div>
+      <div>https://sh1yan.top/2020/05/30/Burpseuite-plug-in-writing-intermediate/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2020年5月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/06/06/Reflection-mechanism-of-Java/" title="Java反射机制探究">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Java反射机制探究</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2020/05/22/Common-codes-of-pandas-in-security-audit/" title="安全审计之Pandas常用代码">
+                        <span class="hidden-mobile">安全审计之Pandas常用代码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

