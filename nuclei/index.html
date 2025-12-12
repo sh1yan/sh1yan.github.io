@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<title>Nuclei 终极命令生成器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="./css2.css?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--card:#161b22;--text:#f0f6fc;--accent:#58a6ff;--border:#30363d;--green:#238636;--yellow:#d29922;--code-bg:#010409;--code-text:#f0f6fc}
+.light{--bg:#fff;--card:#f6f8fa;--text:#24292f;--accent:#0969da;--border:#d0d7de;--green:#1a7f37;--yellow:#9e6a03;--code-bg:#f6f8fa;--code-text:#24292f}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'JetBrains Mono',monospace;background:var(--bg);color:var(--text);line-height:1.6;transition:all .3s}
+.container{max-width:1400px;margin:0 auto;padding:2rem 1rem}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem}
+h1{font-size:2.3rem;font-weight:600}
+.theme-btn{background:var(--card);border:1px solid var(--border);padding:.6rem 1.3rem;border-radius:50px;cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:1.5rem;margin-bottom:2rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.card h2{margin-bottom:1rem;color:var(--accent);border-bottom:1px solid var(--border);padding-bottom:.5rem;font-size:1.2rem}
+.form-group{margin:1rem 0}
+label{display:block;margin-bottom:.5rem;position:relative;cursor:pointer}
+label .flag{font-weight:bold;color:var(--yellow)}
+label .tip{position:absolute;left:0;top:100%;background:var(--card);border:1px solid var(--accent);padding:8px 12px;border-radius:8px;font-size:13px;width:320px;z-index:99;opacity:0;visibility:hidden;transition:all .2s;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+label:hover .tip{opacity:1;visibility:visible;top:110%}
+input[type=text],input[type=number],select,textarea{width:100%;padding:.7rem;background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
+.checkbox{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:14.5px}
+.generate{width:100%;padding:1.2rem;font-size:1.4rem;background:var(--green);color:#fff;border:none;border-radius:12px;cursor:pointer;margin:2rem 0;font-weight:bold}
+.result pre{background:var(--code-bg);color:var(--code-text);padding:1.5rem;border-radius:8px;overflow-x:auto;border:1px solid var(--border);min-height:100px;font-size:15px;white-space:pre-wrap;word-break:break-all}
+.copy-btn{float:right;padding:.6rem 1.2rem;background:var(--accent);border:none;border-radius:8px;color:#fff;cursor:pointer}
+.quick-btns{display:flex;flex-wrap:wrap;gap:1rem;margin:2rem 0;justify-content:center}
+.quick-btns button{padding:.8rem 1.4rem;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer}
+footer{text-align:center;margin-top:3rem;opacity:.7;font-size:.9rem}
+.card.advanced{box-shadow:0 6px 20px rgba(0,0,0,.3);border-radius:16px;padding:1.8rem;transition:transform .2s}
+.card.advanced:hover{transform:translateY(-4px)}
+.card.advanced h2{
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<header>
+  <h1>Nuclei 终极命令生成器<small style="opacity:.6; font-size:20px;">  v3.x 命令参数版</small></h1>
+  <div>
+    <button id="toggle-full-params-btn" class="theme-btn" style="margin-right:1rem;">全参数版</button>
+    <button class="theme-btn" onclick="document.documentElement.classList.toggle('light')">切换主题</button>
+  </div>
+</header>
+
+<div class="grid" id="main-grid">
+
+<!-- 目标 -->
+<div class="card">
+<h2>目标</h2>
+<div class="form-group"><label>单个目标 <span class="flag">(-u / -target)</span><span class="tip">指定扫描的目标URL/主机（多个目标则指定多个-u参数）</span></label><input type="text" id="u" placeholder="https://example.com"></div>
+<div class="form-group"><label>目标列表文件 <span class="flag">(-l / -list)</span><span class="tip">指定包含要扫描的目标URL/主机列表的文件路径（一行一个）</span></label><input type="text" id="l" placeholder="hosts.txt"></div>
+<div class="form-group"><label>恢复扫描 <span class="flag">(-resume)</span><span class="tip">从指定文件恢复扫描并保存到指定文件（将禁用请求聚类）</span></label><input type="text" id="resume" placeholder="resume.cfg"></div>
+<div class="checkbox"><input type="checkbox" id="sa"><label>扫描所有IP <span class="flag">(-sa)</span><span class="tip">扫描由目标解析出来的所有IP（针对域名对应多个IP的情况）</span></label></div>
+</div>
+
+<!-- 模板与工作流 -->
+<div class="card">
+<h2>模板与工作流</h2>
+<div class="form-group"><label>模板/目录 <span class="flag">(-t / -templates)</span><span class="tip">指定要运行的模板或者模板目录（以逗号分隔或目录形式）</span></label><input type="text" id="t" placeholder="cves/,exposures/"></div>
+<div class="form-group"><label>模板ID <span class="flag">(-id)</span><span class="tip">执行指定id的模板（逗号分隔，文件）</span></label><input type="text" id="id" placeholder="CVE-2021-1234"></div>
+<div class="form-group"><label>工作流 <span class="flag">(-w / -workflows)</span><span class="tip">指定要运行的工作流或工作流目录（以逗号分隔或目录形式）</span></label><input type="text" id="w" placeholder="workflows/"></div>
+<div class="form-group"><label>模板URL <span class="flag">(-turl)</span><span class="tip">指定要运行的模板URL或模板目录URL（以逗号分隔或目录形式）</span></label><input type="text" id="turl" placeholder="https://example.com/templates/"></div>
+<div class="checkbox"><input type="checkbox" id="nt"><label>仅最新模板 <span class="flag">(-nt)</span><span class="tip">仅运行最新发布的nuclei模板</span></label></div>
+<div class="checkbox"><input type="checkbox" id="as"><label>自动扫描 <span class="flag">(-as)</span><span class="tip">基于Wappalyzer技术的标签映射自动扫描</span></label></div>
+<div class="checkbox"><input type="checkbox" id="validate"><label>验证模板 <span class="flag">(-validate)</span><span class="tip">使用nuclei验证模板有效性</span></label></div>
+</div>
+
+<!-- 过滤条件 -->
+<div class="card">
+<h2>过滤条件</h2>
+<div class="form-group"><label>作者 <span class="flag">(-a / -author)</span><span class="tip">执行指定作者的模板（逗号分隔，文件）</span></label><input type="text" id="author" placeholder="projectdiscovery"></div>
+<div class="form-group"><label>标签 <span class="flag">(-tags)</span><span class="tip">执行带指定tag的模板（逗号分隔，文件）</span></label><input type="text" id="tags" placeholder="cve,exposure"></div>
+<div class="form-group"><label>排除标签 <span class="flag">(-etags)</span><span class="tip">排除带指定tag的模板（逗号分隔，文件）</span></label><input type="text" id="etags" placeholder="fuzz"></div>
+<div class="form-group"><label>严重度 <span class="flag">(-s / -severity)</span><span class="tip">根据严重程度运行模板，可选值有：info,low,medium,high,critical</span></label><input type="text" id="severity" placeholder="critical,high"></div>
+<div class="form-group"><label>协议类型 <span class="flag">(-pt / -type)</span><span class="tip">根据类型运行模板，可选值有：dns, file, http, headless, network, workflow, ssl, websocket, whois</span></label><input type="text" id="pt" placeholder="http,dns"></div>
+</div>
+
+<!-- 输出与报告 -->
+<div class="card">
+<h2>输出与报告</h2>
+<div class="form-group"><label>输出文件 <span class="flag">(-o)</span><span class="tip">输出发现的问题到文件</span></label><input type="text" id="o" placeholder="results.txt"></div>
+<div class="checkbox"><input type="checkbox" id="j"><label>JSONL输出 <span class="flag">(-j)</span><span class="tip">输出格式为jsonL（ines）</span></label></div>
+<div class="checkbox"><input type="checkbox" id="silent"><label>静默模式 <span class="flag">(-silent)</span><span class="tip">只显示结果</span></label></div>
+<div class="checkbox"><input type="checkbox" id="nc"><label>禁用颜色 <span class="flag">(-nc)</span><span class="tip">禁用输出内容着色（ANSI转义码）</span></label></div>
+<div class="checkbox"><input type="checkbox" id="stats"><label>实时统计 <span class="flag">(-stats)</span><span class="tip">显示正在扫描的统计信息</span></label></div>
+<div class="checkbox"><input type="checkbox" id="timestamp"><label>显示时间戳 <span class="flag">(-ts)</span><span class="tip">在cli输出中打印时间戳</span></label></div>
+</div>
+
+<!-- 性能与限速 -->
+<div class="card">
+<h2>性能与限速</h2>
+<div class="form-group"><label>并发模板数 <span class="flag">(-c)</span> 默认25<span class="tip">并行执行的最大模板数量（默认：25）</span></label><input type="number" id="c" value="25" placeholder="25"></div>
+<div class="form-group"><label>每秒请求数 <span class="flag">(-rl)</span> 默认150<span class="tip">每秒最大请求量（默认：150）</span></label><input type="number" id="rl" value="150" placeholder="150"></div>
+<div class="form-group"><label>批量大小 <span class="flag">(-bs)</span> 默认25<span class="tip">每个模板最大并行检测数（默认：25）</span></label><input type="number" id="bs" value="25" placeholder="25"></div>
+<div class="form-group"><label>超时时间(秒) <span class="flag">(-timeout)</span> 默认10<span class="tip">超时时间（默认为10秒）</span></label><input type="number" id="timeout" value="10" placeholder="10"></div>
+<div class="form-group"><label>重试次数 <span class="flag">(-retries)</span> 默认1<span class="tip">重试次数（默认：1）</span></label><input type="number" id="retries" value="1" placeholder="1"></div>
+</div>
+
+<!-- HTTP 配置 -->
+<div class="card">
+<h2>HTTP 配置</h2>
+<div class="form-group"><label>自定义Header <span class="flag">(-H)</span><span class="tip">指定在所有http请求中包含的自定义header、cookie，以header:value的格式指定（cli，文件）</span></label><input type="text" id="H" placeholder="User-Agent: custom"></div>
+<div class="form-group"><label>代理 <span class="flag">(-proxy)</span><span class="tip">使用http/socks5代理（逗号分隔，文件）</span></label><input type="text" id="proxy" placeholder="http://127.0.0.1:8080"></div>
+<div class="checkbox"><input type="checkbox" id="fr"><label>跟随重定向 <span class="flag">(-fr)</span><span class="tip">为HTTP模板启用重定向</span></label></div>
+<div class="checkbox"><input type="checkbox" id="fh2"><label>强制HTTP/2 <span class="flag">(-fh2)</span><span class="tip">强制使用http2连接</span></label></div>
+</div>
+
+<!-- 原有高级功能 -->
+<div class="card advanced" id="original-advanced">
+<h2>基础高级功能</h2>
+<div class="checkbox"><input type="checkbox" id="headless"><label>无头浏览器 <span class="flag">(-headless)</span><span class="tip">启用需要无界面浏览器的模板</span></label></div>
+<div class="checkbox"><input type="checkbox" id="debug"><label>调试模式 <span class="flag">(-debug)</span><span class="tip">显示所有请求和响应</span></label></div>
+<div class="checkbox"><input type="checkbox" id="v"><label>详细输出 <span class="flag">(-v)</span><span class="tip">显示详细信息</span></label></div>
+<div class="checkbox"><input type="checkbox" id="vv"><label>极度详细 <span class="flag">(-vv)</span><span class="tip">显示额外的详细信息</span></label></div>
+<div class="checkbox"><input type="checkbox" id="ut"><label>更新模板 <span class="flag">(-ut)</span><span class="tip">更新Nuclei模板到最新版</span></label></div>
+<div class="checkbox"><input type="checkbox" id="up"><label>更新Nuclei <span class="flag">(-up)</span><span class="tip">更新Nuclei到最新版本</span></label></div>
+</div>
+
+</div>
+
+<div class="quick-btns">
+<button onclick="preset('common')">常用扫描</button>
+<button onclick="preset('fast')">极速模式</button>
+<button onclick="preset('deep')">深度全量</button>
+<button onclick="preset('cve')">只打CVE</button>
+<button onclick="resetForm()" style="background:#d33;">重置全部</button>
+</div>
+
+<button class="generate" onclick="generate()">生成 Nuclei 命令</button>
+
+<div class="card result">
+<h2>生成的完整命令</h2>
+<pre id="output">请填写参数后点击上方按钮生成命令</pre>
+<button class="copy-btn" onclick="copy()">复制到剪贴板</button>
+</div>
+
+<footer>Made with ❤ by shiyan • 2025 • 完全离线运行</footer>
+</div>
+
+<script>
+let cmd;
+
+function $(id){return document.getElementById(id)}
+
+function add(flag, value){
+    if(value && value.toString().trim() !== '') cmd.push(flag, value.toString().trim());
+}
+function chk(flag, id = flag.replace(/^-/,'')){
+    if($(id) && $(id).checked) cmd.push(flag);
+}
+
+const presets = {
+    common:()=>{ $('u').value='https://example.com'; $('c').value=50; $('rl').value=150; $('stats').checked=true },
+    fast:()=>{ $('u').value='https://example.com'; $('c').value=200; $('rl').value=500; $('bs').value=100; $('v').checked=true },
+    deep:()=>{ $('u').value='https://example.com'; $('t').value='cves/,exposures/,takeover/,misconfiguration/'; $('headless').checked=true; $('stats').checked=true },
+    cve:()=>{ $('u').value='https://example.com'; $('tags').value='cve'; $('severity').value='high,critical'; $('rl').value=300 }
+};
+
+function preset(name){ 
+    document.querySelectorAll('input[type=text],input[type=number],textarea').forEach(i=>i.value='');
+    document.querySelectorAll('input[type=checkbox]').forEach(i=>i.checked=false);
+    presets[name](); 
+    generate();
+}
+
+function generate(){
+    cmd = ['nuclei'];
+
+    // 目标
+    add('-u', $('u').value);
+    add('-l', $('l').value);
+    add('-resume', $('resume').value);
+    chk('-sa');
+
+    // 模板
+    add('-t', $('t').value);
+    add('-id', $('id').value);
+    add('-w', $('w').value);
+    add('-turl', $('turl').value);
+    chk('-nt'); chk('-as'); chk('-validate');
+
+    // 过滤
+    add('-author', $('author').value);
+    add('-tags', $('tags').value);
+    add('-etags', $('etags').value);
+    add('-s', $('severity').value);
+    add('-pt', $('pt').value);
+
+    // 输出
+    add('-o', $('o').value);
+    chk('-j'); chk('-silent'); chk('-nc'); chk('-stats'); chk('-timestamp');
+
+    // 性能
+    const c=$('c').value; if(c && parseInt(c) !== 25) cmd.push('-c', c);
+    const rl=$('rl').value; if(rl && parseInt(rl) !== 150) cmd.push('-rl', rl);
+    const bs=$('bs').value; if(bs && parseInt(bs) !== 25) cmd.push('-bs', bs);
+    const to=$('timeout').value; if(to && parseInt(to) !== 10) cmd.push('-timeout', to);
+    const retries=$('retries').value; if(retries && parseInt(retries) !== 1) cmd.push('-retries', retries);
+
+    // HTTP
+    add('-H', $('H').value);
+    add('-proxy', $('proxy').value);
+    chk('-fr'); chk('-fh2');
+
+    // 基础高级
+    chk('-headless'); chk('-debug'); chk('-v'); chk('-vv'); chk('-ut'); chk('-up');
+
+    // ======== 全参数版额外参数 ========
+    if(window.fullPanelVisible){
+        const val = id => $(id)?.value.trim() || '';
+        const chk2 = (id, flag) => { if($(id)?.checked) cmd.push(flag); };
+        const addNum = (flag, id, def) => { const v = val(id); if(v && parseInt(v) !== def) cmd.push(flag, v); };
+
+        // 输出与报告增强
+        chk2('sresp', '-sresp'); add('-srd', val('srd'));
+        chk2('or', '-or'); add('-me', val('me')); add('-se', val('se'));
+        chk2('nm', '-nm'); chk2('ms', '-ms'); addNum('-si', 'si', 5);
+
+        // 模板过滤与高级选项
+        add('-iv', val('iv'));
+        add('-ntv', val('ntv'));
+        chk2('nss','-nss'); chk2('tl','-tl'); chk2('code','-code');
+        add('-itags', val('itags')); add('-eid', val('eid')); add('-es', val('es')); add('-tc', val('tc'));
+
+        // 配置与HTTP增强
+        add('-config', val('config')); addNum('-mr', 'mr', 10);
+        chk2('dr','-dr'); chk2('fhr','-fhr');
+        val('V').split('\n').map(s=>s.trim()).filter(Boolean).forEach(v=>add('-V',v));
+        chk2('ev','-ev'); add('-cc',val('cc')); add('-ck',val('ck')); add('-ca',val('ca'));
+        add('-sni',val('sni')); chk2('tlsi','-tlsi'); chk2('ldp','-ldp');
+
+        // OOB、限速与优化
+        add('-inserver', val('inserver')); chk2('ni','-ni'); add('-rlm', val('rlm'));
+        addNum('-mhe', 'mhe', 30); chk2('nmhe','-nmhe');
+        chk2('project','-project'); add('-project-path', val('project-path')); chk2('spm','-spm');
+        add('-r', val('r')); chk2('sr','-sr');
+
+        // 策略、无头与网络
+        chk2('dc','-dc'); chk2('passive','-passive'); chk2('nh','-nh'); add('-ss', val('ss'));
+        addNum('-page-timeout', 'page-timeout', 20);
+        chk2('sb','-sb'); chk2('sc','-sc');
+        add('-sip', val('sip')); add('-i', val('i'));
+        chk2('lfa','-lfa'); chk2('lna','-lna'); add('-at', val('at'));
+    }
+
+    const result = cmd.join(' ').trim();
+    $('output').textContent = result || '请至少填写一个目标（如 -u 或 -l）';
+}
+
+function copy(){
+    navigator.clipboard.writeText($('output').textContent).then(()=>{
+        const b = document.querySelector('.copy-btn');
+        const old = b.textContent;
+        b.textContent='复制成功！';
+        setTimeout(()=>b.textContent=old, 1500);
+    });
+}
+
+function resetForm(){
+    document.querySelectorAll('input[type=text],input[type=number],textarea').forEach(i=>i.value='');
+    document.querySelectorAll('input[type=checkbox]').forEach(i=>i.checked=false);
+    $('output').textContent = '请填写参数后点击上方按钮生成命令';
+}
+
+// ======== 全参数版模块动态插入 ========
+(function initFullParams() {
+  const btn = document.getElementById('toggle-full-params-btn');
+  const grid = document.getElementById('main-grid');
+  window.fullPanelVisible = false;
+
+  const fullModulesHTML = `
+    <!-- 输出与报告增强 -->
+    <div class="card advanced extra-full-params">
+      <h2>输出与报告增强</h2>
+      <div class="checkbox"><input type="checkbox" id="sresp"><label>保存所有请求/响应 <span class="flag">(-sresp)</span><span class="tip">将完整请求响应保存到目录</span></label></div>
+      <div class="form-group"><label>响应存储目录 <span class="flag">(-srd)</span></label><input type="text" id="srd" placeholder="nuclei_responses"></div>
+      <div class="checkbox"><input type="checkbox" id="or"><label>省略req/resp对 <span class="flag">(-or)</span><span class="tip">减小输出文件体积</span></label></div>
+      <div class="form-group"><label>Markdown报告目录 <span class="flag">(-me)</span></label><input type="text" id="me" placeholder="report_md"></div>
+      <div class="form-group"><label>SARIF报告文件 <span class="flag">(-se)</span></label><input type="text" id="se" placeholder="results.sarif"></div>
+      <div class="checkbox"><input type="checkbox" id="nm"><label>不显示元数据 <span class="flag">(-nm)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="ms"><label>显示匹配失败状态 <span class="flag">(-ms)</span></label></div>
+      <div class="form-group"><label>统计刷新间隔(秒) <span class="flag">(-si)</span></label><input type="number" id="si" value="5"></div>
+    </div>
+
+    <!-- 模板过滤与高级选项 -->
+    <div class="card advanced extra-full-params">
+      <h2>模板过滤与高级选项</h2>
+      <div class="form-group"><label>IP协议版本 <span class="flag">(-iv)</span></label>
+        <select id="iv"><option value="">自动</option><option value="4">仅IPv4</option><option value="6">仅IPv6</option></select></div>
+      <div class="form-group"><label>仅运行版本后新增模板 <span class="flag">(-ntv)</span></label><input type="text" id="ntv" placeholder="v3.2.0"></div>
+      <div class="checkbox"><input type="checkbox" id="nss"><label>关闭严格语法 <span class="flag">(-nss)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="tl"><label>列出本地模板 <span class="flag">(-tl)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="code"><label>允许Go代码模板 <span class="flag">(-code)</span></label></div>
+      <div class="form-group"><label>强制包含tag <span class="flag">(-itags)</span></label><input type="text" id="itags" placeholder="cve,exposure"></div>
+      <div class="form-group"><label>排除模板ID <span class="flag">(-eid)</span></label><input type="text" id="eid" placeholder="CVE-2021-1234"></div>
+      <div class="form-group"><label>排除严重级别 <span class="flag">(-es)</span></label><input type="text" id="es" placeholder="info,low"></div>
+      <div class="form-group"><label>模板条件表达式 <span class="flag">(-tc)</span></label><input type="text" id="tc" placeholder='severity == "critical"'></div>
+    </div>
+
+    <!-- 配置与HTTP增强 -->
+    <div class="card advanced extra-full-params">
+      <h2>配置与HTTP增强</h2>
+      <div class="form-group"><label>配置文件 <span class="flag">(-config)</span></label><input type="text" id="config" placeholder="~/.nuclei/config.yaml"></div>
+      <div class="form-group"><label>最大跳转次数 <span class="flag">(-mr)</span></label><input type="number" id="mr" value="10"></div>
+      <div class="checkbox"><input type="checkbox" id="dr"><label>禁用跳转 <span class="flag">(-dr)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="fhr"><label>只跟随同主机跳转 <span class="flag">(-fhr)</span></label></div>
+      <div class="form-group"><label>自定义变量(-V)<span class="tip">多行key=value</span></label><textarea id="V" rows="3" placeholder="token=abc123\nuser=admin"></textarea></div>
+      <div class="checkbox"><input type="checkbox" id="ev"><label>启用环境变量 <span class="flag">(-ev)</span></label></div>
+      <div class="form-group"><label>客户端证书 <span class="flag">(-cc)</span></label><input type="text" id="cc" placeholder="client.crt"></div>
+      <div class="form-group"><label>客户端密钥 <span class="flag">(-ck)</span></label><input type="text" id="ck" placeholder="client.key"></div>
+      <div class="form-group"><label>客户端CA <span class="flag">(-ca)</span></label><input type="text" id="ca" placeholder="ca.crt"></div>
+      <div class="form-group"><label>自定义SNI <span class="flag">(-sni)</span></label><input type="text" id="sni" placeholder="vhost.target.com"></div>
+      <div class="checkbox"><input type="checkbox" id="tlsi"><label>JA3指纹随机化 <span class="flag">(-tlsi)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="ldp"><label>保留默认端口 <span class="flag">(-ldp)</span></label></div>
+    </div>
+
+    <!-- OOB、限速与优化 -->
+    <div class="card advanced extra-full-params">
+      <h2>OOB、限速与优化</h2>
+      <div class="form-group"><label>Interactsh服务器 <span class="flag">(-inserver)</span></label><input type="text" id="inserver" placeholder="https://oast.me"></div>
+      <div class="checkbox"><input type="checkbox" id="ni"><label>禁用OOB模板 <span class="flag">(-ni)</span></label></div>
+      <div class="form-group"><label>每分钟请求上限 <span class="flag">(-rlm)</span></label><input type="number" id="rlm" placeholder="600"></div>
+      <div class="form-group"><label>主机最大错误次数 <span class="flag">(-mhe)</span></label><input type="number" id="mhe" value="30"></div>
+      <div class="checkbox"><input type="checkbox" id="nmhe"><label>禁用错误跳过 <span class="flag">(-nmhe)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="project"><label>启用项目去重 <span class="flag">(-project)</span></label></div>
+      <div class="form-group"><label>项目文件夹 <span class="flag">(-project-path)</span></label><input type="text" id="project-path" placeholder="./myproject"></div>
+      <div class="checkbox"><input type="checkbox" id="spm"><label>命中即停 <span class="flag">(-spm)</span></label></div>
+      <div class="form-group"><label>DNS解析文件 <span class="flag">(-r)</span></label><input type="text" id="r" placeholder="resolvers.txt"></div>
+      <div class="checkbox"><input type="checkbox" id="sr"><label>系统DNS降级 <span class="flag">(-sr)</span></label></div>
+    </div>
+
+    <!-- 策略、无头与网络 -->
+    <div class="card advanced extra-full-params">
+      <h2>策略、无头与网络</h2>
+      <div class="checkbox"><input type="checkbox" id="dc"><label>关闭请求聚类 <span class="flag">(-dc)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="passive"><label>被动模式 <span class="flag">(-passive)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="nh"><label>禁用httpx探测 <span class="flag">(-nh)</span></label></div>
+      <div class="form-group"><label>扫描策略 <span class="flag">(-ss)</span></label>
+        <select id="ss"><option value="">auto</option><option value="host-spray">host-spray</option><option value="template-spray">template-spray</option></select></div>
+      <div class="form-group"><label>无头页面超时 <span class="flag">(-page-timeout)</span></label><input type="number" id="page-timeout" value="20"></div>
+      <div class="checkbox"><input type="checkbox" id="sb"><label>显示浏览器 <span class="flag">(-sb)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="sc"><label>使用系统Chrome <span class="flag">(-sc)</span></label></div>
+      <div class="form-group"><label>源IP <span class="flag">(-sip)</span></label><input type="text" id="sip" placeholder="10.0.0.100"></div>
+      <div class="form-group"><label>网卡 <span class="flag">(-i)</span></label><input type="text" id="i" placeholder="eth0"></div>
+      <div class="checkbox"><input type="checkbox" id="lfa"><label>允许本地文件 <span class="flag">(-lfa)</span></label></div>
+      <div class="checkbox"><input type="checkbox" id="lna"><label>禁止内网访问 <span class="flag">(-lna)</span></label></div>
+      <div class="form-group"><label>Payload攻击类型 <span class="flag">(-at)</span></label>
+        <select id="at"><option value="">默认</option><option value="batteringram">batteringram</option><option value="pitchfork">pitchfork</option><option value="clusterbomb">clusterbomb</option></select></div>
+    </div>
+  `;
+
+  window.toggleFullParams = function () {
+    if (window.fullPanelVisible) {
+      // 收起：删除所有额外模块
+      document.querySelectorAll('.extra-full-params').forEach(el => el.remove());
+      window.fullPanelVisible = false;
+      btn.textContent = '全参数版';
+    } else {
+      // 展开：将所有模块插入到 grid 末尾
+      grid.insertAdjacentHTML('beforeend', fullModulesHTML);
+      window.fullPanelVisible = true;
+      btn.textContent = '收起参数';
+    }
+    generate();
+  };
+
+  btn.onclick = toggleFullParams;
+})();
+</script>
+
+</body>
+</html>
